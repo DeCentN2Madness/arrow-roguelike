@@ -23,8 +23,8 @@ data Direction
   | Down
   | Left
   | Right
+  | H
   | X
-  | Q
 
 data SurfaceMap a = SurfaceMap
   { help :: a
@@ -32,8 +32,8 @@ data SurfaceMap a = SurfaceMap
     , down :: a
     , left :: a
     , right :: a
+    , h :: a
     , x :: a
-    , q :: a
   } deriving (Foldable, Traversable, Functor)
 
 surfacePaths :: SurfaceMap FilePath
@@ -43,8 +43,8 @@ surfacePaths = SurfaceMap
     , down = "./assets/down.bmp"
     , left = "./assets/left.bmp"
     , right = "./assets/right.bmp"
+    , h = "./assets/hero.bmp"
     , x = "./assets/x.bmp"
-    , q = "./assets/hello_world.bmp"
   }
 
 {-
@@ -88,8 +88,8 @@ getKey (SDL.KeyboardEventData _ SDL.Pressed False keysym) =
     SDL.KeycodeDown   -> SelectSurface Down
     SDL.KeycodeLeft   -> SelectSurface Left
     SDL.KeycodeRight  -> SelectSurface Right
+    SDL.KeycodeH      -> SelectSurface H
     SDL.KeycodeX      -> SelectSurface X
-    SDL.KeycodeQ      -> SelectSurface Q
     _                 -> SelectSurface Help
 
 runIntent :: (Monad m) => SurfaceMap a -> (a -> m ()) -> Intent -> m Bool
@@ -103,5 +103,5 @@ selectSurface Up    = up
 selectSurface Down  = down
 selectSurface Left  = left
 selectSurface Right = right
+selectSurface H     = h
 selectSurface X     = x
-selectSurface Q     = q

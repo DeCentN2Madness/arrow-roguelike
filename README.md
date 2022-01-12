@@ -1,4 +1,4 @@
-# game
+# Arrow
 
 SDL2 demo w/ Haskell
 

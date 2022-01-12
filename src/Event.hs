@@ -48,5 +48,5 @@ selectSurface Up    = up
 selectSurface Down  = down
 selectSurface Left  = left
 selectSurface Right = right
-selectSurface H     = h
-selectSurface X     = x
+selectSurface H     = _h
+selectSurface X     = _x

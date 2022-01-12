@@ -17,6 +17,7 @@ source-repository head
 library
   hs-source-dirs:   src
   exposed-modules:  ArrowData
+                    , ArrowDataUtil
                     , Event
                     , Util
   build-depends:    base
@@ -28,6 +29,7 @@ library
 executable Main
   main-is:        Main.hs
   other-modules:  ArrowData
+                  , ArrowDataUtil
                   , Event
                   , Util
   hs-source-dirs: app

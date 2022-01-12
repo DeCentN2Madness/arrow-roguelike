@@ -2,7 +2,7 @@ name:          arrow
 version:       0.1.0.0
 license:       MIT
 synopsis:      Haskell
-description:   This package handles SDL2
+description:   SDL2 for the Hero '@'
 license-file:  LICENSE.md
 author:        Joel E Carlson
 maintainer:    "Joel E Carlson" <joel.elmer.carlson@gmail.com>
@@ -16,7 +16,9 @@ source-repository head
 
 library
   hs-source-dirs:   src
-  exposed-modules:  Util
+  exposed-modules:  ArrowData
+                    , Event
+                    , Util
   build-depends:    base
                     , sdl2
                     , sdl2-image
@@ -25,13 +27,15 @@ library
 
 executable Main
   main-is:        Main.hs
-  other-modules: Util
+  other-modules:  ArrowData
+                  , Event
+                  , Util
   hs-source-dirs: app
                   , src
-  build-depends: base
-                , extra
-                , sdl2
-                , sdl2-image
-                , text
-  ghc-options:  -threaded -rtsopts -with-rtsopts=-N -Wall
-  Default-Language: Haskell2010
+  build-depends:  base
+                  , extra
+                  , sdl2
+                  , sdl2-image
+                  , text
+  ghc-options:    -threaded -rtsopts -with-rtsopts=-N -Wall
+  default-Language: Haskell2010

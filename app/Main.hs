@@ -1,107 +1,30 @@
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE DeriveFoldable #-}
-{-# LANGUAGE DeriveTraversable #-}
+{-
+Main.hs
 
+Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
+-}
 module Main where
 
-import Prelude hiding (Left, Right)
 import Control.Monad.Extra (whileM)
 import qualified SDL
+import qualified ArrowData as A
+import qualified Event as E
 import qualified Util as U
 
 screenWidth, screenHeight :: Int
 (screenWidth, screenHeight) = (640, 480)
 
-data Intent
-  = SelectSurface Direction
-  | Idle
-  | Quit
-
-data Direction
-  = Help
-  | Up
-  | Down
-  | Left
-  | Right
-  | H
-  | X
-
-data SurfaceMap a = SurfaceMap
-  { help :: a
-    , up :: a
-    , down :: a
-    , left :: a
-    , right :: a
-    , h :: a
-    , x :: a
-  } deriving (Foldable, Traversable, Functor)
-
-surfacePaths :: SurfaceMap FilePath
-surfacePaths = SurfaceMap
-  { help = "./assets/press.bmp"
-    , up = "./assets/up.bmp"
-    , down = "./assets/down.bmp"
-    , left = "./assets/left.bmp"
-    , right = "./assets/right.bmp"
-    , h = "./assets/hero.bmp"
-    , x = "./assets/x.bmp"
-  }
-
-{-
-    image <- SDL.loadBMP "x.bmp"
-    let doRender = U.renderSurfaceToWindow w screen image
-    whileM $
-      U.isContinue <$> SDL.pollEvent >>= U.conditionallyRun doRender
--}
 main :: IO ()
 main = U.withSDL $ U.withWindow "Arrow" (screenWidth, screenHeight) $
   \w -> do
     screen <- SDL.getWindowSurface w
-    surfaces <- mapM SDL.loadBMP surfacePaths
+    surfaces <- mapM SDL.loadBMP A.surfacePaths
     let doRender = U.renderSurfaceToWindow w screen
-    doRender (help surfaces)
+    doRender (A.help surfaces)
     whileM $
-      mkIntent <$> SDL.pollEvent
-      >>= runIntent surfaces doRender
+      E.mkIntent <$> SDL.pollEvent
+      >>= E.runIntent surfaces doRender
     mapM_ SDL.freeSurface surfaces
     SDL.freeSurface screen
-
-{- Keyboard Handling -}
-mkIntent :: Maybe SDL.Event -> Intent
-mkIntent = maybe Idle (payloadToIntent . extractPayload)
-
-extractPayload :: SDL.Event -> SDL.EventPayload
-extractPayload (SDL.Event _t p) = p
-
-payloadToIntent :: SDL.EventPayload -> Intent
-payloadDoIntent SDL.QuitEvent         = Quit
-payloadToIntent (SDL.KeyboardEvent k) = getKey k
-payloadToIntent _                     = Idle
-
-getKey :: SDL.KeyboardEventData -> Intent
-getKey (SDL.KeyboardEventData _ SDL.Released _ _) = Idle
-getKey (SDL.KeyboardEventData _ SDL.Pressed True _) = Idle
-getKey (SDL.KeyboardEventData _ SDL.Pressed False keysym) =
-  case SDL.keysymKeycode keysym of
-    SDL.KeycodeEscape -> Quit
-    SDL.KeycodeUp     -> SelectSurface Up
-    SDL.KeycodeDown   -> SelectSurface Down
-    SDL.KeycodeLeft   -> SelectSurface Left
-    SDL.KeycodeRight  -> SelectSurface Right
-    SDL.KeycodeH      -> SelectSurface H
-    SDL.KeycodeX      -> SelectSurface X
-    _                 -> SelectSurface Help
-
-runIntent :: (Monad m) => SurfaceMap a -> (a -> m ()) -> Intent -> m Bool
-runIntent _ _ Quit = pure False
-runIntent _ _ Idle = pure True
-runIntent cs f (SelectSurface key) = True <$ f (selectSurface key cs)
-
-selectSurface :: Direction -> SurfaceMap a -> a
-selectSurface Help  = help
-selectSurface Up    = up
-selectSurface Down  = down
-selectSurface Left  = left
-selectSurface Right = right
-selectSurface H     = h
-selectSurface X     = x
+    SDL.quit

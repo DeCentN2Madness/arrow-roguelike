@@ -34,6 +34,8 @@ getKey (SDL.KeyboardEventData _ SDL.Pressed False keysym) =
     SDL.KeycodeE      -> Action E
     SDL.KeycodeQ      -> Action Q
     SDL.KeycodeR      -> Action R
+    SDL.KeycodeS      -> Action S
+    SDL.KeycodeW      -> Action W
     _                 -> Action Help
 
 mkIntent :: Maybe SDL.Event -> Intent

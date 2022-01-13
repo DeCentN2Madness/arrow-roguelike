@@ -25,52 +25,54 @@ main = do
   U.withSDL $ U.withSDLImage $ do
     U.withWindow "Arrow" (width, height) $ \w ->
       U.withRenderer w $ \r -> do
-      tx <- U.loadTextureWithInfo r "./assets/Hero.png"
-      mainLoop world w r tx
-      SDL.destroyTexture (fst tx)
+      ts <- loadTextures r assetPaths
+      mainLoop world w r ts
+      mapM_ (SDL.destroyTexture . fst) ts
 
 mainLoop :: IORef World
   -> SDL.Window
   -> SDL.Renderer
-  -> (SDL.Texture, SDL.TextureInfo)
+  -> TextureMap
   -> IO ()
-mainLoop world w r tx = do
+mainLoop world w r ts = do
   e <- E.mkIntent <$> SDL.pollEvent
   modifyIORef world (applyIntent e)
   q <- readIORef world
-  print $ q
+  -- print $ q
   _ <- U.isContinue <$> SDL.pollEvent
-    >>= U.conditionallyRun (renderWorld r tx q)
-  unless (exiting q) $ mainLoop world w r tx
+    >>= U.conditionallyRun (draw r ts q)
+  unless (exiting q) $ mainLoop world w r ts
 
-renderWorld :: (MonadIO m)
-  => SDL.Renderer
-  -> (SDL.Texture, SDL.TextureInfo)
-  -> World
-  ->  m ()
-renderWorld r (t, ti) a = do
+draw :: SDL.Renderer -> TextureMap -> World -> IO ()
+draw r ts w = do
   SDL.rendererDrawColor r $= SDL.V4 maxBound maxBound maxBound maxBound
   SDL.clear r
-  SDL.copyEx r t (Just mask) (Just pos) deg Nothing flips
+  renderTexture r (background ts) (0, 0 :: Double)
+  renderTexture r (hero ts) (x, y :: Double)
+  renderTexture r (wall ts) (0, 48 :: Double)
+  renderTexture r (wall ts) (0, 96 :: Double)
+  renderTexture r (stairDown ts) (96, 96 :: Double)
+  renderTexture r (stairUp ts) (320, 96 :: Double)
   SDL.present r
   where
-    tw :: Double
-    th :: Double
-    tw = fromIntegral $ SDL.textureWidth ti
-    th = fromIntegral $ SDL.textureHeight ti
-    s :: SDL.Rectangle Double
-    s = U.mkRect 0 0 640 680
-    w = U.mkRect 0 0 tw th
-    mask = floor <$> s
-    pos = floor <$> centerWithin w s
-    deg = fromIntegral $ degrees a
-    flips = uncurry SDL.V2 (flipped a)
+    x = fromIntegral $ fst (wHero w)
+    y = fromIntegral $ snd (wHero w)
 
-centerWithin :: (Fractional a)
-  => SDL.Rectangle a
-  -> SDL.Rectangle a
-  -> SDL.Rectangle a
-centerWithin (SDL.Rectangle _ iz) (SDL.Rectangle (SDL.P op) oz)
-  = SDL.Rectangle p iz
+loadTextures :: (MonadIO m)
+  => SDL.Renderer
+  -> PathMap
+  -> m TextureMap
+loadTextures r = mapM (U.loadTextureWithInfo r)
+
+renderTexture :: (Num a, RealFrac a)
+  => SDL.Renderer
+  -> (SDL.Texture, SDL.TextureInfo)
+  -> (a, a)
+  -> IO ()
+renderTexture r (t, ti) (x, y)
+  = SDL.copy r t Nothing (Just $ U.mkRect x' y' a b)
   where
-    p = SDL.P $ op * (oz - iz) / 2
+    x' = floor x
+    y' = floor y
+    a = SDL.textureWidth ti
+    b = SDL.textureWidth ti

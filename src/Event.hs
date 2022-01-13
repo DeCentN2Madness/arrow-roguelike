@@ -11,7 +11,6 @@ import Prelude hiding (Left, Right)
 import qualified SDL
 import ArrowData
 
-
 actionIntent :: SDL.EventPayload -> Intent
 actionIntent SDL.QuitEvent         = Quit
 actionIntent (SDL.KeyboardEvent k) = getKey k
@@ -30,21 +29,12 @@ getKey (SDL.KeyboardEventData _ SDL.Pressed False keysym) =
     SDL.KeycodeDown   -> Action Down
     SDL.KeycodeLeft   -> Action Left
     SDL.KeycodeRight  -> Action Right
-    SDL.KeycodeH      -> Action H
-    SDL.KeycodeX      -> Action X
-    SDL.KeycodeW      -> Action W
+    SDL.KeycodeA      -> Action A
+    SDL.KeycodeD      -> Action D
+    SDL.KeycodeE      -> Action E
+    SDL.KeycodeQ      -> Action Q
+    SDL.KeycodeR      -> Action R
     _                 -> Action Help
 
 mkIntent :: Maybe SDL.Event -> Intent
 mkIntent = maybe Idle (actionIntent . extractPayload)
-
-runIntent :: (Monad m) => ActionMap a -> (a -> m ()) -> Intent -> m Bool
-runIntent  _ _ Quit = pure False
-runIntent  _ _ Idle = pure True
-runIntent cs f (Action key) = True <$ f (selectSurface key cs)
-
-selectSurface :: Direction -> ActionMap a -> a
-selectSurface Help  = help
-selectSurface H     = _h
-selectSurface X     = _x
-selectSurface _     = _h

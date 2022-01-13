@@ -1,6 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE DeriveFoldable #-}
-{-# LANGUAGE DeriveTraversable #-}
 {-
 
 ArrowData.hs
@@ -19,13 +16,15 @@ data World = World
   , screenHeight :: Int
   , wHeroX :: Int
   , wHeroY :: Int
+  , degrees :: Int
+  , flipped :: (Bool, Bool)
+  , exiting :: Bool
   } deriving (Read, Show)
 
 data Intent
   = Action Direction
   | Idle
   | Quit
-  deriving (Show)
 
 data Direction
   = Help
@@ -33,21 +32,13 @@ data Direction
   | Down
   | Left
   | Right
-  | H
-  | X
-  | W
+  | A
+  | D
+  | E
+  | Q
+  | R
   deriving (Eq, Show)
 
-data ActionMap a = ActionMap
-  { help :: a
-  , _h :: a
-  , _x :: a
-  }
-  deriving (Foldable, Traversable, Functor)
+data FlipDirection = Horizontal | Vertical
 
-actionPaths :: ActionMap FilePath
-actionPaths = ActionMap
-  { help = "./assets/press.bmp"
-  , _h = "./assets/hero.bmp"
-  , _x = "./assets/x.bmp"
-  }
+data RotateDirection = Clock | Counter

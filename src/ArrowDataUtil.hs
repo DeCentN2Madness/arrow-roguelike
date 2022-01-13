@@ -1,3 +1,4 @@
+{-# LANGUAGE NamedFieldPuns #-}
 {-
 
 ArrowDataUtil.hs
@@ -10,7 +11,7 @@ import Prelude hiding (Left, Right)
 import ArrowData
 
 
--- operator to add 2 coordinates together
+-- | operator to add 2 coordinates together
 (|+|) :: Coord -> Coord -> Coord
 (|+|) (x1, y1) (x2, y2) = (x1 + x2, y1 + y2)
 
@@ -23,12 +24,34 @@ dirToCoord d
   | d == Right = (1, 0)
   | otherwise = (0, 0)
 
+-- | mkWorld build the World
+mkWorld :: Coord -> Coord -> Int -> World
+mkWorld (x, y) (width, height) sz = World
+  { wHero = (x, y)
+  , screenWidth = width
+  , screenHeight = height
+  , wHeroX = sz
+  , wHeroY = sz
+  }
+
 -- | handleDir @w@ world will change with @input@
 handleDir :: World -> Direction -> World
-handleDir w@(World hero) input = (w { wHero = newCoord})
+handleDir w input = (w {wHero = newCoord})
   where
     newCoord = (newX, newY)
-    (heroX, heroY) = hero |+| dirToCoord input
-    hConst i = max 0 (min i 80)
+    (heroX, heroY) = (wHero w)|+| dirToCoord input
+    hConst i = max 0 (min i 640)
     newX = hConst heroX
     newY = hConst heroY
+
+-- | handleEvent
+handleEvent :: Intent -> World -> World
+handleEvent intent w = n
+  where
+    delta = case intent of
+      Action Up -> handleDir w Up
+      Action Down -> handleDir w Down
+      Action Left -> handleDir w Left
+      Action Right -> handleDir w Right
+      _ -> w
+    n = delta

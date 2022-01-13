@@ -12,14 +12,20 @@ module ArrowData where
 import Prelude hiding (Left, Right)
 
 type Coord = (Int, Int)
+
 data World = World
   { wHero :: Coord
-  } deriving (Show)
+  , screenWidth :: Int
+  , screenHeight :: Int
+  , wHeroX :: Int
+  , wHeroY :: Int
+  } deriving (Read, Show)
 
 data Intent
-  = SelectSurface Direction
+  = Action Direction
   | Idle
   | Quit
+  deriving (Show)
 
 data Direction
   = Help
@@ -29,25 +35,19 @@ data Direction
   | Right
   | H
   | X
-  deriving (Eq)
+  | W
+  deriving (Eq, Show)
 
-data SurfaceMap a = SurfaceMap
+data ActionMap a = ActionMap
   { help :: a
-    , up :: a
-    , down :: a
-    , left :: a
-    , right :: a
-    , _h :: a
-    , _x :: a
-  } deriving (Foldable, Traversable, Functor)
+  , _h :: a
+  , _x :: a
+  }
+  deriving (Foldable, Traversable, Functor)
 
-surfacePaths :: SurfaceMap FilePath
-surfacePaths = SurfaceMap
+actionPaths :: ActionMap FilePath
+actionPaths = ActionMap
   { help = "./assets/press.bmp"
-    , up = "./assets/up.bmp"
-    , down = "./assets/down.bmp"
-    , left = "./assets/left.bmp"
-    , right = "./assets/right.bmp"
-    , _h = "./assets/hero.bmp"
-    , _x = "./assets/x.bmp"
+  , _h = "./assets/hero.bmp"
+  , _x = "./assets/x.bmp"
   }

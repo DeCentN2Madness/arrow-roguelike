@@ -77,6 +77,12 @@ mkDungeon xMax yMax = Dungeon xMax yMax $
       then Wall
       else Open)
 
+-- | mkGrid (x,y) Coord for the world
+-- 14x12
+mkGrid :: Int -> Int -> [Coord]
+mkGrid xMax yMax = [(y, x)| x <- [0..maxXY-1], y <- [0..maxXY-1]]
+  where maxXY = if xMax > yMax then xMax else yMax
+
 -- | mkWorld build the World
 mkWorld :: Coord -> Coord -> Int -> Int -> World
 mkWorld (x, y) (width, height) xMax yMax = World
@@ -85,11 +91,12 @@ mkWorld (x, y) (width, height) xMax yMax = World
   , gridY = yMax
   , screenWidth = width
   , screenHeight = height
-  , xScale = 39.0 :: Double
-  , yScale = 39.0 :: Double
+  , xScale = 30.0 :: Double
+  , yScale = 35.0 :: Double
   , degrees = 0
   , exiting = False
   , dungeon = mkDungeon xMax yMax
+  , grid = mkGrid xMax yMax
   }
 
 -- | reset

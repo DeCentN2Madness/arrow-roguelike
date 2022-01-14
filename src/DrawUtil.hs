@@ -40,50 +40,38 @@ assetPaths = AssetMap
 
 data Colour = White | Red | Blue | Green | Yellow
 
+-- | draw main drawing loop
 draw :: SDL.Renderer -> TextureMap -> World -> IO ()
 draw r ts w = do
   setColor r White
   SDL.clear r
-  renderTexture r (background ts) (0, 0 :: Double)
-  renderTexture r (hero ts) (x, y :: Double)
+  drawE [(0,0)]     r (background ts) w
+  drawE [(wHero w)] r (hero ts) w
+  drawE [(5,6)]     r (stairDown ts) w
   drawWalls r ts w
-  -- renderTexture r (wall ts) (0, 48 :: Double)
-  -- renderTexture r (stairDown ts) (96, 96 :: Double)
-  -- renderTexture r (stairUp ts) (320, 96 :: Double)
   SDL.present r
-  where
-    x = (xScale w) * (fromIntegral $ fst (wHero w))
-    y = (yScale w) * (fromIntegral $ snd (wHero w))
 
+-- | drawE draws entity based on Coord on grid
+drawE :: [(Int, Int)]
+  -> SDL.Renderer
+  -> (SDL.Texture, SDL.TextureInfo)
+  -> World
+  -> IO ()
+drawE [] _ _ _ = return ()
+drawE (x:xs) r t w = do
+  renderTexture r t (x', y' :: Double)
+  drawE xs r t w
+  where
+    x' = (xScale w) * (fromIntegral $ fst x)
+    y' = (yScale w) * (fromIntegral $ snd x)
+
+-- | drawWalls draws all the walls
 drawWalls :: SDL.Renderer -> TextureMap -> World -> IO ()
 drawWalls r ts w = do
-  let d = dungeon w
-      (px, py) = wHero w
-      terrainList = V.toList $ dungeonTiles d
-      width = dungeonWidth d
-      enumeratedTerrain = zip [0..] terrainList
-      updateList = map (\(i, t) -> let (y, x) = i `divMod` width
-                       in if px == x && py == y
-                         then False
-                         else case t of
-                           Open -> False
-                           Wall -> True
-                           _ -> False) enumeratedTerrain
-      coordList = coordTool updateList width (0, 0)
-  print $ updateList
-  print $ coordList
-
-  renderTexture r (wall ts) (0, 48 :: Double)
-
-coordTool :: [Bool] -> Int -> (Int, Int) -> [(Int, Int)]
-coordTool [] _ _  = []
-coordTool (x:xs) w (i, j) = (x', y') : coordTool xs w  grid
-  where
-    (x', y') = if x == True then grid else (i, j)
-    grid = if i < w then (i + 1, j) else (0, j + 1)
-
-
-
+  let terrainList = V.toList $ dungeonTiles $ dungeon w
+      coordList = filter ((== Wall).fst ) $ zip terrainList (grid w)
+      drawList = [v | (_, v) <- coordList]
+  drawE drawList r (wall ts) w
 
 loadTextures :: (MonadIO m)
   => SDL.Renderer

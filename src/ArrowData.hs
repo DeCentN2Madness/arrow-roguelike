@@ -43,7 +43,7 @@ data Terrain
   | Wall
   | StairsDown
   | StarsUp
-  deriving (Read, Show)
+  deriving (Read, Show, Eq)
 
 data World = World
   { wHero :: Coord
@@ -56,4 +56,5 @@ data World = World
   , degrees :: Int
   , exiting :: Bool
   , dungeon :: Dungeon
+  , grid :: [Coord]
   } deriving (Read, Show)

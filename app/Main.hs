@@ -20,7 +20,7 @@ width, height :: Int
 
 main :: IO ()
 main = do
-  world <- newIORef $ mkWorld (0, 0) (width, height)
+  world <- newIORef $ mkWorld (5, 5) (width, height) 16 12
   U.withSDL $ U.withSDLImage $ do
     U.withWindow "Arrow" (width, height) $ \w ->
       U.withRenderer w $ \r -> do

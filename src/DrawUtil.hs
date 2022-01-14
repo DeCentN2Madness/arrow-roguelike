@@ -5,6 +5,11 @@
 
 DrawUtil.hs
 
+This module keeps the drawing routines for SDL.Renderer.
+
+
+Note: (MonadIO m) => SDL.Renderer from Util.withRenderer
+
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 -}
 module DrawUtil where
@@ -37,7 +42,6 @@ data Colour = White | Red | Blue | Green | Yellow
 draw :: SDL.Renderer -> TextureMap -> World -> IO ()
 draw r ts w = do
   setColor r White
-  --SDL.rendererDrawColor r $= SDL.V4 maxBound maxBound maxBound maxBound
   SDL.clear r
   renderTexture r (background ts) (0, 0 :: Double)
   renderTexture r (hero ts) (x, y :: Double)
@@ -72,10 +76,10 @@ renderTexture r (t, ti) (x, y)
     b = SDL.textureWidth ti
 
 setColor :: (MonadIO m) => SDL.Renderer -> Colour -> m ()
-setColor r White  = SDL.rendererDrawColor r $= SDL.V4 maxBound maxBound maxBound maxBound
-setColor r Red    = SDL.rendererDrawColor r $= SDL.V4 maxBound 0 0 maxBound
-setColor r Green  = SDL.rendererDrawColor r $= SDL.V4 0 maxBound 0 maxBound
 setColor r Blue   = SDL.rendererDrawColor r $= SDL.V4 0 0 maxBound maxBound
+setColor r Green  = SDL.rendererDrawColor r $= SDL.V4 0 maxBound 0 maxBound
+setColor r Red    = SDL.rendererDrawColor r $= SDL.V4 maxBound 0 0 maxBound
+setColor r White  = SDL.rendererDrawColor r $= SDL.V4 maxBound maxBound maxBound maxBound
 setColor r Yellow = SDL.rendererDrawColor r $= SDL.V4 maxBound maxBound 0 maxBound
 
 type TextureMap = AssetMap (SDL.Texture, SDL.TextureInfo)

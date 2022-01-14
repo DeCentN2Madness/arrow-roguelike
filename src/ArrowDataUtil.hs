@@ -57,11 +57,10 @@ getTerrainAt (x, y) d = let
 -- horiz, vert check the entire grid
 -- getTerrainAt checks the dungeon
 handleDir :: Direction -> World -> World
---handleDir input w = (w {wHero = newCoord})
 handleDir input w = newWorld
   where
     newCoord = (newX, newY)
-    (heroX, heroY) = (wHero w)|+| dirToCoord input
+    (heroX, heroY) = (wHero w) |+| dirToCoord input
     horiz i = max 0 (min i (gridX w))
     vert j = max 0 (min j (gridY w))
     newX = horiz heroX

@@ -17,7 +17,8 @@ module DrawUtil where
 import Control.Monad.IO.Class (MonadIO)
 import qualified SDL
 import SDL (($=))
-import ArrowData (World(..))
+import qualified Data.Vector as V
+import ArrowData (World(..), Dungeon(..), Terrain(..))
 import qualified Util as U
 
 data AssetMap a = AssetMap
@@ -45,14 +46,44 @@ draw r ts w = do
   SDL.clear r
   renderTexture r (background ts) (0, 0 :: Double)
   renderTexture r (hero ts) (x, y :: Double)
-  renderTexture r (wall ts) (0, 48 :: Double)
-  renderTexture r (wall ts) (0, 96 :: Double)
-  renderTexture r (stairDown ts) (96, 96 :: Double)
-  renderTexture r (stairUp ts) (320, 96 :: Double)
+  drawWalls r ts w
+  -- renderTexture r (wall ts) (0, 48 :: Double)
+  -- renderTexture r (stairDown ts) (96, 96 :: Double)
+  -- renderTexture r (stairUp ts) (320, 96 :: Double)
   SDL.present r
   where
     x = (xScale w) * (fromIntegral $ fst (wHero w))
     y = (yScale w) * (fromIntegral $ snd (wHero w))
+
+drawWalls :: SDL.Renderer -> TextureMap -> World -> IO ()
+drawWalls r ts w = do
+  let d = dungeon w
+      (px, py) = wHero w
+      terrainList = V.toList $ dungeonTiles d
+      width = dungeonWidth d
+      enumeratedTerrain = zip [0..] terrainList
+      updateList = map (\(i, t) -> let (y, x) = i `divMod` width
+                       in if px == x && py == y
+                         then False
+                         else case t of
+                           Open -> False
+                           Wall -> True
+                           _ -> False) enumeratedTerrain
+      coordList = coordTool updateList width (0, 0)
+  print $ updateList
+  print $ coordList
+
+  renderTexture r (wall ts) (0, 48 :: Double)
+
+coordTool :: [Bool] -> Int -> (Int, Int) -> [(Int, Int)]
+coordTool [] _ _  = []
+coordTool (x:xs) w (i, j) = (x', y') : coordTool xs w  grid
+  where
+    (x', y') = if x == True then grid else (i, j)
+    grid = if i < w then (i + 1, j) else (0, j + 1)
+
+
+
 
 loadTextures :: (MonadIO m)
   => SDL.Renderer

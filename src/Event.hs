@@ -7,9 +7,8 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 -}
 module Event where
 
-import Prelude hiding (Left, Right)
 import qualified SDL
-import ArrowData
+import ArrowData (Direction(..), Intent(..))
 
 actionIntent :: SDL.EventPayload -> Intent
 actionIntent SDL.QuitEvent         = Quit
@@ -25,10 +24,10 @@ getKey (SDL.KeyboardEventData _ SDL.Pressed True _) = Idle
 getKey (SDL.KeyboardEventData _ SDL.Pressed False keysym) =
   case SDL.keysymKeycode keysym of
     SDL.KeycodeEscape -> Quit
-    SDL.KeycodeUp     -> Action Up
-    SDL.KeycodeDown   -> Action Down
-    SDL.KeycodeLeft   -> Action Left
-    SDL.KeycodeRight  -> Action Right
+    SDL.KeycodeUp     -> Action North
+    SDL.KeycodeDown   -> Action South
+    SDL.KeycodeLeft   -> Action East
+    SDL.KeycodeRight  -> Action West
     SDL.KeycodeA      -> Action A
     SDL.KeycodeD      -> Action D
     SDL.KeycodeE      -> Action E

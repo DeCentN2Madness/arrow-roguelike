@@ -4,7 +4,7 @@ Main.hs
 
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 -}
-module Main where
+module Main (main) where
 
 import Data.IORef
 import Control.Monad.Extra (unless)
@@ -20,7 +20,7 @@ width, height :: Int
 
 main :: IO ()
 main = do
-  world <- newIORef $ mkWorld (5, 5) (width, height) 20 13
+  world <- newIORef $ mkWorld (5, 5) (width, height) 25 15
   U.withSDL $ U.withSDLImage $ do
     U.withWindow "Arrow" (width, height) $ \w ->
       U.withRenderer w $ \r -> do
@@ -31,14 +31,18 @@ main = do
   print $ show q
   SDL.quit
 
+-- | mainLoop
 mainLoop :: IORef World
   -> SDL.Renderer
   -> TextureMap
   -> IO ()
 mainLoop world render ts = do
-  e <- mkIntent <$> SDL.pollEvent
+  -- event handling
+  let s = SDL.pollEvent
+  e <- mkIntent <$> s
+  -- update World
   modifyIORef world (applyIntent e)
   q <- readIORef world
-  _ <- U.isContinue <$> SDL.pollEvent
-    >>= U.conditionallyRun (draw render ts q)
+  -- draw
+  draw render ts q
   unless (exiting q) $ mainLoop world render ts

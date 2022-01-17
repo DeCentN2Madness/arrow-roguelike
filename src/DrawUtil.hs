@@ -45,11 +45,22 @@ draw :: SDL.Renderer -> TextureMap -> World -> IO ()
 draw r ts w = do
   setColor r White
   SDL.clear r
+  -- | hero
   drawE [(0,0)]     r (background ts) w
   drawE [(wHero w)] r (hero ts) w
   drawE [(5,6)]     r (stairDown ts) w
   drawWalls r ts w
+  -- | camera
+  setColor r Green
+  SDL.drawRect r (Just inner)
+  -- | screen
   SDL.present r
+  where
+    inner = U.mkRect x y width height
+    x = floor (fst $ cameraXY w)
+    y = floor (snd $ cameraXY w)
+    width = floor (fst $ screenXY w)
+    height = floor (snd $ screenXY w)
 
 -- | drawE draws entity based on Coord on grid
 drawE :: [(Int, Int)]
@@ -62,8 +73,8 @@ drawE (x:xs) r t w = do
   renderTexture r t (x', y' :: Double)
   drawE xs r t w
   where
-    x' = (xScale w) * (fromIntegral $ fst x)
-    y' = (yScale w) * (fromIntegral $ snd x)
+    x' = (fst $ scaleXY w) * (fromIntegral $ fst x)
+    y' = (snd $ scaleXY w) * (fromIntegral $ snd x)
 
 -- | drawWalls draws all the walls
 drawWalls :: SDL.Renderer -> TextureMap -> World -> IO ()

@@ -47,12 +47,11 @@ data Terrain
 
 data World = World
   { wHero :: Coord
-  , gridX :: Int
-  , gridY :: Int
-  , screenWidth :: Int
-  , screenHeight :: Int
-  , xScale :: Double
-  , yScale :: Double
+  , gridXY :: Coord
+  , screenXY :: (Double, Double)
+  , levelXY :: (Double, Double)
+  , cameraXY :: (Double, Double)
+  , scaleXY :: (Double, Double)
   , degrees :: Int
   , exiting :: Bool
   , dungeon :: Dungeon

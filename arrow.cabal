@@ -19,12 +19,12 @@ library
   exposed-modules:  ArrowData
                     , ArrowDataUtil
                     , Camera
-                    , DiceSet
                     , DrawUtil
                     , Dungeon
                     , Event
                     , Util
   build-depends:    base
+                    , containers
                     , MonadRandom
                     , primitive
                     , sdl2
@@ -38,7 +38,6 @@ executable Main
   other-modules:  ArrowData
                   , ArrowDataUtil
                   , Camera
-                  , DiceSet
                   , DrawUtil
                   , Dungeon
                   , Event
@@ -47,6 +46,7 @@ executable Main
                   , src
   build-depends:  base
                   , extra
+                  , containers
                   , MonadRandom
                   , primitive
                   , sdl2

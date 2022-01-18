@@ -10,8 +10,8 @@ import Data.IORef
 import Control.Monad.Extra (unless)
 import qualified SDL
 import ArrowData (World(..))
-import ArrowDataUtil (mkWorld, applyIntent)
-import Event (mkIntent)
+import qualified ArrowDataUtil as ADU
+import qualified Event
 import DrawUtil (assetPaths, draw, loadTextures, TextureMap)
 import qualified Util as U
 
@@ -20,7 +20,7 @@ width, height :: Int
 
 main :: IO ()
 main = do
-  world <- newIORef $ mkWorld (5, 5) (width, height) 20 15
+  world <- newIORef $ ADU.mkWorld (5, 5) (width, height) 20 15
   U.withSDL $ U.withSDLImage $ do
     U.withWindow "Arrow" (width, height) $ \w ->
       U.withRenderer w $ \r -> do
@@ -42,8 +42,8 @@ mainLoop :: IORef World
   -> IO ()
 mainLoop world render ts = do
   let s = SDL.pollEvent
-  e <- mkIntent <$> s
-  modifyIORef world (applyIntent e)
+  e <- Event.mkIntent <$> s
+  modifyIORef world (ADU.applyIntent e)
   q <- readIORef world
   draw render ts q
   unless (exiting q) $ mainLoop world render ts

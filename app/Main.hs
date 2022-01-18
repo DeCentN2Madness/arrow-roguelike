@@ -20,7 +20,7 @@ width, height :: Int
 
 main :: IO ()
 main = do
-  world <- newIORef $ mkWorld (5, 5) (width, height) 25 15
+  world <- newIORef $ mkWorld (5, 5) (width, height) 10 10
   U.withSDL $ U.withSDLImage $ do
     U.withWindow "Arrow" (width, height) $ \w ->
       U.withRenderer w $ \r -> do
@@ -32,17 +32,18 @@ main = do
   SDL.quit
 
 -- | mainLoop
+-- unless quit
+--   1. event handling
+--   2. world update
+--   3. render world
 mainLoop :: IORef World
   -> SDL.Renderer
   -> TextureMap
   -> IO ()
 mainLoop world render ts = do
-  -- event handling
   let s = SDL.pollEvent
   e <- mkIntent <$> s
-  -- update World
   modifyIORef world (applyIntent e)
   q <- readIORef world
-  -- draw
   draw render ts q
   unless (exiting q) $ mainLoop world render ts

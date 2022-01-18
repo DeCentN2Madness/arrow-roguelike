@@ -20,6 +20,7 @@ library
                     , ArrowDataUtil
                     , Camera
                     , DrawUtil
+                    , Dungeon
                     , Event
                     , Util
   build-depends:    base
@@ -35,6 +36,7 @@ executable Main
                   , ArrowDataUtil
                   , Camera
                   , DrawUtil
+                  , Dungeon
                   , Event
                   , Util
   hs-source-dirs: app

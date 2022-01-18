@@ -18,24 +18,33 @@ import Control.Monad.IO.Class (MonadIO)
 import qualified SDL
 import SDL (($=))
 import qualified Data.Vector as V
-import ArrowData (World(..), Dungeon(..), Terrain(..))
+import ArrowData (World(..))
+import Dungeon (Dungeon(..), Terrain(..))
 import qualified Util as U
 
 data AssetMap a = AssetMap
   { background :: a
+  , coin :: a
   , hero :: a
-  , wall :: a
+  , light :: a
+  , open :: a
+  , rubble :: a
   , stairDown :: a
   , stairUp :: a
+  , wall :: a
   } deriving (Functor, Foldable, Traversable)
 
 assetPaths :: PathMap
 assetPaths = AssetMap
   { background = "./assets/Background.png"
+  , coin = "./assets/Coin.png"
   , hero = "./assets/Hero.png"
-  , wall = "./assets/Wall.png"
+  , light = "./assets/Light.png"
+  , open = "./assets/Open.png"
+  , rubble = "./assets/Rubble.png"
   , stairDown = "./assets/StairDown.png"
   , stairUp = "./assets/StairUp.png"
+  , wall = "./assets/Wall.png"
   }
 
 data Colour = White | Red | Blue | Green | Yellow
@@ -47,11 +56,9 @@ draw r ts w = do
   SDL.clear r
   -- Background
   renderTexture r (background ts) (0.0, 0.0 :: Double)
-  -- Place stair
-  drawE [(5,5)] r (stairDown ts) w
-  -- Walls
-  drawWalls r ts w
-  -- Camera
+  -- DrawMap
+  drawMap r ts w
+  -- HUD
   setColor r Green
   SDL.drawRect r (Just inner)
   -- Hero
@@ -59,7 +66,9 @@ draw r ts w = do
   -- Screen
   SDL.present r
   where
-    inner = U.mkRect 0 0 width height
+    inner = U.mkRect hudX hudY width height
+    hudX = 0
+    hudY = height - 40
     width = floor (fst $ screenXY w)
     height = floor (snd $ screenXY w)
     midX = ((fst $ screenXY w) - (fst $ scaleXY w)) / 2.0
@@ -82,13 +91,21 @@ drawE (x:xs) r t w = do
     newX = xPos - (fst $ cameraXY w)
     newY = yPos- (snd $ cameraXY w)
 
--- | drawWalls draws all the walls
-drawWalls :: SDL.Renderer -> TextureMap -> World -> IO ()
-drawWalls r ts w = do
+-- | drawMap
+-- apply filters to the Dungeon for display
+drawMap :: SDL.Renderer -> TextureMap -> World -> IO ()
+drawMap r ts w = do
   let terrainList = V.toList $ dungeonTiles $ dungeon w
-      coordList = filter ((== Wall).fst ) $ zip terrainList (grid w)
-      drawList = [v | (_, v) <- coordList]
-  drawE drawList r (wall ts) w
+      wallList = filter ((== Wall).fst ) $ zip terrainList (grid w)
+      openList = filter ((== Open).fst ) $ zip terrainList (grid w)
+      rubbleList = filter ((== Rubble).fst ) $ zip terrainList (grid w)
+      x = filter (/= p) $ [v | (_, v) <- wallList]
+      y = filter (/= p) $ [v | (_, v) <- openList]
+      z = filter (/= p) $ [v | (_, v) <- rubbleList]
+      p = (wHero w)
+  drawE x r (wall ts) w
+  drawE y r (open ts) w
+  drawE z r (rubble ts) w
 
 loadTextures :: (MonadIO m)
   => SDL.Renderer

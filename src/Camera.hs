@@ -29,6 +29,6 @@ updateCamera w = w { cameraXY = newCamera }
     camX = fromIntegral heroX * (fst $ scaleXY w)
     camY = fromIntegral heroY * (snd $ scaleXY w)
     horiz i = max 0 (min i (fst $ levelXY w))
-    vert  j = max 40 (min j (snd $ levelXY w))
+    vert  j = max 0 (min j (snd $ levelXY w))
     newX = horiz camX
     newY = vert camY

@@ -68,7 +68,7 @@ draw r ts w = do
   where
     inner = U.mkRect hudX hudY width height
     hudX = 0
-    hudY = height - 40
+    hudY = height - 20
     width = floor (fst $ screenXY w)
     height = floor (snd $ screenXY w)
     midX = ((fst $ screenXY w) - (fst $ scaleXY w)) / 2.0

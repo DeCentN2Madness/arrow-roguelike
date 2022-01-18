@@ -17,7 +17,7 @@ import Control.Monad
 import Control.Monad.Primitive (PrimMonad, PrimState)
 import Control.Monad.Random.Class (MonadRandom, uniformMay)
 import Control.Monad.Random (getRandomR, RandomGen, runRandT)
-import Control.Monad.ST
+import Control.Monad.ST (runST)
 import Data.Set (Set)
 import qualified Data.Set as S
 import Data.Vector (Vector)

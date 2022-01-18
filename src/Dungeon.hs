@@ -66,6 +66,7 @@ getTerrainAt (x, y) d = let
     then Wall
     else V.unsafeIndex (dungeonTiles d) index
 
+-- | mkRoom
 mkRoom :: (Int,Int) -> (Int,Int) -> Room
 mkRoom (x1,y1) (x2,y2) = let
   xlow = min x1 x2
@@ -74,36 +75,44 @@ mkRoom (x1,y1) (x2,y2) = let
   yhigh = max y1 y2
   in Room xlow ylow xhigh yhigh
 
+-- | overlapX
 overlapX :: Room -> Room -> Set Int
 overlapX (Room r1xl _ r1xh _) (Room r2xl _ r2xh _) =
   S.intersection
     (S.fromAscList [r1xl..r1xh])
     (S.fromAscList [r2xl..r2xh])
 
+-- | overlapY
 overlapY :: Room -> Room -> Set Int
-overlapY (Room r1yl _ r1yh _) (Room r2yl _ r2yh _) =
+overlapY (Room _ r1yl _ r1yh) (Room _ r2yl _ r2yh) =
   S.intersection
     (S.fromAscList [r1yl..r1yh])
     (S.fromAscList [r2yl..r2yh])
 
+-- | pickHallways
+-- Horizontal
+-- Vertical
 pickHallways :: MonadRandom m
   => Room
   -> Room
   -> Orientation
   -> m [Hall]
-pickHallways r1@(Room r1xl r1yl r1xh r1yh) r2@(Room r2xl r2yl r2xh r2yh ) Vertical = do
-  mayX <- uniformMay (overlapX r1 r2)
-  case mayX of
-    Just x -> pure [mkRoom (x,min r1yl r2yl) (x,max r1yh r2yh)]
-    Nothing -> do
-      pure []
-pickHallways r1@(Room r1xl r1yl r1xh r1yh) r2@(Room r2xl r2yl r2xh r2yh ) Horizontal = do
+pickHallways r1@(Room r1xl _ r1xh _) r2@(Room r2xl _ r2xh _)
+  Horizontal = do
   mayY <- uniformMay (overlapY r1 r2)
   case mayY of
     Just y -> pure [mkRoom (min r1xl r2xl,y) (max r1xh r2xh,y)]
     Nothing -> do
       pure []
+pickHallways r1@(Room _ r1yl _ r1yh) r2@(Room _ r2yl _ r2yh)
+  Vertical = do
+  mayX <- uniformMay (overlapX r1 r2)
+  case mayX of
+    Just x -> pure [mkRoom (x,min r1yl r2yl) (x,max r1yh r2yh)]
+    Nothing -> do
+      pure []
 
+-- | randRoom
 randRoom :: (MonadRandom m) => Int -> Int -> Int -> Int -> m Room
 randRoom xlow xhigh ylow yhigh = do
   x1 <- getRandomR (xlow,xhigh)
@@ -113,6 +122,13 @@ randRoom xlow xhigh ylow yhigh = do
   pure $ mkRoom (x1,y1) (x2,y2)
 
 -- | rogueDungeon build the Dungeon
+--
+-- 1. Divide map into 9 sections
+-- 2. Create Room in each section
+-- 3. draw the Rooms
+-- 4. Create Hallways
+-- 5. Connect Rooms to Hallways
+-- 6. Explore the Dungeon
 rogueDungeon :: RandomGen g => Int -> Int -> g -> (Dungeon, g)
 rogueDungeon width height g = let
   tileCount = width*height
@@ -132,35 +148,35 @@ rogueDungeon width height g = let
             , randRoom (secWidth+1) (2*secWidth-1) (2*secHeight+1) (height-2)
             , randRoom (2*secWidth+1) (width-2) (2*secHeight+1) (height-2)
             ]
-    -- draw the sectors
+    -- draw the rooms
     forM_ rooms $ \r -> setBox width vec r Open
-    -- connections
-  {-
+    -- pick the halls
     forM_ [1..12] $ \borderIndex -> do
-      let (sec1Targ, sec2Targ, isVert) = case borderIndex of
-            1 -> (1,2,False)
-            2 -> (2,3,False)
-            3 -> (4,5,False)
-            4 -> (5,6,False)
-            5 -> (7,8,False)
-            6 -> (8,9,False)
-            7 -> (1,4,True)
-            8 -> (4,7,True)
-            9 -> (2,5,True)
-            10 -> (5,8,True)
-            11 -> (3,6,True)
-            12 -> (6,9,True)
-       sec1 = sectors !! (sec1Targ-1)
-       sec2 = sectors !! (sec2Targ-1)
-    -- line up rooms with hall
-    halls <- pickHallways sec1 sec2 isVert
-    forM_ halls $ \(x1,y1,x2,y2) -> setBox width vec (x1,y1) (x2,y2) Open
--}
-    -- TODO connect the sectors
+      let (sec1targ, sec2targ, isVert) = case borderIndex of
+            1 -> (1,2,Horizontal)
+            2 -> (2,3,Horizontal)
+            3 -> (4,5,Horizontal)
+            4 -> (5,6,Horizontal)
+            5 -> (7,8,Horizontal)
+            6 -> (8,9,Horizontal)
+            7 -> (1,4,Vertical)
+            8 -> (4,7,Vertical)
+            9 -> (2,5,Vertical)
+            10 -> (5,8,Vertical)
+            11 -> (3,6,Vertical)
+            12 -> (6,9,Vertical)
+            _  -> (0,0,Vertical)
+          sec1 = rooms !! (sec1targ-1)
+          sec2 = rooms !! (sec2targ-1)
+    -- line up rooms with halls
+      halls <- pickHallways sec1 sec2 isVert
+      forM_ halls $ \h -> setBox width vec h Open
+    -- connect the sectors
     V.unsafeFreeze vec
   in (Dungeon width height tileVector, gFinal)
 
 -- | setBox
+-- Modify the vector w/ Room and Terrain
 setBox :: PrimMonad m
   => Int
   -> VM.MVector (PrimState m) a

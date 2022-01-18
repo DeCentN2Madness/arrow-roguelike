@@ -3,9 +3,10 @@
 SDL2 demo w/ Haskell
 
 ## Features
-![hero.bmp](images/hero.bmp)
+<center><img src="images/hero.bmp"></a></center>
 
-1. the Hero `@`
+1. rogueDungeon with `MonadRandom`
+1. Camera follows `@`
 1. SDL2
 1. Fun
 

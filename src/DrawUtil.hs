@@ -34,6 +34,10 @@ data AssetMap a = AssetMap
   , wall :: a
   } deriving (Functor, Foldable, Traversable)
 
+data Colour = White | Red | Blue | Green | Yellow
+
+type TextureMap = AssetMap (SDL.Texture, SDL.TextureInfo)
+
 assetPaths :: PathMap
 assetPaths = AssetMap
   { background = "./assets/Background.png"
@@ -46,8 +50,6 @@ assetPaths = AssetMap
   , stairUp = "./assets/StairUp.png"
   , wall = "./assets/Wall.png"
   }
-
-data Colour = White | Red | Blue | Green | Yellow
 
 -- | draw main drawing loop
 draw :: SDL.Renderer -> TextureMap -> World -> IO ()
@@ -68,7 +70,7 @@ draw r ts w = do
   where
     inner = U.mkRect hudX hudY width height
     hudX = 0
-    hudY = height - 20
+    hudY = height - 25
     width = floor (fst $ screenXY w)
     height = floor (snd $ screenXY w)
     midX = ((fst $ screenXY w) - (fst $ scaleXY w)) / 2.0
@@ -89,7 +91,7 @@ drawE (x:xs) r t w = do
     xPos = (fst $ scaleXY w) * (fromIntegral $ fst x)
     yPos = (snd $ scaleXY w) * (fromIntegral $ snd x)
     newX = xPos - (fst $ cameraXY w)
-    newY = yPos- (snd $ cameraXY w)
+    newY = yPos - (snd $ cameraXY w)
 
 -- | drawMap
 -- apply filters to the Dungeon for display
@@ -99,13 +101,13 @@ drawMap r ts w = do
       wallList = filter ((== Wall).fst ) $ zip terrainList (grid w)
       openList = filter ((== Open).fst ) $ zip terrainList (grid w)
       rubbleList = filter ((== Rubble).fst ) $ zip terrainList (grid w)
-      x = filter (/= p) $ [v | (_, v) <- wallList]
-      y = filter (/= p) $ [v | (_, v) <- openList]
-      z = filter (/= p) $ [v | (_, v) <- rubbleList]
-      p = (wHero w)
-  drawE x r (wall ts) w
-  drawE y r (open ts) w
-  drawE z r (rubble ts) w
+      wallT = filter (/= pos) $ [v | (_, v) <- wallList]
+      openT = filter (/= pos) $ [v | (_, v) <- openList]
+      rubbleT = filter (/= pos) $ [v | (_, v) <- rubbleList]
+      pos = (wHero w)
+  drawE wallT   r (wall ts) w
+  drawE openT   r (open ts) w
+  drawE rubbleT r (rubble ts) w
 
 loadTextures :: (MonadIO m)
   => SDL.Renderer
@@ -134,5 +136,3 @@ setColor r Green  = SDL.rendererDrawColor r $= SDL.V4 0 maxBound 0 maxBound
 setColor r Red    = SDL.rendererDrawColor r $= SDL.V4 maxBound 0 0 maxBound
 setColor r White  = SDL.rendererDrawColor r $= SDL.V4 maxBound maxBound maxBound maxBound
 setColor r Yellow = SDL.rendererDrawColor r $= SDL.V4 maxBound maxBound 0 maxBound
-
-type TextureMap = AssetMap (SDL.Texture, SDL.TextureInfo)

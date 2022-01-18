@@ -26,29 +26,6 @@ data Direction
   | W
   deriving (Eq)
 
--- | mkGrid (x,y) Coord for the world
-mkGrid :: Int -> Int -> [Coord]
-mkGrid maxX maxY = [(y, x)| x <- [0..maxXY-1], y <- [0..maxXY-1]]
-  where
-    maxXY = if maxX > maxY then maxX else maxY
-
--- | mkWorld build the World
-mkWorld :: StdGen -> Coord -> Coord -> Int -> Int -> World
-mkWorld gen (x, y) (width, height) xMax yMax = let
-  (d, g) = rogueDungeon xMax yMax gen
-  in World { gameGen = gen
-           , wHero = (x, y)
-           , cameraXY = (0, 0)
-           , degrees = 0
-           , gridXY = (xMax, yMax)
-           , grid = mkGrid xMax yMax
-           , levelXY = (2.0 * fromIntegral width, 2.0 * fromIntegral height)
-           , screenXY = (fromIntegral width, fromIntegral height)
-           , scaleXY = (25.0, 25.0)
-           , dungeon = d
-           , exiting = False
-           }
-
 data Intent
   = Action Direction
   | Idle
@@ -69,3 +46,29 @@ data World = World
   , dungeon :: Dungeon
   , exiting :: Bool
   } deriving (Show)
+
+-- | mkGrid (x,y) uniform Coord for the World
+mkGrid :: Int -> Int -> [Coord]
+mkGrid maxX maxY = [(y, x)| x <- [0..maxXY-1], y <- [0..maxXY-1]]
+  where
+    maxXY = if maxX > maxY then maxX else maxY
+
+-- | mkWorld build the World
+mkWorld :: StdGen -> Coord -> Coord -> Int -> Int -> World
+mkWorld gen (x, y) (width, height) xMax yMax = let
+  (d, g) = rogueDungeon xMax yMax gen
+  in World { gameGen = g
+           , wHero = (x, y)
+           , cameraXY = (0, 0)
+           , degrees = 0
+           , gridXY = (xMax, yMax)
+           , grid = mkGrid xMax yMax
+           , levelXY = (sx * fromIntegral xMax, sy * fromIntegral yMax)
+           , screenXY = (fromIntegral width, fromIntegral height)
+           , scaleXY = (sx, sy)
+           , dungeon = d
+           , exiting = False
+           }
+  where
+    sx = 25.0 -- scaleXY based on tile size
+    sy = 25.0

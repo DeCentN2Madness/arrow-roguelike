@@ -9,7 +9,7 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 module ArrowDataUtil(applyIntent) where
 
 import ArrowData
-import Dungeon (getTerrainAt, Terrain(..))
+import Dungeon (getTerrainAt, rogueDungeon, Terrain(..))
 import Camera (updateCamera)
 
 -- | applyIntent
@@ -62,8 +62,11 @@ handleDir input w = updateCamera newWorld
       _ -> w { wHero = newCoord }
 
 -- | reset
+-- reset the world and redraw the dungeon
 reset :: World -> World
-reset w = w { degrees = 0 }
+reset w = let
+  (d, g) = rogueDungeon (fst $ gridXY w) (snd $ gridXY w) (gameGen w)
+  in w { gameGen = g, dungeon = d, degrees = 0 }
 
 -- | rotate
 rotate :: RotateDirection -> World -> World

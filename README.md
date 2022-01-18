@@ -3,7 +3,7 @@
 SDL2 demo w/ Haskell
 
 ## Features
-![hero.bmp](images/hero.bmp")
+![hero.bmp](images/hero.bmp)
 
 1. rogueDungeon with `MonadRandom`
 1. Camera follows `@`

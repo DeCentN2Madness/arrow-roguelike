@@ -7,11 +7,12 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 module Main (main) where
 
 import Data.IORef
+import Control.Monad.Random (getStdGen)
 import Control.Monad.Extra (unless)
 import qualified SDL
-import ArrowData (World(..))
-import qualified ArrowDataUtil as ADU
-import qualified Event
+import ArrowData (mkWorld, World(..))
+import ArrowDataUtil (applyIntent)
+import Event (mkIntent)
 import DrawUtil (assetPaths, draw, loadTextures, TextureMap)
 import qualified Util as U
 
@@ -20,7 +21,8 @@ width, height :: Int
 
 main :: IO ()
 main = do
-  world <- newIORef $ ADU.mkWorld (5, 5) (width, height) 20 15
+  gen <- getStdGen
+  world <- newIORef $ mkWorld gen (5, 5) (width, height) 20 20
   U.withSDL $ U.withSDLImage $ do
     U.withWindow "Arrow" (width, height) $ \w ->
       U.withRenderer w $ \r -> do
@@ -42,8 +44,8 @@ mainLoop :: IORef World
   -> IO ()
 mainLoop world render ts = do
   let s = SDL.pollEvent
-  e <- Event.mkIntent <$> s
-  modifyIORef world (ADU.applyIntent e)
+  e <- mkIntent <$> s
+  modifyIORef world (applyIntent e)
   q <- readIORef world
   draw render ts q
   unless (exiting q) $ mainLoop world render ts

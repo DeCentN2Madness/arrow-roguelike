@@ -6,12 +6,11 @@ applyIntent to the World
 
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 -}
-module ArrowDataUtil(applyIntent, mkWorld) where
+module ArrowDataUtil(applyIntent) where
 
 import ArrowData
-import Dungeon (Terrain(..))
-import qualified Dungeon as DUN
-import qualified Camera as CAM
+import Dungeon (getTerrainAt, Terrain(..))
+import Camera (updateCamera)
 
 -- | applyIntent
 applyIntent :: Intent -> World -> World
@@ -49,7 +48,7 @@ dirToCoord d
 -- horiz, vert check the entire grid
 -- getTerrainAt checks the dungeon
 handleDir :: Direction -> World -> World
-handleDir input w = CAM.updateCamera newWorld
+handleDir input w = updateCamera newWorld
   where
     newCoord = (newX, newY)
     (heroX, heroY) = (wHero w) |+| dirToCoord input
@@ -57,31 +56,10 @@ handleDir input w = CAM.updateCamera newWorld
     vert j = max 0 (min j (snd $ gridXY w))
     newX = horiz heroX
     newY = vert heroY
-    newWorld = case DUN.getTerrainAt (newX, newY) (dungeon w) of
+    newWorld = case getTerrainAt (newX, newY) (dungeon w) of
       Wall -> w
       Rubble -> w
-      _ -> w { wHero = newCoord}
-
--- | mkGrid (x,y) Coord for the world
-mkGrid :: Int -> Int -> [Coord]
-mkGrid maxX maxY = [(y, x)| x <- [0..maxXY-1], y <- [0..maxXY-1]]
-  where
-    maxXY = if maxX > maxY then maxX else maxY
-
--- | mkWorld build the World
-mkWorld :: Coord -> Coord -> Int -> Int -> World
-mkWorld (x, y) (width, height) xMax yMax = World
-  { wHero = (x, y)
-  , cameraXY = (0, 0)
-  , degrees = 0
-  , gridXY = (xMax, yMax)
-  , grid = mkGrid xMax yMax
-  , levelXY = (2.0 * fromIntegral width, 2.0 * fromIntegral height)
-  , screenXY = (fromIntegral width, fromIntegral height)
-  , scaleXY = (25.0, 25.0)
-  , dungeon = DUN.mkDungeon xMax yMax
-  , exiting = False
-  }
+      _ -> w { wHero = newCoord }
 
 -- | reset
 reset :: World -> World

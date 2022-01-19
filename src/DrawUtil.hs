@@ -61,13 +61,15 @@ draw r ts w = do
   renderTexture r (background ts) (0.0, 0.0 :: Double)
   -- DrawMap
   drawMap r ts w
-  -- HUD
-  setColor r Green
-  SDL.drawRect r (Just hud)
   -- the Hero appears...
   if starting w
     then return ()
-    else renderTexture r (hero ts) (midX, midY)
+    else do
+      -- @
+      renderTexture r (hero ts) (midX, midY)
+      -- HUD
+      setColor r Green
+      SDL.drawRect r (Just hud)
   -- Screen
   SDL.present r
   where

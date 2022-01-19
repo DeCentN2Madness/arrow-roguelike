@@ -34,8 +34,7 @@ type Hall = Room
 
 data Orientation = Vertical | Horizontal deriving (Show)
 
-data Room = Room !Int !Int !Int !Int
-  deriving (Show)
+data Room = Room !Int !Int !Int !Int deriving (Show)
 
 data Terrain
   = Open
@@ -127,11 +126,15 @@ randRoom xlow xhigh ylow yhigh = do
 
 -- | rogueDungeon build the Dungeon
 --
--- 1. Divide map into 9 sections
--- 2. Create Room in each section
--- 3. draw the Rooms
--- 4. Create Hallways
--- 5. Connect Rooms to Hallways
+-- 0. Fill w/ Wall
+-- 1. Add 10% Rubble
+-- 2. Divide map into 9 sections
+--    1 - 2 - 3
+--    4 - 5 - 6
+--    7 - 8 - 9
+-- 3. Create Room in each section
+-- 4. Create Hallway between each section
+-- 5. Connect Rooms and Hallways w/ Open
 -- 6. Explore the Dungeon
 rogueDungeon :: RandomGen g => Int -> Int -> g -> (Dungeon, g)
 rogueDungeon width height g = let
@@ -174,7 +177,6 @@ rogueDungeon width height g = let
             10 -> (5,8,Vertical)
             11 -> (3,6,Vertical)
             12 -> (6,9,Vertical)
-            _  -> (1,2,Horizontal)
           sec1 = rooms !! (sec1targ-1)
           sec2 = rooms !! (sec2targ-1)
     -- line up rooms with halls

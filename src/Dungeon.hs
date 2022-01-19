@@ -30,12 +30,12 @@ data Dungeon = Dungeon
   , dungeonTiles :: Vector Terrain
   } deriving (Read, Show)
 
+type Hall = Room
+
 data Orientation = Vertical | Horizontal deriving (Show)
 
 data Room = Room !Int !Int !Int !Int
   deriving (Show)
-
-type Hall = Room
 
 data Terrain
   = Open
@@ -46,7 +46,11 @@ data Terrain
   deriving (Read, Show, Eq)
 
 -- | boxDungeon builds the dungeon
--- Basic box
+-- Output:
+-- ######
+-- #,,,,#
+-- #,,,,#
+-- ######
 boxDungeon :: Int -> Int -> Dungeon
 boxDungeon xMax yMax = Dungeon xMax yMax tiles
   where
@@ -134,8 +138,13 @@ rogueDungeon width height g = let
   tileCount = width*height
   secWidth = width `div` 3
   secHeight = height `div` 3
+  debrisCount = tileCount `div` 100
   (tileVector, gFinal) = runST $ flip runRandT g $ do
     vec <- VM.replicate tileCount Wall
+    -- add Debris
+    forM_ [1..debrisCount] $ \_ -> do
+      debris <- randRoom 1 (width-2) 1 (height-2)
+      setPoint width vec debris Rubble
     -- pick the rooms
     rooms <- sequence [
             randRoom   1 (secWidth-1) 1 (secHeight-1)
@@ -151,7 +160,7 @@ rogueDungeon width height g = let
     -- draw the rooms
     forM_ rooms $ \r -> setBox width vec r Open
     -- pick the halls
-    forM_ [1..12] $ \borderIndex -> do
+    forM_ [1 :: Int .. 12] $ \borderIndex -> do
       let (sec1targ, sec2targ, isVert) = case borderIndex of
             1 -> (1,2,Horizontal)
             2 -> (2,3,Horizontal)
@@ -165,6 +174,7 @@ rogueDungeon width height g = let
             10 -> (5,8,Vertical)
             11 -> (3,6,Vertical)
             12 -> (6,9,Vertical)
+            _  -> (1,2,Horizontal)
           sec1 = rooms !! (sec1targ-1)
           sec2 = rooms !! (sec2targ-1)
     -- line up rooms with halls
@@ -173,6 +183,24 @@ rogueDungeon width height g = let
     -- connect the sectors
     V.unsafeFreeze vec
   in (Dungeon width height tileVector, gFinal)
+
+-- | setPoint
+-- Modify the vector w/ Point and Terrain
+-- Output:
+-- %%%
+-- %%%
+-- %%%
+setPoint :: PrimMonad m
+  => Int
+  -> VM.MVector (PrimState m) a
+  -> Room
+  -> a
+  -> m ()
+setPoint width vec (Room x1 y1 _ _) tile
+  = setBox width vec (Room x1 y1 x2 y2) tile
+  where
+    x2 = x1 + 2
+    y2 = y1 + 2
 
 -- | setBox
 -- Modify the vector w/ Room and Terrain

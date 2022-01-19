@@ -8,8 +8,9 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 -}
 module ArrowDataUtil(applyIntent) where
 
+import qualified Data.Vector as V
 import ArrowData
-import Dungeon (getTerrainAt, rogueDungeon, Terrain(..))
+import Dungeon (dungeonTiles, getTerrainAt, rogueDungeon, Terrain(..))
 import Camera (updateCamera)
 
 -- | applyIntent
@@ -48,12 +49,19 @@ dirToCoord d
 -- horiz, vert check the entire grid
 -- getTerrainAt checks the dungeon
 handleDir :: Direction -> World -> World
-handleDir input w = updateCamera newWorld
+handleDir input w = if (starting w)
+    then do
+      let terrainList = V.toList $ dungeonTiles $ dungeon w
+          openList = filter((== Open).fst) $ zip terrainList (grid w)
+          startPos = snd $ head openList
+      updateCamera w { wHero = startPos, starting = False }
+    else
+      updateCamera newWorld
   where
     newCoord = (newX, newY)
     (heroX, heroY) = (wHero w) |+| dirToCoord input
     horiz i = max 0 (min i (fst $ gridXY w))
-    vert j = max 0 (min j (snd $ gridXY w))
+    vert  j = max 0 (min j (snd $ gridXY w))
     newX = horiz heroX
     newY = vert heroY
     newWorld = case getTerrainAt (newX, newY) (dungeon w) of
@@ -61,12 +69,13 @@ handleDir input w = updateCamera newWorld
       Rubble -> w
       _ -> w { wHero = newCoord }
 
+
 -- | reset
 -- reset the world and redraw the dungeon
 reset :: World -> World
 reset w = let
   (d, g) = rogueDungeon (fst $ gridXY w) (snd $ gridXY w) (gameGen w)
-  in w { gameGen = g, dungeon = d, degrees = 0 }
+  in w { gameGen = g, dungeon = d, degrees = 0, starting = True }
 
 -- | rotate
 rotate :: RotateDirection -> World -> World

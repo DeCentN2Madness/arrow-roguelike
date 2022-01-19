@@ -44,6 +44,7 @@ data World = World
   , screenXY :: (Double, Double)
   , scaleXY :: (Double, Double)
   , dungeon :: Dungeon
+  , starting :: Bool
   , exiting :: Bool
   } deriving (Show)
 
@@ -54,12 +55,12 @@ mkGrid maxX maxY = [(y, x)| x <- [0..maxXY-1], y <- [0..maxXY-1]]
     maxXY = if maxX > maxY then maxX else maxY
 
 -- | mkWorld build the World
-mkWorld :: StdGen -> Coord -> Coord -> Int -> Int -> World
-mkWorld gen (x, y) (width, height) xMax yMax = let
+mkWorld :: StdGen -> Coord -> Int -> Int -> World
+mkWorld gen (width, height) xMax yMax = let
   (d, g) = rogueDungeon xMax yMax gen
   in World { gameGen = g
-           , wHero = (x, y)
-           , cameraXY = (0, 0)
+           , wHero = (0, 0)
+           , cameraXY = (0.0, 0.0)
            , degrees = 0
            , gridXY = (xMax, yMax)
            , grid = mkGrid xMax yMax
@@ -67,6 +68,7 @@ mkWorld gen (x, y) (width, height) xMax yMax = let
            , screenXY = (fromIntegral width, fromIntegral height)
            , scaleXY = (sx, sy)
            , dungeon = d
+           , starting = True
            , exiting = False
            }
   where

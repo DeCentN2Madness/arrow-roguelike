@@ -64,8 +64,10 @@ draw r ts w = do
   -- HUD
   setColor r Green
   SDL.drawRect r (Just hud)
-  -- Hero
-  renderTexture r (hero ts) (midX, midY)
+  -- the Hero appears...
+  if starting w
+    then return ()
+    else renderTexture r (hero ts) (midX, midY)
   -- Screen
   SDL.present r
   where
@@ -96,9 +98,9 @@ drawE (x,y) r t w = do
 drawMap :: SDL.Renderer -> TextureMap -> World -> IO ()
 drawMap r ts w = do
   let terrainList = V.toList $ dungeonTiles $ dungeon w
-      wallList = filter ((== Wall).fst ) $ zip terrainList (grid w)
-      openList = filter ((== Open).fst ) $ zip terrainList (grid w)
-      rubbleList = filter ((== Rubble).fst ) $ zip terrainList (grid w)
+      wallList = filter ((== Wall).fst) $ zip terrainList (grid w)
+      openList = filter ((== Open).fst) $ zip terrainList (grid w)
+      rubbleList = filter ((== Rubble).fst) $ zip terrainList (grid w)
       -- the Hero
       wallT = filter (/= pos) $ [v | (_, v) <- wallList]
       openT = filter (/= pos) $ [v | (_, v) <- openList]

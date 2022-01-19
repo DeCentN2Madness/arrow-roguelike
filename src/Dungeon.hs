@@ -128,7 +128,7 @@ randRoom xlow xhigh ylow yhigh = do
 --
 -- 0. Fill w/ Wall
 -- 1. Add 10% Rubble
--- 2. Divide map into 9 sections
+-- 2. Divide Dungeon into 9 sections
 --    1 - 2 - 3
 --    4 - 5 - 6
 --    7 - 8 - 9

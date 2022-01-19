@@ -14,6 +14,7 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 -}
 module DrawUtil where
 
+import Control.Monad (forM_)
 import Control.Monad.IO.Class (MonadIO)
 import qualified SDL
 import SDL (($=))
@@ -62,34 +63,31 @@ draw r ts w = do
   drawMap r ts w
   -- HUD
   setColor r Green
-  SDL.drawRect r (Just inner)
+  SDL.drawRect r (Just hud)
   -- Hero
   renderTexture r (hero ts) (midX, midY)
   -- Screen
   SDL.present r
   where
-    inner = U.mkRect hudX hudY width height
-    hudX = 0
-    hudY = height - 25
+    hud = U.mkRect 0 (height-25) width height
     width = floor (fst $ screenXY w)
     height = floor (snd $ screenXY w)
     midX = ((fst $ screenXY w) - (fst $ scaleXY w)) / 2.0
     midY = ((snd $ screenXY w) - (snd $ scaleXY w)) / 2.0
 
--- | drawE draws entity based on Coord on grid
---- drawE uses the cameraXY
-drawE :: [(Int, Int)]
+-- | drawE draws Coord @(x,y)@ wDungeon element.
+--- Coord is then translated into the screen with scaleXY and
+--  cameraXY
+drawE :: (Int, Int)
   -> SDL.Renderer
   -> (SDL.Texture, SDL.TextureInfo)
   -> World
   -> IO ()
-drawE [] _ _ _ = return ()
-drawE (x:xs) r t w = do
+drawE (x,y) r t w = do
   renderTexture r t (newX, newY)
-  drawE xs r t w
   where
-    xPos = (fst $ scaleXY w) * (fromIntegral $ fst x)
-    yPos = (snd $ scaleXY w) * (fromIntegral $ snd x)
+    xPos = (fst $ scaleXY w) * (fromIntegral x)
+    yPos = (snd $ scaleXY w) * (fromIntegral y)
     newX = xPos - (fst $ cameraXY w)
     newY = yPos - (snd $ cameraXY w)
 
@@ -101,13 +99,14 @@ drawMap r ts w = do
       wallList = filter ((== Wall).fst ) $ zip terrainList (grid w)
       openList = filter ((== Open).fst ) $ zip terrainList (grid w)
       rubbleList = filter ((== Rubble).fst ) $ zip terrainList (grid w)
+      -- the Hero
       wallT = filter (/= pos) $ [v | (_, v) <- wallList]
       openT = filter (/= pos) $ [v | (_, v) <- openList]
       rubbleT = filter (/= pos) $ [v | (_, v) <- rubbleList]
       pos = (wHero w)
-  drawE wallT   r (wall ts) w
-  drawE openT   r (open ts) w
-  drawE rubbleT r (rubble ts) w
+  forM_ wallT $ \i -> drawE i r (wall ts) w
+  forM_ rubbleT $ \i -> drawE i r (rubble ts) w
+  forM_ openT $ \i -> drawE i r (open ts) w
 
 loadTextures :: (MonadIO m)
   => SDL.Renderer

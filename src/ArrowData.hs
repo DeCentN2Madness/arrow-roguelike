@@ -40,10 +40,12 @@ data World = World
   , degrees :: Int
   , gridXY :: Coord
   , grid :: [Coord]
+  , fovT :: [Coord]
   , levelXY :: (Double, Double)
   , screenXY :: (Double, Double)
   , scaleXY :: (Double, Double)
   , dungeon :: Dungeon
+  , dirty   :: Bool
   , starting :: Bool
   , exiting :: Bool
   } deriving (Show)
@@ -64,10 +66,12 @@ mkWorld gen (width, height) xMax yMax = let
            , degrees = 0
            , gridXY = (xMax, yMax)
            , grid = mkGrid xMax yMax
+           , fovT = [(0,0)]
            , levelXY = (sx * fromIntegral xMax, sy * fromIntegral yMax)
            , screenXY = (fromIntegral width, fromIntegral height)
            , scaleXY = (sx, sy)
            , dungeon = d
+           , dirty = True
            , starting = True
            , exiting = False
            }

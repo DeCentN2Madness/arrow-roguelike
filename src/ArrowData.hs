@@ -35,17 +35,20 @@ data Intent
 data RotateDirection = Clock | Counter
 
 data World = World
-  { gameGen :: StdGen
+  { grid :: [Coord]
+  , dungeon :: Dungeon
+  , gameGen :: StdGen
+  -- Coord for Hero
   , wHero :: Coord
-  , cameraXY :: (Double, Double)
   , degrees :: Int
   , gridXY :: Coord
-  , grid :: [Coord]
   , fovT :: [Coord]
+  -- XY for Screen
+  , cameraXY :: (Double, Double)
   , levelXY :: (Double, Double)
   , screenXY :: (Double, Double)
   , scaleXY :: (Double, Double)
-  , dungeon :: Dungeon
+  -- GameStates
   , dirty   :: Bool
   , starting :: Bool
   , exiting :: Bool
@@ -63,17 +66,17 @@ mkWorld gen (width, height) xMax yMax = let
   (d, g) = rogueDungeon xMax yMax gen
   sx = 25.0 -- scaleXY based on tiles
   sy = 25.0
-  in World { gameGen = g
+  in World { grid = mkGrid xMax yMax
+           , dungeon = d
+           , gameGen = g
            , wHero = (0, 0)
-           , cameraXY = (0.0, 0.0)
            , degrees = 0
            , gridXY = (xMax, yMax)
-           , grid = mkGrid xMax yMax
            , fovT = [(0,0)]
+           , cameraXY = (0.0, 0.0)
            , levelXY = (sx * fromIntegral xMax, sy * fromIntegral yMax)
            , screenXY = (fromIntegral width, fromIntegral height)
            , scaleXY = (sx, sy)
-           , dungeon = d
            , dirty = True
            , starting = True
            , exiting = False

@@ -12,8 +12,8 @@ import Control.Monad.Extra (unless)
 import qualified SDL
 import ArrowData (mkWorld, World(..))
 import ArrowDataUtil (applyIntent)
-import Event (mkIntent)
 import DrawUtil (assetPaths, draw, loadTextures, TextureMap)
+import Event (mkIntent)
 import qualified Util as U
 
 width, height :: Int
@@ -30,11 +30,11 @@ main = do
       mainLoop world r ts
       mapM_ (SDL.destroyTexture . fst) ts
   q <- readIORef world
-  print $ show q
+  print $ q
   SDL.quit
 
 -- | mainLoop
--- unless quit
+-- unless exiting
 --   1. event handling
 --   2. world update
 --   3. render world

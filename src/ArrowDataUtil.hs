@@ -61,8 +61,10 @@ dirToDeg d
   | otherwise  = 0
 
 -- | handleDir @w@ world will change with @input@
--- horiz, vert check the entire grid
--- getTerrainAt checks the dungeon
+-- horiz, vert check the grid
+-- getTerrainAt check the dungeon
+-- mkView creates the FoV
+-- newWorld if movement
 handleDir :: Direction -> World -> World
 handleDir input w = if (starting w)
     then do
@@ -70,23 +72,22 @@ handleDir input w = if (starting w)
           openList = filter((== Open).fst) $ zip terrainList (grid w)
           startPos = snd $ head openList
       updateCamera w { wHero = startPos , starting = False }
-    else
+    else do
+      let newCoord = (newX, newY)
+          heading  = dirToDeg input
+          (heroX, heroY) = (wHero w) |+| dirToCoord input
+          horiz i = max 0 (min i (fst $ gridXY w))
+          vert  j = max 0 (min j (snd $ gridXY w))
+          newX = horiz heroX
+          newY = vert heroY
+          newWorld = case getTerrainAt (newX, newY) (dungeon w) of
+            Wall -> w { dirty = False, degrees = heading }
+            Rubble -> w { dirty = False, degrees = heading }
+            _ -> w { wHero = newCoord
+                 , dirty = True
+                 , fovT = mkView newCoord (dungeon w) (grid w)
+                 , degrees = heading }
       updateCamera newWorld
-  where
-    newCoord = (newX, newY)
-    heading  = dirToDeg input
-    (heroX, heroY) = (wHero w) |+| dirToCoord input
-    horiz i = max 0 (min i (fst $ gridXY w))
-    vert  j = max 0 (min j (snd $ gridXY w))
-    newX = horiz heroX
-    newY = vert heroY
-    newWorld = case getTerrainAt (newX, newY) (dungeon w) of
-      Wall -> w { dirty = False, degrees = heading }
-      Rubble -> w { dirty = False, degrees = heading }
-      _ -> w { wHero = newCoord
-             , dirty = True
-             , fovT = mkView newCoord (dungeon w) (grid w)
-             , degrees = heading }
 
 -- | mkView utilizes FoV for @hardT@ to create the visible places
 -- defaults (0,0) which nub cleans up

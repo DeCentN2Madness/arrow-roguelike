@@ -16,11 +16,14 @@ module DrawUtil where
 
 import Control.Monad (forM_)
 import Control.Monad.IO.Class (MonadIO)
+import Data.List (nub)
+import qualified Data.Set as S
+import qualified Data.Vector as V
 import qualified SDL
 import SDL (($=))
-import qualified Data.Vector as V
 import ArrowData (World(..))
 import Dungeon (Dungeon(..), Terrain(..))
+import qualified FoV
 import qualified Util as U
 
 data AssetMap a = AssetMap
@@ -101,16 +104,29 @@ drawMap :: SDL.Renderer -> TextureMap -> World -> IO ()
 drawMap r ts w = do
   let terrainList = V.toList $ dungeonTiles $ dungeon w
       wallList = filter ((== Wall).fst) $ zip terrainList (grid w)
-      openList = filter ((== Open).fst) $ zip terrainList (grid w)
       rubbleList = filter ((== Rubble).fst) $ zip terrainList (grid w)
       -- the Hero
       wallT = filter (/= pos) $ [v | (_, v) <- wallList]
-      openT = filter (/= pos) $ [v | (_, v) <- openList]
+ --     openT = filter (/= pos) $ [v | (_, v) <- openList]
       rubbleT = filter (/= pos) $ [v | (_, v) <- rubbleList]
       pos = (wHero w)
+      hardList = wallT ++ rubbleT
+      -- FoV
+      viewList = S.toList $ FoV.checkFov pos hardList 10
+      viewT = [ i | v <- viewList,
+                let i = case (v `elem` (grid w)) of
+                      True -> case (v `elem` hardList) of
+                        True -> (0,0)
+                        False -> v
+                      False -> (0,0)]
+      fovT = nub $ filter (/= pos) $ [ i | v <- viewT,
+                  let i = if v <= (gridXY w) then v else (0,0)  ]
+
   forM_ wallT $ \i -> drawE i r (wall ts) w
   forM_ rubbleT $ \i -> drawE i r (rubble ts) w
-  forM_ openT $ \i -> drawE i r (open ts) w
+  --forM_ openT $ \i -> drawE i r (open ts) w
+  --forM_ viewT $ \i -> drawE i r (open ts) w
+  forM_ fovT $ \i -> drawE i r (open ts) w
 
 loadTextures :: (MonadIO m)
   => SDL.Renderer

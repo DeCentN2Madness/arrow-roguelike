@@ -79,7 +79,6 @@ handleDir input w = if (starting w)
       Rubble -> w { degrees = heading }
       _ -> w { wHero = newCoord, degrees = heading }
 
-
 -- | reset
 -- reset the world and redraw the dungeon
 reset :: World -> World

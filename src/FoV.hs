@@ -2,13 +2,13 @@
 
 FoV.hs
 
+Precise Permissive Field of View
+<http://www.roguebasin.com/index.php/Precise_Permissive_Field_of_View>
+
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
+
 -}
-module FoV (checkView
-           , mkView
-           , SightLine(..)
-           , checkFov
-           , fov) where
+module FoV (checkFov) where
 
 import Prelude hiding (pred)
 import Data.Set (Set)
@@ -67,11 +67,6 @@ bumpAndCheck bumpf activeViews viewIndex bump = out
     out = if validView bumpedView
       then update viewIndex activeViews bumpedView
       else remove viewIndex activeViews
-{-
-  in take viewIndex activeViews ++ if validView bumpedView
-    then bumpedView : drop (viewIndex+1) activeViews
-    else drop (viewIndex+1) activeViews
--}
 
 -- | calcViewIndex is a version of `dropWhile`
 calcViewIndex :: [View] -> (Int, Int) -> Int
@@ -97,36 +92,21 @@ checkQuadrant vision range (sx, sy) (qx, qy) = checkSub coordsToCheck (S.singlet
     checkSub ((dx, dy):cs) visited activeViews = checkSub cs newVisited newActiveViews
       where (newVisited, newActiveViews) = visitCoord (sx, sy) (dx, dy) (qx, qy) activeViews vision visited
 
--- | Deletes the View at the index specified from the list
--- if two lines of the View are collinear and the lines pass
--- through either extremity of the FOV
--- origin, (0,1) or (1,0).
-checkView :: Int -> [View] -> [View]
-checkView viewIndex activeViews = let
-  shallowIsSteep = theShallowLine `collinearLine` theSteepLine
-  lineOnExtremity = (theShallowLine `collinearPoint` (0,1) ||
-    theShallowLine `collinearPoint` (1,0))
-  theView = activeViews !! viewIndex
-  theShallowLine = getShallowLine theView
-  theSteepLine = getSteepLine theView
-  delete i list = take i list ++ drop (i+1) list
-  in if shallowIsSteep && lineOnExtremity
-      then delete viewIndex activeViews
-      else activeViews
-
--- | checkFov to check the fov
--- ###
--- #@
--- #
-checkFov :: Set (Int, Int)
-checkFov = fov fn 3 (1, 1)
-  where fn = (\i -> case i of
-                 (0,0) -> True
-                 (1,0) -> True
-                 (2,0) -> True
-                 (0,1) -> True
-                 (0,2) -> True
-                 _ -> False)
+-- | checkFov to check the Precise Permissive Field of View
+-- for @origin@ vs @xs@ coordinates at @distance@.
+--
+-- Summary: PPFoV
+-- .
+-- .
+-- .
+-- 9
+-- 5 8
+-- 2 4 7
+-- @ 1 3 6 ...
+checkFov :: (Int, Int) -> [(Int,Int)] -> Int -> Set (Int, Int)
+checkFov origin xs distance = fov blocked distance origin
+  where
+    blocked = (\x -> x `elem` xs)
 
 -- | collinearPpoint infix
 collinearPoint :: SightLine -> (Int, Int) -> Bool

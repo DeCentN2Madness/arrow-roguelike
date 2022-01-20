@@ -15,14 +15,14 @@ import Camera (updateCamera)
 
 -- | applyIntent
 applyIntent :: Intent -> World -> World
-applyIntent intent w = w'
+applyIntent intent w = newWorld
   where
-    w' = case intent of
+    newWorld = case intent of
       Action North -> handleDir North w
       Action South -> handleDir South w
       Action East -> handleDir East w
       Action West -> handleDir West w
-      Action A -> handleDir East w
+      Action A ->  handleDir East w
       Action D -> handleDir West w
       Action E -> rotate Clock w
       Action Q -> rotate Counter w
@@ -41,9 +41,18 @@ dirToCoord :: Direction -> Coord
 dirToCoord d
   | d == North = (0, -1)
   | d == South = (0, 1)
-  | d == East = (-1, 0)
-  | d == West = (1, 0)
-  | otherwise = (0, 0)
+  | d == East  = (-1, 0)
+  | d == West  = (1, 0)
+  | otherwise  = (0, 0)
+
+-- | dirToDeg @d@ changes degrees
+dirToDeg :: Direction -> Int
+dirToDeg d
+  | d == North = 0
+  | d == South = 180
+  | d == East  = 90
+  | d == West  = 270
+  | otherwise  = 0
 
 -- | handleDir @w@ world will change with @input@
 -- horiz, vert check the entire grid
@@ -59,15 +68,16 @@ handleDir input w = if (starting w)
       updateCamera newWorld
   where
     newCoord = (newX, newY)
+    heading  = dirToDeg input
     (heroX, heroY) = (wHero w) |+| dirToCoord input
     horiz i = max 0 (min i (fst $ gridXY w))
     vert  j = max 0 (min j (snd $ gridXY w))
     newX = horiz heroX
     newY = vert heroY
     newWorld = case getTerrainAt (newX, newY) (dungeon w) of
-      Wall -> w
-      Rubble -> w
-      _ -> w { wHero = newCoord }
+      Wall -> w { degrees = heading }
+      Rubble -> w { degrees = heading }
+      _ -> w { wHero = newCoord, degrees = heading }
 
 
 -- | reset

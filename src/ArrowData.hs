@@ -60,6 +60,8 @@ mkGrid maxX maxY = [(y, x)| x <- [0..maxXY-1], y <- [0..maxXY-1]]
 mkWorld :: StdGen -> Coord -> Int -> Int -> World
 mkWorld gen (width, height) xMax yMax = let
   (d, g) = rogueDungeon xMax yMax gen
+  sx = 25.0 -- scaleXY based on tiles
+  sy = 25.0
   in World { gameGen = g
            , wHero = (0, 0)
            , cameraXY = (0.0, 0.0)
@@ -75,6 +77,3 @@ mkWorld gen (width, height) xMax yMax = let
            , starting = True
            , exiting = False
            }
-  where
-    sx = 25.0 -- scaleXY based on tile size
-    sy = 25.0

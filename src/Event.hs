@@ -1,9 +1,11 @@
 {-
+
 Event.hs
 
 Keyboard Handling
 
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
+
 -}
 module Event where
 

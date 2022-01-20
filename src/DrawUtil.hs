@@ -11,6 +11,7 @@ This module keeps the drawing routines for SDL.Renderer.
 Note: (MonadIO m) => SDL.Renderer from Util.withRenderer
 
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
+
 -}
 module DrawUtil where
 

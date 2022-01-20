@@ -5,6 +5,7 @@ ArrowDataUtil.hs
 applyIntent to the World
 
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
+
 -}
 module ArrowDataUtil (applyIntent) where
 
@@ -21,22 +22,22 @@ import qualified FoV
 
 -- | applyIntent
 applyIntent :: Intent -> World -> World
-applyIntent intent w = newWorld
-  where
-    newWorld = case intent of
-      Action North -> handleDir North w
-      Action South -> handleDir South w
-      Action East -> handleDir East w
-      Action West -> handleDir West w
-      Action A ->  handleDir East w
-      Action D -> handleDir West w
-      Action E -> rotate Clock w
-      Action Q -> rotate Counter w
-      Action R -> reset w
-      Action S -> handleDir South w
-      Action W -> handleDir North w
-      Quit -> quitWorld w
-      _ -> w
+applyIntent intent w = let
+  newWorld = case intent of
+    Action North -> handleDir North w
+    Action South -> handleDir South w
+    Action East -> handleDir East w
+    Action West -> handleDir West w
+    Action A ->  handleDir East w
+    Action D -> handleDir West w
+    Action E -> rotate Clock w
+    Action Q -> rotate Counter w
+    Action R -> reset w
+    Action S -> handleDir South w
+    Action W -> handleDir North w
+    Quit -> quitWorld w
+    _ -> w
+  in newWorld
 
 -- | operator to add 2 coordinates together
 (|+|) :: Coord -> Coord -> Coord

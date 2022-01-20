@@ -3,6 +3,7 @@
 ArrowData.hs
 
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
+
 -}
 module ArrowData where
 
@@ -52,9 +53,9 @@ data World = World
 
 -- | mkGrid (x,y) uniform Coord for the World
 mkGrid :: Int -> Int -> [Coord]
-mkGrid maxX maxY = [(y, x)| x <- [0..maxXY-1], y <- [0..maxXY-1]]
-  where
-    maxXY = if maxX > maxY then maxX else maxY
+mkGrid maxX maxY = let
+  maxXY = if maxX > maxY then maxX else maxY
+  in [(y, x)| x <- [0..maxXY-1], y <- [0..maxXY-1]]
 
 -- | mkWorld build the World
 mkWorld :: StdGen -> Coord -> Int -> Int -> World

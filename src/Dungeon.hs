@@ -4,6 +4,7 @@
 Dungeon.hs
 
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
+
 -}
 module Dungeon (
                Terrain(..)

@@ -29,8 +29,10 @@ data AssetMap a = AssetMap
   , coin :: a
   , hero :: a
   , light :: a
+  , magma :: a
   , open :: a
   , rubble :: a
+  , rock :: a
   , stairDown :: a
   , stairUp :: a
   , wall :: a
@@ -46,7 +48,9 @@ assetPaths = AssetMap
   , coin = "./assets/Coin.png"
   , hero = "./assets/Hero.png"
   , light = "./assets/Light.png"
+  , magma = "./assets/Magma.png"
   , open = "./assets/Open.png"
+  , rock = "./assets/Rock.png"
   , rubble = "./assets/Rubble.png"
   , stairDown = "./assets/StairDown.png"
   , stairUp = "./assets/StairUp.png"
@@ -101,13 +105,18 @@ drawE (x,y) r t w = do
 drawMap :: SDL.Renderer -> TextureMap -> World -> IO ()
 drawMap r ts w = do
   let terrainList = V.toList $ dungeonTiles $ dungeon w
-      wallList    = filter ((== Wall).fst) $ zip terrainList (grid w)
+      magmaList   = filter ((== Magma).fst) $ zip terrainList (grid w)
+      rockList    = filter ((== Rock).fst) $ zip terrainList (grid w)
       rubbleList  = filter ((== Rubble).fst) $ zip terrainList (grid w)
+      wallList    = filter ((== Wall).fst) $ zip terrainList (grid w)
+      magmaT      = [v | (_, v) <- magmaList]
       wallT       = [v | (_, v) <- wallList]
+      rockT       = [v | (_, v) <- rockList]
       rubbleT     = [v | (_, v) <- rubbleList]
-
-  forM_ wallT $ \i -> drawE i r (wall ts) w
-  forM_ rubbleT $ \i -> drawE i r (rubble ts) w
+  forM_ magmaT   $ \i -> drawE i r (magma ts) w
+  forM_ wallT    $ \i -> drawE i r (wall ts) w
+  forM_ rockT    $ \i -> drawE i r (rock ts) w
+  forM_ rubbleT  $ \i -> drawE i r (rubble ts) w
   -- FoV for Open Tiles, not Wall or Rubble
   forM_ (fovT w) $ \i -> drawE i r (open ts) w
 

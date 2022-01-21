@@ -37,12 +37,12 @@ data RotateDirection = Clock | Counter
 data World = World
   { grid :: [Coord]
   , dungeon :: Dungeon
-  , gameGen :: StdGen
   -- Coord for Hero
+  , fovT :: [Coord]
+  , gameGen :: StdGen
   , wHero :: Coord
   , degrees :: Int
   , gridXY :: Coord
-  , fovT :: [Coord]
   -- XY for Screen
   , cameraXY :: (Double, Double)
   , levelXY :: (Double, Double)
@@ -68,11 +68,11 @@ mkWorld gen (width, height) xMax yMax = let
   sy = 25.0
   in World { grid = mkGrid xMax yMax
            , dungeon = d
+           , fovT = [(0,0)]
            , gameGen = g
            , wHero = (0, 0)
            , degrees = 0
            , gridXY = (xMax, yMax)
-           , fovT = [(0,0)]
            , cameraXY = (0.0, 0.0)
            , levelXY = (sx * fromIntegral xMax, sy * fromIntegral yMax)
            , screenXY = (fromIntegral width, fromIntegral height)

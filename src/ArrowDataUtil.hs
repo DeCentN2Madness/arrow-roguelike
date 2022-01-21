@@ -72,7 +72,7 @@ handleDir input w = if (starting w)
       let terrainList = V.toList $ dungeonTiles $ dungeon w
           openList = filter((== Open).fst) $ zip terrainList (grid w)
           startPos = snd $ head openList
-      updateCamera w { wHero = startPos , starting = False }
+      updateCamera w { wHero = startPos, starting = False }
     else do
       let newCoord = (newX, newY)
           heading  = dirToDeg input
@@ -82,38 +82,32 @@ handleDir input w = if (starting w)
           newX = horiz heroX
           newY = vert heroY
           newWorld = case getTerrainAt (newX, newY) (dungeon w) of
-            Wall -> w { dirty = False, degrees = heading }
-            Rubble -> w { dirty = False, degrees = heading }
-            _ -> w { wHero = newCoord
-                 , dirty = True
-                 , fovT = mkView newCoord (dungeon w) (grid w)
-                 , degrees = heading }
+            Open -> w {fovT = mkView newCoord (dungeon w) (grid w)
+                      , wHero = newCoord
+                      , degrees = heading
+                      , dirty = True }
+            _ -> w { degrees = heading, dirty = False }
       updateCamera newWorld
 
 -- | mkView utilizes FoV for @hardT@ to create the visible places
--- defaults (0,0) which nub cleans up
+-- defaults (0,0) which  tail $ nub cleans up
 mkView :: (Int, Int) -> Dungeon -> [Coord] -> [Coord]
 mkView pos dun gridCoord =
   let terrainList = V.toList $ dungeonTiles dun
-      wallList    = filter ((== Wall).fst) $ zip terrainList gridCoord
-      rubbleList  = filter ((== Rubble).fst) $ zip terrainList gridCoord
-      wallT       = [v | (_, v) <- wallList]
-      rubbleT     = [v | (_, v) <- rubbleList]
-      hardT       = wallT ++ rubbleT
+      hardList    = filter ((/= Open).fst) $ zip terrainList gridCoord
+      hardT       = [v | (_, v) <- hardList]
       -- FoV for Open Tiles, not Wall or Rubble
       viewList = S.toList $ FoV.checkFov pos hardT 10
       viewT = [ i | v <- viewList,
                 let i = case (v `elem` gridCoord) of
                       True -> case (v `elem` hardT) of
-                        True -> (0,0) -- hard space
+                        True -> (0,0) -- Hard space
                         False -> v    -- actually Open space
                       False -> (0,0) ]
       -- final fovT
-      fov = nub $ filter (/= pos) $
+      fov = tail $ nub $ filter (/= pos) $
         [ i | v <- viewT,
-          let i = if fst v < 80 && snd v < 50
-                then v
-                else (0,0) ]
+          let i = if fst v < 80 && snd v < 50 then v else (0,0) ]
   in fov
 
 -- | reset
@@ -121,7 +115,11 @@ mkView pos dun gridCoord =
 reset :: World -> World
 reset w = let
   (d, g) = rogueDungeon (fst $ gridXY w) (snd $ gridXY w) (gameGen w)
-  in w { gameGen = g, dungeon = d, degrees = 0, starting = True }
+  in w {dungeon = d
+       , fovT = [(0,0)]
+       , gameGen = g
+       , degrees = 0
+       , starting = True }
 
 -- | rotate
 rotate :: RotateDirection -> World -> World

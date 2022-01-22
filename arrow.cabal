@@ -23,6 +23,7 @@ library
                     , Dungeon
                     , Event
                     , FoV
+                    , GameData
                     , Util
   build-depends:    base
                     , containers
@@ -43,6 +44,7 @@ executable Main
                     , Dungeon
                     , Event
                     , FoV
+                    , GameData
                     , Util
   hs-source-dirs:   app
                     , src

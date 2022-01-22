@@ -11,14 +11,16 @@ module ArrowDataUtil (applyIntent) where
 
 import Data.List (nub)
 import qualified Data.Set as S
-import qualified Data.Vector as V
 import ArrowData
 import Dungeon (getTerrainAt
                , rogueDungeon
-               , Dungeon(..)
                , Terrain(..))
 import Camera (updateCamera)
-import qualified FoV
+import GameData (GameMap
+                , mkGameMap
+                , fromHard
+                , fromOpen)
+import FoV (checkFov)
 
 -- | applyIntent
 applyIntent :: Intent -> World -> World
@@ -69,9 +71,8 @@ dirToDeg d
 handleDir :: Direction -> World -> World
 handleDir input w = if (starting w)
     then do
-      let terrainList = V.toList $ dungeonTiles $ dungeon w
-          openList = filter((== Open).fst) $ zip terrainList (grid w)
-          startPos = snd $ head openList
+      let openList = fromOpen (gameT w)
+          startPos = openList !! 1
       updateCamera w { wHero = startPos, starting = False }
     else do
       let newCoord = (newX, newY)
@@ -82,7 +83,7 @@ handleDir input w = if (starting w)
           newX = horiz heroX
           newY = vert heroY
           newWorld = case getTerrainAt (newX, newY) (dungeon w) of
-            Open -> w {fovT = mkView newCoord (dungeon w) (grid w)
+            Open -> w {fovT = mkView newCoord (gameT w)
                       , wHero = newCoord
                       , degrees = heading
                       , dirty = True }
@@ -91,23 +92,24 @@ handleDir input w = if (starting w)
 
 -- | mkView utilizes FoV for @hardT@ to create the visible places
 -- defaults (0,0) which  tail $ nub cleans up
-mkView :: (Int, Int) -> Dungeon -> [Coord] -> [Coord]
-mkView pos dun gridCoord =
-  let terrainList = V.toList $ dungeonTiles dun
-      hardList    = filter ((/= Open).fst) $ zip terrainList gridCoord
-      hardT       = [v | (_, v) <- hardList]
+mkView :: (Int, Int) -> GameMap -> [Coord]
+mkView pos gm =
+  let hardT    = fromHard gm
       -- FoV for Open Tiles, not Wall or Rubble
-      viewList = S.toList $ FoV.checkFov pos hardT 10
+      viewList = S.toList $ checkFov pos hardT 8
       viewT = [ i | v <- viewList,
-                let i = case (v `elem` gridCoord) of
-                      True -> case (v `elem` hardT) of
+                let i = case (v `elem` hardT) of
                         True -> (0,0) -- Hard space
                         False -> v    -- actually Open space
-                      False -> (0,0) ]
+              ]
       -- final fovT
       fov = tail $ nub $ filter (/= pos) $
         [ i | v <- viewT,
-          let i = if fst v < 80 && snd v < 50 then v else (0,0) ]
+          let i = if fst v < 80 && fst v > 0 &&
+                snd v < 50  && snd v > 0
+                then v
+                else (0,0) -- stay in gridXY
+        ]
   in fov
 
 -- | reset
@@ -115,9 +117,10 @@ mkView pos dun gridCoord =
 reset :: World -> World
 reset w = let
   (d, g) = rogueDungeon (fst $ gridXY w) (snd $ gridXY w) (gameGen w)
-  in w {dungeon = d
+  in w { gameGen = g
+       , dungeon = d
+       , gameT = mkGameMap d
        , fovT = [(0,0)]
-       , gameGen = g
        , degrees = 0
        , starting = True }
 

@@ -36,12 +36,12 @@ data Intent
 data RotateDirection = Clock | Counter
 
 data World = World
-  { grid :: [Coord]
+  { -- the Dungeon
+  gameGen :: StdGen
   , dungeon :: Dungeon
   , gameT :: GameMap
   -- Coord for Hero
   , fovT :: [Coord]
-  , gameGen :: StdGen
   , wHero :: Coord
   , degrees :: Int
   , gridXY :: Coord
@@ -56,23 +56,16 @@ data World = World
   , exiting :: Bool
   } deriving (Show)
 
--- | mkGrid (x,y) uniform Coord for the World
-mkGrid :: Int -> Int -> [Coord]
-mkGrid maxX maxY = let
-  maxXY = if maxX > maxY then maxX else maxY
-  in [(y, x)| x <- [0..maxXY-1], y <- [0..maxXY-1]]
-
 -- | mkWorld build the World
 mkWorld :: StdGen -> Coord -> Int -> Int -> World
 mkWorld gen (width, height) xMax yMax = let
   (d, g) = rogueDungeon xMax yMax gen
   sx = 25.0 -- scaleXY based on tiles
   sy = 25.0
-  in World { grid = mkGrid xMax yMax
+  in World { gameGen = g
            , dungeon = d
            , gameT = mkGameMap d
            , fovT = [(0,0)]
-           , gameGen = g
            , wHero = (0, 0)
            , degrees = 0
            , gridXY = (xMax, yMax)

@@ -17,11 +17,11 @@ module DrawUtil where
 
 import Control.Monad (forM_)
 import Control.Monad.IO.Class (MonadIO)
-import qualified Data.Vector as V
 import qualified SDL
 import SDL (($=))
 import ArrowData (World(..))
-import Dungeon (Dungeon(..), Terrain(..))
+import GameData (fromGameMap)
+import Dungeon (Terrain(..))
 import qualified Util as U
 
 data AssetMap a = AssetMap
@@ -104,15 +104,11 @@ drawE (x,y) r t w = do
 -- apply filters to the Dungeon for display
 drawMap :: SDL.Renderer -> TextureMap -> World -> IO ()
 drawMap r ts w = do
-  let terrainList = V.toList $ dungeonTiles $ dungeon w
-      magmaList   = filter ((== Magma).fst) $ zip terrainList (grid w)
-      rockList    = filter ((== Rock).fst) $ zip terrainList (grid w)
-      rubbleList  = filter ((== Rubble).fst) $ zip terrainList (grid w)
-      wallList    = filter ((== Wall).fst) $ zip terrainList (grid w)
-      magmaT      = [v | (_, v) <- magmaList]
-      wallT       = [v | (_, v) <- wallList]
-      rockT       = [v | (_, v) <- rockList]
-      rubbleT     = [v | (_, v) <- rubbleList]
+  let magmaT  = fromGameMap (gameT w) Magma
+      rockT   = fromGameMap (gameT w) Rock
+      rubbleT = fromGameMap (gameT w) Rubble
+      wallT   = fromGameMap (gameT w) Wall
+
   forM_ magmaT   $ \i -> drawE i r (magma ts) w
   forM_ wallT    $ \i -> drawE i r (wall ts) w
   forM_ rockT    $ \i -> drawE i r (rock ts) w

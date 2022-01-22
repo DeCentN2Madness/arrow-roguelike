@@ -7,6 +7,7 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 -}
 module GameData(GameData
                , GameMap
+               , fromGameMap
                , mkGameMap) where
 
 import qualified Data.Map as Map
@@ -21,6 +22,21 @@ data GameData = GameData
   { visible :: Bool
   , kind :: Terrain
   } deriving (Show)
+
+terrainMap :: [Coord] -> GameMap -> [(Terrain, Coord)]
+terrainMap [] _ = []
+terrainMap (x:xs) gm = let
+  kinds = case Map.lookup x gm of
+    Just k -> (kind k)
+    _      -> Zero
+  in [(kinds, x)] ++ terrainMap xs gm
+
+fromGameMap :: GameMap -> Terrain -> [Coord]
+fromGameMap gm t = let
+  xy = Map.keys gm
+  terrainList = filter ((==t).fst) $ terrainMap xy gm
+  coordList = [v | (_, v) <- terrainList]
+  in coordList
 
 listToMap :: [(Terrain, Coord)] -> GameMap
 listToMap []         = Map.empty

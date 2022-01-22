@@ -44,6 +44,7 @@ data Terrain
   | Rock
   | StairsDown
   | StarsUp
+  | Zero
   deriving (Read, Show, Eq)
 
 -- | boxDungeon builds the dungeon

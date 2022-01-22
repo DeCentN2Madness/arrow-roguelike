@@ -10,7 +10,8 @@ module GameData(GameData
                , fromGameMap
                , fromHard
                , fromOpen
-               , mkGameMap) where
+               , mkGameMap
+               , updateGameMap) where
 
 import qualified Data.Map as Map
 import qualified Data.Vector as V
@@ -52,8 +53,8 @@ fromOpen gm = let
 listToMap :: [(Terrain, Coord)] -> GameMap
 listToMap []         = Map.empty
 listToMap ((k,v):xs) = let
-  tile = GameData { visible = False, kind = k }
-  in Map.insert v tile (listToMap xs)
+  newGameData = GameData { visible = False, kind = k }
+  in Map.insert v newGameData (listToMap xs)
 
 -- | mkGrid helper function for zip
 mkGrid :: Int -> Int -> [Coord]
@@ -68,6 +69,15 @@ mkGameMap d = let
   terrainList = V.toList $ dungeonTiles d
   tileList = zip terrainList grid
   in listToMap tileList
+
+-- | updateGameMap
+-- just visible for now...
+updateGameMap :: [Coord] -> GameMap -> GameMap
+updateGameMap [] _      = Map.empty
+updateGameMap (x:xs) gm = let
+  Just k = Map.lookup x gm
+  newGameData = GameData { visible = True, kind = (kind k) }
+  in Map.insert x newGameData (updateGameMap xs gm)
 
 -- | terrainMap returns @x:xs@ Terrain from GameMap
 terrainMap :: [Coord] -> GameMap -> [(Terrain, Coord)]

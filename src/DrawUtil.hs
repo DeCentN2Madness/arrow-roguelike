@@ -40,6 +40,8 @@ data AssetMap a = AssetMap
 
 data Colour = White | Red | Blue | Green | Yellow
 
+type PathMap = AssetMap FilePath
+
 type TextureMap = AssetMap (SDL.Texture, SDL.TextureInfo)
 
 assetPaths :: PathMap
@@ -121,8 +123,6 @@ loadTextures :: (MonadIO m)
   -> PathMap
   -> m TextureMap
 loadTextures r = mapM (U.loadTextureWithInfo r)
-
-type PathMap = AssetMap FilePath
 
 renderTexture :: (Num a, RealFrac a)
   => SDL.Renderer

@@ -5,7 +5,9 @@ GameData.hs
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
 -}
-module GameData(mkGameData) where
+module GameData(GameData
+               , GameMap
+               , mkGameMap) where
 
 import qualified Data.Map as Map
 import qualified Data.Vector as V
@@ -31,8 +33,8 @@ mkGrid maxX maxY = let
   maxXY = if maxX > maxY then maxX else maxY
   in [(y, x)| x <- [0..maxXY-1], y <- [0..maxXY-1]]
 
-mkGameData :: Dungeon -> GameMap
-mkGameData d = let
+mkGameMap :: Dungeon -> GameMap
+mkGameMap d = let
   grid = mkGrid (dungeonWidth d) (dungeonHeight d)
   terrainList = V.toList $ dungeonTiles d
   tileList = zip terrainList grid

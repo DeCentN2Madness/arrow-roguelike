@@ -9,6 +9,7 @@ module ArrowData where
 
 import Control.Monad.Random (StdGen)
 import Dungeon (Dungeon, rogueDungeon)
+import GameData (GameMap, mkGameMap)
 
 type Coord = (Int, Int)
 
@@ -37,6 +38,7 @@ data RotateDirection = Clock | Counter
 data World = World
   { grid :: [Coord]
   , dungeon :: Dungeon
+  , gameT :: GameMap
   -- Coord for Hero
   , fovT :: [Coord]
   , gameGen :: StdGen
@@ -68,6 +70,7 @@ mkWorld gen (width, height) xMax yMax = let
   sy = 25.0
   in World { grid = mkGrid xMax yMax
            , dungeon = d
+           , gameT = mkGameMap d
            , fovT = [(0,0)]
            , gameGen = g
            , wHero = (0, 0)

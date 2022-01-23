@@ -20,7 +20,8 @@ import Control.Monad.IO.Class (MonadIO)
 import qualified SDL
 import SDL (($=))
 import ArrowData (World(..))
-import GameData (fromGameMap)
+import GameData (fromGameMap,
+                fromVisible)
 import Dungeon (Terrain(..))
 import qualified Util as U
 
@@ -110,13 +111,15 @@ drawMap r ts w = do
       rockT   = fromGameMap (gameT w) Rock
       rubbleT = fromGameMap (gameT w) Rubble
       wallT   = fromGameMap (gameT w) Wall
+      visibleT = fromVisible (gameT w) ++ (fovT w)
 
   forM_ magmaT   $ \i -> drawE i r (magma ts) w
   forM_ wallT    $ \i -> drawE i r (wall ts) w
   forM_ rockT    $ \i -> drawE i r (rock ts) w
   forM_ rubbleT  $ \i -> drawE i r (rubble ts) w
   -- FoV for Open Tiles, not Wall or Rubble
-  forM_ (fovT w) $ \i -> drawE i r (open ts) w
+  --forM_ (fovT w) $ \i -> drawE i r (open ts) w
+  forM_ visibleT $ \i -> drawE i r (open ts) w
 
 loadTextures :: (MonadIO m)
   => SDL.Renderer

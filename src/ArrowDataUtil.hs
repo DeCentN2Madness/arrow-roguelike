@@ -16,10 +16,12 @@ import Dungeon (getTerrainAt
                , rogueDungeon
                , Terrain(..))
 import Camera (updateCamera)
-import GameData (GameMap
+import GameData (fromHard
+                , fromOpen
+                , GameMap
                 , mkGameMap
-                , fromHard
-                , fromOpen)
+                , updateGameMap
+                , unionGameMap)
 import FoV (checkFov)
 
 -- | applyIntent
@@ -88,7 +90,7 @@ handleDir input w = if (starting w)
                       , degrees = heading
                       , dirty = True }
             _ -> w { degrees = heading, dirty = False }
-      updateCamera newWorld
+      updateCamera $ updateView newWorld
 
 -- | mkView utilizes FoV for @hardT@ to create the visible places
 -- defaults (0,0) which  tail $ nub cleans up
@@ -105,12 +107,21 @@ mkView pos gm =
       -- final fovT
       fov = tail $ nub $ filter (/= pos) $
         [ i | v <- viewT,
-          let i = if fst v < 80 && fst v > 0 &&
-                snd v < 50  && snd v > 0
+          let i = if
+                fst v > 0 && fst v < 80 &&
+                snd v > 0 && snd v < 50
                 then v
                 else (0,0) -- stay in gridXY
         ]
   in fov
+
+-- | updateView
+-- remember what '@' has seen...
+updateView :: World -> World
+updateView w = let
+  newView = updateGameMap (wHero w) (gameT w)
+  newMap  = unionGameMap newView (gameT w)
+  in w { gameT = newMap }
 
 -- | reset
 -- reset the world and redraw the dungeon

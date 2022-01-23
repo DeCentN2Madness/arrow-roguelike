@@ -5,15 +5,18 @@ GameData.hs
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
 -}
-module GameData(GameData
-               , GameMap
-               , fromGameMap
+module GameData(fromGameMap
                , fromHard
                , fromOpen
+               , fromVisible
+               , GameData
+               , GameMap
                , mkGameMap
-               , updateGameMap) where
+               , updateGameMap
+               , unionGameMap) where
 
 import qualified Data.Map as Map
+import Data.Maybe
 import qualified Data.Vector as V
 import Dungeon (Dungeon(..), Terrain(..))
 
@@ -50,11 +53,20 @@ fromOpen gm = let
   coordList = [v | (_, v) <- terrainList]
   in coordList
 
+-- | fromVisible list of Coord the hero has visited
+fromVisible :: GameMap -> [Coord]
+fromVisible gm = let
+  xy = Map.keys gm
+  terrainList = filter ((==True).fst) $ visibleMap xy gm
+  coordList = [v | (_, v) <- terrainList]
+  in coordList
+
+-- | listToMap builds the GameMap
 listToMap :: [(Terrain, Coord)] -> GameMap
 listToMap []         = Map.empty
 listToMap ((k,v):xs) = let
-  newGameData = GameData { visible = False, kind = k }
-  in Map.insert v newGameData (listToMap xs)
+  g = GameData { visible = False, kind = k }
+  in Map.insert v g (listToMap xs)
 
 -- | mkGrid helper function for zip
 mkGrid :: Int -> Int -> [Coord]
@@ -70,15 +82,6 @@ mkGameMap d = let
   tileList = zip terrainList grid
   in listToMap tileList
 
--- | updateGameMap
--- just visible for now...
-updateGameMap :: [Coord] -> GameMap -> GameMap
-updateGameMap [] _      = Map.empty
-updateGameMap (x:xs) gm = let
-  Just k = Map.lookup x gm
-  newGameData = GameData { visible = True, kind = (kind k) }
-  in Map.insert x newGameData (updateGameMap xs gm)
-
 -- | terrainMap returns @x:xs@ Terrain from GameMap
 terrainMap :: [Coord] -> GameMap -> [(Terrain, Coord)]
 terrainMap [] _ = []
@@ -87,3 +90,35 @@ terrainMap (x:xs) gm = let
     Just k -> (kind k)
     _      -> Zero
   in [(kinds, x)] ++ terrainMap xs gm
+
+-- | updateVisible
+updateVisible :: Coord -> GameMap -> GameData
+updateVisible x gm = let
+  k = fromMaybe zeroG $ Map.lookup x gm
+  g = if kind k /= Zero then k { visible = True } else k
+  in g
+
+-- | updateGameMap
+-- just visible for now...
+updateGameMap :: Coord -> GameMap -> GameMap
+updateGameMap k gm = let
+  v = updateVisible k gm
+  g = if kind v /= Zero then Map.insert k v gm else gm
+  in g
+
+-- | unionGameMap helper for union
+unionGameMap :: GameMap -> GameMap -> GameMap
+unionGameMap new old = Map.union new old
+
+-- | visibleList returns @x:xs@ Terrain from GameMap
+visibleMap :: [Coord] -> GameMap -> [(Bool, Coord)]
+visibleMap [] _ = []
+visibleMap (x:xs) gm = let
+  vis = case Map.lookup x gm of
+    Just k -> (visible k)
+    _      -> False
+  in [(vis, x)] ++ visibleMap xs gm
+
+-- | zeroG useful for filter
+zeroG :: GameData
+zeroG = GameData False Zero

@@ -47,7 +47,6 @@ data World = World
   , gridXY :: Coord
   -- XY for Screen
   , cameraXY :: (Double, Double)
-  , levelXY :: (Double, Double)
   , screenXY :: (Double, Double)
   , scaleXY :: (Double, Double)
   -- GameStates
@@ -70,7 +69,6 @@ mkWorld gen (width, height) xMax yMax = let
            , degrees = 0
            , gridXY = (xMax, yMax)
            , cameraXY = (0.0, 0.0)
-           , levelXY = (sx * fromIntegral xMax, sy * fromIntegral yMax)
            , screenXY = (fromIntegral width, fromIntegral height)
            , scaleXY = (sx, sy)
            , dirty = True

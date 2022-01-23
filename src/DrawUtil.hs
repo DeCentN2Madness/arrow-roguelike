@@ -118,7 +118,6 @@ drawMap r ts w = do
   forM_ rockT    $ \i -> drawE i r (rock ts) w
   forM_ rubbleT  $ \i -> drawE i r (rubble ts) w
   -- FoV for Open Tiles, not Wall or Rubble
-  --forM_ (fovT w) $ \i -> drawE i r (open ts) w
   forM_ visibleT $ \i -> drawE i r (open ts) w
 
 loadTextures :: (MonadIO m)

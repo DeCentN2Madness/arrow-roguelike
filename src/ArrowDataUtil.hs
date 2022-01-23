@@ -116,7 +116,7 @@ mkView pos gm =
   in fov
 
 -- | updateView
--- remember what '@' has seen...
+-- remember what @ has seen...
 updateView :: World -> World
 updateView w = let
   newView = updateGameMap (wHero w) (gameT w)

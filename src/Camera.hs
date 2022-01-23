@@ -3,6 +3,7 @@
 Camera.hs
 
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
+
 -}
 module Camera (updateCamera) where
 
@@ -23,12 +24,8 @@ setCamera x y (w, h) (scaleX, scaleY) = let
 -- keep camera in bounds
 updateCamera :: World -> World
 updateCamera w = let
-  newCamera = setCamera newX newY (screenXY w) (scaleXY w)
+  newCamera = setCamera camX camY (screenXY w) (scaleXY w)
   (heroX, heroY) = (wHero w)
   camX = fromIntegral heroX * (fst $ scaleXY w)
   camY = fromIntegral heroY * (snd $ scaleXY w)
-  horiz i = max 0 (min i (fst $ levelXY w))
-  vert  j = max 0 (min j (snd $ levelXY w))
-  newX = horiz camX
-  newY = vert camY
   in w { cameraXY = newCamera }

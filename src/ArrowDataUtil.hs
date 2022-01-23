@@ -12,17 +12,12 @@ module ArrowDataUtil (applyIntent) where
 import Data.List (nub)
 import qualified Data.Set as S
 import ArrowData
-import Dungeon (getTerrainAt
-               , rogueDungeon
-               , Terrain(..))
 import Camera (updateCamera)
-import GameData (fromHard
-                , fromOpen
-                , GameMap
-                , mkGameMap
-                , updateGameMap
-                , unionGameMap)
-import FoV (checkFov)
+import Dungeon (Terrain(..))
+import qualified Dungeon as D
+import GameData (GameMap)
+import qualified GameData as GAME
+import qualified FoV as FOV
 
 -- | applyIntent
 applyIntent :: Intent -> World -> World
@@ -73,7 +68,7 @@ dirToDeg d
 handleDir :: Direction -> World -> World
 handleDir input w = if (starting w)
     then do
-      let openList = fromOpen (gameT w)
+      let openList = GAME.fromOpen (gameT w)
           startPos = openList !! 1
       updateCamera w { wHero = startPos, starting = False }
     else do
@@ -84,21 +79,22 @@ handleDir input w = if (starting w)
           vert  j = max 0 (min j (snd $ gridXY w))
           newX = horiz heroX
           newY = vert heroY
-          newWorld = case getTerrainAt (newX, newY) (dungeon w) of
-            Open -> w {fovT = mkView newCoord (gameT w)
-                      , wHero = newCoord
-                      , degrees = heading
-                      , dirty = True }
+          newWorld = case D.getTerrainAt (newX, newY) (dungeon w) of
+            Open -> updateView $ w {
+              fovT = mkView newCoord (gameT w)
+              , wHero = newCoord
+              , degrees = heading
+              , dirty = True }
             _ -> w { degrees = heading, dirty = False }
-      updateCamera $ updateView newWorld
+      updateCamera newWorld
 
 -- | mkView utilizes FoV for @hardT@ to create the visible places
 -- defaults (0,0) which  tail $ nub cleans up
 mkView :: (Int, Int) -> GameMap -> [Coord]
 mkView pos gm =
-  let hardT    = fromHard gm
+  let hardT    = GAME.fromHard gm
       -- FoV for Open Tiles, not Wall or Rubble
-      viewList = S.toList $ checkFov pos hardT 8
+      viewList = S.toList $ FOV.checkFov pos hardT 4
       viewT = [ i | v <- viewList,
                 let i = case (v `elem` hardT) of
                         True -> (0,0) -- Hard space
@@ -119,18 +115,17 @@ mkView pos gm =
 -- remember what @ has seen...
 updateView :: World -> World
 updateView w = let
-  newView = updateGameMap (wHero w) (gameT w)
-  newMap  = unionGameMap newView (gameT w)
+  newMap = GAME.updateGameMap (fovT w) (gameT w)
   in w { gameT = newMap }
 
 -- | reset
 -- reset the world and redraw the dungeon
 reset :: World -> World
 reset w = let
-  (d, g) = rogueDungeon (fst $ gridXY w) (snd $ gridXY w) (gameGen w)
+  (d, g) = D.rogueDungeon (fst $ gridXY w) (snd $ gridXY w) (gameGen w)
   in w { gameGen = g
        , dungeon = d
-       , gameT = mkGameMap d
+       , gameT = GAME.mkGameMap d
        , fovT = [(0,0)]
        , degrees = 0
        , starting = True }

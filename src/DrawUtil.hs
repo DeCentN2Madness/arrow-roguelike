@@ -20,8 +20,7 @@ import Control.Monad.IO.Class (MonadIO)
 import qualified SDL
 import SDL (($=))
 import ArrowData (World(..))
-import GameData (fromGameMap,
-                fromVisible)
+import qualified GameData as GAME
 import Dungeon (Terrain(..))
 import qualified Util as U
 
@@ -107,11 +106,11 @@ drawE (x,y) r t w = do
 -- apply filters to the Dungeon for display
 drawMap :: SDL.Renderer -> TextureMap -> World -> IO ()
 drawMap r ts w = do
-  let magmaT  = fromGameMap (gameT w) Magma
-      rockT   = fromGameMap (gameT w) Rock
-      rubbleT = fromGameMap (gameT w) Rubble
-      wallT   = fromGameMap (gameT w) Wall
-      visibleT = fromVisible (gameT w) ++ (fovT w)
+  let magmaT  = GAME.fromTerrain (gameT w) Magma
+      rockT   = GAME.fromTerrain (gameT w) Rock
+      rubbleT = GAME.fromTerrain (gameT w) Rubble
+      wallT   = GAME.fromTerrain (gameT w) Wall
+      visibleT = GAME.fromVisible (gameT w)
 
   forM_ magmaT   $ \i -> drawE i r (magma ts) w
   forM_ wallT    $ \i -> drawE i r (wall ts) w

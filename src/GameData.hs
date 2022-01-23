@@ -5,15 +5,16 @@ GameData.hs
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
 -}
-module GameData(fromGameMap
-               , fromHard
+module GameData(fromHard
                , fromOpen
+               , fromTerrain
                , fromVisible
                , GameData
                , GameMap
                , mkGameMap
                , updateGameMap
-               , unionGameMap) where
+               , unionGameMap
+               , unionsGameMap) where
 
 import qualified Data.Map as Map
 import Data.Maybe
@@ -29,37 +30,33 @@ data GameData = GameData
   , kind :: Terrain
   } deriving (Show)
 
--- | fromGameMap list of Coord by Terrain @t@
-fromGameMap :: GameMap -> Terrain -> [Coord]
-fromGameMap gm t = let
-  xy = Map.keys gm
-  terrainList = filter ((==t).fst) $ terrainMap xy gm
-  coordList = [v | (_, v) <- terrainList]
-  in coordList
-
 -- | fromHard list of Hard surfaces
 fromHard :: GameMap -> [Coord]
 fromHard gm = let
-  xy = Map.keys gm
-  terrainList = filter ((/=Open).fst) $ terrainMap xy gm
-  coordList = [v | (_, v) <- terrainList]
-  in coordList
+  ks = Map.keys gm
+  terrainList = filter ((/=Open).fst) $ terrainMap ks gm
+  in [v | (_, v) <- terrainList]
 
 -- | fromOpen list of Open surfaces
 fromOpen :: GameMap -> [Coord]
 fromOpen gm = let
-  xy = Map.keys gm
-  terrainList = filter ((==Open).fst) $ terrainMap xy gm
-  coordList = [v | (_, v) <- terrainList]
-  in coordList
+  ks = Map.keys gm
+  terrainList = filter ((==Open).fst) $ terrainMap ks gm
+  in [v | (_, v) <- terrainList]
+
+-- | fromTerrain list of Coord by Terrain @t@
+fromTerrain :: GameMap -> Terrain -> [Coord]
+fromTerrain gm t = let
+  ks = Map.keys gm
+  terrainList = filter ((==t).fst) $ terrainMap ks gm
+  in [v | (_, v) <- terrainList]
 
 -- | fromVisible list of Coord the hero has visited
 fromVisible :: GameMap -> [Coord]
 fromVisible gm = let
-  xy = Map.keys gm
-  terrainList = filter ((==True).fst) $ visibleMap xy gm
-  coordList = [v | (_, v) <- terrainList]
-  in coordList
+  ks = Map.keys gm
+  terrainList = filter ((==True).fst) $ visibleMap ks gm
+  in [v | (_, v) <- terrainList]
 
 -- | listToMap builds the GameMap
 listToMap :: [(Terrain, Coord)] -> GameMap
@@ -82,7 +79,7 @@ mkGameMap d = let
   tileList = zip terrainList grid
   in listToMap tileList
 
--- | terrainMap returns @x:xs@ Terrain from GameMap
+-- | terrainMap returns Terrain from GameMap
 terrainMap :: [Coord] -> GameMap -> [(Terrain, Coord)]
 terrainMap [] _ = []
 terrainMap (x:xs) gm = let
@@ -95,22 +92,25 @@ terrainMap (x:xs) gm = let
 updateVisible :: Coord -> GameMap -> GameData
 updateVisible x gm = let
   k = fromMaybe zeroG $ Map.lookup x gm
-  g = if kind k /= Zero then k { visible = True } else k
+  g = if (kind k) /= Zero then k { visible = True } else k
   in g
 
 -- | updateGameMap
 -- just visible for now...
-updateGameMap :: Coord -> GameMap -> GameMap
-updateGameMap k gm = let
-  v = updateVisible k gm
-  g = if kind v /= Zero then Map.insert k v gm else gm
-  in g
+updateGameMap :: [Coord] -> GameMap -> GameMap
+updateGameMap [] gm = gm
+updateGameMap (x:xs) gm = let
+  g = updateVisible x gm
+  in updateGameMap xs (Map.insert x g gm)
 
 -- | unionGameMap helper for union
 unionGameMap :: GameMap -> GameMap -> GameMap
 unionGameMap new old = Map.union new old
 
--- | visibleList returns @x:xs@ Terrain from GameMap
+unionsGameMap :: [GameMap] -> GameMap
+unionsGameMap xs = Map.unions xs
+
+-- | visibleMap returns Visible from GameMap
 visibleMap :: [Coord] -> GameMap -> [(Bool, Coord)]
 visibleMap [] _ = []
 visibleMap (x:xs) gm = let

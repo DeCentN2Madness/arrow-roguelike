@@ -10,8 +10,7 @@ module Dungeon (boxDungeon
                , Dungeon(..)
                , getTerrainAt
                , rogueDungeon
-               , Terrain(..)
-               ) where
+               , Terrain(..)) where
 
 import Control.Monad
 import Control.Monad.Primitive (PrimMonad, PrimState)
@@ -185,7 +184,6 @@ rogueDungeon width height g = let
             10 -> (5,8,Vertical)
             11 -> (3,6,Vertical)
             12 -> (6,9,Vertical)
-            _  -> (1,2,Horizontal)
           sec1 = rooms !! (sec1targ-1)
           sec2 = rooms !! (sec2targ-1)
     -- line up rooms with halls

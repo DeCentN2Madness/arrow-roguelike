@@ -68,12 +68,12 @@ handleDir :: Direction -> World -> World
 handleDir input w = if (starting w)
     then do
       let (startPos, gm) = GAME.insertEntity (gameT w)
-          sWorld = updateView $ w {
+          start = w {
             wHero = startPos
             , gameT = gm
             , starting = False
             }
-      updateCamera sWorld
+      updateCamera start
     else do
       let newCoord = (newX, newY)
           heading  = dirToDeg input
@@ -82,7 +82,7 @@ handleDir input w = if (starting w)
           vert  j = max 0 (min j (snd $ gridXY w))
           newX = horiz heroX
           newY = vert heroY
-          runWorld = case D.getTerrainAt (newX, newY) (dungeon w) of
+          run = case D.getTerrainAt (newX, newY) (dungeon w) of
             Open -> updateView $ w {
               fovT = mkView newCoord (gameT w)
               , wHero = newCoord
@@ -90,7 +90,7 @@ handleDir input w = if (starting w)
               , dirty = True
               }
             _ -> w { degrees = heading, dirty = False }
-      updateCamera rWorld
+      updateCamera run
 
 -- | mkView utilizes FoV for @hardT@ to create the visible places
 mkView :: (Int, Int) -> GameMap -> [Coord]

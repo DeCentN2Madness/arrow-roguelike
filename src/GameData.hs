@@ -9,6 +9,7 @@ module GameData(fromHard
                , fromOpen
                , fromTerrain
                , fromVisible
+               , fromVTerrain
                , GameData
                , GameMap
                , mkGameMap
@@ -56,6 +57,12 @@ fromVisible :: GameMap -> [Coord]
 fromVisible gm = let
   ks = Map.keys gm
   terrainList = filter ((==True).fst) $ visibleMap ks gm
+  in [v | (_, v) <- terrainList]
+
+fromVTerrain :: GameMap -> Terrain -> [Coord]
+fromVTerrain gm t = let
+  ks = fromVisible gm
+  terrainList = filter((==t).fst) $ terrainMap ks gm
   in [v | (_, v) <- terrainList]
 
 -- | listToMap builds the GameMap

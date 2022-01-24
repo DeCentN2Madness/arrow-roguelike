@@ -109,8 +109,9 @@ drawMap r ts w = do
   let magmaT  = GAME.fromTerrain (gameT w) Magma
       rockT   = GAME.fromTerrain (gameT w) Rock
       rubbleT = GAME.fromTerrain (gameT w) Rubble
-      wallT   = GAME.fromTerrain (gameT w) Wall
-      visibleT = GAME.fromVisible (gameT w)
+      --wallT   = GAME.fromTerrain (gameT w) Wall
+      wallT   = GAME.fromVTerrain (gameT w) Wall
+      visibleT = GAME.fromVTerrain (gameT w) Open
 
   forM_ magmaT   $ \i -> drawE i r (magma ts) w
   forM_ wallT    $ \i -> drawE i r (wall ts) w

@@ -95,6 +95,7 @@ mkView pos gm =
   let hardT    = GAME.fromHard gm
       -- FoV for Open Tiles, not Wall or Rubble
       viewList = S.toList $ FOV.checkFov pos hardT 4
+{-
       viewT = [ i | v <- viewList,
                 let i = case (v `elem` hardT) of
                         True -> (0,0) -- Hard space
@@ -109,7 +110,8 @@ mkView pos gm =
                 then v
                 else (0,0) -- stay in gridXY
         ]
-  in fov
+-}
+  in viewList
 
 -- | updateView
 -- remember what @ has seen...

@@ -9,7 +9,6 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 -}
 module ArrowDataUtil (applyIntent) where
 
-import Data.List (nub)
 import qualified Data.Set as S
 import ArrowData
 import Camera (updateCamera)
@@ -68,9 +67,13 @@ dirToDeg d
 handleDir :: Direction -> World -> World
 handleDir input w = if (starting w)
     then do
-      let openList = GAME.fromOpen (gameT w)
-          startPos = openList !! 1
-      updateCamera w { wHero = startPos, starting = False }
+      let (startPos, gm) = GAME.insertEntity (gameT w)
+          sWorld = updateView $ w {
+            wHero = startPos
+            , gameT = gm
+            , starting = False
+            }
+      updateCamera sWorld
     else do
       let newCoord = (newX, newY)
           heading  = dirToDeg input
@@ -79,49 +82,30 @@ handleDir input w = if (starting w)
           vert  j = max 0 (min j (snd $ gridXY w))
           newX = horiz heroX
           newY = vert heroY
-          newWorld = case D.getTerrainAt (newX, newY) (dungeon w) of
+          runWorld = case D.getTerrainAt (newX, newY) (dungeon w) of
             Open -> updateView $ w {
               fovT = mkView newCoord (gameT w)
               , wHero = newCoord
               , degrees = heading
-              , dirty = True }
+              , dirty = True
+              }
             _ -> w { degrees = heading, dirty = False }
-      updateCamera newWorld
+      updateCamera rWorld
 
 -- | mkView utilizes FoV for @hardT@ to create the visible places
--- defaults (0,0) which  tail $ nub cleans up
 mkView :: (Int, Int) -> GameMap -> [Coord]
-mkView pos gm =
-  let hardT    = GAME.fromHard gm
-      -- FoV for Open Tiles, not Wall or Rubble
-      viewList = S.toList $ FOV.checkFov pos hardT 4
-{-
-      viewT = [ i | v <- viewList,
-                let i = case (v `elem` hardT) of
-                        True -> (0,0) -- Hard space
-                        False -> v    -- actually Open space
-              ]
-      -- final fovT
-      fov = tail $ nub $ filter (/= pos) $
-        [ i | v <- viewT,
-          let i = if
-                fst v > 0 && fst v < 80 &&
-                snd v > 0 && snd v < 50
-                then v
-                else (0,0) -- stay in gridXY
-        ]
--}
+mkView pos gm = let
+  hardT    = GAME.fromHard gm
+  viewList = S.toList $ FOV.checkFov pos hardT 4
   in viewList
 
--- | updateView
--- remember what @ has seen...
+-- | updateView, remember what @ has seen...
 updateView :: World -> World
 updateView w = let
   newMap = GAME.updateGameMap (fovT w) (gameT w)
   in w { gameT = newMap }
 
--- | reset
--- reset the world and redraw the dungeon
+-- | reset the world and redraw the dungeon
 reset :: World -> World
 reset w = let
   (d, g) = D.rogueDungeon (fst $ gridXY w) (snd $ gridXY w) (gameGen w)

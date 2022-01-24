@@ -67,7 +67,9 @@ draw r ts w = do
   -- Background
   renderTexture r (background ts) (0.0, 0.0 :: Double)
   -- DrawMap
-  drawMap r ts w
+  if starting w
+    then return ()
+    else drawMap r ts w
   -- the Hero appears...
   if starting w
     then return ()
@@ -106,10 +108,9 @@ drawE (x,y) r t w = do
 -- apply filters to the Dungeon for display
 drawMap :: SDL.Renderer -> TextureMap -> World -> IO ()
 drawMap r ts w = do
-  let magmaT  = GAME.fromTerrain (gameT w) Magma
-      rockT   = GAME.fromTerrain (gameT w) Rock
-      rubbleT = GAME.fromTerrain (gameT w) Rubble
-      --wallT   = GAME.fromTerrain (gameT w) Wall
+  let magmaT  = GAME.fromVTerrain (gameT w) Magma
+      rockT   = GAME.fromVTerrain (gameT w) Rock
+      rubbleT = GAME.fromVTerrain (gameT w) Rubble
       wallT   = GAME.fromVTerrain (gameT w) Wall
       visibleT = GAME.fromVTerrain (gameT w) Open
 

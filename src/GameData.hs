@@ -6,16 +6,12 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
 -}
 module GameData(fromHard
-               , fromOpen
-               , fromTerrain
-               , fromVisible
                , fromVTerrain
+               , insertEntity
                , GameData
                , GameMap
                , mkGameMap
-               , updateGameMap
-               , unionGameMap
-               , unionsGameMap) where
+               , updateGameMap) where
 
 import qualified Data.Map as Map
 import Data.Maybe
@@ -40,10 +36,7 @@ fromHard gm = let
 
 -- | fromOpen list of Open surfaces
 fromOpen :: GameMap -> [Coord]
-fromOpen gm = let
-  ks = Map.keys gm
-  terrainList = filter ((==Open).fst) $ terrainMap ks gm
-  in [v | (_, v) <- terrainList]
+fromOpen gm = fromTerrain gm Open
 
 -- | fromTerrain list of Coord by Terrain @t@
 fromTerrain :: GameMap -> Terrain -> [Coord]
@@ -64,6 +57,18 @@ fromVTerrain gm t = let
   ks = fromVisible gm
   terrainList = filter((==t).fst) $ terrainMap ks gm
   in [v | (_, v) <- terrainList]
+
+insertGameMap :: Coord -> GameData -> GameMap -> GameMap
+insertGameMap k v gm = case kind v of
+  Zero -> gm -- keep Zero out of GameMap
+  _ -> Map.insert k v gm
+
+-- insert @ into the GameMap
+-- TODO Entity in GameData
+insertEntity :: GameMap -> (Coord, GameMap)
+insertEntity gm = let
+  openList = fromOpen gm
+  in (openList!!0, gm)
 
 -- | listToMap builds the GameMap
 listToMap :: [(Terrain, Coord)] -> GameMap
@@ -108,23 +113,16 @@ updateGameMap :: [Coord] -> GameMap -> GameMap
 updateGameMap [] gm = gm
 updateGameMap (x:xs) gm = let
   g = updateVisible x gm
-  in updateGameMap xs (Map.insert x g gm)
-
--- | unionGameMap helper for union
-unionGameMap :: GameMap -> GameMap -> GameMap
-unionGameMap new old = Map.union new old
-
-unionsGameMap :: [GameMap] -> GameMap
-unionsGameMap xs = Map.unions xs
+  in updateGameMap xs (insertGameMap x g gm)
 
 -- | visibleMap returns Visible from GameMap
 visibleMap :: [Coord] -> GameMap -> [(Bool, Coord)]
 visibleMap [] _ = []
 visibleMap (x:xs) gm = let
-  vis = case Map.lookup x gm of
+  v = case Map.lookup x gm of
     Just k -> (visible k)
     _      -> False
-  in [(vis, x)] ++ visibleMap xs gm
+  in [(v, x)] ++ visibleMap xs gm
 
 -- | zeroG useful for filter
 zeroG :: GameData

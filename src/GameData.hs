@@ -110,7 +110,6 @@ mkGameMap d = let
   in listToMap tileList
 
 -- | mkEntityMap will do more
--- TODO Entity in EntityKind
 mkEntityMap :: EntityMap
 mkEntityMap = Map.empty
 

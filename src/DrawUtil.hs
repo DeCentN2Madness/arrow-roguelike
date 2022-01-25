@@ -112,7 +112,7 @@ drawMap r ts w = do
       rockT   = GAME.fromVTerrain (gameT w) Rock
       rubbleT = GAME.fromVTerrain (gameT w) Rubble
       wallT   = GAME.fromVTerrain (gameT w) Wall
-      visibleT = filter (/=wHero w) $ GAME.fromVTerrain (gameT w) Open
+      visibleT = GAME.fromVTerrain (gameT w) Open
 
   forM_ magmaT   $ \i -> drawE i r (magma ts) w
   forM_ wallT    $ \i -> drawE i r (wall ts) w

@@ -33,20 +33,16 @@ data Intent
   | Idle
   | Quit
 
-data RotateDirection = Clock | Counter
-
 data World = World
   { -- the Dungeon
   gameGen :: StdGen
   , dungeon :: Dungeon
+  -- Coord for Hero
   , gameT :: GameMap
   , entityT :: EntityMap
-  -- Coord for Hero
   , fovT :: [Coord]
-  , wHero :: Coord
-  , degrees :: Int
-  , gridXY :: Coord
   -- XY for Screen
+  , gridXY :: Coord
   , cameraXY :: (Double, Double)
   , screenXY :: (Double, Double)
   , scaleXY :: (Double, Double)
@@ -67,8 +63,6 @@ mkWorld gen (width, height) xMax yMax = let
            , gameT = mkGameMap d
            , entityT = mkEntityMap
            , fovT = [(0,0)]
-           , wHero = (0, 0)
-           , degrees = 0
            , gridXY = (xMax, yMax)
            , cameraXY = (0.0, 0.0)
            , screenXY = (fromIntegral width, fromIntegral height)

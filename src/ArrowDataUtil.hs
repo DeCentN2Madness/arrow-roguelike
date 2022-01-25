@@ -28,8 +28,6 @@ applyIntent intent w = let
     Action West -> handleDir West w
     Action A ->  handleDir East w
     Action D -> handleDir West w
-    Action E -> rotate Clock w
-    Action Q -> rotate Counter w
     Action R -> reset w
     Action S -> handleDir South w
     Action W -> handleDir North w
@@ -50,15 +48,6 @@ dirToCoord d
   | d == West  = (1, 0)
   | otherwise  = (0, 0)
 
--- | dirToDeg @d@ changes degrees
-dirToDeg :: Direction -> Int
-dirToDeg d
-  | d == North = 0
-  | d == South = 180
-  | d == East  = 90
-  | d == West  = 270
-  | otherwise  = 0
-
 -- | handleDir @w@ world will change with @input@
 -- horiz, vert check the grid
 -- getTerrainAt check the dungeon
@@ -67,29 +56,24 @@ dirToDeg d
 handleDir :: Direction -> World -> World
 handleDir input w = if (starting w)
     then do
-      let (startPos, em) = GAME.insertPlayer (gameT w) (entityT w)
-          start = w {
-            wHero = startPos
-            , entityT = em
-            , starting = False
-            }
+      let em = GAME.insertPlayer (gameT w) (entityT w)
+          start = w { entityT = em , starting = False }
       updateCamera start
     else do
       let newCoord = (newX, newY)
-          heading  = dirToDeg input
-          (heroX, heroY) = (wHero w) |+| dirToCoord input
+          (heroX, heroY) = playerPos |+| dirToCoord input
           horiz i = max 0 (min i (fst $ gridXY w))
           vert  j = max 0 (min j (snd $ gridXY w))
           newX = horiz heroX
           newY = vert heroY
+          playerPos  = GAME.findPlayer (entityT w)
           run = case D.getTerrainAt (newX, newY) (dungeon w) of
             Open -> updateView $ w {
               fovT = mkView newCoord (gameT w)
-              , wHero = newCoord
-              , degrees = heading
+              , entityT = GAME.updatePlayer newCoord (entityT w)
               , dirty = True
               }
-            _ -> w { degrees = heading, dirty = False }
+            _ -> w { dirty = False }
       updateCamera run
 
 -- | mkView utilizes FoV for @hardT@ to create the visible places
@@ -113,13 +97,7 @@ reset w = let
        , dungeon = d
        , gameT = GAME.mkGameMap d
        , fovT = [(0,0)]
-       , degrees = 0
        , starting = True }
-
--- | rotate
-rotate :: RotateDirection -> World -> World
-rotate Clock   w = w { degrees = degrees w + 15 }
-rotate Counter w = w { degrees = degrees w - 15 }
 
 -- | quitWorld
 quitWorld :: World -> World

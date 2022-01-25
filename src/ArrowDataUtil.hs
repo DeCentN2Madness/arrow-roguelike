@@ -67,10 +67,10 @@ dirToDeg d
 handleDir :: Direction -> World -> World
 handleDir input w = if (starting w)
     then do
-      let (startPos, gm) = GAME.insertEntity (gameT w)
+      let (startPos, em) = GAME.insertPlayer (gameT w) (entityT w)
           start = w {
             wHero = startPos
-            , gameT = gm
+            , entityT = em
             , starting = False
             }
       updateCamera start

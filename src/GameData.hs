@@ -5,24 +5,36 @@ GameData.hs
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
 -}
-module GameData(fromHard
+module GameData(EntityMap
+               , fromHard
                , fromVTerrain
-               , insertEntity
-               , GameData
                , GameMap
+               , insertPlayer
+               , mkEntityMap
                , mkGameMap
                , updateGameMap) where
 
-import qualified Data.Map as Map
+import Data.Map (Map)
+import qualified Data.Map.Strict as Map
 import Data.Maybe
 import qualified Data.Vector as V
 import Dungeon (Dungeon(..), Terrain(..))
 
 type Coord = (Int, Int)
 
-type GameMap = Map.Map Coord GameData
+data EntityKind = EntityKind
+  { coord :: Coord
+  , code :: String
+  , desc :: String
+  , name :: String
+  , block :: Bool
+  } deriving (Show)
 
-data GameData = GameData
+type GameMap = Map Coord TileKind
+
+type EntityMap = Map Int EntityKind
+
+data TileKind = TileKind
   { visible :: Bool
   , kind :: Terrain
   } deriving (Show)
@@ -58,23 +70,35 @@ fromVTerrain gm t = let
   terrainList = filter((==t).fst) $ terrainMap ks gm
   in [v | (_, v) <- terrainList]
 
-insertGameMap :: Coord -> GameData -> GameMap -> GameMap
+insertGameMap :: Coord -> TileKind -> GameMap -> GameMap
 insertGameMap k v gm = case kind v of
   Zero -> gm -- keep Zero out of GameMap
   _ -> Map.insert k v gm
 
+-- | insertEntityMap
+-- TODO Entity in EntityKind
+insertEntityMap :: Int -> EntityKind -> EntityMap -> EntityMap
+insertEntityMap k v em = Map.insert k v em
+
 -- insert @ into the GameMap
--- TODO Entity in GameData
-insertEntity :: GameMap -> (Coord, GameMap)
-insertEntity gm = let
+-- TODO Entity in EntityKind
+insertPlayer :: GameMap -> EntityMap -> (Coord, EntityMap)
+insertPlayer gm em = let
   openList = fromOpen gm
-  in (openList!!0, gm)
+  pos = openList!!0
+  v = EntityKind { coord = pos
+                 , code = "@"
+                 , desc = "the Hero"
+                 , name = "Player"
+                 , block = True }
+  e = insertEntityMap 0 v em
+  in (pos, e)
 
 -- | listToMap builds the GameMap
 listToMap :: [(Terrain, Coord)] -> GameMap
 listToMap []         = Map.empty
 listToMap ((k,v):xs) = let
-  g = GameData { visible = False, kind = k }
+  g = TileKind { visible = False, kind = k }
   in Map.insert v g (listToMap xs)
 
 -- | mkGrid helper function for zip
@@ -91,6 +115,11 @@ mkGameMap d = let
   tileList = zip terrainList grid
   in listToMap tileList
 
+-- | mkEntityMap will do more
+-- TODO Entity in EntityKind
+mkEntityMap :: EntityMap
+mkEntityMap = Map.empty
+
 -- | terrainMap returns Terrain from GameMap
 terrainMap :: [Coord] -> GameMap -> [(Terrain, Coord)]
 terrainMap [] _ = []
@@ -101,7 +130,7 @@ terrainMap (x:xs) gm = let
   in [(kinds, x)] ++ terrainMap xs gm
 
 -- | updateVisible
-updateVisible :: Coord -> GameMap -> GameData
+updateVisible :: Coord -> GameMap -> TileKind
 updateVisible x gm = let
   k = fromMaybe zeroG $ Map.lookup x gm
   g = if (kind k) /= Zero then k { visible = True } else k
@@ -125,5 +154,5 @@ visibleMap (x:xs) gm = let
   in [(v, x)] ++ visibleMap xs gm
 
 -- | zeroG useful for filter
-zeroG :: GameData
-zeroG = GameData False Zero
+zeroG :: TileKind
+zeroG = TileKind False Zero

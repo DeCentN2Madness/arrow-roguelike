@@ -9,7 +9,7 @@ module ArrowData where
 
 import Control.Monad.Random (StdGen)
 import Dungeon (Dungeon, rogueDungeon)
-import GameData (GameMap, mkGameMap)
+import GameData (EntityMap, GameMap, mkEntityMap, mkGameMap)
 
 type Coord = (Int, Int)
 
@@ -40,6 +40,7 @@ data World = World
   gameGen :: StdGen
   , dungeon :: Dungeon
   , gameT :: GameMap
+  , entityT :: EntityMap
   -- Coord for Hero
   , fovT :: [Coord]
   , wHero :: Coord
@@ -64,6 +65,7 @@ mkWorld gen (width, height) xMax yMax = let
   in World { gameGen = g
            , dungeon = d
            , gameT = mkGameMap d
+           , entityT = mkEntityMap
            , fovT = [(0,0)]
            , wHero = (0, 0)
            , degrees = 0

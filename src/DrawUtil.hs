@@ -1,14 +1,10 @@
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE DeriveFoldable #-}
 {-# LANGUAGE DeriveTraversable #-}
 {-
 
 DrawUtil.hs
 
 This module keeps the drawing routines for SDL.Renderer.
-
-
-Note: (MonadIO m) => SDL.Renderer from Util.withRenderer
 
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
@@ -20,8 +16,9 @@ import Control.Monad.IO.Class (MonadIO)
 import qualified SDL
 import SDL (($=))
 import ArrowData (World(..))
-import qualified GameData as GAME
 import Dungeon (Terrain(..))
+import EntityKind (Entity(..))
+import qualified GameData as GAME
 import qualified Util as U
 
 data AssetMap a = AssetMap
@@ -101,30 +98,40 @@ drawE :: (Int, Int)
 drawE (x,y) r t w = do
   renderTexture r t (newX, newY)
   where
-    xPos = (fst $ scaleXY w) * (fromIntegral x)
-    yPos = (snd $ scaleXY w) * (fromIntegral y)
-    newX = xPos - (fst $ cameraXY w)
-    newY = yPos - (snd $ cameraXY w)
+    (camX, camY) = cameraXY w
+    (scaleX, scaleY) = scaleXY w
+    xPos = scaleX * fromIntegral x
+    yPos = scaleY * fromIntegral y
+    newX = xPos - camX
+    newY = yPos - camY
 
 -- | drawMap
 -- apply filters to the Dungeon for display
 drawMap :: SDL.Renderer -> TextureMap -> World -> IO ()
 drawMap r ts w = do
-  let magmaT  = GAME.fromVTerrain (gameT w) Magma
-      rockT   = GAME.fromVTerrain (gameT w) Rock
-      rubbleT = GAME.fromVTerrain (gameT w) Rubble
-      wallT   = GAME.fromVTerrain (gameT w) Wall
-      pos     = GAME.findPlayer (entityT w)
-      visibleT = filter (/=pos) $ GAME.fromVTerrain (gameT w) Open
+  let actorT = filter ((/=ZeroE).fst) $ GAME.fromEntityMap (entityT w)
+      wallT = GAME.fromVTerrain (gameT w)
+      drawT = filter (\(_, j) -> j `notElem` [v | (_, v) <- actorT]) wallT
+      seen = filter (\(_, j) -> j `elem` fovT w) actorT
 
-  forM_ magmaT   $ \i -> drawE i r (magma ts) w
-  forM_ wallT    $ \i -> drawE i r (wall ts) w
-  forM_ rockT    $ \i -> drawE i r (rock ts) w
-  forM_ rubbleT  $ \i -> drawE i r (rubble ts) w
-  -- FoV for Open Tiles, not Wall or Rubble
-  forM_ visibleT $ \i -> drawE i r (open ts) w
-  -- @
-  forM_ [pos] $ \i -> drawE i r (hero ts) w
+  -- draw *, %, :, #, .
+  forM_ drawT $ \(i,j) -> case i of
+    Magma -> drawE j r (magma ts) w
+    Rubble -> drawE j r (rubble ts) w
+    Rock -> drawE j r (rock ts) w
+    Wall -> drawE j r (wall ts) w
+    _ -> drawE j r (open ts) w
+
+  -- draw @, !, $, r, ',', >, < if in fovT
+  forM_ seen $ \(i,j) -> case i of
+    Actor -> drawE j r (hero ts) w
+    Bang -> drawE j r (bang ts) w
+    Corpse -> drawE j r (rubble ts) w
+    Mouse -> drawE j r (mouse ts) w
+    Mushroom -> drawE j r (mushroom ts) w
+    StairDown -> drawE j r (stairDown ts) w
+    StairUp -> drawE j r (stairUp ts) w
+    _ -> drawE j r (open ts) w
 
 loadTextures :: (MonadIO m)
   => SDL.Renderer

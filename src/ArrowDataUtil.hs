@@ -13,10 +13,14 @@ import qualified Data.Set as S
 import ArrowData
 import Camera (updateCamera)
 import Dungeon (Terrain(..))
-import qualified Dungeon as D
+import qualified Dungeon as DUNGEON
 import GameData (GameMap)
 import qualified GameData as GAME
 import qualified FoV as FOV
+
+-- | operator to add 2 coordinates together
+(|+|) :: Coord -> Coord -> Coord
+(|+|) (x1, y1) (x2, y2) = (x1 + x2, y1 + y2)
 
 -- | applyIntent
 applyIntent :: Intent -> World -> World
@@ -35,9 +39,18 @@ applyIntent intent w = let
     _ -> w
   in newWorld
 
--- | operator to add 2 coordinates together
-(|+|) :: Coord -> Coord -> Coord
-(|+|) (x1, y1) (x2, y2) = (x1 + x2, y1 + y2)
+{-
+bumpAction :: Coord -> World -> World
+-}
+
+-- | clamp to grid
+clamp :: Coord -> Coord -> Coord
+clamp (x1, y1) (x2, y2) = let
+  horiz i = max 0 (min i x2)
+  vert  j = max 0 (min j y2)
+  newX = horiz x1
+  newY = vert y1
+  in (newX, newY)
 
 -- | dirToCoord @d@ changes location
 dirToCoord :: Direction -> Coord
@@ -49,30 +62,25 @@ dirToCoord d
   | otherwise  = (0, 0)
 
 -- | handleDir @w@ world will change with @input@
--- horiz, vert check the grid
+-- clamp check the grid
 -- getTerrainAt check the dungeon
 -- mkView creates the FoV
 -- newWorld if movement
 handleDir :: Direction -> World -> World
 handleDir input w = if (starting w)
     then do
-      let em = GAME.insertPlayer (gameT w) (entityT w)
+      let em = GAME.insertEntity (gameT w) (entityT w)
           start = w { entityT = em, starting = False }
       updateCamera start
     else do
-      let newCoord = (newX, newY)
+      let playerPos  = GAME.getPlayer (entityT w)
           (heroX, heroY) = playerPos |+| dirToCoord input
-          horiz i = max 0 (min i (fst $ gridXY w))
-          vert  j = max 0 (min j (snd $ gridXY w))
-          newX = horiz heroX
-          newY = vert heroY
-          playerPos  = GAME.findPlayer (entityT w)
-          run = case D.getTerrainAt (newX, newY) (dungeon w) of
+          newCoord = clamp (heroX, heroY) (gridXY w)
+          run = case GAME.getTerrainAt newCoord (gameT w) of
             Open -> updateView $ w {
               fovT = mkView newCoord (gameT w)
               , entityT = GAME.updatePlayer newCoord (entityT w)
-              , dirty = True
-              }
+              , dirty = True }
             _ -> w { dirty = False }
       updateCamera run
 
@@ -92,7 +100,7 @@ updateView w = let
 -- | reset the world and redraw the dungeon
 reset :: World -> World
 reset w = let
-  (d, g) = D.rogueDungeon (fst $ gridXY w) (snd $ gridXY w) (gameGen w)
+  (d, g) = DUNGEON.rogueDungeon (fst $ gridXY w) (snd $ gridXY w) (gameGen w)
   in w { gameGen = g
        , dungeon = d
        , gameT = GAME.mkGameMap d

@@ -20,4 +20,4 @@ data TileKind = TileKind
 
 -- | zeroG useful for filter
 zeroTK :: TileKind
-zeroTK = TileKind (0,0) False Zero
+zeroTK = TileKind (0,0) False ZeroT

@@ -8,7 +8,7 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 module Camera (updateCamera) where
 
 import ArrowData (World(..))
-import GameData (findPlayer)
+import GameData (getPlayer)
 
 -- | setCamera
 setCamera :: Double
@@ -26,7 +26,7 @@ setCamera x y (w, h) (scaleX, scaleY) = let
 updateCamera :: World -> World
 updateCamera w = let
   newCamera = setCamera camX camY (screenXY w) (scaleXY w)
-  (heroX, heroY) = findPlayer (entityT w)
+  (heroX, heroY) = getPlayer (entityT w)
   camX = fromIntegral heroX * (fst $ scaleXY w)
   camY = fromIntegral heroY * (snd $ scaleXY w)
   in w { cameraXY = newCamera }

@@ -12,7 +12,9 @@ module GameData(EntityMap
                , getPlayer
                , getTerrainAt
                , GameMap
-               , insertEntity
+               , insertPlayer
+               , insertMouse
+               , insertMushroom
                , mkEntityMap
                , mkGameMap
                , updateGameMap
@@ -87,11 +89,27 @@ insertGameMap k v gm = case tKind v of
 
 -- insert @ into the GameMap
 -- TODO Entity in EntityKind
-insertEntity :: GameMap ->  EntityMap -> EntityMap
-insertEntity gm em = let
+insertPlayer :: GameMap ->  EntityMap -> EntityMap
+insertPlayer gm em = let
   openList = [ v | (_, v) <- fromOpen gm ]
   g = mkEntity Actor
   in Map.insert 0 (g { coord = openList!!2 }) em
+
+-- insert r into the GameMap
+-- TODO Entity in EntityKind
+insertMouse :: GameMap ->  EntityMap -> EntityMap
+insertMouse gm em = let
+  openList = [ v | (_, v) <- fromOpen gm ]
+  g = mkEntity Mouse
+  in Map.insert 1 (g { coord = openList!!4 }) em
+
+-- insert r into the GameMap
+-- TODO Entity in EntityKind
+insertMushroom :: GameMap ->  EntityMap -> EntityMap
+insertMushroom gm em = let
+  openList = [ v | (_, v) <- fromOpen gm ]
+  g = mkEntity Mushroom
+  in Map.insert 2 (g { coord = openList!!6 }) em
 
 -- | listToMap builds the GameMap
 listToMap :: [(Terrain, Coord)] -> GameMap

@@ -64,13 +64,16 @@ dirToCoord d
 -- | handleDir @w@ world will change with @input@
 -- clamp check the grid
 -- getTerrainAt check the dungeon
+-- bumpAt checks Creatures
 -- mkView creates the FoV
 -- newWorld if movement
 handleDir :: Direction -> World -> World
 handleDir input w = if (starting w)
     then do
-      let em = GAME.insertEntity (gameT w) (entityT w)
-          start = w { entityT = em, starting = False }
+      let e = GAME.insertPlayer (gameT w) (entityT w)
+          m = GAME.insertMouse (gameT w) e
+          n = GAME.insertMushroom (gameT w) m
+          start = w { entityT = n, starting = False }
       updateCamera start
     else do
       let playerPos  = GAME.getPlayer (entityT w)
@@ -104,7 +107,7 @@ reset w = let
   in w { gameGen = g
        , dungeon = d
        , gameT = GAME.mkGameMap d
-       , fovT = [(0,0)]
+       , fovT = []
        , starting = True }
 
 -- | quitWorld

@@ -57,7 +57,7 @@ handleDir :: Direction -> World -> World
 handleDir input w = if (starting w)
     then do
       let em = GAME.insertPlayer (gameT w) (entityT w)
-          start = w { entityT = em , starting = False }
+          start = w { entityT = em, starting = False }
       updateCamera start
     else do
       let newCoord = (newX, newY)

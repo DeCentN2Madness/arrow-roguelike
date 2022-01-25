@@ -21,30 +21,17 @@ import qualified Data.Map.Strict as Map
 import Data.Maybe
 import qualified Data.Vector as V
 import Dungeon (Dungeon(..), Terrain(..))
+import EntityKind
+import TileKind
 
 type Coord = (Int, Int)
-
-data EntityKind = EntityKind
-  { coord :: Coord
-  , code :: String
-  , desc :: String
-  , name :: String
-  , block :: Bool
-  } deriving (Show)
-
 type GameMap = Map Coord TileKind
-
 type EntityMap = Map Int EntityKind
-
-data TileKind = TileKind
-  { visible :: Bool
-  , kind :: Terrain
-  } deriving (Show)
 
 -- | @ lives at 0
 findPlayer :: EntityMap -> Coord
 findPlayer em = let
-  e = fromMaybe zeroE $ Map.lookup 0 em
+  e = fromMaybe zeroEK $ Map.lookup 0 em
   in coord e
 
 -- | fromHard list of Hard surfaces
@@ -79,7 +66,7 @@ fromVTerrain gm t = let
   in [v | (_, v) <- terrainList]
 
 insertGameMap :: Coord -> TileKind -> GameMap -> GameMap
-insertGameMap k v gm = case kind v of
+insertGameMap k v gm = case tKind v of
   Zero -> gm -- keep Zero out of GameMap
   _ -> Map.insert k v gm
 
@@ -95,7 +82,7 @@ insertPlayer gm em = let
   openList = fromOpen gm
   pos = openList!!0
   v = EntityKind { coord = pos
-                 , code = "@"
+                 , eKind = Player
                  , desc = "the Hero"
                  , name = "Player"
                  , block = True }
@@ -105,7 +92,7 @@ insertPlayer gm em = let
 listToMap :: [(Terrain, Coord)] -> GameMap
 listToMap []         = Map.empty
 listToMap ((k,v):xs) = let
-  g = TileKind { visible = False, kind = k }
+  g = TileKind { location = v, visible = False, tKind = k }
   in Map.insert v g (listToMap xs)
 
 -- | mkGrid helper function for zip
@@ -132,7 +119,7 @@ terrainMap :: [Coord] -> GameMap -> [(Terrain, Coord)]
 terrainMap [] _ = []
 terrainMap (x:xs) gm = let
   kinds = case Map.lookup x gm of
-    Just k -> (kind k)
+    Just k -> (tKind k)
     _      -> Zero
   in [(kinds, x)] ++ terrainMap xs gm
 
@@ -147,14 +134,14 @@ updateGameMap (x:xs) gm = let
 -- update @ position
 updatePlayer :: Coord -> EntityMap -> EntityMap
 updatePlayer v em = let
-  e = fromMaybe zeroE $ Map.lookup 0 em
+  e = fromMaybe zeroEK $ Map.lookup 0 em
   in Map.insert 0 (e { coord = v }) em
 
 -- | updateVisible
 updateVisible :: Coord -> GameMap -> TileKind
 updateVisible x gm = let
-  k = fromMaybe zeroG $ Map.lookup x gm
-  g = if (kind k) /= Zero then k { visible = True } else k
+  k = fromMaybe zeroTK $ Map.lookup x gm
+  g = if (tKind k) /= Zero then k { visible = True } else k
   in g
 
 -- | visibleMap returns Visible from GameMap
@@ -165,11 +152,3 @@ visibleMap (x:xs) gm = let
     Just k -> (visible k)
     _      -> False
   in [(v, x)] ++ visibleMap xs gm
-
--- | zeroE useful for filter
-zeroE :: EntityKind
-zeroE = EntityKind (0,0) "_" "zero" "zero" False
-
--- | zeroG useful for filter
-zeroG :: TileKind
-zeroG = TileKind False Zero

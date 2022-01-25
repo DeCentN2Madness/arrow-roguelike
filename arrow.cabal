@@ -21,9 +21,11 @@ library
                     , Camera
                     , DrawUtil
                     , Dungeon
+                    , EntityKind
                     , Event
                     , FoV
                     , GameData
+                    , TileKind
                     , Util
   build-depends:    base
                     , containers
@@ -42,9 +44,11 @@ executable Main
                     , Camera
                     , DrawUtil
                     , Dungeon
+                    , EntityKind
                     , Event
                     , FoV
                     , GameData
+                    , TileKind
                     , Util
   hs-source-dirs:   app
                     , src

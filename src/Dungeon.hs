@@ -146,13 +146,13 @@ rogueDungeon width height g = let
   (tileVector, gFinal) = runST $ flip runRandT g $ do
     vec <- VM.replicate tileCount Wall
     -- add Debris
-    forM_ [1 :: Int .. 10] $ \_ -> do
+    forM_ [1 :: Int .. 20] $ \_ -> do
       r <- randRoom 1 (width-2) 1 (height-2)
       setPoint width vec r Rubble
-    forM_ [1 :: Int .. 10] $ \_ -> do
+    forM_ [1 :: Int .. 20] $ \_ -> do
       r <- randRoom 1 (width-2) 1 (height-2)
       setPoint width vec r Magma
-    forM_ [1 :: Int .. 10] $ \_ -> do
+    forM_ [1 :: Int .. 20] $ \_ -> do
       r <- randRoom 1 (width-2) 1 (height-2)
       setPoint width vec r Rock
     -- pick the rooms
@@ -184,6 +184,7 @@ rogueDungeon width height g = let
             10 -> (5,8,Vertical)
             11 -> (3,6,Vertical)
             12 -> (6,9,Vertical)
+            _ -> (1,2,Horizontal)
           sec1 = rooms !! (sec1targ-1)
           sec2 = rooms !! (sec2targ-1)
     -- line up rooms with halls
@@ -196,9 +197,8 @@ rogueDungeon width height g = let
 -- | setPoint
 -- Modify the vector w/ Point and Terrain
 -- Output:
--- %%%
--- %%%
--- %%%
+-- %%
+-- %%
 setPoint :: PrimMonad m
   => Int
   -> VM.MVector (PrimState m) a
@@ -208,8 +208,8 @@ setPoint :: PrimMonad m
 setPoint width vec (Room x1 y1 _ _) tile
   = setBox width vec (Room x1 y1 x2 y2) tile
   where
-    x2 = x1 + 2
-    y2 = y1 + 2
+    x2 = x1 + 1
+    y2 = y1 + 1
 
 -- | setBox
 -- Modify the vector w/ Room and Terrain

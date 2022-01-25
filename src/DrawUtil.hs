@@ -25,14 +25,17 @@ import Dungeon (Terrain(..))
 import qualified Util as U
 
 data AssetMap a = AssetMap
-  { background :: a
+  { arrow :: a
+  , background :: a
+  , bang :: a
   , coin :: a
   , hero :: a
-  , light :: a
   , magma :: a
+  , mouse :: a
+  , mushroom :: a
   , open :: a
-  , rubble :: a
   , rock :: a
+  , rubble :: a
   , stairDown :: a
   , stairUp :: a
   , wall :: a
@@ -46,11 +49,14 @@ type TextureMap = AssetMap (SDL.Texture, SDL.TextureInfo)
 
 assetPaths :: PathMap
 assetPaths = AssetMap
-  { background = "./assets/Background.png"
+  { arrow = "./assets/Arrow.png"
+  , background = "./assets/Background.png"
+  , bang = "./assets/Bang.png"
   , coin = "./assets/Coin.png"
   , hero = "./assets/Hero.png"
-  , light = "./assets/Light.png"
   , magma = "./assets/Magma.png"
+  , mouse = "./assets/Mouse.png"
+  , mushroom = "./assets/Mushroom.png"
   , open = "./assets/Open.png"
   , rock = "./assets/Rock.png"
   , rubble = "./assets/Rubble.png"
@@ -70,23 +76,19 @@ draw r ts w = do
   if starting w
     then return ()
     else drawMap r ts w
-  -- the Hero appears...
+  -- the HUD
   if starting w
-    then return ()
+    then renderTexture r (arrow ts) (0.0, 0.0 :: Double)
     else do
-      -- @
-      renderTexture r (hero ts) (midX, midY)
       -- HUD
       setColor r Green
       SDL.drawRect r (Just hud)
   -- Screen
   SDL.present r
   where
-    hud = U.mkRect 0 (height-25) width height
+    hud = U.mkRect 0 (height-75) width height
     width = floor (fst $ screenXY w)
     height = floor (snd $ screenXY w)
-    midX = ((fst $ screenXY w) - (fst $ scaleXY w)) / 2.0
-    midY = ((snd $ screenXY w) - (snd $ scaleXY w)) / 2.0
 
 -- | drawE draws Coord @(x,y)@ wDungeon element.
 --- Coord is then translated into the screen with scaleXY and
@@ -121,6 +123,8 @@ drawMap r ts w = do
   forM_ rubbleT  $ \i -> drawE i r (rubble ts) w
   -- FoV for Open Tiles, not Wall or Rubble
   forM_ visibleT $ \i -> drawE i r (open ts) w
+  -- @
+  forM_ [pos] $ \i -> drawE i r (hero ts) w
 
 loadTextures :: (MonadIO m)
   => SDL.Renderer

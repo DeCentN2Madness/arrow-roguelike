@@ -9,6 +9,7 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
 -}
 module GameData(EntityMap
+               , fromBlock
                , fromEntity
                , fromHard
                , fromOpen
@@ -36,6 +37,12 @@ type Coord = (Int, Int)
 type GameMap = Map Int TileKind
 type EntityMap = Map Int EntityKind
 
+-- | fromBlock
+fromBlock :: EntityMap -> [(Int, Coord)]
+fromBlock em = let
+  entityList = [ (i, xy) | (i, ek) <- Map.toList em,
+                 let xy = if block ek then coord ek else (0,0) ]
+  in entityList
 
 -- | fromEntity in the World
 fromEntity :: EntityMap -> [(Entity, Coord)]

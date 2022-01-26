@@ -14,7 +14,7 @@ import ArrowData
 import Camera (updateCamera)
 import Dungeon (Terrain(..))
 import qualified Dungeon as DUNGEON
-import GameData (GameMap)
+import GameData (GameMap, EntityMap)
 import qualified GameData as GAME
 import qualified FoV as FOV
 
@@ -39,6 +39,14 @@ applyIntent intent w = let
     _ -> w
   in newWorld
 
+-- | bumpAction
+-- make entities block
+bumpAction :: Coord -> EntityMap -> Bool
+bumpAction pos em = let
+  entityList = [ xy | (_, xy) <- GAME.fromBlock em ]
+  blockList = filter (==pos) entityList
+  in null blockList
+
 -- | clamp to grid
 cardinal :: Coord -> [Coord]
 cardinal pos = let
@@ -49,8 +57,7 @@ cardinal pos = let
               , pos |+| dirToCoord South
               , pos |+| dirToCoord SouthWest
               , pos |+| dirToCoord West
-              , pos |+| dirToCoord NorthWest
-              ]
+              , pos |+| dirToCoord NorthWest ]
   in coordList
 
 -- | clamp to grid
@@ -76,11 +83,12 @@ dirToCoord d
   | otherwise  = (0, 0)
 
 -- | handleDir @w@ world will change with @input@
--- clamp check the grid
--- getTerrainAt check the dungeon
--- bumpAt checks Creatures
--- mkView creates the FoV
--- newWorld if movement
+-- Processs:
+-- 1. clamp check the grid
+-- 2. bumpAction checks Entity w/ block
+-- 3. getTerrainAt checks the GameMap
+-- 4. if Open then create a new FoV and move
+--    else no movement
 handleDir :: Direction -> World -> World
 handleDir input w = if starting w
     then do
@@ -90,9 +98,11 @@ handleDir input w = if starting w
           start = w { entityT = n, starting = False }
       updateCamera start
     else do
-      let playerPos  = GAME.getPlayer (entityT w)
-          (heroX, heroY) = playerPos |+| dirToCoord input
-          newCoord = clamp (heroX, heroY) (gridXY w)
+      let playerCoord  = GAME.getPlayer (entityT w)
+          (heroX, heroY) = playerCoord |+| dirToCoord input
+          clampCoord = clamp (heroX, heroY) (gridXY w)
+          bumpCoord = bumpAction clampCoord (entityT w)
+          newCoord = if bumpCoord then clampCoord else playerCoord
           run = case GAME.getTerrainAt newCoord (gameT w) of
             Open -> updateView $ w {
               fovT = mkView newCoord (gameT w)

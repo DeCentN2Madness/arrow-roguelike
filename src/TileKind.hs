@@ -5,18 +5,13 @@ TileKind.hs
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
 -}
-module TileKind(TileKind(..)
-               , zeroTK) where
+module TileKind(TileKind(..), zeroTK) where
 
 import Dungeon (Terrain(..))
 
 type Coord = (Int, Int)
 
-data TileKind = TileKind
-  { location :: Coord
-  , visible :: Bool
-  , tKind :: Terrain
-  } deriving (Show)
+data TileKind = TileKind Coord Bool Terrain deriving (Read, Show, Eq)
 
 -- | zeroG useful for filter
 zeroTK :: TileKind

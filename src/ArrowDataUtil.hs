@@ -39,10 +39,6 @@ applyIntent intent w = let
     _ -> w
   in newWorld
 
-{-
-bumpAction :: Coord -> World -> World
--}
-
 -- | clamp to grid
 clamp :: Coord -> Coord -> Coord
 clamp (x1, y1) (x2, y2) = let

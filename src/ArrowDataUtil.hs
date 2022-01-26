@@ -95,10 +95,9 @@ dirToCoord d
 handleDir :: Direction -> World -> World
 handleDir input w = if starting w
     then do
-      let e = GAME.insertPlayer (gameT w) (entityT w)
-          m = GAME.insertMouse (gameT w) e
-          n = GAME.insertMushroom (gameT w) m
-          start = w { entityT = n, starting = False }
+      let mice = GAME.insertMouse (gameT w)
+          e = GAME.insertPlayer (gameT w) mice
+          start = w { entityT = e, starting = False }
       updateCamera start
     else do
       let playerCoord  = GAME.getPlayer (entityT w)
@@ -119,12 +118,12 @@ handleDir input w = if starting w
 -- | logevent
 logEvent :: Int -> World -> String
 logEvent x w = let
-  player = GAME.getPlayer (entityT w)
+  player = GAME.getEntityAt 0 (entityT w)
   entity = GAME.getEntityAt x (entityT w)
   entry = if x > 0
     then "Attacks from " ++ show player ++ " at " ++ show entity ++ "\n"
     else []
-  in journal w ++ entry
+  in entry
 
 -- | mkView utilizes FoV for @hardT@ to create the visible places
 mkView :: (Int, Int) -> GameMap -> [Coord]

@@ -33,18 +33,18 @@ data EntityKind = EntityKind
   , name :: String
   } deriving (Show)
 
-mkEntity :: Entity -> EntityKind
-mkEntity Actor = EntityKind { coord = (0,0), eKind = Actor, desc = "the Hero", name = "Player", block = True }
-mkEntity Bang = EntityKind { coord = (0,0), eKind = Bang, desc = "the potion", name = "!", block = False }
-mkEntity Corpse = EntityKind { coord = (0,0), eKind = Corpse, desc = "the corpse",  name = "%", block = False }
-mkEntity Item = EntityKind { coord = (0,0), eKind = Item, desc = "the Item", name = "[", block = False }
-mkEntity Mouse = EntityKind { coord = (0,0), eKind = Mouse, desc = "the Mouse", name = "r", block = True }
-mkEntity Mushroom = EntityKind { coord = (0,0), eKind = Mushroom, desc = "the Mushroom", name = ",", block = False }
-mkEntity StairDown = EntityKind { coord = (0,0), eKind = StairDown, desc = "stairDown", name = ">", block = False }
-mkEntity StairUp = EntityKind { coord = (0,0), eKind = StairUp, desc = "stairUp", name = "<", block = False }
-mkEntity Trap = EntityKind { coord = (0,0), eKind = Trap, desc = "the Trap", name = "^", block = False }
-mkEntity ZeroE = zeroEK
-
+-- | mkEntity
+mkEntity :: Entity -> Coord -> EntityKind
+mkEntity Actor xy     = EntityKind xy True Actor "the Hero" "Player"
+mkEntity Bang xy      = EntityKind xy False Bang  "the potion" "!"
+mkEntity Corpse xy    = EntityKind xy False Corpse "the corpse" "%"
+mkEntity Item xy      = EntityKind xy False Item "the Item" "["
+mkEntity Mouse xy     = EntityKind xy True Mouse "the Mouse" "r"
+mkEntity Mushroom xy  = EntityKind xy False Mushroom "the Mushroom" ","
+mkEntity StairDown xy = EntityKind xy False StairDown "stairDown" ">"
+mkEntity StairUp xy   = EntityKind xy False StairUp "stairUp" "<"
+mkEntity Trap xy      = EntityKind xy False Trap "the Trap" "^"
+mkEntity ZeroE _      = zeroEK
 
 -- | zeroE useful for filter
 zeroEK :: EntityKind

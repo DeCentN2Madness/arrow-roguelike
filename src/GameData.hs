@@ -18,9 +18,8 @@ module GameData(EntityMap
                , getEntityAt
                , getTerrainAt
                , GameMap
-               , insertPlayer
                , insertMouse
-               , insertMushroom
+               , insertPlayer
                , mkEntityMap
                , mkGameMap
                , updateGameMap
@@ -58,12 +57,6 @@ getPlayer :: EntityMap -> Coord
 getPlayer em = let
   e = getEntityAt 0 em
   in coord e
-  {-
-getPlayer em = let
-  entityList = [ xy | (t, pos) <- fromEntity em,
-                 let xy = if t == Actor then pos else (0,0)]
-  in head $ filter (/=(0,0)) entityList
--}
 
 getEntityAt :: Int -> EntityMap -> EntityKind
 getEntityAt x em = fromMaybe zeroEK $ Map.lookup x em
@@ -94,26 +87,24 @@ fromVisual gm = let
                  let xy = if vis then pos else (0,0)]
   in visualList
 
+insertEntity :: Int -> Coord -> Entity -> EntityMap -> EntityMap
+insertEntity k pos e em = let
+  ek = mkEntity e pos
+  in Map.insert k ek em
+
 -- | insert @ into the GameMap
-insertPlayer :: GameMap ->  EntityMap -> EntityMap
+insertPlayer :: GameMap -> EntityMap -> EntityMap
 insertPlayer gm em = let
-  openList = [ v | (_, v) <- fromOpen gm ]
-  g = mkEntity Actor
-  in Map.insert 0 (g { coord = openList!!2 }) em
+  openList = [ v | (_, v) <- fromOpen gm]
+  xy = head openList
+  in insertEntity 0 xy Actor em
 
--- | insert r into the GameMap
-insertMouse :: GameMap ->  EntityMap -> EntityMap
-insertMouse gm em = let
-  openList = [ v | (_, v) <- fromOpen gm ]
-  g = mkEntity Mouse
-  in Map.insert 1 (g { coord = openList!!4 }) em
-
--- | insert , into the GameMap
-insertMushroom :: GameMap ->  EntityMap -> EntityMap
-insertMushroom gm em = let
-  openList = [ v | (_, v) <- fromOpen gm ]
-  g = mkEntity Mushroom
-  in Map.insert 2 (g { coord = openList!!6 }) em
+insertMouse :: GameMap -> EntityMap
+insertMouse gm = let
+  openList = tail $ [ v | (_, v) <- fromOpen gm ]
+  miceList = [ m | v <- openList, let m = mkEntity Mouse v]
+  mice = zip [1..3] miceList
+  in Map.fromList mice
 
 -- | mkGrid helper function for zip
 mkGrid :: Int -> Int -> [Coord]

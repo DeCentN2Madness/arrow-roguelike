@@ -20,6 +20,8 @@ actionIntent _                     = Idle
 extractPayload :: SDL.Event -> SDL.EventPayload
 extractPayload (SDL.Event _t p) = p
 
+-- | getkey
+-- vi movement
 getKey :: SDL.KeyboardEventData -> Intent
 getKey (SDL.KeyboardEventData _ SDL.Released _ _) = Idle
 getKey (SDL.KeyboardEventData _ SDL.Pressed True _) = Idle

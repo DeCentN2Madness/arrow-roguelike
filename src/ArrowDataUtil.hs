@@ -106,13 +106,23 @@ handleDir input w = if starting w
           clampCoord = clamp (heroX, heroY) (gridXY w)
           bumpCoord = bumpAction clampCoord (entityT w)
           newCoord = if bumpCoord < 1 then clampCoord else playerCoord
+          entry = logevent bumpCoord newCoord (journal w)
           run = case GAME.getTerrainAt newCoord (gameT w) of
             Open -> updateView $ w {
               fovT = mkView newCoord (gameT w)
               , entityT = GAME.updatePlayer newCoord (entityT w)
+              , journal = entry
               , dirty = True }
             _ -> w { dirty = False }
       updateCamera run
+
+-- | logevent
+logevent :: Int -> Coord -> String -> String
+logevent x pos xs = let
+  e = case x of
+    0 -> []
+    _ -> "Attacks " ++ show x ++ " at " ++ show pos
+  in xs ++ e
 
 -- | mkView utilizes FoV for @hardT@ to create the visible places
 mkView :: (Int, Int) -> GameMap -> [Coord]

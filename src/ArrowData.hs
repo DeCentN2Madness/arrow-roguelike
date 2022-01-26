@@ -53,6 +53,7 @@ data World = World
   , screenXY :: (Double, Double)
   , scaleXY :: (Double, Double)
   -- GameStates
+  , journal :: String
   , dirty   :: Bool
   , starting :: Bool
   , exiting :: Bool
@@ -73,6 +74,7 @@ mkWorld gen (width, height) xMax yMax = let
            , cameraXY = (0.0, 0.0)
            , screenXY = (fromIntegral width, fromIntegral height)
            , scaleXY = (sx, sy)
+           , journal = []
            , dirty = True
            , starting = True
            , exiting = False

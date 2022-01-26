@@ -15,6 +15,7 @@ module GameData(EntityMap
                , fromOpen
                , fromVisual
                , getPlayer
+               , getEntityAt
                , getTerrainAt
                , GameMap
                , insertPlayer
@@ -55,9 +56,17 @@ fromEntity em = let
 -- | @ lives at 0
 getPlayer :: EntityMap -> Coord
 getPlayer em = let
+  e = getEntityAt 0 em
+  in coord e
+  {-
+getPlayer em = let
   entityList = [ xy | (t, pos) <- fromEntity em,
                  let xy = if t == Actor then pos else (0,0)]
   in head $ filter (/=(0,0)) entityList
+-}
+
+getEntityAt :: Int -> EntityMap -> EntityKind
+getEntityAt x em = fromMaybe zeroEK $ Map.lookup x em
 
 -- | getTerrainAt
 getTerrainAt :: Coord -> GameMap -> Terrain

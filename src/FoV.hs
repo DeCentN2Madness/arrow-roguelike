@@ -38,7 +38,7 @@ aboveOrCollinearPoint self p = relativeSlope self p <= 0
 addShallowBump :: (Int, Int) -> View -> View
 addShallowBump loc@(x, y) view = let
   (SightLine xi yi _ _) = getShallowLine view
-  newShallowBumps = loc : (getShallowBumps view)
+  newShallowBumps = loc : getShallowBumps view
   newShallowLine = foldl (foldLineUsing abovePoint) (SightLine xi yi x y) (getSteepBumps view)
   in view { getShallowBumps = newShallowBumps, getShallowLine = newShallowLine }
 
@@ -46,7 +46,7 @@ addShallowBump loc@(x, y) view = let
 addSteepBump :: (Int, Int) -> View -> View
 addSteepBump loc@(x, y) view = let
   (SightLine xi yi _ _) = getSteepLine view
-  newSteepBumps = loc : (getSteepBumps view)
+  newSteepBumps = loc : getSteepBumps view
   newSteepLine = foldl (foldLineUsing belowPoint) (SightLine xi yi x y) (getShallowBumps view)
   in view { getSteepBumps = newSteepBumps, getSteepLine = newSteepLine }
 
@@ -72,7 +72,7 @@ bumpAndCheck bumpf activeViews viewIndex bump = out
 calcViewIndex :: [View] -> (Int, Int) -> Int
 calcViewIndex activeViews bottomRight = let
   go tmp [] = tmp
-  go tmp (v:vs) = if (getSteepLine v) `belowOrCollinearPoint` bottomRight
+  go tmp (v:vs) = if getSteepLine v `belowOrCollinearPoint` bottomRight
     then go (tmp+1) vs
     else tmp
   in go 0 activeViews
@@ -104,9 +104,9 @@ checkQuadrant vision range (sx, sy) (qx, qy) = checkSub coordsToCheck (S.singlet
 -- 2 4 7
 -- @ 1 3 6 ...
 checkFov :: (Int, Int) -> [(Int,Int)] -> Int -> Set (Int, Int)
-checkFov origin xs distance = fov blocked distance origin
-  where
-    blocked = (\x -> x `elem` xs)
+checkFov origin xs distance = let
+  blocked = (`elem` xs)
+  in fov blocked distance origin
 
 -- | collinearPpoint infix
 collinearPoint :: SightLine -> (Int, Int) -> Bool
@@ -123,7 +123,7 @@ coordsFromRange range = do
   let maxIndex = (2*range) + 1
   i <- [1..(maxIndex-1)]
   let startJ  = max (i-range) 0
-  let maxJ    = (min i range) + 1
+  let maxJ    = min i range + 1
   j <- [startJ .. (maxJ-1)]
   pure (i-j, j)
 
@@ -173,14 +173,14 @@ visitCoord (sx, sy) (dx, dy) (qx, qy) activeViews vision visited = let
   realY = dy * qy
   trueLocation = (sx + realX, sy + realY)
   viewIndex = calcViewIndex activeViews bottomRight
-  in if viewIndex == (length activeViews) || (getShallowLine (activeViews !! viewIndex)) `aboveOrCollinearPoint` topLeft
+  in if viewIndex == length activeViews || getShallowLine (activeViews !! viewIndex) `aboveOrCollinearPoint` topLeft
   then (visited, activeViews) -- no compatible views
   else let newVisited = S.insert trueLocation visited
            visionBlocked = vision trueLocation
            in if visionBlocked
                  then let currentView = activeViews !! viewIndex -- vision is blocked
-                          shallowAboveBottomRight = (getShallowLine currentView) `abovePoint` bottomRight
-                          steepBelowTopLeft = (getSteepLine currentView) `belowPoint` topLeft
+                          shallowAboveBottomRight = getShallowLine currentView `abovePoint` bottomRight
+                          steepBelowTopLeft = getSteepLine currentView `belowPoint` topLeft
                           in case (shallowAboveBottomRight, steepBelowTopLeft) of
                                (True, True) -> (newVisited, remove viewIndex activeViews)
                                (True, False) -> (newVisited, bumpAndCheck addShallowBump activeViews viewIndex topLeft)
@@ -201,7 +201,7 @@ validView :: View -> Bool
 validView view = not (shallowIsSteep && lineOnExtremity)
   where
     shallowIsSteep = shallowLine' `collinearLine` steepLine'
-    lineOnExtremity = (shallowLine' `collinearPoint` (0, 1) || shallowLine' `collinearPoint` (1, 0))
+    lineOnExtremity = shallowLine' `collinearPoint` (0, 1) || shallowLine' `collinearPoint` (1, 0)
     shallowLine' = getShallowLine view
     steepLine' = getSteepLine view
 
@@ -210,15 +210,15 @@ add a (b:bs) new
   | a < 0 = b : bs
   | a == 0 = new : b : bs
   | otherwise = b : add (a-1) bs new
-add 0 []     new = [new]
-add _ []     _   = []
+add 0 [] new = [new]
+add _ [] _   = []
 
 update :: (Integral a) => a -> [b] -> b -> [b]
 update a (b:bs) new
   | a < 0 = b : bs
   | a == 0 = new : bs
   | otherwise = b : update (a-1) bs new
-update _ []     _   = []
+update _ [] _ = []
 
 remove :: (Integral a) => a -> [b] -> [b]
 remove a (b:bs)

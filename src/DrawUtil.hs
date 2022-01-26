@@ -83,7 +83,7 @@ draw r ts w = do
   -- Screen
   SDL.present r
   where
-    hud = U.mkRect 0 (height-75) width height
+    hud = U.mkRect 0 (height-25) width height
     width = floor (fst $ screenXY w)
     height = floor (snd $ screenXY w)
 

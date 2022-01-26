@@ -27,17 +27,31 @@ applyIntent :: Intent -> World -> World
 applyIntent intent w = let
   newWorld = case intent of
     Action North -> handleDir North w
-    Action South -> handleDir South w
+    Action NorthEast -> handleDir NorthEast w
     Action East -> handleDir East w
+    Action SouthEast -> handleDir SouthEast w
+    Action South -> handleDir South w
+    Action SouthWest -> handleDir SouthWest w
     Action West -> handleDir West w
-    Action A ->  handleDir East w
-    Action D -> handleDir West w
+    Action NorthWest -> handleDir NorthWest w
     Action R -> reset w
-    Action S -> handleDir South w
-    Action W -> handleDir North w
     Quit -> quitWorld w
     _ -> w
   in newWorld
+
+-- | clamp to grid
+cardinal :: Coord -> [Coord]
+cardinal pos = let
+  coordList = [ pos |+| dirToCoord North
+              , pos |+| dirToCoord NorthEast
+              , pos |+| dirToCoord East
+              , pos |+| dirToCoord SouthEast
+              , pos |+| dirToCoord South
+              , pos |+| dirToCoord SouthWest
+              , pos |+| dirToCoord West
+              , pos |+| dirToCoord NorthWest
+              ]
+  in coordList
 
 -- | clamp to grid
 clamp :: Coord -> Coord -> Coord
@@ -52,9 +66,13 @@ clamp (x1, y1) (x2, y2) = let
 dirToCoord :: Direction -> Coord
 dirToCoord d
   | d == North = (0, -1)
-  | d == South = (0, 1)
+  | d == NorthEast = dirToCoord North |+| dirToCoord East
   | d == East  = (-1, 0)
+  | d == SouthEast = dirToCoord South |+| dirToCoord East
+  | d == South = (0, 1)
+  | d == SouthWest = dirToCoord South |+| dirToCoord West
   | d == West  = (1, 0)
+  | d == NorthWest = dirToCoord North |+| dirToCoord West
   | otherwise  = (0, 0)
 
 -- | handleDir @w@ world will change with @input@
@@ -64,7 +82,7 @@ dirToCoord d
 -- mkView creates the FoV
 -- newWorld if movement
 handleDir :: Direction -> World -> World
-handleDir input w = if (starting w)
+handleDir input w = if starting w
     then do
       let e = GAME.insertPlayer (gameT w) (entityT w)
           m = GAME.insertMouse (gameT w) e
@@ -86,9 +104,10 @@ handleDir input w = if (starting w)
 -- | mkView utilizes FoV for @hardT@ to create the visible places
 mkView :: (Int, Int) -> GameMap -> [Coord]
 mkView pos gm = let
-  hardT    = GAME.fromHard gm
-  viewList = S.toList $ FOV.checkFov pos hardT 4
-  in viewList
+  hardT    = [ xy | (_, xy) <- GAME.fromHard gm ]
+  viewList = S.toList $ FOV.checkFov pos hardT 5
+  coordList = cardinal pos
+  in viewList ++ coordList
 
 -- | updateView, remember what @ has seen...
 updateView :: World -> World
@@ -99,7 +118,7 @@ updateView w = let
 -- | reset the world and redraw the dungeon
 reset :: World -> World
 reset w = let
-  (d, g) = DUNGEON.rogueDungeon (fst $ gridXY w) (snd $ gridXY w) (gameGen w)
+  (d, g) = uncurry DUNGEON.rogueDungeon (gridXY w) (gameGen w)
   in w { gameGen = g
        , dungeon = d
        , gameT = GAME.mkGameMap d

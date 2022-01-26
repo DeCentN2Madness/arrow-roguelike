@@ -30,13 +30,15 @@ getKey (SDL.KeyboardEventData _ SDL.Pressed False keysym) =
     SDL.KeycodeDown   -> Action South
     SDL.KeycodeLeft   -> Action East
     SDL.KeycodeRight  -> Action West
-    SDL.KeycodeA      -> Action A
-    SDL.KeycodeD      -> Action D
-    SDL.KeycodeE      -> Action E
-    SDL.KeycodeQ      -> Action Q
+    SDL.KeycodeK      -> Action North
+    SDL.KeycodeY      -> Action NorthEast
+    SDL.KeycodeH      -> Action East
+    SDL.KeycodeB      -> Action SouthEast
+    SDL.KeycodeJ      -> Action South
+    SDL.KeycodeU      -> Action SouthWest
+    SDL.KeycodeL      -> Action West
+    SDL.KeycodeN      -> Action NorthWest
     SDL.KeycodeR      -> Action R
-    SDL.KeycodeS      -> Action S
-    SDL.KeycodeW      -> Action W
     _                 -> Action Help
 
 mkIntent :: Maybe SDL.Event -> Intent

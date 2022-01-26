@@ -109,10 +109,10 @@ drawE (x,y) r t w = do
 -- apply filters to the Dungeon for display
 drawMap :: SDL.Renderer -> TextureMap -> World -> IO ()
 drawMap r ts w = do
-  let actorT = filter ((/=ZeroE).fst) $ GAME.fromEntityMap (entityT w)
-      wallT = GAME.fromVTerrain (gameT w)
-      drawT = filter (\(_, j) -> j `notElem` [v | (_, v) <- actorT]) wallT
-      seen = filter (\(_, j) -> j `elem` fovT w) actorT
+  let actorT = GAME.fromEntity (entityT w)
+      wallT  = GAME.fromVisual (gameT w)
+      drawT  = filter (\(_, j) -> j `notElem` [v | (_, v) <- actorT]) wallT
+      seen   = filter (\(_, j) -> j `elem` fovT w) actorT
 
   -- draw *, %, :, #, .
   forM_ drawT $ \(i,j) -> case i of

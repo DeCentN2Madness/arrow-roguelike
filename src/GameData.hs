@@ -2,13 +2,17 @@
 
 GameData.hs
 
+GameData is the engine for the game Kinds and returns from the map
+in pattern of [(Kind, Coord)]
+
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
 -}
 module GameData(EntityMap
-               , fromEntityMap
+               , fromEntity
                , fromHard
-               , fromVTerrain
+               , fromOpen
+               , fromVisual
                , getPlayer
                , getTerrainAt
                , GameMap
@@ -32,23 +36,21 @@ type Coord = (Int, Int)
 type GameMap = Map Int TileKind
 type EntityMap = Map Int EntityKind
 
--- | terrainMap returns Terrain from GameMap
-fromEntity :: [Int] -> EntityMap -> [(Entity, Coord)]
-fromEntity [] _ = []
-fromEntity (x:xs) em = let
-  e = fromMaybe zeroEK $ Map.lookup x em
-  in (eKind e, coord e) : fromEntity xs em
 
-fromEntityMap :: EntityMap -> [(Entity, Coord)]
-fromEntityMap em = let
-  ks = Map.keys em
-  in fromEntity ks em
+-- | fromEntity in the World
+fromEntity :: EntityMap -> [(Entity, Coord)]
+fromEntity em = let
+  entityList = [ (t, pos) | (_, ek) <- Map.toList em,
+                 let pos = coord ek
+                     t = eKind ek ]
+  in entityList
 
 -- | @ lives at 0
 getPlayer :: EntityMap -> Coord
 getPlayer em = let
-  e = fromMaybe zeroEK $ Map.lookup 0 em
-  in coord e
+  entityList = [ xy | (t, pos) <- fromEntity em,
+                 let xy = if t == Actor then pos else (0,0)]
+  in head $ filter (/=(0,0)) entityList
 
 -- | getTerrainAt
 getTerrainAt :: Coord -> GameMap -> Terrain
@@ -58,22 +60,20 @@ getTerrainAt k gm = let
   in snd $ head $ filter ((==k).fst) terrainList
 
 -- | fromHard list of Hard surfaces
-fromHard :: GameMap -> [Coord]
+fromHard :: GameMap -> [(Terrain, Coord)]
 fromHard gm = let
-  ks = Map.keys gm
-  terrainList = filter ((/=Open).fst) $ terrainMap ks gm
-  in [v | (_, v) <- terrainList]
+  terrainList = [ (t, pos) | (_, TileKind pos _ t) <- Map.toList gm ]
+  in filter ((/=Open).fst) terrainList
 
 -- | fromOpen list of Open surfaces
 fromOpen :: GameMap -> [(Terrain, Coord)]
 fromOpen gm = let
-  ks = Map.keys gm
-  terrainList = filter ((==Open).fst) $ terrainMap ks gm
-  in terrainList
+  terrainList = [ (t, pos) | (_, TileKind pos _ t) <- Map.toList gm ]
+  in filter ((==Open).fst) terrainList
 
--- | fromVTerrain return visual terrain
-fromVTerrain :: GameMap -> [(Terrain, Coord)]
-fromVTerrain gm = let
+-- | fromVisual return visual terrain
+fromVisual :: GameMap -> [(Terrain, Coord)]
+fromVisual gm = let
   visualList = [ (t, xy) | (_, TileKind pos vis t) <- Map.toList gm,
                  let xy = if vis then pos else (0,0)]
   in visualList
@@ -118,13 +118,6 @@ mkGameMap d = let
 -- | mkEntityMap will do more
 mkEntityMap :: EntityMap
 mkEntityMap = Map.empty
-
--- | terrainMap returns Terrain from GameMap
-terrainMap :: [Int] -> GameMap -> [(Terrain, Coord)]
-terrainMap [] _ = []
-terrainMap (x:xs) gm = let
-  (TileKind pos _ t) = fromMaybe zeroTK $ Map.lookup x gm
-  in (t, pos) : terrainMap xs gm
 
 -- | updateGameMap
 -- just visible for now...

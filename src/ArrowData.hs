@@ -16,16 +16,22 @@ type Coord = (Int, Int)
 data Direction
   = Help
   | North
-  | South
+  | NorthEast
   | East
+  | SouthEast
+  | South
+  | SouthWest
   | West
-  | A
-  | D
-  | E
-  | Q
+  | NorthWest
+  | K
+  | Y
+  | H
+  | B
+  | J
+  | U
+  | L
+  | N
   | R
-  | S
-  | W
   deriving (Eq)
 
 data Intent

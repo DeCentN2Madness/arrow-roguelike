@@ -110,10 +110,12 @@ mkView pos gm = let
   in viewList ++ coordList
 
 -- | updateView, remember what @ has seen...
+-- clamp fovT to grid
 updateView :: World -> World
 updateView w = let
-  newMap = GAME.updateGameMap (fovT w) (gameT w)
-  in w { gameT = newMap }
+  newFov = [ xy | k <- fovT w, let xy = clamp k (gridXY w) ]
+  newMap = GAME.updateGameMap newFov (gameT w)
+  in w { gameT = newMap, fovT = newFov }
 
 -- | reset the world and redraw the dungeon
 reset :: World -> World

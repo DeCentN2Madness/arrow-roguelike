@@ -9,6 +9,7 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 -}
 module ArrowDataUtil (applyIntent) where
 
+import Data.List (nub)
 import qualified Data.Set as S
 import ArrowData
 import Camera (updateCamera)
@@ -41,11 +42,13 @@ applyIntent intent w = let
 
 -- | bumpAction
 -- make entities block
-bumpAction :: Coord -> EntityMap -> Bool
+bumpAction :: Coord -> EntityMap -> Int
 bumpAction pos em = let
-  entityList = [ xy | (_, xy) <- GAME.fromBlock em ]
-  blockList = filter (==pos) entityList
-  in null blockList
+  blockList = filter ((==pos).snd) $ GAME.fromBlock em
+  ix = if null blockList
+    then 0
+    else fst $ head blockList
+  in ix
 
 -- | clamp to grid
 cardinal :: Coord -> [Coord]
@@ -102,7 +105,7 @@ handleDir input w = if starting w
           (heroX, heroY) = playerCoord |+| dirToCoord input
           clampCoord = clamp (heroX, heroY) (gridXY w)
           bumpCoord = bumpAction clampCoord (entityT w)
-          newCoord = if bumpCoord then clampCoord else playerCoord
+          newCoord = if bumpCoord < 1 then clampCoord else playerCoord
           run = case GAME.getTerrainAt newCoord (gameT w) of
             Open -> updateView $ w {
               fovT = mkView newCoord (gameT w)
@@ -117,7 +120,7 @@ mkView pos gm = let
   hardT    = [ xy | (_, xy) <- GAME.fromHard gm ]
   viewList = S.toList $ FOV.checkFov pos hardT 5
   coordList = cardinal pos
-  in viewList ++ coordList
+  in nub $ viewList ++ coordList
 
 -- | updateView, remember what @ has seen...
 -- clamp fovT to grid

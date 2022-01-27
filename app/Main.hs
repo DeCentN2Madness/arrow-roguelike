@@ -10,11 +10,11 @@ import Data.IORef
 import Control.Monad.Random (getStdGen)
 import Control.Monad.Extra (unless)
 import qualified SDL
-import ArrowData (mkWorld, World(..))
-import ArrowDataUtil (applyIntent)
-import DrawUtil (assetPaths, draw, loadTextures, TextureMap)
-import Event (mkIntent)
-import qualified Util as U
+import Engine.Arrow.Data (mkWorld, World(..))
+import Engine.Arrow.Util (applyIntent)
+import Engine.Draw.Util (assetPaths, draw, loadTextures, TextureMap)
+import Engine.SDL.Event (mkIntent)
+import qualified Engine.SDL.Util as U
 
 width, height :: Int
 (width, height) = (640, 480)

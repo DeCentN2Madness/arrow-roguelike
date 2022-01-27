@@ -8,7 +8,7 @@ Precise Permissive Field of View
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
 -}
-module FoV (checkFov) where
+module Engine.Arrow.FoV (checkFov) where
 
 import Prelude hiding (pred)
 import Data.Set (Set)

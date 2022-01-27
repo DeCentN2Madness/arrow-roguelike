@@ -5,9 +5,9 @@ Camera.hs
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
 -}
-module Camera (updateCamera) where
+module Engine.Draw.Camera (updateCamera) where
 
-import ArrowData (World(..))
+import Engine.Arrow.Data (World(..))
 import GameData (getPlayer)
 
 -- | setCamera

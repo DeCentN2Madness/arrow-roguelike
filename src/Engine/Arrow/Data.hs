@@ -5,7 +5,7 @@ ArrowData.hs
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
 -}
-module ArrowData where
+module Engine.Arrow.Data where
 
 import Control.Monad.Random (StdGen)
 import Dungeon (Dungeon, rogueDungeon)

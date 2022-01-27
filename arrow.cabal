@@ -16,17 +16,17 @@ source-repository head
 
 library
   hs-source-dirs:   src
-  exposed-modules:  ArrowData
-                    , ArrowDataUtil
-                    , Camera
-                    , DrawUtil
+  exposed-modules:  Engine.Arrow.Data
+                    , Engine.Arrow.FoV
+                    , Engine.Arrow.Util
+                    , Engine.Draw.Camera
+                    , Engine.Draw.Util
+                    , Engine.SDL.Event
+                    , Engine.SDL.Util
                     , Dungeon
                     , EntityKind
-                    , Event
-                    , FoV
                     , GameData
                     , TileKind
-                    , Util
   build-depends:    base
                     , containers
                     , MonadRandom
@@ -39,17 +39,17 @@ library
 
 executable Main
   main-is:          Main.hs
-  other-modules:    ArrowData
-                    , ArrowDataUtil
-                    , Camera
-                    , DrawUtil
+  other-modules:    Engine.Arrow.Data
+                    , Engine.Arrow.FoV
+                    , Engine.Arrow.Util
+                    , Engine.Draw.Util
+                    , Engine.Draw.Camera
+                    , Engine.SDL.Event
+                    , Engine.SDL.Util
                     , Dungeon
                     , EntityKind
-                    , Event
-                    , FoV
                     , GameData
                     , TileKind
-                    , Util
   hs-source-dirs:   app
                     , src
   build-depends:    base

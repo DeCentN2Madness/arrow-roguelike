@@ -9,17 +9,17 @@ This module keeps the drawing routines for SDL.Renderer.
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
 -}
-module DrawUtil where
+module Engine.Draw.Util where
 
 import Control.Monad (forM_)
 import Control.Monad.IO.Class (MonadIO)
 import qualified SDL
 import SDL (($=))
-import ArrowData (World(..))
 import Dungeon (Terrain(..))
 import EntityKind (Entity(..))
 import qualified GameData as GAME
-import qualified Util as U
+import Engine.Arrow.Data (World(..))
+import qualified Engine.SDL.Util as U
 
 data AssetMap a = AssetMap
   { arrow :: a

@@ -3,7 +3,7 @@ Util.hs
 
 SDL2 helpers
 -}
-module Util where
+module Engine.SDL.Util where
 
 import qualified SDL
 import qualified SDL.Image

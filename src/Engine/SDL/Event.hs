@@ -7,10 +7,10 @@ Keyboard Handling
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
 -}
-module Event where
+module Engine.SDL.Event where
 
 import qualified SDL
-import ArrowData (Direction(..), Intent(..))
+import Engine.Arrow.Data (Direction(..), Intent(..))
 
 actionIntent :: SDL.EventPayload -> Intent
 actionIntent SDL.QuitEvent         = Quit

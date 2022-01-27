@@ -7,17 +7,17 @@ applyIntent to the World
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
 -}
-module ArrowDataUtil (applyIntent) where
+module Engine.Arrow.Util (applyIntent) where
 
 import Data.List (nub)
 import qualified Data.Set as S
-import ArrowData
-import Camera (updateCamera)
+import Engine.Arrow.Data
+import Engine.Arrow.FoV (checkFov)
+import Engine.Draw.Camera (updateCamera)
 import Dungeon (Terrain(..))
 import qualified Dungeon as DUNGEON
 import GameData (GameMap, EntityMap)
 import qualified GameData as GAME
-import qualified FoV as FOV
 
 -- | operator to add 2 coordinates together
 (|+|) :: Coord -> Coord -> Coord
@@ -129,7 +129,7 @@ logEvent x w = let
 mkView :: (Int, Int) -> GameMap -> [Coord]
 mkView pos gm = let
   hardT    = [ xy | (_, xy) <- GAME.fromHard gm ]
-  viewList = S.toList $ FOV.checkFov pos hardT 5
+  viewList = S.toList $ checkFov pos hardT 4
   coordList = cardinal pos
   in nub $ viewList ++ coordList
 

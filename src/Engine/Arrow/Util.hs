@@ -9,7 +9,6 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 -}
 module Engine.Arrow.Util (applyIntent) where
 
-import Data.List (nub)
 import qualified Data.Set as S
 import Engine.Arrow.Data
 import Engine.Arrow.FoV (checkFov)
@@ -131,7 +130,7 @@ mkView pos gm = let
   hardT    = [ xy | (_, xy) <- GAME.fromHard gm ]
   viewList = S.toList $ checkFov pos hardT 4
   coordList = cardinal pos
-  in nub $ viewList ++ coordList
+  in viewList ++ coordList
 
 -- | updateView, remember what @ has seen...
 -- clamp fovT to grid

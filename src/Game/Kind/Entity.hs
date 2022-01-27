@@ -1,14 +1,11 @@
 {-
 
-EntityKind.hs
+Game.Kind.Entity.hs
 
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
 -}
-module EntityKind(Entity(..)
-                 , EntityKind(..)
-                 , mkEntity
-                 , zeroEK) where
+module Game.Kind.Entity (Entity(..), EntityKind(..), mkEntity, zeroEK) where
 
 type Coord = (Int, Int)
 

@@ -1,6 +1,6 @@
 {-
 
-Camera.hs
+Engine.Draw.Camera.hs
 
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
@@ -8,7 +8,7 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 module Engine.Draw.Camera (updateCamera) where
 
 import Engine.Arrow.Data (World(..))
-import GameData (getPlayer)
+import Game.Data (getPlayer)
 
 -- | setCamera
 setCamera :: Double

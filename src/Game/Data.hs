@@ -1,14 +1,14 @@
 {-
 
-GameData.hs
+GameD.ata.hs
 
-GameData is the engine for the game Kinds and returns from the map
+Game.Data is the engine for the game Kinds and returns from the map
 in pattern of [(Kind, Coord)]
 
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
 -}
-module GameData(EntityMap
+module Game.Data(EntityMap
                , fromBlock
                , fromEntity
                , fromHard
@@ -29,9 +29,9 @@ import Data.Map (Map)
 import qualified Data.Map.Strict as Map
 import Data.Maybe
 import qualified Data.Vector as V
-import Dungeon (Dungeon(..), Terrain(..))
-import EntityKind
-import TileKind
+import Game.Dungeon (Dungeon(..), Terrain(..))
+import Game.Kind.Entity
+import Game.Kind.Tile
 
 type Coord = (Int, Int)
 type GameMap = Map Int TileKind

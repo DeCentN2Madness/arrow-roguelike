@@ -1,6 +1,6 @@
 {-
 
-ArrowDataUtil.hs
+Engine.Arrow.Util.hs
 
 applyIntent to the World
 
@@ -14,10 +14,10 @@ import qualified Data.Set as S
 import Engine.Arrow.Data
 import Engine.Arrow.FoV (checkFov)
 import Engine.Draw.Camera (updateCamera)
-import Dungeon (Terrain(..))
-import qualified Dungeon as DUNGEON
-import GameData (GameMap, EntityMap)
-import qualified GameData as GAME
+import Game.Data (GameMap, EntityMap)
+import Game.Dungeon (Terrain(..))
+import qualified Game.Dungeon as DUNGEON
+import qualified Game.Data as GAME
 
 -- | operator to add 2 coordinates together
 (|+|) :: Coord -> Coord -> Coord

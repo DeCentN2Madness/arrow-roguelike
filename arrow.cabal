@@ -23,10 +23,10 @@ library
                     , Engine.Draw.Util
                     , Engine.SDL.Event
                     , Engine.SDL.Util
-                    , Dungeon
-                    , EntityKind
-                    , GameData
-                    , TileKind
+                    , Game.Data
+                    , Game.Dungeon
+                    , Game.Kind.Entity
+                    , Game.Kind.Tile
   build-depends:    base
                     , containers
                     , MonadRandom
@@ -46,10 +46,10 @@ executable Main
                     , Engine.Draw.Camera
                     , Engine.SDL.Event
                     , Engine.SDL.Util
-                    , Dungeon
-                    , EntityKind
-                    , GameData
-                    , TileKind
+                    , Game.Data
+                    , Game.Dungeon
+                    , Game.Kind.Entity
+                    , Game.Kind.Tile
   hs-source-dirs:   app
                     , src
   build-depends:    base

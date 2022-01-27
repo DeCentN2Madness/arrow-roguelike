@@ -1,8 +1,10 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-
+
 Main.hs
 
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
+
 -}
 module Main (main) where
 

@@ -1,6 +1,6 @@
 {-
 
-ArrowData.hs
+Engine.Arrow.Data.hs
 
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
@@ -8,8 +8,8 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 module Engine.Arrow.Data where
 
 import Control.Monad.Random (StdGen)
-import Dungeon (Dungeon, rogueDungeon)
-import GameData (EntityMap, GameMap, mkEntityMap, mkGameMap)
+import Game.Dungeon (Dungeon, rogueDungeon)
+import Game.Data (EntityMap, GameMap, mkEntityMap, mkGameMap)
 
 type Coord = (Int, Int)
 

@@ -2,7 +2,7 @@
 {-# LANGUAGE DeriveTraversable #-}
 {-
 
-DrawUtil.hs
+Engine.Draw.Util.hs
 
 This module keeps the drawing routines for SDL.Renderer.
 
@@ -15,11 +15,11 @@ import Control.Monad (forM_)
 import Control.Monad.IO.Class (MonadIO)
 import qualified SDL
 import SDL (($=))
-import Dungeon (Terrain(..))
-import EntityKind (Entity(..))
-import qualified GameData as GAME
 import Engine.Arrow.Data (World(..))
 import qualified Engine.SDL.Util as U
+import qualified Game.Data as GAME
+import Game.Dungeon (Terrain(..))
+import Game.Kind.Entity (Entity(..))
 
 data AssetMap a = AssetMap
   { arrow :: a

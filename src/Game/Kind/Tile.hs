@@ -1,13 +1,13 @@
 {-
 
-TileKind.hs
+Game.Kind.Tile
 
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
 -}
-module TileKind(TileKind(..), zeroTK) where
+module Game.Kind.Tile (TileKind(..), zeroTK) where
 
-import Dungeon (Terrain(..))
+import Game.Dungeon (Terrain(..))
 
 type Coord = (Int, Int)
 

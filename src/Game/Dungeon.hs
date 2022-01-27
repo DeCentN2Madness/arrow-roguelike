@@ -1,12 +1,12 @@
 {-# LANGUAGE Trustworthy #-}
 {-
 
-Dungeon.hs
+Game.Dungeon.hs
 
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
 -}
-module Dungeon (boxDungeon
+module Game.Dungeon (boxDungeon
                , Dungeon(..)
                , getTerrainAt
                , rogueDungeon

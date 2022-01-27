@@ -27,6 +27,7 @@ data AssetMap a = AssetMap
   , bang :: a
   , coin :: a
   , hero :: a
+  , item :: a
   , magma :: a
   , mouse :: a
   , mushroom :: a
@@ -35,7 +36,9 @@ data AssetMap a = AssetMap
   , rubble :: a
   , stairDown :: a
   , stairUp :: a
+  , trap :: a
   , wall :: a
+  , zero :: a
   } deriving (Functor, Foldable, Traversable)
 
 data Colour = White | Red | Blue | Green | Yellow
@@ -51,6 +54,7 @@ assetPaths = AssetMap
   , bang = "./assets/Bang.png"
   , coin = "./assets/Coin.png"
   , hero = "./assets/Hero.png"
+  , item = "./assets/Item.png"
   , magma = "./assets/Magma.png"
   , mouse = "./assets/Mouse.png"
   , mushroom = "./assets/Mushroom.png"
@@ -59,7 +63,9 @@ assetPaths = AssetMap
   , rubble = "./assets/Rubble.png"
   , stairDown = "./assets/StairDown.png"
   , stairUp = "./assets/StairUp.png"
+  , trap = "./assets/trap.png"
   , wall = "./assets/Wall.png"
+  , zero = "./assets/zero.png"
   }
 
 -- | draw main drawing loop
@@ -70,9 +76,7 @@ draw r ts w = do
   -- Background
   renderTexture r (background ts) (0.0, 0.0 :: Double)
   -- DrawMap
-  if starting w
-    then return ()
-    else drawMap r ts w
+  drawMap r ts w
   -- the HUD
   if starting w
     then renderTexture r (arrow ts) (0.0, 0.0 :: Double)
@@ -120,18 +124,21 @@ drawMap r ts w = do
     Rubble -> drawE j r (rubble ts) w
     Rock -> drawE j r (rock ts) w
     Wall -> drawE j r (wall ts) w
-    _ -> drawE j r (open ts) w
+    Open -> drawE j r (open ts) w
+    _ -> drawE j r (zero ts) w
 
   -- draw @, !, $, r, ',', >, < if in fovT
   forM_ seen $ \(i,j) -> case i of
     Actor -> drawE j r (hero ts) w
     Bang -> drawE j r (bang ts) w
     Corpse -> drawE j r (rubble ts) w
+    Item -> drawE j r (item ts) w
     Mouse -> drawE j r (mouse ts) w
     Mushroom -> drawE j r (mushroom ts) w
     StairDown -> drawE j r (stairDown ts) w
     StairUp -> drawE j r (stairUp ts) w
-    _ -> drawE j r (open ts) w
+    Trap -> drawE j r (trap ts) w
+    _ -> drawE j r (zero ts) w
 
 loadTextures :: (MonadIO m)
   => SDL.Renderer

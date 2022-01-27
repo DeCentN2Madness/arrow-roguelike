@@ -35,11 +35,11 @@ getKey (SDL.KeyboardEventData _ SDL.Pressed False keysym) =
     SDL.KeycodeK      -> Action North
     SDL.KeycodeY      -> Action NorthEast
     SDL.KeycodeH      -> Action East
-    SDL.KeycodeB      -> Action SouthEast
+    SDL.KeycodeN      -> Action SouthEast
     SDL.KeycodeJ      -> Action South
-    SDL.KeycodeU      -> Action SouthWest
+    SDL.KeycodeB      -> Action SouthWest
     SDL.KeycodeL      -> Action West
-    SDL.KeycodeN      -> Action NorthWest
+    SDL.KeycodeU      -> Action NorthWest
     SDL.KeycodeR      -> Action R
     _                 -> Action Help
 

@@ -24,10 +24,11 @@ library
                     , Engine.SDL.Event
                     , Engine.SDL.Util
                     , Game.Actor
-                    , Game.Tile
+                    , Game.DiceSet
                     , Game.Dungeon
                     , Game.Kind.Entity
                     , Game.Kind.Tile
+                    , Game.Tile
   build-depends:    base
                     , containers
                     , MonadRandom
@@ -48,10 +49,11 @@ executable Main
                     , Engine.SDL.Event
                     , Engine.SDL.Util
                     , Game.Actor
-                    , Game.Tile
+                    , Game.DiceSet
                     , Game.Dungeon
                     , Game.Kind.Entity
                     , Game.Kind.Tile
+                    , Game.Tile
   hs-source-dirs:   app
                     , src
   build-depends:    base

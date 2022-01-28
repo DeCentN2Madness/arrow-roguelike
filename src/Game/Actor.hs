@@ -20,6 +20,7 @@ module Game.Actor(EntityMap
 import Control.Monad.Random (StdGen)
 import Data.Map (Map)
 import qualified Data.Map.Strict as Map
+import qualified Game.DiceSet as DS
 import Game.Tile (fromOpen, TileMap)
 import Game.Kind.Entity
 
@@ -72,9 +73,18 @@ insertMouse tm g = let
   mice = zip [1..3] miceList
   in insertPlayer tm (Map.fromList mice) g
 
+-- | three blind mice
+insertMice :: TileMap -> StdGen -> EntityMap
+insertMice tm g = let
+  openList = tail $ [ xy | (_, xy) <- fromOpen tm ]
+  miceList = [ m | v <- openList, let m = mkEntity Mouse v g ]
+  count = sum $ DS.randomList 1 (3, 6) g
+  mice = zip [1..count] miceList
+  in insertPlayer tm (Map.fromList mice) g
+
 -- | mkEntityMap will do more
 mkEntityMap :: TileMap -> StdGen -> EntityMap
-mkEntityMap = insertMouse
+mkEntityMap = insertMice
 
 -- update @ position
 updatePlayer :: Coord -> EntityMap -> EntityMap

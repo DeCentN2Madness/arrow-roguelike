@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedStrings #-}
 {-
 
 Game.Kind.Entity.hs
@@ -35,19 +36,21 @@ data EntityKind = EntityKind
   } deriving (Show)
 
 -- | defaultProp
--- this will do more
 defaultProp :: Properties
-defaultProp = Map.fromList [("Name", "Player"), ("Desc", "@")]
+defaultProp = mkProp "Player" "@"
+
+-- | mkProp
+mkProp :: String -> String -> Properties
+mkProp x y = Map.fromList [("Name", x), ("Desc", y)]
 
 -- | mkEntity
---mkEntity :: RandomGen g => Entity -> Coord -> g -> (EntityKind, g)
 mkEntity :: Entity -> Coord -> StdGen -> EntityKind
 mkEntity Actor xy g     = EntityKind xy True Actor defaultProp g
-mkEntity Bang xy g      = EntityKind xy False Bang  defaultProp g
-mkEntity Corpse xy g    = EntityKind xy False Corpse defaultProp g
-mkEntity Item xy g      = EntityKind xy False Item defaultProp g
-mkEntity Mouse xy g     = EntityKind xy True Mouse defaultProp g
-mkEntity Mushroom xy g  = EntityKind xy False Mushroom defaultProp g
-mkEntity StairDown xy g = EntityKind xy False StairDown defaultProp g
-mkEntity StairUp xy g   = EntityKind xy False StairUp defaultProp g
-mkEntity Trap xy g      = EntityKind xy False Trap defaultProp g
+mkEntity Bang xy g      = EntityKind xy False Bang  (mkProp "Bang" "!") g
+mkEntity Corpse xy g    = EntityKind xy False Corpse (mkProp "Corpse" "%") g
+mkEntity Item xy g      = EntityKind xy False Item (mkProp "Item" "[") g
+mkEntity Mouse xy g     = EntityKind xy True Mouse (mkProp "Mouse" "r") g
+mkEntity Mushroom xy g  = EntityKind xy False Mushroom (mkProp "Mushroom" ",") g
+mkEntity StairDown xy g = EntityKind xy False StairDown (mkProp "Stair" ">") g
+mkEntity StairUp xy g   = EntityKind xy False StairUp (mkProp "Stair" "<") g
+mkEntity Trap xy g      = EntityKind xy False Trap (mkProp "Trap" "^") g

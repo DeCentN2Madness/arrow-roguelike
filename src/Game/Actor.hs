@@ -66,6 +66,7 @@ insertPlayer tm em g = let
   in insertEntity 0 xy Actor g em
 
 -- | three blind mice
+-- next to @
 insertMouse :: TileMap -> StdGen -> EntityMap
 insertMouse tm g = let
   openList = tail $ [ xy | (_, xy) <- fromOpen tm ]
@@ -73,18 +74,18 @@ insertMouse tm g = let
   mice = zip [1..3] miceList
   in insertPlayer tm (Map.fromList mice) g
 
--- | three blind mice
-insertMice :: TileMap -> StdGen -> EntityMap
-insertMice tm g = let
+-- | n random blind mice
+insertMice :: Int -> TileMap -> StdGen -> EntityMap
+insertMice count tm g = let
   openList = tail $ [ xy | (_, xy) <- fromOpen tm ]
-  miceList = [ m | v <- openList, let m = mkEntity Mouse v g ]
-  count = sum $ DS.randomList 1 (3, 6) g
+  randList = DS.randomList count (1, length openList) g
+  miceList = [ m | v <- randList, let m = mkEntity Mouse (openList!!v) g ]
   mice = zip [1..count] miceList
   in insertPlayer tm (Map.fromList mice) g
 
 -- | mkEntityMap will do more
 mkEntityMap :: TileMap -> StdGen -> EntityMap
-mkEntityMap = insertMice
+mkEntityMap = insertMice 10
 
 -- update @ position
 updatePlayer :: Coord -> EntityMap -> EntityMap

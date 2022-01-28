@@ -23,7 +23,8 @@ library
                     , Engine.Draw.Util
                     , Engine.SDL.Event
                     , Engine.SDL.Util
-                    , Game.Data
+                    , Game.Actor
+                    , Game.Tile
                     , Game.Dungeon
                     , Game.Kind.Entity
                     , Game.Kind.Tile
@@ -46,7 +47,8 @@ executable Main
                     , Engine.Draw.Camera
                     , Engine.SDL.Event
                     , Engine.SDL.Util
-                    , Game.Data
+                    , Game.Actor
+                    , Game.Tile
                     , Game.Dungeon
                     , Game.Kind.Entity
                     , Game.Kind.Tile

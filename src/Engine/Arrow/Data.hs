@@ -8,8 +8,9 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 module Engine.Arrow.Data where
 
 import Control.Monad.Random (StdGen)
+import Game.Actor (EntityMap, mkEntityMap)
 import Game.Dungeon (Dungeon, rogueDungeon)
-import Game.Data (EntityMap, GameMap, mkEntityMap, mkGameMap)
+import Game.Tile (TileMap, mkTileMap)
 
 type Coord = (Int, Int)
 
@@ -44,7 +45,7 @@ data World = World
   gameGen :: StdGen
   , dungeon :: Dungeon
   -- Coord for Hero
-  , gameT :: GameMap
+  , gameT :: TileMap
   , entityT :: EntityMap
   , fovT :: [Coord]
   -- XY for Screen
@@ -63,12 +64,14 @@ data World = World
 mkWorld :: StdGen -> Coord -> Int -> Int -> World
 mkWorld gen (width, height) xMax yMax = let
   (d, g) = rogueDungeon xMax yMax gen
+  gm = mkTileMap d
+  em = mkEntityMap gm g
   sx = 25.0 -- scaleXY based on tiles
   sy = 25.0
   in World { gameGen = g
            , dungeon = d
-           , gameT = mkGameMap d
-           , entityT = mkEntityMap
+           , gameT = gm
+           , entityT = em
            , fovT = []
            , gridXY = (xMax, yMax)
            , cameraXY = (0.0, 0.0)

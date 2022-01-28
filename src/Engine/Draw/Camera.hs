@@ -8,7 +8,7 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 module Engine.Draw.Camera (updateCamera) where
 
 import Engine.Arrow.Data (World(..))
-import Game.Data (getPlayer)
+import Game.Actor (getPlayer)
 
 -- | setCamera
 setCamera :: Double
@@ -27,6 +27,7 @@ updateCamera :: World -> World
 updateCamera w = let
   newCamera = setCamera camX camY (screenXY w) (scaleXY w)
   (heroX, heroY) = getPlayer (entityT w)
-  camX = fromIntegral heroX * (fst $ scaleXY w)
-  camY = fromIntegral heroY * (snd $ scaleXY w)
+  camX = fromIntegral heroX * sx
+  camY = fromIntegral heroY * sy
+  (sx, sy) = scaleXY w
   in w { cameraXY = newCamera }

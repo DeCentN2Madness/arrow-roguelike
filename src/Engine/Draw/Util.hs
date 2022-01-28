@@ -17,9 +17,10 @@ import qualified SDL
 import SDL (($=))
 import Engine.Arrow.Data (World(..))
 import qualified Engine.SDL.Util as U
-import qualified Game.Data as GAME
 import Game.Dungeon (Terrain(..))
 import Game.Kind.Entity (Entity(..))
+import qualified Game.Actor as GA
+import qualified Game.Tile as GT
 
 data AssetMap a = AssetMap
   { arrow :: a
@@ -113,8 +114,8 @@ drawE (x,y) r t w = do
 -- apply filters to the Dungeon for display
 drawMap :: SDL.Renderer -> TextureMap -> World -> IO ()
 drawMap r ts w = do
-  let actorT = GAME.fromEntity (entityT w)
-      wallT  = GAME.fromVisual (gameT w)
+  let actorT = GA.fromEntity (entityT w)
+      wallT  = GT.fromVisual (gameT w)
       drawT  = filter (\(_, j) -> j `notElem` [v | (_, v) <- actorT]) wallT
       seen   = filter (\(_, j) -> j `elem` fovT w) actorT
 
@@ -125,7 +126,6 @@ drawMap r ts w = do
     Rock -> drawE j r (rock ts) w
     Wall -> drawE j r (wall ts) w
     Open -> drawE j r (open ts) w
-    _ -> drawE j r (zero ts) w
 
   -- draw @, !, $, r, ',', >, < if in fovT
   forM_ seen $ \(i,j) -> case i of
@@ -138,7 +138,6 @@ drawMap r ts w = do
     StairDown -> drawE j r (stairDown ts) w
     StairUp -> drawE j r (stairUp ts) w
     Trap -> drawE j r (trap ts) w
-    _ -> drawE j r (zero ts) w
 
 loadTextures :: (MonadIO m)
   => SDL.Renderer

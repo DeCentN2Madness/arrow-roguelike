@@ -11,7 +11,7 @@ import Game.Dungeon (Terrain(..))
 
 type Coord = (Int, Int)
 
-data TileKind = TileKind Coord Bool Terrain deriving (Read, Show, Eq)
+data TileKind = TileKind Coord Bool Terrain deriving (Show, Eq)
 
 -- | zeroG useful for filter
 zeroTK :: TileKind

@@ -5,9 +5,14 @@ Game.Kind.Entity.hs
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
 -}
-module Game.Kind.Entity (Entity(..), EntityKind(..), mkEntity, zeroEK) where
+module Game.Kind.Entity (Entity(..), EntityKind(..), mkEntity) where
+
+import Control.Monad.Random (StdGen)
+import Data.Map (Map)
+import qualified Data.Map as Map
 
 type Coord = (Int, Int)
+type Properties = Map String String
 
 data Entity
   = Actor
@@ -16,33 +21,33 @@ data Entity
   | Item
   | Mouse
   | Mushroom
-  | Trap
   | StairDown
   | StairUp
-  | ZeroE
-  deriving (Read, Show, Eq)
+  | Trap
+  deriving (Show, Eq, Ord)
 
 data EntityKind = EntityKind
   { coord :: Coord
   , block :: Bool
   , eKind :: Entity
-  , desc :: String
-  , name :: String
+  , prop :: Properties
+  , _gameGen :: StdGen
   } deriving (Show)
 
--- | mkEntity
-mkEntity :: Entity -> Coord -> EntityKind
-mkEntity Actor xy     = EntityKind xy True Actor "the Hero" "Player"
-mkEntity Bang xy      = EntityKind xy False Bang  "the potion" "!"
-mkEntity Corpse xy    = EntityKind xy False Corpse "the corpse" "%"
-mkEntity Item xy      = EntityKind xy False Item "the Item" "["
-mkEntity Mouse xy     = EntityKind xy True Mouse "the Mouse" "r"
-mkEntity Mushroom xy  = EntityKind xy False Mushroom "the Mushroom" ","
-mkEntity StairDown xy = EntityKind xy False StairDown "stairDown" ">"
-mkEntity StairUp xy   = EntityKind xy False StairUp "stairUp" "<"
-mkEntity Trap xy      = EntityKind xy False Trap "the Trap" "^"
-mkEntity ZeroE _      = zeroEK
+-- | defaultProp
+-- this will do more
+defaultProp :: Properties
+defaultProp = Map.fromList [("Name", "Player"), ("Desc", "@")]
 
--- | zeroE useful for filter
-zeroEK :: EntityKind
-zeroEK = EntityKind (0,0) False ZeroE "" ""
+-- | mkEntity
+--mkEntity :: RandomGen g => Entity -> Coord -> g -> (EntityKind, g)
+mkEntity :: Entity -> Coord -> StdGen -> EntityKind
+mkEntity Actor xy g     = EntityKind xy True Actor defaultProp g
+mkEntity Bang xy g      = EntityKind xy False Bang  defaultProp g
+mkEntity Corpse xy g    = EntityKind xy False Corpse defaultProp g
+mkEntity Item xy g      = EntityKind xy False Item defaultProp g
+mkEntity Mouse xy g     = EntityKind xy True Mouse defaultProp g
+mkEntity Mushroom xy g  = EntityKind xy False Mushroom defaultProp g
+mkEntity StairDown xy g = EntityKind xy False StairDown defaultProp g
+mkEntity StairUp xy g   = EntityKind xy False StairUp defaultProp g
+mkEntity Trap xy g      = EntityKind xy False Trap defaultProp g

@@ -41,8 +41,6 @@ data Terrain
   | Rubble
   | Magma
   | Rock
-  | StairsDown
-  | StarsUp
   | ZeroT
   deriving (Read, Show, Eq)
 

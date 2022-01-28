@@ -99,12 +99,12 @@ handleDir input w = if starting w
     run = w { starting = False }
     in updateCamera run
   else let
-    playerCoord  = GA.getPlayer (entityT w)
-    (heroX, heroY) = playerCoord |+| dirToCoord input
-    clampCoord = clamp (heroX, heroY) (gridXY w)
-    bumpCoord = bumpAction clampCoord (entityT w)
-    newCoord = if bumpCoord < 1 then clampCoord else playerCoord
-    entry = logEvent bumpCoord w
+    (_, playerCoord) = GA.getPlayer (entityT w)
+    (heroX, heroY)   = playerCoord |+| dirToCoord input
+    clampCoord       = clamp (heroX, heroY) (gridXY w)
+    bump             = bumpAction clampCoord (entityT w)
+    newCoord         = if bump < 1 then clampCoord else playerCoord
+    entry            = logEvent bump w
     run = case GT.getTerrainAt newCoord (gameT w) of
       Open -> updateView $ w {
         fovT = mkView newCoord (gameT w)

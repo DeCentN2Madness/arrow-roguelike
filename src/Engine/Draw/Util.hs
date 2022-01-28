@@ -114,21 +114,23 @@ drawE (x,y) r t w = do
 -- apply filters to the Dungeon for display
 drawMap :: SDL.Renderer -> TextureMap -> World -> IO ()
 drawMap r ts w = do
-  let actorT = GA.fromEntity (entityT w)
-      wallT  = GT.fromVisual (gameT w)
-      drawT  = filter (\(_, j) -> j `notElem` [v | (_, v) <- actorT]) wallT
-      seen   = filter (\(_, j) -> j `elem` fovT w) actorT
+  let actors = GA.fromEntity (entityT w)
+      walls  = GT.fromVisual (gameT w)
+      wallT  = filter (\(_, j) -> j `notElem` [v | (_, v) <- actors]) walls
+      seenT  = pos : filter (\(_, j) -> j `elem` fovT w && j /= snd pos) actors
+      pos    = GA.getPlayer (entityT w)
 
   -- draw *, %, :, #, .
-  forM_ drawT $ \(i,j) -> case i of
+  forM_ wallT $ \(i,j) -> case i of
     Magma -> drawE j r (magma ts) w
     Rubble -> drawE j r (rubble ts) w
     Rock -> drawE j r (rock ts) w
     Wall -> drawE j r (wall ts) w
     Open -> drawE j r (open ts) w
+    ZeroT -> drawE j r (zero ts) w
 
   -- draw @, !, $, r, ',', >, < if in fovT
-  forM_ seen $ \(i,j) -> case i of
+  forM_ seenT $ \(i,j) -> case i of
     Actor -> drawE j r (hero ts) w
     Bang -> drawE j r (bang ts) w
     Corpse -> drawE j r (rubble ts) w

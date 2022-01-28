@@ -26,7 +26,7 @@ setCamera x y (w, h) (scaleX, scaleY) = let
 updateCamera :: World -> World
 updateCamera w = let
   newCamera = setCamera camX camY (screenXY w) (scaleXY w)
-  (heroX, heroY) = getPlayer (entityT w)
+  (_, (heroX, heroY)) = getPlayer (entityT w)
   camX = fromIntegral heroX * sx
   camY = fromIntegral heroY * sy
   (sx, sy) = scaleXY w

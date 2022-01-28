@@ -44,10 +44,10 @@ fromEntity em = let
   in entityList
 
 -- | @ lives at 0
-getPlayer :: EntityMap -> Coord
+getPlayer :: EntityMap -> (Entity, Coord)
 getPlayer em = let
   e = getEntityAt 0 em
-  in coord e
+  in (eKind e, coord e)
 
 getEntityAt :: Int -> EntityMap -> EntityKind
 getEntityAt xy em = let
@@ -75,35 +75,26 @@ insertMouse tm g = let
   mice = zip [1..3] miceList
   in insertPlayer tm (Map.fromList mice) g
 
--- | n random blind mice
-insertMice :: Int -> TileMap -> StdGen -> EntityMap
-insertMice count tm g = let
-  openList = tail $ [ xy | (_, xy) <- fromOpen tm ]
-  randList = DS.randomList count (1, length openList) g
-  miceList = [ m | v <- randList, let m = mkEntity Mouse (openList!!v) g ]
-  mice = zip [1..count] miceList
-  in insertPlayer tm (Map.fromList mice) g
-
-insertRand :: Entity -> Int -> Int -> TileMap -> StdGen -> [(Int, EntityKind)]
-insertRand e start count tm g = let
+insertRand :: Entity -> Int -> Int -> [Coord] -> StdGen -> [(Int, EntityKind)]
+insertRand e start count openList g = let
   end = start + count
-  openList = tail $ [ xy | (_, xy) <- fromOpen tm ]
   sz = length openList - 1
   randList = nub $ DS.randomList sz (1, sz) g
   entityList = [ m | v <- randList, let m = mkEntity e (openList!!v) g ]
   in zip [start..end] entityList
 
 -- | mkEntityMap will do more
--- will need a stack for drawing
+-- drop $ take
 -- [Bang, Corpse, Item, Mouse, Mushroom, StairUp, StairDown, Trap]
 mkEntityMap :: TileMap -> StdGen -> EntityMap
 mkEntityMap tm g = let
-  -- insert 101 things
+  -- insert % of 51 things
   -- preserve 0 for the Hero
-  junk = concat [insertRand Mouse 1 10 tm g
-              , insertRand Mushroom 11 50 tm g
-              , insertRand Corpse 61 50 tm g
-              ]
+  openList = tail $ [ xy | (_, xy) <- fromOpen tm ]
+  junk = concat [insertRand  Mouse    1  10 (drop 1  $ take 10  openList) g
+                , insertRand Mushroom 11 20 (drop 11 $ take 20  openList) g
+                , insertRand Corpse   31 50 (drop 31 $ take 50 openList) g
+                ]
   in insertPlayer tm (Map.fromList junk) g
 
 -- update @ position

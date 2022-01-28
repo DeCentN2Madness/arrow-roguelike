@@ -8,8 +8,7 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 -}
 module Game.Kind.Entity (Entity(..), EntityKind(..), mkEntity) where
 
-import Control.Monad.Random
-import Control.Monad.Trans.State
+import Control.Monad.Random (StdGen)
 import Data.Map (Map)
 import qualified Data.Map as Map
 import qualified Game.DiceSet as DS
@@ -41,7 +40,7 @@ data EntityKind = EntityKind
 defaultProp :: StdGen -> Properties
 defaultProp g = let
   std          = Map.toList $ mkProp "Player" "@"
-  strength     = snd $ flip execState ([], 0) $ evalRandT (DS.fourD6 0) g
+  strength     = DS.threeD6 g
   intelligence = DS.threeD6 g
   dexterity    = DS.threeD6 g
   wisdom       = DS.threeD6 g

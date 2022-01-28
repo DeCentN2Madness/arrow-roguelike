@@ -94,25 +94,21 @@ dirToCoord d
 -- 4. if Open then create a new FoV and move
 --    else no movement
 handleDir :: Direction -> World -> World
-handleDir input w = if starting w
-    then do
-      let start = w { starting = False }
-      updateCamera start
-    else do
-      let playerCoord  = GA.getPlayer (entityT w)
-          (heroX, heroY) = playerCoord |+| dirToCoord input
-          clampCoord = clamp (heroX, heroY) (gridXY w)
-          bumpCoord = bumpAction clampCoord (entityT w)
-          newCoord = if bumpCoord < 1 then clampCoord else playerCoord
-          entry = logEvent bumpCoord w
-          run = case GT.getTerrainAt newCoord (gameT w) of
-            Open -> updateView $ w {
-              fovT = mkView newCoord (gameT w)
-              , entityT = GA.updatePlayer newCoord (entityT w)
-              , journal = entry
-              , dirty = True }
-            _ -> w { dirty = False }
-      updateCamera run
+handleDir input w = let
+  playerCoord  = GA.getPlayer (entityT w)
+  (heroX, heroY) = playerCoord |+| dirToCoord input
+  clampCoord = clamp (heroX, heroY) (gridXY w)
+  bumpCoord = bumpAction clampCoord (entityT w)
+  newCoord = if bumpCoord < 1 then clampCoord else playerCoord
+  entry = logEvent bumpCoord w
+  run = case GT.getTerrainAt newCoord (gameT w) of
+    Open -> updateView $ w {
+      fovT = mkView newCoord (gameT w)
+      , entityT = GA.updatePlayer newCoord (entityT w)
+      , journal = entry
+      , dirty = True }
+    _ -> w { dirty = False }
+  updateCamera run
 
 -- | logevent
 logEvent :: Int -> World -> String

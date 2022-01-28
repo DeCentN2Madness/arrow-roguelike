@@ -18,6 +18,7 @@ module Game.Actor(EntityMap
                , updatePlayer) where
 
 import Control.Monad.Random (StdGen)
+import Data.List (nub)
 import Data.Map (Map)
 import qualified Data.Map.Strict as Map
 import qualified Game.DiceSet as DS
@@ -83,9 +84,27 @@ insertMice count tm g = let
   mice = zip [1..count] miceList
   in insertPlayer tm (Map.fromList mice) g
 
+insertRand :: Entity -> Int -> Int -> TileMap -> StdGen -> [(Int, EntityKind)]
+insertRand e start count tm g = let
+  end = start + count
+  openList = tail $ [ xy | (_, xy) <- fromOpen tm ]
+  sz = length openList - 1
+  randList = nub $ DS.randomList sz (1, sz) g
+  entityList = [ m | v <- randList, let m = mkEntity e (openList!!v) g ]
+  in zip [start..end] entityList
+
 -- | mkEntityMap will do more
+-- will need a stack for drawing
+-- [Bang, Corpse, Item, Mouse, Mushroom, StairUp, StairDown, Trap]
 mkEntityMap :: TileMap -> StdGen -> EntityMap
-mkEntityMap = insertMice 10
+mkEntityMap tm g = let
+  -- insert 101 things
+  -- preserve 0 for the Hero
+  junk = concat [insertRand Mouse 1 10 tm g
+              , insertRand Mushroom 11 50 tm g
+              , insertRand Corpse 61 50 tm g
+              ]
+  in insertPlayer tm (Map.fromList junk) g
 
 -- update @ position
 updatePlayer :: Coord -> EntityMap -> EntityMap

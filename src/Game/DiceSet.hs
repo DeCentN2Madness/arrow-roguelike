@@ -45,8 +45,7 @@ d20 g = sum $ randomList 1 (1, 20) g
 d100 :: StdGen -> Int
 d100 g = sum $ randomList 1 (1, 100) g
 
--- example
--- rolls all the same, fixme
+-- example with RandT
 threeD6 :: (RandomGen g) => Int -> RandT g (State ([Int], Int)) ()
 threeD6 i = do
   r0 <- getRandomR (1,6)
@@ -64,7 +63,7 @@ roll3D6 i g = let
 -- | bigRoll to create different values
 bigRoll :: RandomGen g => Int -> g -> Int
 bigRoll i g = let
-  randList = randomList (i*10) (4, 6) g
+  randList = randomList (i*10) (3, 6) g
   in randList!!i
 
 -- | randomList of rolls

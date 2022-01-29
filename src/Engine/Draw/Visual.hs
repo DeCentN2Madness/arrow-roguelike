@@ -12,8 +12,9 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 module Engine.Draw.Visual (assetPaths
                           , loadTextures
                           , mkVisualMap
-                          , TextureMap(..)
-                          , VisualMap(..))  where
+                          , AssetMap(..)
+                          , TextureMap
+                          , VisualMap)  where
 
 import Control.Monad.IO.Class (MonadIO)
 import Data.Map (Map)
@@ -109,7 +110,7 @@ mkVisualMap ts w = do
                       Trap -> trap ts
                       Unknown -> zero ts ]
 
-    in Map.fromList (hardT ++ seenT)
+    in Map.fromList $ hardT ++ seenT
 
 loadTextures :: (MonadIO m)
   => SDL.Renderer

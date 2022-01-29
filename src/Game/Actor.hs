@@ -88,12 +88,12 @@ insertRand e start count openList g = let
 -- [Bang, Corpse, Item, Mouse, Mushroom, StairUp, StairDown, Trap]
 mkEntityMap :: TileMap -> StdGen -> EntityMap
 mkEntityMap tm g = let
-  -- insert % of 51 things
+  -- insert % of many things
   -- preserve 0 for the Hero
   openList = tail $ [ xy | (_, xy) <- fromOpen tm ]
-  junk = concat [insertRand  Mouse    1  10 (drop 1  $ take 10  openList) g
-                , insertRand Mushroom 11 20 (drop 11 $ take 20  openList) g
-                , insertRand Corpse   31 50 (drop 31 $ take 50 openList) g
+  junk = concat [insertRand  Mouse    1  5  (drop 1  $ take 5 openList) g
+                , insertRand Mushroom 6  11 (drop 6  $ take 11  openList) g
+                , insertRand Corpse   12 20 (drop 12 $ take 20 openList) g
                 ]
   in insertPlayer tm (Map.fromList junk) g
 

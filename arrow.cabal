@@ -21,6 +21,7 @@ library
                     , Engine.Arrow.Util
                     , Engine.Draw.Camera
                     , Engine.Draw.Util
+                    , Engine.Draw.Visual
                     , Engine.SDL.Event
                     , Engine.SDL.Util
                     , Game.Actor
@@ -45,8 +46,9 @@ executable Main
   other-modules:    Engine.Arrow.Data
                     , Engine.Arrow.FoV
                     , Engine.Arrow.Util
-                    , Engine.Draw.Util
                     , Engine.Draw.Camera
+                    , Engine.Draw.Util
+                    , Engine.Draw.Visual
                     , Engine.SDL.Event
                     , Engine.SDL.Util
                     , Game.Actor

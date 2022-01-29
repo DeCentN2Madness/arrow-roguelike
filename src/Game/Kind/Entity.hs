@@ -26,6 +26,7 @@ data Entity
   | StairDown
   | StairUp
   | Trap
+  | Unknown
   deriving (Show, Eq, Ord)
 
 data EntityKind = EntityKind
@@ -67,3 +68,4 @@ mkEntity Mushroom xy g  = EntityKind xy False Mushroom (mkProp "Mushroom" ",") g
 mkEntity StairDown xy g = EntityKind xy False StairDown (mkProp "Stair" ">") g
 mkEntity StairUp xy g   = EntityKind xy False StairUp (mkProp "Stair" "<") g
 mkEntity Trap xy g      = EntityKind xy False Trap (mkProp "Trap" "^") g
+mkEntity Unknown xy g   = EntityKind xy False Unknown (mkProp "Unknown" "~") g

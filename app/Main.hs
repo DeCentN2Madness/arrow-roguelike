@@ -14,7 +14,8 @@ import Control.Monad.Extra (unless)
 import qualified SDL
 import Engine.Arrow.Data (mkWorld, World(..))
 import Engine.Arrow.Util (applyIntent)
-import Engine.Draw.Util (assetPaths, draw, loadTextures, TextureMap)
+import Engine.Draw.Util (draw)
+import Engine.Draw.Visual (assetPaths, loadTextures, TextureMap)
 import Engine.SDL.Event (mkIntent)
 import qualified Engine.SDL.Util as U
 

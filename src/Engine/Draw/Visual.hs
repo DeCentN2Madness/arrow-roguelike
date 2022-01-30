@@ -46,6 +46,7 @@ data AssetMap a = AssetMap
   , trap :: a
   , wall :: a
   , zero :: a
+  , style :: a
   } deriving (Functor, Foldable, Traversable)
 
 type Coord = (Int, Int)
@@ -73,6 +74,7 @@ assetPaths = AssetMap
   , trap = "./assets/trap.png"
   , wall = "./assets/Wall.png"
   , zero = "./assets/zero.png"
+  , style = "./assets/ArrowSheet.png"
   }
 
 -- | drawMap

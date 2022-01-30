@@ -7,15 +7,9 @@ Game.DiceSet rolls dice
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
 -}
-module Game.DiceSet (roll3D6
-                     , bigRoll
-                     , d4
-                     , d6
-                     , d8
-                     , d10
-                     , d12
-                     , d20
-                     , d100
+module Game.DiceSet (Die(..)
+                     , roll
+                     , rollMod
                      , randomList) where
 
 import Control.Monad.Random
@@ -23,48 +17,82 @@ import Control.Monad.Trans.State
 
 type Dice = (Int, Int)
 
+data Die
+  = D4
+  | D6
+  | D8
+  | D10
+  | D12
+  | D20
+  | D100
+  deriving (Show, Eq, Ord)
+
 -- | bag of dice
-d4 :: StdGen -> Int
-d4 g = sum $ randomList 1 (1, 4) g
-
-d6 :: StdGen -> Int
-d6 g = sum $ randomList 1 (1, 6) g
-
-d8 :: StdGen -> Int
-d8 g = sum $ randomList 1 (1, 8) g
-
-d10 :: StdGen -> Int
-d10 g = sum $ randomList 1 (1, 10) g
-
-d12 :: StdGen -> Int
-d12 g = sum $ randomList 1 (1, 12) g
-
-d20 :: StdGen -> Int
-d20 g = sum $ randomList 1 (1, 20) g
-
-d100 :: StdGen -> Int
-d100 g = sum $ randomList 1 (1, 100) g
-
 -- example with RandT
-threeD6 :: (RandomGen g) => Int -> RandT g (State ([Int], Int)) ()
-threeD6 i = do
-  r0 <- getRandomR (1,6)
-  r1 <- getRandomR (1,6)
-  r2 <- getRandomR (1,6)
+d4 :: (RandomGen g) => Int -> RandT g (State ([Int], Int)) ()
+d4 i = do
+  r0 <- getRandomR (1,4)
   s <- lift get
-  lift $ put ([], i + r0 + r1 + r2 + snd s)
+  lift $ put ([], i + r0 + snd s)
 
--- | roll3D6 with mods
-roll3D6 :: RandomGen g => Int -> g -> Int
-roll3D6 i g = let
-  r0 = snd $ flip execState ([], i) $ evalRandT (threeD6 i) g
+d6 :: (RandomGen g) => Int -> RandT g (State ([Int], Int)) ()
+d6 i = do
+  r0 <- getRandomR (1,6)
+  s <- lift get
+  lift $ put ([], i + r0 + snd s)
+
+d8 :: (RandomGen g) => Int -> RandT g (State ([Int], Int)) ()
+d8 i = do
+  r0 <- getRandomR (1,8)
+  s <- lift get
+  lift $ put ([], i + r0 + snd s)
+
+d10 :: (RandomGen g) => Int -> RandT g (State ([Int], Int)) ()
+d10 i = do
+  r0 <- getRandomR (1,10)
+  s <- lift get
+  lift $ put ([], i + r0 + snd s)
+
+d12 :: (RandomGen g) => Int -> RandT g (State ([Int], Int)) ()
+d12 i = do
+  r0 <- getRandomR (1,12)
+  s <- lift get
+  lift $ put ([], i + r0 + snd s)
+
+d20 :: (RandomGen g) => Int -> RandT g (State ([Int], Int)) ()
+d20 i = do
+  r0 <- getRandomR (1,20)
+  s <- lift get
+  lift $ put ([], i + r0 + snd s)
+
+d100 :: (RandomGen g) => Int -> RandT g (State ([Int], Int)) ()
+d100 i = do
+  r0 <- getRandomR (1,100)
+  s <- lift get
+  lift $ put ([], i + r0 + snd s)
+
+mkDie :: RandomGen g => Die -> Int -> RandT g (State ([Int], Int)) ()
+mkDie D4 = d4
+mkDie D8 = d6
+mkDie D6 = d8
+mkDie D10 = d10
+mkDie D12 = d12
+mkDie D20 = d20
+mkDie D100 = d100
+
+-- | roll D20 + mod
+rollMod :: RandomGen g => Die -> Int -> g -> Int
+rollMod d i g = let
+  r0 = snd $ flip execState ([], i) $ evalRandT (mkDie d i) g
   in r0
 
--- | bigRoll to create different values
-bigRoll :: RandomGen g => Int -> g -> Int
-bigRoll i g = let
-  randList = randomList (i*10) (3, 6) g
-  in randList!!i
+-- | roll 3d6
+-- RNG pick different ix from randomlist
+-- attempt creating more entropy
+roll :: RandomGen g => Int -> Int -> Int -> g -> Int
+roll ix n s g = let
+  result = randomList (ix*10) (n, s) g !! ix
+  in result
 
 -- | randomList of rolls
 -- example: roll 6 3d6

@@ -54,6 +54,7 @@ drawE :: (Int, Int)
   -> World
   -> IO ()
 drawE (x,y) r t w = do
+  --renderStyle r t (newX, newY)
   renderTexture r t (newX, newY)
   where
     (camX, camY) = cameraXY w
@@ -71,19 +72,41 @@ drawMap r ts w = do
                  let (Just v) = Map.lookup k visual]
   forM_ visualT $ \(i, j) -> drawE i r j w
 
+
+-- | renderStyle
+-- draw from style sheet
+-- TODO fix clip
+renderStyle :: (Num a, RealFrac a)
+  => SDL.Renderer
+  -> (SDL.Texture, SDL.TextureInfo)
+  -> (a, a)
+  -> IO ()
+renderStyle r (t, ti) pos =
+  SDL.copy r t (Just $ fromIntegral <$> rectA) (Just $ fromIntegral <$> rectB)
+  where
+    d = U.mkRect 0 0 (round $ tw / 2.0) (round $ th / 2.0)
+    rectA = d `moveTo` (0,0)
+    rectB = d `moveTo` (0,0)
+    tw = fromIntegral $ SDL.textureWidth ti
+    th = fromIntegral $ SDL.textureHeight ti
+
+
+-- | moveTo |infix|
+moveTo :: SDL.Rectangle a -> (a, a) -> SDL.Rectangle a
+moveTo (SDL.Rectangle _ d) (x, y) = SDL.Rectangle (U.mkPoint x y) d
+
 -- | renderTexture
+-- draw from image
 renderTexture :: (Num a, RealFrac a)
   => SDL.Renderer
   -> (SDL.Texture, SDL.TextureInfo)
   -> (a, a)
   -> IO ()
-renderTexture r (t, ti) (x, y)
-  = SDL.copy r t Nothing (Just $ U.mkRect x' y' a b)
+renderTexture r (t, ti) (x, y) =
+  SDL.copy r t Nothing (Just $ U.mkRect (floor x) (floor y) tw th)
   where
-    x' = floor x
-    y' = floor y
-    a = SDL.textureWidth ti
-    b = SDL.textureWidth ti
+    tw = fromIntegral $ SDL.textureWidth ti
+    th = fromIntegral $ SDL.textureHeight ti
 
 -- | setColor
 setColor :: (MonadIO m) => SDL.Renderer -> Colour -> m ()

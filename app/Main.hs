@@ -26,7 +26,7 @@ main :: IO ()
 main = do
   gen <- getStdGen
   world <- newIORef $ mkWorld gen (width, height) 80 50
-  U.withSDL $ U.withSDLImage $ do
+  U.withSDL $ U.withSDLFont $ U.withSDLImage $ do
     U.setHintQuality
     U.withWindow "Arrow" (width, height) $ \w ->
       U.withRenderer w $ \r -> do

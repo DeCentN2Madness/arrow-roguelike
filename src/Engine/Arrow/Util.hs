@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedStrings #-}
 {-
 
 Engine.Arrow.Util.hs
@@ -10,6 +11,8 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 module Engine.Arrow.Util (applyIntent) where
 
 import qualified Data.Set as S
+import Data.Text (Text)
+import qualified Data.Text as T
 import Engine.Arrow.Data
 import Engine.Arrow.FoV (checkFov)
 import Engine.Draw.Camera (updateCamera)
@@ -17,6 +20,7 @@ import Game.Actor (EntityMap)
 import qualified Game.Actor as GA
 import Game.Dungeon (Terrain(..))
 import qualified Game.Dungeon as DUNGEON
+import Game.Kind.Entity (EntityKind(..))
 import Game.Tile (TileMap)
 import qualified Game.Tile as GT
 
@@ -104,7 +108,7 @@ handleDir input w = if starting w
     clampCoord       = clamp (heroX, heroY) (gridXY w)
     bump             = bumpAction clampCoord (entityT w)
     newCoord         = if bump < 1 then clampCoord else playerCoord
-    entry            = logEvent bump w
+    entry            = logEvent bump newCoord w
     run = case GT.getTerrainAt newCoord (gameT w) of
       Open -> updateView $ w {
         fovT = mkView newCoord (gameT w)
@@ -115,17 +119,19 @@ handleDir input w = if starting w
     in updateCamera run
 
 -- | logevent
-logEvent :: Int -> World -> String
-logEvent x w = let
-  player = GA.getEntityAt 0 (entityT w)
-  entity = GA.getEntityAt x (entityT w)
-  entry = if x > 0
-    then "Attacks from " ++ show player ++ " at " ++ show entity ++ "\n"
-    else []
+-- log attack at ix or at Coord
+logEvent :: Int -> Coord -> World -> Text
+logEvent ix pos w = let
+  entity = GA.getEntityAt ix (entityT w)
+  entry = if ix > 0
+    then T.pack $ "Attack " ++ show (eKind entity)
+    else case GA.getEntityBy pos (entityT w) of
+      [e] -> T.pack $ "See " ++ show (fst e)
+      _ -> "..."
   in entry
 
 -- | mkView utilizes FoV for @hardT@ to create the visible places
-mkView :: (Int, Int) -> TileMap -> [Coord]
+mkView :: Coord -> TileMap -> [Coord]
 mkView pos gm = let
   hardT    = [ xy | (_, xy) <- GT.fromHard gm ]
   viewList = S.toList $ checkFov pos hardT 4

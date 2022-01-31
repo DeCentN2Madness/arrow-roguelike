@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedStrings #-}
 {-
 
 Engine.Arrow.Data.hs
@@ -8,6 +9,7 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 module Engine.Arrow.Data where
 
 import Control.Monad.Random (StdGen)
+import Data.Text (Text)
 import Game.Actor (EntityMap, mkEntityMap)
 import Game.Dungeon (Dungeon, rogueDungeon)
 import Game.Tile (TileMap, mkTileMap)
@@ -54,7 +56,7 @@ data World = World
   , screenXY :: !(Double, Double)
   , scaleXY  :: !(Double, Double)
   -- GameStates
-  , journal  :: !String
+  , journal  :: !Text
   , dirty    :: !Bool
   , starting :: !Bool
   , exiting  :: !Bool
@@ -77,7 +79,7 @@ mkWorld gen (width, height) xMax yMax = let
            , cameraXY = (0.0, 0.0)
            , screenXY = (fromIntegral width, fromIntegral height)
            , scaleXY = (sx, sy)
-           , journal = []
+           , journal = "Welcome to Arrow..."
            , dirty = True
            , starting = True
            , exiting = False

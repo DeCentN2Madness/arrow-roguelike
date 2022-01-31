@@ -12,6 +12,7 @@ module Game.Actor(EntityMap
                , fromEntity
                , getPlayer
                , getEntityAt
+               , getEntityBy
                , insertMouse
                , insertPlayer
                , mkEntityMap
@@ -53,6 +54,11 @@ getEntityAt :: Int -> EntityMap -> EntityKind
 getEntityAt xy em = let
   (Just e) = Map.lookup xy em
   in e
+
+getEntityBy :: Coord -> EntityMap -> [(Entity, Coord)]
+getEntityBy xy em = let
+  entityList = fromEntity em
+  in filter ((/=Actor).fst) $ filter ((==xy).snd) entityList
 
 insertEntity :: Int -> Coord -> Entity -> StdGen -> EntityMap -> EntityMap
 insertEntity k xy ek g em = let

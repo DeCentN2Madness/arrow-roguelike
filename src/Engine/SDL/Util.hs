@@ -7,6 +7,7 @@ module Engine.SDL.Util where
 
 import qualified SDL
 import qualified SDL.Image
+import qualified SDL.Font
 import Control.Monad          (void)
 import Control.Monad.IO.Class (MonadIO)
 import Data.Text              (Text)
@@ -17,6 +18,12 @@ withSDL op = do
   SDL.initialize []
   void op
   SDL.quit
+
+withSDLFont :: (MonadIO m) => m a -> m ()
+withSDLFont op = do
+  SDL.Font.initialize
+  void op
+  SDL.Font.quit
 
 withSDLImage :: (MonadIO m) => m a -> m ()
 withSDLImage op = do

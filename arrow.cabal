@@ -36,6 +36,7 @@ library
                     , primitive
                     , sdl2
                     , sdl2-image
+                    , sdl2-ttf
                     , transformers
                     , text
                     , vector
@@ -66,6 +67,7 @@ executable Main
                     , primitive
                     , sdl2
                     , sdl2-image
+                    , sdl2-ttf
                     , transformers
                     , text
                     , vector

@@ -47,8 +47,8 @@ draw r ts w = do
      renderTexture r (hud ts) (0.0, hudHt)
      -- Text
      fn <- SDL.Font.load "./assets/fonts/Source_Code_Pro_for_Powerline.otf" 16
-     tx <- SDL.Font.blended fn black (journal w)
-     sz <- SDL.Font.size fn (journal w)
+     tx <- SDL.Font.blended fn black (last $ journal w)
+     sz <- SDL.Font.size fn (last $ journal w)
      rt <- SDL.createTextureFromSurface r tx
      SDL.Font.free fn
      renderText r rt sz (0.0, hudHt)

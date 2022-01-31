@@ -120,15 +120,18 @@ handleDir input w = if starting w
 
 -- | logevent
 -- log attack at ix or at Coord
-logEvent :: Int -> Coord -> World -> Text
+logEvent :: Int -> Coord -> World -> [Text]
 logEvent ix pos w = let
   entity = GA.getEntityAt ix (entityT w)
   entry = if ix > 0
-    then T.pack $ "Attack " ++ show (eKind entity)
+    then T.pack $ "Attack " ++ show (eKind entity) ++ " id=" ++ show ix
     else case GA.getEntityBy pos (entityT w) of
-      [e] -> T.pack $ "See " ++ show (fst e)
+      [e] -> T.pack $ "See id=" ++ show (fst e)
       _ -> "..."
-  in entry
+  final = if last (journal w) == entry
+    then journal w
+    else journal w ++ [entry]
+  in final
 
 -- | mkView utilizes FoV for @hardT@ to create the visible places
 mkView :: Coord -> TileMap -> [Coord]

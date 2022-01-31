@@ -55,10 +55,15 @@ getEntityAt xy em = let
   (Just e) = Map.lookup xy em
   in e
 
-getEntityBy :: Coord -> EntityMap -> [(Entity, Coord)]
+getEntityBy :: Coord -> EntityMap -> [(Int, Coord)]
 getEntityBy xy em = let
+  entityList = [(k, pos) | (k, ek) <- Map.toList em,
+                let pos = coord ek ]
+  in filter ((==xy).snd) entityList
+{-
   entityList = fromEntity em
   in filter ((/=Actor).fst) $ filter ((==xy).snd) entityList
+-}
 
 insertEntity :: Int -> Coord -> Entity -> StdGen -> EntityMap -> EntityMap
 insertEntity k xy ek g em = let

@@ -50,11 +50,11 @@ draw r ts w = do
 --  cameraXY
 drawE :: (Int, Int)
   -> SDL.Renderer
-  -> (SDL.Texture, SDL.TextureInfo)
+  -> Visual
   -> World
   -> IO ()
-drawE (x,y) r t w = do
-  renderClip r t (0,0) (newX, newY)
+drawE (x, y) r vis w = do
+  renderClip r vis (newX, newY)
   --renderTexture r t (newX, newY)
   where
     (camX, camY) = cameraXY w
@@ -68,9 +68,9 @@ drawE (x,y) r t w = do
 drawMap :: SDL.Renderer -> TextureMap -> World -> IO ()
 drawMap r ts w = do
   let visual = mkVisualMap ts w
-      visualT = [(k, v) | k <- Map.keys visual,
+      visualL = [(k, v) | k <- Map.keys visual,
                  let (Just v) = Map.lookup k visual]
-  forM_ visualT $ \(i, j) -> drawE i r j w
+  forM_ visualL $ \(i, j) -> drawE i r j w
 
 -- | renderClip
 -- draw from style sheet
@@ -79,15 +79,16 @@ drawMap r ts w = do
 -- TODO rectB is position on screen and clip size
 renderClip :: (Num a, RealFrac a)
   => SDL.Renderer
-  -> (SDL.Texture, SDL.TextureInfo)
-  -> (a, a)
+  -> Visual
   -> (a, a)
   -> IO ()
-renderClip r (t, _) (xi, yi) (x, y) =
+renderClip r (Visual (xi, yi) (t, ti)) (x, y) =
   SDL.copy r t (Just rectA) (Just rectB)
   where
-    rectA = U.mkRect (floor xi) (floor yi) 32 32
-    rectB = U.mkRect (floor x)  (floor y)  32 32
+    rectA = U.mkRect (fromIntegral xi) (fromIntegral yi) width height
+    rectB = U.mkRect (floor x)  (floor y) width height
+    width = fromIntegral $ 32
+    height = fromIntegral $ SDL.textureHeight ti
 
 -- | renderTexture
 -- draw from image

@@ -20,6 +20,7 @@ type Properties = Map String String
 data Entity
   = Actor
   | Bang
+  | Coin
   | Corpse
   | Item
   | Mouse
@@ -79,6 +80,7 @@ mkProp x y = Map.fromList [("Name", x), ("Desc", y)]
 mkEntity :: Entity -> Coord -> StdGen -> EntityKind
 mkEntity Actor xy g     = EntityKind xy True Actor (defaultProp g) g
 mkEntity Bang xy g      = EntityKind xy False Bang  (mkProp "Bang" "!") g
+mkEntity Coin xy g      = EntityKind xy False Coin  (mkProp "Coin" "$") g
 mkEntity Corpse xy g    = EntityKind xy False Corpse (mkProp "Corpse" "%") g
 mkEntity Item xy g      = EntityKind xy False Item (mkProp "Item" "[") g
 mkEntity Mouse xy g     = EntityKind xy True Mouse (mouseProp g) g

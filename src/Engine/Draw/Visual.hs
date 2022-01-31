@@ -14,6 +14,7 @@ module Engine.Draw.Visual (assetPaths
                           , mkVisualMap
                           , AssetMap(..)
                           , TextureMap
+                          , Visual(..)
                           , VisualMap)  where
 
 import Control.Monad.IO.Class (MonadIO)
@@ -52,7 +53,8 @@ data AssetMap a = AssetMap
 type Coord = (Int, Int)
 type PathMap = AssetMap FilePath
 type TextureMap = AssetMap (SDL.Texture, SDL.TextureInfo)
-type VisualMap = Map Coord (SDL.Texture, SDL.TextureInfo)
+type VisualMap = Map Coord Visual
+data Visual = Visual Coord (SDL.Texture, SDL.TextureInfo)
 
 assetPaths :: PathMap
 assetPaths = AssetMap
@@ -77,61 +79,40 @@ assetPaths = AssetMap
   , style = "./assets/ArrowSheet.png"
   }
 
--- | TODO map coords to textures to Kind
-tVisual :: [(Terrain, Coord)]
-tVisual = [ (Wall, (32,0))
-           , (Rubble,(64,0))
-           , (Magma, (96,0))
-           , (Rock, (160,0))
-           , (Open, (196,0))
-           ]
-
-eVisual :: [(Entity, Coord)]
-eVisual = [ (Actor, (0,0))
-           , (Mouse,(128,0))
-           , (Item, (0,32))
-           , (Bang, (32,32))
-           , (StairDown, (64,32))
-           , (Trap, (96,32))
-           , (StairUp, (128,32))
-           , (Corpse, (64,0))
-           , (Mushroom, (196,32))
-           ]
-
 -- | drawMap
 -- apply filters to the Dungeon for display
+-- TODO Visual constructor
 mkVisualMap :: TextureMap -> World -> VisualMap
 mkVisualMap ts w = do
   let actors = GA.fromEntity (entityT w)
       walls  = GT.fromVisual (gameT w)
-      --wallT  = filter (\(_, j) -> j `notElem` [v | (_, v) <- actors]) walls
       seen  = pos : filter (\(_, j) -> j `elem` fovT w && j /= snd pos) actors
-      --seen  = filter (\(_, j) -> j `elem` fovT w) actors
       pos    = GA.getPlayer (entityT w)
 
       -- draw *, %, :, #, .
       hardT = [ (xy, t) | (tk, xy) <- walls,
                 let t = case tk of
-                      Magma -> magma ts
-                      Open -> open ts
-                      Rock -> rock ts
-                      Rubble -> rubble ts
-                      Wall -> wall ts
-                      ZeroT -> zero ts ]
+                      Magma  -> Visual (0, 0)(magma ts)
+                      Open   -> Visual (64,  0)(style ts)
+                      Rock   -> Visual (0, 0)(rock ts)
+                      Rubble -> Visual (0, 0)(rubble ts)
+                      Wall   -> Visual (32,  0)(style ts)
+                      _      -> Visual (0, 0)(zero ts) ]
 
       -- draw @, !, $, r, ',', >, < if in fovT
       seenT = [ (xy, t) | (tk, xy) <- seen,
                 let t = case tk of
-                      Actor -> style ts
-                      Bang -> bang ts
-                      Corpse -> corpse ts
-                      Item -> item ts
-                      Mouse -> mouse ts
-                      Mushroom -> mushroom ts
-                      StairDown -> stairDown ts
-                      StairUp -> stairUp ts
-                      Trap -> trap ts
-                      Unknown -> zero ts ]
+                      Actor     -> Visual (0, 0)(style ts)
+                      Bang      -> Visual (0, 0)(bang ts)
+                      Coin      -> Visual (0, 0)(coin ts)
+                      Corpse    -> Visual (0, 0)(rubble ts)
+                      Item      -> Visual (0, 0)(item ts)
+                      Mouse     -> Visual (0, 0)(mouse ts)
+                      Mushroom  -> Visual (0, 0)(mushroom ts)
+                      StairDown -> Visual (0, 0)(stairDown ts)
+                      StairUp   -> Visual (0, 0)(stairUp ts)
+                      Trap      -> Visual (0, 0)(trap ts)
+                      _         -> Visual (0, 0)(zero ts) ]
 
     in Map.fromList $ hardT ++ seenT
 

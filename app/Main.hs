@@ -34,7 +34,6 @@ main = do
       mainLoop world r ts
       mapM_ (SDL.destroyTexture . fst) ts
   q <- readIORef world
-  print $ fovT q
   print $ entityT q
   SDL.quit
 

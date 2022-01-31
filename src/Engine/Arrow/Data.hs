@@ -42,22 +42,22 @@ data Intent
 
 data World = World
   { -- the Dungeon
-  gameGen :: StdGen
-  , dungeon :: Dungeon
+  gameGen    :: !StdGen
+  , dungeon  :: !Dungeon
   -- Coord for Hero
-  , gameT :: TileMap
-  , entityT :: EntityMap
-  , fovT :: [Coord]
+  , gameT    :: !TileMap
+  , entityT  :: !EntityMap
+  , fovT     :: ![Coord]
   -- XY for Screen
-  , gridXY :: Coord
-  , cameraXY :: (Double, Double)
-  , screenXY :: (Double, Double)
-  , scaleXY :: (Double, Double)
+  , gridXY   :: !Coord
+  , cameraXY :: !(Double, Double)
+  , screenXY :: !(Double, Double)
+  , scaleXY  :: !(Double, Double)
   -- GameStates
-  , journal :: String
-  , dirty   :: Bool
-  , starting :: Bool
-  , exiting :: Bool
+  , journal  :: !String
+  , dirty    :: !Bool
+  , starting :: !Bool
+  , exiting  :: !Bool
   } deriving (Show)
 
 -- | mkWorld build the World

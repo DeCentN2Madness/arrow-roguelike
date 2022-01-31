@@ -32,11 +32,11 @@ data Entity
   deriving (Show, Eq, Ord)
 
 data EntityKind = EntityKind
-  { coord :: Coord
-  , block :: Bool
-  , eKind :: Entity
-  , prop :: Properties
-  , _gameGen :: StdGen
+  { coord :: !Coord
+  , block :: !Bool
+  , eKind :: !Entity
+  , prop :: !Properties
+  , _gameGen :: !StdGen
   } deriving (Show)
 
 -- | defaultProp
@@ -52,7 +52,7 @@ defaultProp g = let
           , ("Int", show intelligence)
           , ("Dex", show dexterity)
           , ("Con", show constitution)
-          , ("Wis", show wisdom)] ++ std
+          , ("Wis", show wisdom) ] ++ std
   in Map.fromList stats
 
 -- | mouseProp
@@ -69,7 +69,7 @@ mouseProp g = let
           , ("Int", show intelligence)
           , ("Dex", show dexterity)
           , ("Con", show constitution)
-          , ("Wis", show wisdom)] ++ std
+          , ("Wis", show wisdom) ] ++ std
   in Map.fromList stats
 
 -- | mkProp

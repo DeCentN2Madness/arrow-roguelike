@@ -10,9 +10,9 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
 -}
 module Engine.Draw.Visual (assetPaths
+                          , AssetMap(..)
                           , loadTextures
                           , mkVisualMap
-                          , AssetMap(..)
                           , TextureMap
                           , Visual(..)
                           , VisualMap)  where
@@ -29,59 +29,32 @@ import qualified Game.Actor as GA
 import qualified Game.Tile as GT
 
 data AssetMap a = AssetMap
-  { arrow :: a
+  { arrow      :: a
   , background :: a
-  , bang :: a
-  , coin :: a
-  , corpse :: a
-  , hero :: a
-  , item :: a
-  , magma :: a
-  , mouse :: a
-  , mushroom :: a
-  , open :: a
-  , rock :: a
-  , rubble :: a
-  , stairDown :: a
-  , stairUp :: a
-  , trap :: a
-  , wall :: a
-  , zero :: a
-  , style :: a
+  , hero       :: a
+  , open       :: a
+  , wall       :: a
+  , style      :: a
   } deriving (Functor, Foldable, Traversable)
 
 type Coord = (Int, Int)
 type PathMap = AssetMap FilePath
 type TextureMap = AssetMap (SDL.Texture, SDL.TextureInfo)
 type VisualMap = Map Coord Visual
-data Visual = Visual Coord (SDL.Texture, SDL.TextureInfo)
+data Visual = Visual !Coord !(SDL.Texture, SDL.TextureInfo)
 
 assetPaths :: PathMap
 assetPaths = AssetMap
-  { arrow = "./assets/Arrow.png"
+  { arrow      = "./assets/Arrow.png"
   , background = "./assets/Background.png"
-  , bang = "./assets/Bang.png"
-  , coin = "./assets/Coin.png"
-  , corpse = "./assets/Rubble.png"
-  , hero = "./assets/Hero.png"
-  , item = "./assets/Item.png"
-  , magma = "./assets/Magma.png"
-  , mouse = "./assets/Mouse.png"
-  , mushroom = "./assets/Mushroom.png"
-  , open = "./assets/Open.png"
-  , rock = "./assets/Rock.png"
-  , rubble = "./assets/Rubble.png"
-  , stairDown = "./assets/StairDown.png"
-  , stairUp = "./assets/StairUp.png"
-  , trap = "./assets/trap.png"
-  , wall = "./assets/Wall.png"
-  , zero = "./assets/zero.png"
-  , style = "./assets/ArrowSheet.png"
+  , hero       = "./assets/Hero.png"
+  , open       = "./assets/Open.png"
+  , wall       = "./assets/Wall.png"
+  , style      = "./assets/ArrowSheet.png"
   }
 
 -- | drawMap
 -- apply filters to the Dungeon for display
--- TODO Visual constructor
 mkVisualMap :: TextureMap -> World -> VisualMap
 mkVisualMap ts w = do
   let actors = GA.fromEntity (entityT w)
@@ -92,28 +65,21 @@ mkVisualMap ts w = do
       -- draw *, %, :, #, .
       hardT = [ (xy, t) | (tk, xy) <- walls,
                 let t = case tk of
-                      Magma  -> Visual (0, 0)(magma ts)
+                      Magma  -> Visual (192, 0)(style ts)
                       Open   -> Visual (64,  0)(style ts)
-                      Rock   -> Visual (0, 0)(rock ts)
-                      Rubble -> Visual (0, 0)(rubble ts)
+                      Rock   -> Visual (160, 0)(style ts)
+                      Rubble -> Visual (96,  0)(style ts)
                       Wall   -> Visual (32,  0)(style ts)
-                      _      -> Visual (0, 0)(zero ts) ]
+                      _      -> Visual (64,  0)(style ts) ]
 
-      -- draw @, !, $, r, ',', >, < if in fovT
+      -- draw @, %, r, ',' if in fov
       seenT = [ (xy, t) | (tk, xy) <- seen,
                 let t = case tk of
-                      Actor     -> Visual (0, 0)(style ts)
-                      Bang      -> Visual (0, 0)(bang ts)
-                      Coin      -> Visual (0, 0)(coin ts)
-                      Corpse    -> Visual (0, 0)(rubble ts)
-                      Item      -> Visual (0, 0)(item ts)
-                      Mouse     -> Visual (0, 0)(mouse ts)
-                      Mushroom  -> Visual (0, 0)(mushroom ts)
-                      StairDown -> Visual (0, 0)(stairDown ts)
-                      StairUp   -> Visual (0, 0)(stairUp ts)
-                      Trap      -> Visual (0, 0)(trap ts)
-                      _         -> Visual (0, 0)(zero ts) ]
-
+                      Actor     -> Visual (0,  0)(style ts)
+                      Corpse    -> Visual (96, 0)(style ts)
+                      Mouse     -> Visual (128, 0)(style ts)
+                      Mushroom  -> Visual (224, 0)(style ts)
+                      _         -> Visual (64,  0)(style ts) ]
     in Map.fromList $ hardT ++ seenT
 
 loadTextures :: (MonadIO m)

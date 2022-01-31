@@ -73,10 +73,7 @@ drawMap r ts w = do
   forM_ visualL $ \(i, j) -> drawE i r j w
 
 -- | renderClip
--- draw from style sheet
--- TODO add clip coords
--- TODO rectA is clip
--- TODO rectB is position on screen and clip size
+-- draw clip from style sheet
 renderClip :: (Num a, RealFrac a)
   => SDL.Renderer
   -> Visual
@@ -86,8 +83,8 @@ renderClip r (Visual (xi, yi) (t, ti)) (x, y) =
   SDL.copy r t (Just rectA) (Just rectB)
   where
     rectA = U.mkRect (fromIntegral xi) (fromIntegral yi) width height
-    rectB = U.mkRect (floor x)  (floor y) width height
-    width = fromIntegral $ 32
+    rectB = U.mkRect (floor x) (floor y) width height
+    width = 32 -- tile size 32x32
     height = fromIntegral $ SDL.textureHeight ti
 
 -- | renderTexture

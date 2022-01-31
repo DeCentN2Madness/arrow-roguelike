@@ -77,6 +77,27 @@ assetPaths = AssetMap
   , style = "./assets/ArrowSheet.png"
   }
 
+-- | TODO map coords to textures to Kind
+tVisual :: [(Terrain, Coord)]
+tVisual = [ (Wall, (32,0))
+           , (Rubble,(64,0))
+           , (Magma, (96,0))
+           , (Rock, (160,0))
+           , (Open, (196,0))
+           ]
+
+eVisual :: [(Entity, Coord)]
+eVisual = [ (Actor, (0,0))
+           , (Mouse,(128,0))
+           , (Item, (0,32))
+           , (Bang, (32,32))
+           , (StairDown, (64,32))
+           , (Trap, (96,32))
+           , (StairUp, (128,32))
+           , (Corpse, (64,0))
+           , (Mushroom, (196,32))
+           ]
+
 -- | drawMap
 -- apply filters to the Dungeon for display
 mkVisualMap :: TextureMap -> World -> VisualMap
@@ -101,7 +122,7 @@ mkVisualMap ts w = do
       -- draw @, !, $, r, ',', >, < if in fovT
       seenT = [ (xy, t) | (tk, xy) <- seen,
                 let t = case tk of
-                      Actor -> hero ts
+                      Actor -> style ts
                       Bang -> bang ts
                       Corpse -> corpse ts
                       Item -> item ts

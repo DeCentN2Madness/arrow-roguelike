@@ -54,8 +54,8 @@ drawE :: (Int, Int)
   -> World
   -> IO ()
 drawE (x,y) r t w = do
-  --renderStyle r t (newX, newY)
-  renderTexture r t (newX, newY)
+  renderClip r t (0,0) (newX, newY)
+  --renderTexture r t (newX, newY)
   where
     (camX, camY) = cameraXY w
     (scaleX, scaleY) = scaleXY w
@@ -72,28 +72,22 @@ drawMap r ts w = do
                  let (Just v) = Map.lookup k visual]
   forM_ visualT $ \(i, j) -> drawE i r j w
 
-
--- | renderStyle
+-- | renderClip
 -- draw from style sheet
--- TODO fix clip
-renderStyle :: (Num a, RealFrac a)
+-- TODO add clip coords
+-- TODO rectA is clip
+-- TODO rectB is position on screen and clip size
+renderClip :: (Num a, RealFrac a)
   => SDL.Renderer
   -> (SDL.Texture, SDL.TextureInfo)
   -> (a, a)
+  -> (a, a)
   -> IO ()
-renderStyle r (t, ti) pos =
-  SDL.copy r t (Just $ fromIntegral <$> rectA) (Just $ fromIntegral <$> rectB)
+renderClip r (t, _) (xi, yi) (x, y) =
+  SDL.copy r t (Just rectA) (Just rectB)
   where
-    d = U.mkRect 0 0 (round $ tw / 2.0) (round $ th / 2.0)
-    rectA = d `moveTo` (0,0)
-    rectB = d `moveTo` (0,0)
-    tw = fromIntegral $ SDL.textureWidth ti
-    th = fromIntegral $ SDL.textureHeight ti
-
-
--- | moveTo |infix|
-moveTo :: SDL.Rectangle a -> (a, a) -> SDL.Rectangle a
-moveTo (SDL.Rectangle _ d) (x, y) = SDL.Rectangle (U.mkPoint x y) d
+    rectA = U.mkRect (floor xi) (floor yi) 32 32
+    rectB = U.mkRect (floor x)  (floor y)  32 32
 
 -- | renderTexture
 -- draw from image

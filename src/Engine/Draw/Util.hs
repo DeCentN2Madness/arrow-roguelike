@@ -45,16 +45,16 @@ draw r ts w = do
     width = floor (fst $ screenXY w)
     height = floor (snd $ screenXY w)
 
--- | drawE draws Coord @(x,y)@ Dungeon element.
+-- | drawCamera draws Visual in relation to Camera
 --- Coord is then translated into the screen with scaleXY and
 --  cameraXY
-drawE :: (Int, Int)
+drawCamera :: (Int, Int)
   -> SDL.Renderer
   -> Visual
   -> World
   -> IO ()
-drawE (x, y) r vis w = do
-  renderClip r vis (newX, newY)
+drawCamera (x, y) r vis w = do
+  renderVisual r vis (newX, newY)
   --renderTexture r t (newX, newY)
   where
     (camX, camY) = cameraXY w
@@ -68,37 +68,35 @@ drawE (x, y) r vis w = do
 drawMap :: SDL.Renderer -> TextureMap -> World -> IO ()
 drawMap r ts w = do
   let visual = mkVisualMap ts w
-      visualL = [(k, v) | k <- Map.keys visual,
+      visualT = [(k, v) | k <- Map.keys visual,
                  let (Just v) = Map.lookup k visual]
-  forM_ visualL $ \(i, j) -> drawE i r j w
+  forM_ visualT $ \(i, j) -> drawCamera i r j w
 
--- | renderClip
--- draw clip from style sheet
-renderClip :: (Num a, RealFrac a)
-  => SDL.Renderer
-  -> Visual
-  -> (a, a)
-  -> IO ()
-renderClip r (Visual (xi, yi) (t, ti)) (x, y) =
-  SDL.copy r t (Just rectA) (Just rectB)
-  where
-    rectA = U.mkRect (fromIntegral xi) (fromIntegral yi) width height
-    rectB = U.mkRect (floor x) (floor y) width height
-    width = 32 -- tile size 32x32
-    height = fromIntegral $ SDL.textureHeight ti
 
 -- | renderTexture
--- draw from image
+-- draw entire texture image
 renderTexture :: (Num a, RealFrac a)
   => SDL.Renderer
   -> (SDL.Texture, SDL.TextureInfo)
   -> (a, a)
   -> IO ()
-renderTexture r (t, ti) (x, y) =
-  SDL.copy r t Nothing (Just $ U.mkRect (floor x) (floor y) tw th)
-  where
+renderTexture r (t, ti) (x, y) = let
+    rectB = U.mkRect (floor x) (floor y) tw th
     tw = fromIntegral $ SDL.textureWidth ti
     th = fromIntegral $ SDL.textureHeight ti
+    in SDL.copy r t Nothing (Just rectB)
+
+-- | renderVisual
+-- draw clip from Visual which has SDL.Texture and Foreign.C.Types (CInt)
+renderVisual :: (Num a, RealFrac a)
+  => SDL.Renderer
+  -> Visual
+  -> (a, a)
+  -> IO ()
+renderVisual r (Visual (xi, yi) (t, _) tw th) (x, y) = let
+    rectA = U.mkRect xi yi tw th
+    rectB = U.mkRect (floor x) (floor y) tw th
+    in SDL.copy r t (Just rectA) (Just rectB)
 
 -- | setColor
 setColor :: (MonadIO m) => SDL.Renderer -> Colour -> m ()

@@ -33,6 +33,7 @@ data AssetMap a = AssetMap
   { arrow      :: a
   , background :: a
   , hero       :: a
+  , hud        :: a
   , open       :: a
   , wall       :: a
   , style      :: a
@@ -48,14 +49,20 @@ data Visual = Visual !(CInt, CInt) !(SDL.Texture, SDL.TextureInfo) !CInt !CInt
 
 data VisualKind
   = VActor
-  | VWall
-  | VOpen
-  | VRubble
+  | VCoin
   | VCorpse
-  | VMouse
-  | VRock
+  | VItem
   | VMagma
+  | VMouse
   | VMushroom
+  | VOpen
+  | VPotion
+  | VRubble
+  | VRock
+  | VStairDn
+  | VStairUp
+  | VTrap
+  | VWall
   deriving (Show, Eq, Ord)
 
 assetPaths :: PathMap
@@ -63,11 +70,11 @@ assetPaths = AssetMap
   { arrow      = "./assets/Arrow.png"
   , background = "./assets/Background.png"
   , hero       = "./assets/Hero.png"
+  , hud        = "./assets/Hud.png"
   , open       = "./assets/Open.png"
   , wall       = "./assets/Wall.png"
   , style      = "./assets/ArrowSheet.png"
   }
-
 
 -- | loadTextures
 loadTextures :: (MonadIO m)
@@ -77,16 +84,23 @@ loadTextures :: (MonadIO m)
 loadTextures r = mapM (U.loadTextureWithInfo r)
 
 -- | mkVisual
+-- 32 x 36 is Tile coordinates which look good to the screen
 mkVisual :: VisualKind -> TextureMap -> Visual
-mkVisual VActor    ts = Visual (0,   0) (style ts) 32 32
-mkVisual VWall     ts = Visual (32,  0) (style ts) 32 32
-mkVisual VOpen     ts = Visual (64,  0) (style ts) 32 32
-mkVisual VRubble   ts = Visual (96,  0) (style ts) 32 32
-mkVisual VCorpse   ts = Visual (96,  0) (style ts) 32 32
-mkVisual VMouse    ts = Visual (128, 0) (style ts) 32 32
-mkVisual VRock     ts = Visual (160, 0) (style ts) 32 32
-mkVisual VMagma    ts = Visual (192, 0) (style ts) 32 32
-mkVisual VMushroom ts = Visual (224, 0) (style ts) 32 32
+mkVisual VActor    ts = Visual (0,   0) (style ts) 32 36
+mkVisual VWall     ts = Visual (32,  0) (style ts) 32 36
+mkVisual VOpen     ts = Visual (64,  0) (style ts) 32 36
+mkVisual VRubble   ts = Visual (96,  0) (style ts) 32 36
+mkVisual VCorpse   ts = Visual (96,  0) (style ts) 32 36
+mkVisual VMouse    ts = Visual (128, 0) (style ts) 32 36
+mkVisual VRock     ts = Visual (160, 0) (style ts) 32 36
+mkVisual VMagma    ts = Visual (192, 0) (style ts) 32 36
+mkVisual VMushroom ts = Visual (224, 0) (style ts) 32 36
+mkVisual VPotion   ts = Visual (256, 0) (style ts) 32 36
+mkVisual VStairDn  ts = Visual (288, 0) (style ts) 32 36
+mkVisual VStairUp  ts = Visual (320, 0) (style ts) 32 36
+mkVisual VTrap     ts = Visual (352, 0) (style ts) 32 36
+mkVisual VCoin     ts = Visual (384, 0) (style ts) 32 36
+mkVisual VItem     ts = Visual (416, 0) (style ts) 32 36
 
 -- | mkVisualMao
 -- make the visual map to render
@@ -94,7 +108,7 @@ mkVisualMap :: TextureMap -> World -> VisualMap
 mkVisualMap ts w = do
   let actors = GA.fromEntity (entityT w)
       walls  = GT.fromVisual (gameT w)
-      seen  = pos : filter (\(_, j) -> j `elem` fovT w && j /= snd pos) actors
+      seen   = pos : filter (\(_, j) -> j `elem` fovT w && j /= snd pos) actors
       pos    = GA.getPlayer (entityT w)
 
       -- draw *, %, :, #, .
@@ -110,8 +124,14 @@ mkVisualMap ts w = do
       seenT = [ (xy, t) | (ek, xy) <- seen,
                 let t = case ek of
                       Actor     -> mkVisual VActor    ts
+                      Coin      -> mkVisual VCoin     ts
                       Corpse    -> mkVisual VCorpse   ts
+                      Item      -> mkVisual VItem     ts
                       Mouse     -> mkVisual VMouse    ts
                       Mushroom  -> mkVisual VMushroom ts
+                      Potion    -> mkVisual VPotion   ts
+                      StairDown -> mkVisual VStairDn  ts
+                      StairUp   -> mkVisual VStairUp  ts
+                      Trap      -> mkVisual VTrap     ts
                       _         -> mkVisual VOpen     ts ]
     in Map.fromList $ hardT ++ seenT

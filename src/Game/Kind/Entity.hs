@@ -19,12 +19,12 @@ type Properties = Map String String
 
 data Entity
   = Actor
-  | Bang
   | Coin
   | Corpse
   | Item
   | Mouse
   | Mushroom
+  | Potion
   | StairDown
   | StairUp
   | Trap
@@ -79,12 +79,12 @@ mkProp x y = Map.fromList [("Name", x), ("Desc", y)]
 -- | mkEntity
 mkEntity :: Entity -> Coord -> StdGen -> EntityKind
 mkEntity Actor xy g     = EntityKind xy True Actor (defaultProp g) g
-mkEntity Bang xy g      = EntityKind xy False Bang  (mkProp "Bang" "!") g
-mkEntity Coin xy g      = EntityKind xy False Coin  (mkProp "Coin" "$") g
+mkEntity Coin xy g      = EntityKind xy False Coin (mkProp "Coin" "$") g
 mkEntity Corpse xy g    = EntityKind xy False Corpse (mkProp "Corpse" "%") g
 mkEntity Item xy g      = EntityKind xy False Item (mkProp "Item" "[") g
 mkEntity Mouse xy g     = EntityKind xy True Mouse (mouseProp g) g
-mkEntity Mushroom xy g  = EntityKind xy False Mushroom (mkProp "Mushroom" ",") g
+mkEntity Mushroom xy g  = EntityKind xy False Mushroom  (mkProp "Mushroom" ",") g
+mkEntity Potion xy g    = EntityKind xy False Potion (mkProp "Potion" "!") g
 mkEntity StairDown xy g = EntityKind xy False StairDown (mkProp "Stair" ">") g
 mkEntity StairUp xy g   = EntityKind xy False StairUp (mkProp "Stair" "<") g
 mkEntity Trap xy g      = EntityKind xy False Trap (mkProp "Trap" "^") g

@@ -25,6 +25,8 @@ data Colour = White | Red | Blue | Green | Yellow
 -- | draw main drawing loop
 draw :: SDL.Renderer -> TextureMap -> World -> IO ()
 draw r ts w = do
+  let hudHt = snd (screenXY w) - 50
+
   setColor r White
   SDL.clear r
   -- Background
@@ -33,17 +35,12 @@ draw r ts w = do
   if starting w
     then renderTexture r (arrow ts) (0.0, 0.0 :: Double)
     else do
-     -- Draw World Map
+     -- Draw Visual Map
      drawMap r ts w
      -- HUD
-     setColor r Green
-     SDL.drawRect r (Just hud)
+     renderTexture r (hud ts) (0.0, hudHt)
   -- Screen
   SDL.present r
-  where
-    hud = U.mkRect 0 (height-25) width height
-    width = floor (fst $ screenXY w)
-    height = floor (snd $ screenXY w)
 
 -- | drawCamera draws Visual in relation to Camera
 --- Coord is then translated into the screen with scaleXY and
@@ -55,7 +52,6 @@ drawCamera :: (Int, Int)
   -> IO ()
 drawCamera (x, y) r vis w = do
   renderVisual r vis (newX, newY)
-  --renderTexture r t (newX, newY)
   where
     (camX, camY) = cameraXY w
     (scaleX, scaleY) = scaleXY w
@@ -71,7 +67,6 @@ drawMap r ts w = do
       visualT = [(k, v) | k <- Map.keys visual,
                  let (Just v) = Map.lookup k visual]
   forM_ visualT $ \(i, j) -> drawCamera i r j w
-
 
 -- | renderTexture
 -- draw entire texture image

@@ -86,13 +86,14 @@ rollMod d i g = let
   r0 = snd $ flip execState ([], i) $ evalRandT (mkDie d i) g
   in r0
 
--- | roll 3d6
--- RNG pick different ix from randomlist
--- attempt creating more entropy
-roll :: RandomGen g => Int -> Int -> Int -> g -> Int
-roll ix n s g = let
-  result = randomList (ix*10) (n, s) g !! ix
-  in result
+-- | roll is rolls D side
+-- RNG pick last number from randomList
+-- ix creates different sized lists for entropy
+-- avg is the minimum value
+roll :: RandomGen g => Int -> Int -> Int -> Int -> g -> Int
+roll ix avg rolls side g = let
+  result = last $ randomList (ix*10) (rolls, side) g
+  in min (rolls*side) (max avg result)
 
 -- | randomList of rolls
 -- example: roll 6 3d6

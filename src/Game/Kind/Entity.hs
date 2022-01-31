@@ -43,11 +43,11 @@ data EntityKind = EntityKind
 defaultProp :: StdGen -> Properties
 defaultProp g = let
   std          = Map.toList $ mkProp "Player" "@"
-  strength     = DS.roll 10 3 6 g
-  dexterity    = DS.roll 20 3 6 g
-  constitution = DS.roll 30 3 6 g
-  intelligence = DS.roll 40 3 6 g
-  wisdom       = DS.roll 50 3 6 g
+  strength     = DS.roll 10 9 3 6 g
+  dexterity    = DS.roll 20 9 3 6 g
+  constitution = DS.roll 30 9 3 6 g
+  intelligence = DS.roll 40 9 3 6 g
+  wisdom       = DS.roll 50 9 3 6 g
   stats = [ ("Str", show strength)
           , ("Int", show intelligence)
           , ("Dex", show dexterity)

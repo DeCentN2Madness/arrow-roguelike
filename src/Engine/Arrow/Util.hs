@@ -122,11 +122,14 @@ handleDir input w = if starting w
 -- log attack at ix or at Coord
 logEvent :: Int -> Coord -> World -> [Text]
 logEvent ix pos w = let
-  entity = GA.getEntityAt ix (entityT w)
+  entity = GA.getEntityAt ix (entityT w) -- attack event
+  seen = GA.getEntityBy pos (entityT w)  -- see eventd
   entry = if ix > 0
     then T.pack $ "Attack " ++ show (eKind entity) ++ " id=" ++ show ix
-    else case GA.getEntityBy pos (entityT w) of
-      [e] -> T.pack $ "See id=" ++ show (fst e)
+    else case seen of
+      [e] -> let
+        interest = GA.getEntityAt e (entityT w)
+        in T.pack $ "See " ++ show (eKind interest) ++ " id=" ++ show e
       _ -> "..."
   final = if last (journal w) == entry
     then journal w
@@ -150,6 +153,7 @@ updateView w = let
   in w { gameT = newMap, fovT = newFov }
 
 -- | reset the world and redraw the dungeon
+-- handle gameStates of starting, dirty, exiting
 reset :: World -> World
 reset w = let
   (d, g) = uncurry DUNGEON.rogueDungeon (gridXY w) (gameGen w)
@@ -160,8 +164,15 @@ reset w = let
        , gameT = tm
        , entityT = em
        , fovT = []
-       , starting = True }
+       , journal = journal w ++ ["Restarting..."]
+       , dirty = True
+       , starting = True
+       , exiting = False }
 
 -- | quitWorld
+-- handle gameStates of starting, dirty, exiting
 quitWorld :: World -> World
-quitWorld w = w { exiting = True }
+quitWorld w = w { journal = journal w ++ ["Exiting..."]
+                  , starting = False
+                  , dirty = False
+                  , exiting = True }

@@ -20,6 +20,7 @@ library
                     , Engine.Arrow.FoV
                     , Engine.Arrow.Util
                     , Engine.Draw.Camera
+                    , Engine.Draw.Textual
                     , Engine.Draw.Util
                     , Engine.Draw.Visual
                     , Engine.SDL.Event
@@ -48,6 +49,7 @@ executable Main
                     , Engine.Arrow.FoV
                     , Engine.Arrow.Util
                     , Engine.Draw.Camera
+                    , Engine.Draw.Textual
                     , Engine.Draw.Util
                     , Engine.Draw.Visual
                     , Engine.SDL.Event

@@ -50,20 +50,18 @@ getPlayer em = let
   e = getEntityAt 0 em
   in (eKind e, coord e)
 
+-- | getEntityAt ix
 getEntityAt :: Int -> EntityMap -> EntityKind
-getEntityAt xy em = let
-  (Just e) = Map.lookup xy em
+getEntityAt ix em = let
+  (Just e) = Map.lookup ix em
   in e
 
-getEntityBy :: Coord -> EntityMap -> [(Int, Coord)]
+-- | getEntityBy Coord returns ix
+getEntityBy :: Coord -> EntityMap -> [Int]
 getEntityBy xy em = let
-  entityList = [(k, pos) | (k, ek) <- Map.toList em,
+  entityList = [(i, pos) | (i, ek) <- Map.toList em,
                 let pos = coord ek ]
-  in filter ((==xy).snd) entityList
-{-
-  entityList = fromEntity em
-  in filter ((/=Actor).fst) $ filter ((==xy).snd) entityList
--}
+  in [ ix | (ix, _) <- filter ((==xy).snd) entityList ]
 
 insertEntity :: Int -> Coord -> Entity -> StdGen -> EntityMap -> EntityMap
 insertEntity k xy ek g em = let

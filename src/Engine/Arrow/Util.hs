@@ -11,7 +11,6 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 module Engine.Arrow.Util (applyIntent) where
 
 import qualified Data.Set as S
-import Data.Text (Text)
 import qualified Data.Text as T
 import Engine.Arrow.Data
 import Engine.Arrow.FoV (checkFov)
@@ -44,6 +43,27 @@ applyIntent intent w = let
     Quit -> quitWorld w
     _ -> w
   in newWorld
+
+-- | action
+-- handle the action within the World
+action :: Int -> Coord -> World -> World
+action ix pos w = let
+  -- attack event
+  entity = GA.getEntityAt ix (entityT w)
+  -- see event
+  seen = GA.getEntityBy pos (entityT w)
+  entry = if ix > 0
+    then T.pack $ "Attack " ++ show (eKind entity) ++ " id=" ++ show ix
+    else case seen of
+      [e] -> let
+        interest = GA.getEntityAt e (entityT w)
+        in T.pack $ "See " ++ show (eKind interest) ++ " id=" ++ show e
+      _ -> "..."
+  -- journal the event
+  final = if last (journal w) == entry
+    then journal w
+    else journal w ++ [entry]
+  in w { journal = final }
 
 -- | bumpAction
 -- make entities block
@@ -108,33 +128,15 @@ handleDir input w = if starting w
     clampCoord       = clamp (heroX, heroY) (gridXY w)
     bump             = bumpAction clampCoord (entityT w)
     newCoord         = if bump < 1 then clampCoord else playerCoord
-    entry            = logEvent bump newCoord w
+    newWorld         = action bump newCoord w
     run = case GT.getTerrainAt newCoord (gameT w) of
-      Open -> updateView $ w {
+      Open -> updateView $ newWorld {
         fovT = mkView newCoord (gameT w)
         , entityT = GA.updatePlayer newCoord (entityT w)
-        , journal = entry
         , dirty = True }
-      _ -> w { dirty = False }
+      _ -> newWorld { dirty = False }
     in updateCamera run
 
--- | logevent
--- log attack at ix or at Coord
-logEvent :: Int -> Coord -> World -> [Text]
-logEvent ix pos w = let
-  entity = GA.getEntityAt ix (entityT w) -- attack event
-  seen = GA.getEntityBy pos (entityT w)  -- see eventd
-  entry = if ix > 0
-    then T.pack $ "Attack " ++ show (eKind entity) ++ " id=" ++ show ix
-    else case seen of
-      [e] -> let
-        interest = GA.getEntityAt e (entityT w)
-        in T.pack $ "See " ++ show (eKind interest) ++ " id=" ++ show e
-      _ -> "..."
-  final = if last (journal w) == entry
-    then journal w
-    else journal w ++ [entry]
-  in final
 
 -- | mkView utilizes FoV for @hardT@ to create the visible places
 mkView :: Coord -> TileMap -> [Coord]

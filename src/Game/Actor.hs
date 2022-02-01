@@ -16,6 +16,7 @@ module Game.Actor(EntityMap
                , insertMouse
                , insertPlayer
                , mkEntityMap
+               , updateEntity
                , updatePlayer) where
 
 import Control.Monad.Random (StdGen)
@@ -110,8 +111,14 @@ mkEntityMap tm g = let
                 ]
   in insertPlayer tm (Map.fromList junk) g
 
+-- | updateEntity at ix
+updateEntity :: Int -> Int -> EntityMap -> EntityMap
+updateEntity ix p em = let
+  (Just e) = Map.lookup ix em
+  in Map.insert ix (e { hitPoint = p }) em
+
 -- | update @ position
 updatePlayer :: Coord -> EntityMap -> EntityMap
 updatePlayer v em = let
   (Just e) = Map.lookup 0 em
-  in Map.insert 0 (e { coord = v}) em
+  in Map.insert 0 (e { coord = v }) em

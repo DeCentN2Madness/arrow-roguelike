@@ -10,7 +10,6 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 -}
 module Engine.Arrow.Util (applyIntent) where
 
-import qualified Data.Map as Map
 import qualified Data.Set as S
 import qualified Data.Text as T
 import Engine.Arrow.Data
@@ -18,6 +17,7 @@ import Engine.Arrow.FoV (checkFov)
 import Engine.Draw.Camera (updateCamera)
 import Game.Actor (EntityMap)
 import qualified Game.Actor as GA
+import qualified Game.Combat as GC
 import Game.Dungeon (Terrain(..))
 import qualified Game.Dungeon as DUNGEON
 import Game.Kind.Entity (EntityKind(..))
@@ -51,15 +51,10 @@ action :: Int -> Coord -> World -> World
 action ix pos w = let
   -- attack event
   entity = GA.getEntityAt ix (entityT w)
-  ar = Map.findWithDefault "0" "ar" (prop entity)
-  dr = Map.findWithDefault "0" "dr" (prop entity)
-  hp = Map.findWithDefault "1" "hp" (prop entity)
   -- see event
   seen = GA.getEntityBy pos (entityT w)
   entry = if ix > 0
-    then T.pack $ "Attack " ++ show (eKind entity)
-    ++ " id=" ++ show ix
-    ++ " ("++ show ar ++ "," ++ show dr ++ "," ++ show hp ++ ")"
+    then T.pack $ "Attack " ++ show (eKind entity) ++ " id=" ++ show ix
     else case seen of
       [e] -> let
         interest = GA.getEntityAt e (entityT w)
@@ -69,7 +64,7 @@ action ix pos w = let
   final = if last (journal w) == entry
     then journal w
     else journal w ++ [entry]
-  in w { journal = final }
+  in GC.mkCombat 0 ix $ w { journal = final }
 
 -- | bumpAction
 -- make entities block
@@ -130,16 +125,18 @@ handleDir input w = if starting w
     run = w { starting = False }
     in updateCamera run
   else let
+    -- oldWorld
     (_, playerCoord) = GA.getPlayer (entityT w)
     (heroX, heroY)   = playerCoord |+| dirToCoord input
     clampCoord       = clamp (heroX, heroY) (gridXY w)
     bump             = bumpAction clampCoord (entityT w)
     newCoord         = if bump < 1 then clampCoord else playerCoord
+    -- newWorld from action
     newWorld         = action bump newCoord w
-    run = case GT.getTerrainAt newCoord (gameT w) of
+    run = case GT.getTerrainAt newCoord (gameT newWorld) of
       Open -> updateView $ newWorld {
-        fovT = mkView newCoord (gameT w)
-        , entityT = GA.updatePlayer newCoord (entityT w)
+        fovT = mkView newCoord (gameT newWorld)
+        , entityT = GA.updatePlayer newCoord (entityT newWorld)
         , dirty = True }
       _ -> newWorld { dirty = False }
     in updateCamera run

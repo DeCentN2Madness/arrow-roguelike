@@ -18,6 +18,12 @@ import Game.Kind.Entity (EntityKind(..))
 abilityMod :: Int -> Int
 abilityMod n = (n-10) `div` 2
 
+clamp :: Int -> Int
+clamp r
+  | r < 1 = 1
+  | r > 20 = 20
+  | otherwise = r
+
 -- | mkCombat
 -- TODO pass in better entropy for DS.roll
 -- 1. toHit D20 + AR > 10 + DR
@@ -30,21 +36,23 @@ mkCombat px mx w = if px == mx
   else let
     pEntity = GA.getEntityAt px (entityT w)
     mEntity = GA.getEntityAt mx (entityT w)
+    pxy = coord pEntity
+    mxy = coord mEntity
     g = gGen pEntity
     -- player
     pProp = prop pEntity
     pAR = read $ Map.findWithDefault "0" "str" pProp :: Int
     pDR = 10 + read (Map.findWithDefault "0" "dex" pProp) :: Int
     pHP = hitPoint pEntity
-    pHit = DS.roll (10*mx) 1 1 20 g + abilityMod pAR
-    pDam = DS.roll (20*mx) 1 1 4  g + 2
+    pHit = clamp $ DS.roll (pDR + uncurry (*) pxy) 1 1 20 g + pAR
+    pDam = clamp $ DS.roll (pDR + mx) 1 1 4  g + abilityMod pAR
     -- monster
     mProp = prop mEntity
     mAR = read $ Map.findWithDefault "0" "str" mProp :: Int
     mDR = 12 :: Int
     mHP = hitPoint mEntity
-    mHit = DS.roll (30*mx) 1 1 20 g + abilityMod pAR
-    mDam = DS.roll (40*mx) 1 1 4  g + 2
+    mHit = clamp $ DS.roll (mDR + uncurry (*) mxy) 1 1 20 g + mAR
+    mDam = clamp $ DS.roll (mDR + mx) 1 1 4 g + 2
     -- attacks
     pAttack = if pHit >= mDR
       then mHP - pDam

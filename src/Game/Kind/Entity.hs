@@ -39,6 +39,9 @@ data EntityKind = EntityKind
   , _gameGen :: !StdGen
   } deriving (Show)
 
+abilityMod :: Int -> Int
+abilityMod n = (n-10) `div` 2
+
 -- | defaultProp
 defaultProp :: StdGen -> Properties
 defaultProp g = let
@@ -48,11 +51,18 @@ defaultProp g = let
   constitution = DS.roll 30 9 3 6 g
   intelligence = DS.roll 40 9 3 6 g
   wisdom       = DS.roll 50 9 3 6 g
-  stats = [ ("Str", show strength)
-          , ("Int", show intelligence)
-          , ("Dex", show dexterity)
-          , ("Con", show constitution)
-          , ("Wis", show wisdom) ] ++ std
+  attack       = abilityMod strength
+  defense      = abilityMod dexterity
+  hitPoints    = abilityMod constitution + 10
+  stats = [ ("str", show strength)
+          , ("int", show intelligence)
+          , ("dex", show dexterity)
+          , ("con", show constitution)
+          , ("wis", show wisdom)
+          , ("ar",  show attack)
+          , ("dr",  show defense)
+          , ("hp",  show hitPoints)
+          ] ++ std
   in Map.fromList stats
 
 -- | mouseProp
@@ -65,11 +75,20 @@ mouseProp g = let
   constitution = DS.rollMod D6 0 g + DS.rollMod D6 0 g
   intelligence = 2 :: Int
   wisdom       = 10 :: Int
-  stats = [ ("Str", show strength)
-          , ("Int", show intelligence)
-          , ("Dex", show dexterity)
-          , ("Con", show constitution)
-          , ("Wis", show wisdom) ] ++ std
+  attack       = abilityMod strength
+  defense      = abilityMod dexterity
+  hitPoints    = abilityMod constitution +
+    DS.rollMod D6 0 g +
+    DS.rollMod D6 0 g
+  stats = [ ("str", show strength)
+          , ("int", show intelligence)
+          , ("dex", show dexterity)
+          , ("con", show constitution)
+          , ("wis", show wisdom)
+          , ("ar",  show attack)
+          , ("dr",  show defense)
+          , ("hp",  show hitPoints)
+          ] ++ std
   in Map.fromList stats
 
 -- | mkProp

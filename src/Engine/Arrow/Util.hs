@@ -10,6 +10,7 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 -}
 module Engine.Arrow.Util (applyIntent) where
 
+import qualified Data.Map as Map
 import qualified Data.Set as S
 import qualified Data.Text as T
 import Engine.Arrow.Data
@@ -50,10 +51,15 @@ action :: Int -> Coord -> World -> World
 action ix pos w = let
   -- attack event
   entity = GA.getEntityAt ix (entityT w)
+  ar = Map.findWithDefault "0" "ar" (prop entity)
+  dr = Map.findWithDefault "0" "dr" (prop entity)
+  hp = Map.findWithDefault "1" "hp" (prop entity)
   -- see event
   seen = GA.getEntityBy pos (entityT w)
   entry = if ix > 0
-    then T.pack $ "Attack " ++ show (eKind entity) ++ " id=" ++ show ix
+    then T.pack $ "Attack " ++ show (eKind entity)
+    ++ " id=" ++ show ix
+    ++ " ("++ show ar ++ "," ++ show dr ++ "," ++ show hp ++ ")"
     else case seen of
       [e] -> let
         interest = GA.getEntityAt e (entityT w)
@@ -114,9 +120,10 @@ dirToCoord d
 -- Processs:
 -- 1. clamp check the grid
 -- 2. bumpAction checks Entity w/ block
--- 3. getTerrainAt checks the TileMap
--- 4. if Open then create a new FoV and move
---    else no movement
+-- 3. action handles activities in the World
+-- 4. getTerrainAt checks the TileMap
+-- 5. updateView will create new FoV
+-- 6. updateCamera w/ newWorld
 handleDir :: Direction -> World -> World
 handleDir input w = if starting w
   then let

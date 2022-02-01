@@ -63,10 +63,11 @@ getEntityBy xy em = let
                 let pos = coord ek ]
   in [ ix | (ix, _) <- filter ((==xy).snd) entityList ]
 
+-- | inserEntity
 insertEntity :: Int -> Coord -> Entity -> StdGen -> EntityMap -> EntityMap
-insertEntity k xy ek g em = let
+insertEntity ix xy ek g em = let
   e = mkEntity ek xy g
-  in Map.insert k e em
+  in Map.insert ix e em
 
 -- | insert @ into the TileMap
 insertPlayer :: TileMap -> EntityMap -> StdGen -> EntityMap
@@ -84,6 +85,7 @@ insertMouse tm g = let
   mice = zip [1..3] miceList
   in insertPlayer tm (Map.fromList mice) g
 
+-- | insertRand all over the TileMap
 insertRand :: Entity -> Int -> Int -> [Coord] -> StdGen -> [(Int, EntityKind)]
 insertRand e start count openList g = let
   end = start + count
@@ -94,19 +96,21 @@ insertRand e start count openList g = let
 
 -- | mkEntityMap will do more
 -- drop $ take
--- [Bang, Corpse, Item, Mouse, Mushroom, StairUp, StairDown, Trap]
+-- insert % of many things
+-- preserve 0 for the Hero
 mkEntityMap :: TileMap -> StdGen -> EntityMap
 mkEntityMap tm g = let
-  -- insert % of many things
-  -- preserve 0 for the Hero
   openList = tail $ [ xy | (_, xy) <- fromOpen tm ]
-  junk = concat [insertRand  Mouse    1  5  (drop 1  $ take 5 openList) g
-                , insertRand Mushroom 6  11 (drop 6  $ take 11  openList) g
-                , insertRand Corpse   12 20 (drop 12 $ take 20 openList) g
+  junk = concat [insertRand  Mouse    1  10 (drop 1  $ take 10 openList) g
+                , insertRand Mushroom 11 20 (drop 11 $ take 20 openList) g
+                , insertRand Corpse   21 30 (drop 21 $ take 30 openList) g
+                , insertRand Potion   31 40 (drop 31 $ take 40 openList) g
+                , insertRand Coin     41 50 (drop 41 $ take 50 openList) g
+                , insertRand Unknown  51 60 (drop 51 $ take 60 openList) g
                 ]
   in insertPlayer tm (Map.fromList junk) g
 
--- update @ position
+-- | update @ position
 updatePlayer :: Coord -> EntityMap -> EntityMap
 updatePlayer v em = let
   (Just e) = Map.lookup 0 em

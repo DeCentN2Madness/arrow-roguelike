@@ -3,12 +3,13 @@
 roguelike demo w/ Haskell
 
 ## Features
-![hero.bmp](images/hero.bmp)
+![Hero.png](images/Hero.png)
 
+1. Tiles
 1. `rogueDungeon` with `MonadRandom`
-1. 3 blind Mice
+1. 3 Blind Mice
 1. Camera follows `@`
-1. SDL2
+1. HUD
 
 ## Usage
 1. vi keys or ArrowKey Movement

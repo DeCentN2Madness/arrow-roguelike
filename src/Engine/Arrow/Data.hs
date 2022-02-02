@@ -26,6 +26,7 @@ data Direction
   | SouthWest
   | West
   | NorthWest
+  | C
   | K
   | Y
   | H

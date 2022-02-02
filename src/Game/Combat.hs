@@ -43,7 +43,7 @@ mkCombat px mx w = if px == mx
     mSeed = tick w + tick w * uncurry (*) mPos :: Int
     -- player
     pProp = prop pEntity
-    pDex = read (Map.findWithDefault "1" "dex" pProp) :: Int
+    pDex = read $ Map.findWithDefault "1" "dex" pProp :: Int
     pStr = read $ Map.findWithDefault "1" "str" pProp :: Int
     pDR = 10 + pDex
     pHP = hitPoint pEntity

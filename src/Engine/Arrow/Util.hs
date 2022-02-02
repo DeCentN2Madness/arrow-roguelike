@@ -10,6 +10,8 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 -}
 module Engine.Arrow.Util (applyIntent) where
 
+import qualified Data.Map as Map
+import Data.Text (Text)
 import qualified Data.Text as T
 import Engine.Arrow.Compass
 import Engine.Arrow.Data
@@ -33,11 +35,7 @@ action ix pos w = let
   seen = GA.getEntityBy pos (entityT w)
   entry = if ix > 0
     then T.pack $ "Attack " ++ show (eKind entity) ++ " id=" ++ show ix
-    else case seen of
-      [e] -> let
-        interest = GA.getEntityAt e (entityT w)
-        in T.pack $ "See " ++ show (eKind interest) ++ " id=" ++ show e
-      _ -> "..."
+    else  actionLook seen (entityT w)
   -- journal the event
   final = if last (journal w) == entry
     then journal w
@@ -54,7 +52,18 @@ actionBump pos em = let
     else fst $ head blockList
   in ix
 
--- | handleDir @w@ world will change with @input@
+-- | actionLook
+-- if there are many things...
+actionLook :: [Int] -> EntityMap -> Text
+actionLook [] _  = "..."
+actionLook ix em = let
+  look = T.concat [ t | i <- ix,
+                    let e = GA.getEntityAt i em
+                        t = T.pack $ show (eKind e)
+                          ++ " id=" ++ show i ++ ", " ]
+  in T.append look "..."
+
+-- | handleDirection the world will change with @input@
 -- Processs:
 -- 1. clamp check the grid
 -- 2. bumpAction checks Entity w/ block
@@ -69,7 +78,7 @@ actionDirection input w = if starting w
     in EDC.updateCamera run
   else let
     -- oldWorld
-    newTick          = (tick w) + 1
+    newTick          = tick w + 1
     (_, playerCoord) = GA.getPlayer (entityT w)
     (heroX, heroY)   = playerCoord |+| dirToCoord input
     clampCoord       = clamp (heroX, heroY) (gridXY w)
@@ -99,6 +108,7 @@ applyIntent intent w = let
     Action SouthWest -> actionDirection SouthWest w
     Action West -> actionDirection West w
     Action NorthWest -> actionDirection NorthWest w
+    Action C -> showCharacter w
     Action R -> resetWorld w
     Quit -> quitWorld w
     _ -> w
@@ -119,6 +129,33 @@ resetWorld w = let
        , dirty = True
        , starting = True
        , exiting = False }
+
+showCharacter :: World -> World
+showCharacter w = let
+  pEntity = GA.getEntityAt 0 (entityT w)
+  pProp = prop pEntity
+  pStr = read $ Map.findWithDefault "1" "str" pProp :: Int
+  pDex = read $ Map.findWithDefault "1" "dex" pProp :: Int
+  pCon = read $ Map.findWithDefault "1" "con" pProp :: Int
+  pInt = read $ Map.findWithDefault "1" "int" pProp :: Int
+  pWis = read $ Map.findWithDefault "1" "wis" pProp :: Int
+  pEntry = T.pack $ "Player"
+    ++ " Str="
+      ++ show pStr
+      ++ ", Dex="
+      ++ show pDex
+      ++ ", Int="
+      ++ show pInt
+      ++ ", Con="
+      ++ show pCon
+      ++ ", Wis="
+      ++ show pWis
+      ++ ", HP="
+      ++ show (hitPoint pEntity)
+  final = if last (journal w) == pEntry
+      then journal w
+      else journal w ++ [pEntry]
+  in w { journal = final }
 
 -- | quitWorld
 -- handle gameStates of starting, dirty, exiting

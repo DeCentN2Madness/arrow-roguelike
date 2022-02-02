@@ -45,7 +45,7 @@ mkCombat px mx w = if px == mx
     pProp = prop pEntity
     pDex = read $ Map.findWithDefault "1" "dex" pProp :: Int
     pStr = read $ Map.findWithDefault "1" "str" pProp :: Int
-    pDR = 10 + pDex
+    pDR = 10 + abilityMod pDex
     pHP = hitPoint pEntity
     pHit = clamp $ DS.d20 pSeed + abilityMod pDex
     pDam = clamp $ DS.d4 pSeed + abilityMod pStr

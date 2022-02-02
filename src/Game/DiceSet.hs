@@ -14,7 +14,6 @@ module Game.DiceSet (d4
                     , d12
                     , d20
                     , d100
-                    , roll
                     , rollList
                     , rollMod) where
 

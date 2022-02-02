@@ -77,26 +77,24 @@ insertPlayer tm em = let
 
 -- | insertRand all over the TileMap
 insertRand :: Entity -> Int -> Int -> [Coord] -> [(Int, EntityKind)]
-insertRand e start count openList = let
-  end = start + count
+insertRand e start end openList = let
   sz = length openList - 1
-  randList = DS.rollList sz (fromIntegral sz) (end*sz)
+  randList = DS.rollList (end-start) (fromIntegral sz) (end*sz)
   entityList = [ m | v <- randList, let m = mkEntity e (openList!!v) ]
   in zip [start..end] entityList
 
 -- | mkEntityMap will do more
--- drop $ take
 -- insert % of many things
 -- preserve 0 for the Hero
 mkEntityMap :: TileMap -> EntityMap
 mkEntityMap tm = let
   openList = tail $ [ xy | (_, xy) <- fromOpen tm ]
-  junk = concat [insertRand  Mouse    1  10 (drop 1  $ take 10 openList)
-                , insertRand Mushroom 11 20 (drop 11 $ take 20 openList)
-                , insertRand Corpse   21 30 (drop 21 $ take 30 openList)
-                , insertRand Potion   31 40 (drop 31 $ take 40 openList)
-                , insertRand Coin     41 50 (drop 41 $ take 50 openList)
-                , insertRand Unknown  51 60 (drop 51 $ take 60 openList)
+  junk = concat [insertRand  Mouse    1  10 openList
+                , insertRand Mushroom 11 20 openList
+                , insertRand Corpse   21 30 openList
+                , insertRand Potion   31 40 openList
+                , insertRand Coin     41 50 openList
+                , insertRand Unknown  51 60 openList
                 ]
   in insertPlayer tm (Map.fromList junk)
 

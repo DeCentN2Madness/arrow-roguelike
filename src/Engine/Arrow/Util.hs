@@ -29,18 +29,23 @@ import qualified Game.Tile as GT
 -- handle the action within the World
 action :: Int -> Coord -> World -> World
 action ix pos w = let
-  -- attack event
-  entity = GA.getEntityAt ix (entityT w)
   -- see event
   seen = GA.getEntityBy pos (entityT w)
   entry = if ix > 0
-    then T.pack $ "Attack " ++ show (eKind entity) ++ " id=" ++ show ix
-    else  actionLook seen (entityT w)
+    then actionAttack ix (entityT w)
+    else actionLook seen (entityT w)
   -- journal the event
   final = if last (journal w) == entry
     then journal w
     else journal w ++ [entry]
   in GC.mkCombat 0 ix $ w { journal = final }
+
+-- | actionAttack
+-- if there is an attack...
+actionAttack :: Int -> EntityMap -> Text
+actionAttack ix em = let
+  e = GA.getEntityAt ix em
+  in T.pack $ "Attack " ++ show (eKind e) ++ " id=" ++ show ix ++ ", ..."
 
 -- | actionBump
 -- make entities block
@@ -52,18 +57,7 @@ actionBump pos em = let
     else fst $ head blockList
   in ix
 
--- | actionLook
--- if there are many things...
-actionLook :: [Int] -> EntityMap -> Text
-actionLook [] _  = "..."
-actionLook ix em = let
-  look = T.concat [ t | i <- ix,
-                    let e = GA.getEntityAt i em
-                        t = T.pack $ show (eKind e)
-                          ++ " id=" ++ show i ++ ", " ]
-  in T.append look "..."
-
--- | handleDirection the world will change with @input@
+-- | actionDirection the world will change with @input@
 -- Processs:
 -- 1. clamp check the grid
 -- 2. bumpAction checks Entity w/ block
@@ -95,6 +89,17 @@ actionDirection input w = if starting w
       _ -> newWorld { dirty = False }
     in EDC.updateCamera run
 
+-- | actionLook
+-- if there are many things...
+actionLook :: [Int] -> EntityMap -> Text
+actionLook [] _  = "..."
+actionLook ix em = let
+  look = T.concat [ t | i <- ix,
+                    let e = GA.getEntityAt i em
+                        t = T.pack $ show (eKind e)
+                          ++ " id=" ++ show i ++ ", " ]
+  in T.append look "..."
+
 -- | applyIntent
 -- Events applied to the World
 applyIntent :: Intent -> World -> World
@@ -115,7 +120,7 @@ applyIntent intent w = let
   in newWorld
 
 -- | reset the world and redraw the World
--- handle gameStates of starting, dirty, exiting
+-- handle gameStates of starting...
 resetWorld :: World -> World
 resetWorld w = let
   (d, g) = uncurry GD.rogueDungeon (gridXY w) (gameGen w)
@@ -130,6 +135,7 @@ resetWorld w = let
        , starting = True
        , exiting = False }
 
+-- | showCharacter
 showCharacter :: World -> World
 showCharacter w = let
   pEntity = GA.getEntityAt 0 (entityT w)
@@ -158,9 +164,8 @@ showCharacter w = let
   in w { journal = final }
 
 -- | quitWorld
--- handle gameStates of starting, dirty, exiting
+-- handle exiting...
 quitWorld :: World -> World
 quitWorld w = w { journal = journal w ++ ["Exiting..."]
                   , starting = False
-                  , dirty = False
                   , exiting = True }

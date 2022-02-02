@@ -18,14 +18,12 @@ module Game.Tile(fromHard
 
 import Data.Map (Map)
 import qualified Data.Map.Strict as Map
-import Data.Maybe
 import qualified Data.Vector as V
 import Game.Dungeon (Dungeon(..), Terrain(..))
 import Game.Kind.Tile
 
 type Coord = (Int, Int)
 type TileMap = Map Int TileKind
-
 
 -- | getTerrainAt
 getTerrainAt :: Coord -> TileMap -> Terrain
@@ -79,5 +77,5 @@ updateTileMap (x:xs) gm = let
   ix = case filter ((==x).snd) ixList of
     [k] -> fst k
     _ -> 0
-  TileKind xy _ t = fromMaybe zeroTK $ Map.lookup ix gm
+  TileKind xy _ t = Map.findWithDefault (TileKind (0,0) False Open) ix gm
   in updateTileMap xs (Map.insert ix (TileKind xy True t) gm)

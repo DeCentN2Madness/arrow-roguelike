@@ -62,6 +62,7 @@ data VisualKind
   | VStairDn
   | VStairUp
   | VTrap
+  | VUnknown
   | VWall
   deriving (Show, Eq, Ord)
 
@@ -101,6 +102,7 @@ mkVisual VStairUp  ts = Visual (320, 0) (style ts) 32 36
 mkVisual VTrap     ts = Visual (352, 0) (style ts) 32 36
 mkVisual VCoin     ts = Visual (384, 0) (style ts) 32 36
 mkVisual VItem     ts = Visual (416, 0) (style ts) 32 36
+mkVisual VUnknown  ts = Visual (448, 0) (style ts) 32 36
 
 -- | mkVisualMao
 -- make the visual map to render
@@ -118,7 +120,7 @@ mkVisualMap ts w = do
                       Rock   -> mkVisual VRock   ts
                       Rubble -> mkVisual VRubble ts
                       Wall   -> mkVisual VWall   ts
-                      _      -> mkVisual VOpen   ts ]
+                      Open   -> mkVisual VOpen   ts ]
 
       -- draw @, %, r, ',' if in fov
       seenT = [ (xy, t) | (ek, xy) <- seen,
@@ -133,5 +135,5 @@ mkVisualMap ts w = do
                       StairDown -> mkVisual VStairDn  ts
                       StairUp   -> mkVisual VStairUp  ts
                       Trap      -> mkVisual VTrap     ts
-                      _         -> mkVisual VOpen     ts ]
+                      Unknown   -> mkVisual VUnknown  ts ]
     in Map.fromList $ hardT ++ seenT

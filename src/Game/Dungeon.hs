@@ -41,7 +41,6 @@ data Terrain
   | Rubble
   | Magma
   | Rock
-  | ZeroT
   deriving (Read, Show, Eq)
 
 -- | boxDungeon builds the dungeon

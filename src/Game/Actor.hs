@@ -14,6 +14,7 @@ module Game.Actor(EntityMap
                , getEntityAt
                , getEntityBy
                , insertPlayer
+               , insertEntity
                , mkEntityMap
                , updateEntity
                , updatePlayer) where

@@ -13,7 +13,6 @@ module Game.Kind.Entity (Entity(..)
 
 import Data.Map (Map)
 import qualified Data.Map as Map
-import qualified Game.DiceSet as DS
 
 type Coord = (Int, Int)
 type Properties = Map String String
@@ -40,15 +39,15 @@ data EntityKind = EntityKind
   , hitPoint     :: Int
   } deriving (Show)
 
--- | defaultProp
-defaultProp :: Int -> Properties
-defaultProp s = let
+-- | fighterProp
+fighterProp :: Properties
+fighterProp = let
   std          = Map.toList $ mkProp "Player" "@"
-  strength     = DS.d6 s + DS.d6 s + DS.d6 s
-  dexterity    = DS.d6 s + DS.d6 s + DS.d6 s
-  constitution = DS.d6 s + DS.d6 s + DS.d6 s
-  intelligence = DS.d6 s + DS.d6 s + DS.d6 s
-  wisdom       = DS.d6 s + DS.d6 s + DS.d6 s
+  strength     = 15 :: Int
+  dexterity    = 14 :: Int
+  constitution = 13 :: Int
+  intelligence = 12 :: Int
+  wisdom       = 10 :: Int
   stats = [ ("str", show strength)
           , ("int", show intelligence)
           , ("dex", show dexterity)
@@ -58,14 +57,13 @@ defaultProp s = let
   in Map.fromList stats
 
 -- | mouseProp
--- 2d6 stats, 3d6 dex
-mouseProp :: Int -> Properties
-mouseProp s = let
+mouseProp :: Properties
+mouseProp = let
   std          = Map.toList $ mkProp "Mouse" "r"
-  strength     = DS.d6 s + DS.d6 s
-  dexterity    = DS.d6 s + DS.d6 s + DS.d6 s
-  constitution = DS.d6 s + DS.d6 s
-  intelligence = 2 :: Int
+  strength     = 7  :: Int
+  dexterity    = 15 :: Int
+  constitution = 11 :: Int
+  intelligence = 2  :: Int
   wisdom       = 10 :: Int
   stats = [ ("str", show strength)
           , ("int", show intelligence)
@@ -81,14 +79,14 @@ mkProp x y = Map.fromList [("Name", x), ("Desc", y)]
 
 -- | mkEntity
 mkEntity :: Entity -> Coord -> EntityKind
-mkEntity Actor xy     = EntityKind xy True Actor (defaultProp 1) 10
-mkEntity Coin xy      = EntityKind xy False Coin (mkProp "Coin" "$") 0
-mkEntity Corpse xy    = EntityKind xy False Corpse (mkProp "Corpse" "%") 0
-mkEntity Item xy      = EntityKind xy False Item (mkProp "Item" "[") 0
-mkEntity Mouse xy     = EntityKind xy True Mouse (mouseProp 2) 7
-mkEntity Mushroom xy  = EntityKind xy False Mushroom  (mkProp "Mushroom" ",") 0
-mkEntity Potion xy    = EntityKind xy False Potion (mkProp "Potion" "!") 0
-mkEntity StairDown xy = EntityKind xy False StairDown (mkProp "Stair" ">") 0
-mkEntity StairUp xy   = EntityKind xy False StairUp (mkProp "Stair" "<") 0
-mkEntity Trap xy      = EntityKind xy False Trap (mkProp "Trap" "^") 0
-mkEntity Unknown xy   = EntityKind xy False Unknown (mkProp "Unknown" "~") 0
+mkEntity Actor xy     = EntityKind xy True Actor fighterProp 10
+mkEntity Coin xy      = EntityKind xy False Coin (mkProp "Coin" "$") 1
+mkEntity Corpse xy    = EntityKind xy False Corpse (mkProp "Corpse" "%") 1
+mkEntity Item xy      = EntityKind xy False Item (mkProp "Item" "[") 1
+mkEntity Mouse xy     = EntityKind xy True Mouse mouseProp 7
+mkEntity Mushroom xy  = EntityKind xy False Mushroom  (mkProp "Mushroom" ",") 1
+mkEntity Potion xy    = EntityKind xy False Potion (mkProp "Potion" "!") 1
+mkEntity StairDown xy = EntityKind xy False StairDown (mkProp "Stair" ">") 1
+mkEntity StairUp xy   = EntityKind xy False StairUp (mkProp "Stair" "<") 1
+mkEntity Trap xy      = EntityKind xy False Trap (mkProp "Trap" "^") 1
+mkEntity Unknown xy   = EntityKind xy False Unknown (mkProp "Unknown" "~") 1

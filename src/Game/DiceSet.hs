@@ -7,100 +7,61 @@ Game.DiceSet rolls dice
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
 -}
-module Game.DiceSet (Die(..)
-                     , roll
-                     , rollMod
-                     , randomList) where
+module Game.DiceSet (d4
+                    , d6
+                    , d8
+                    , d10
+                    , d12
+                    , d20
+                    , d100
+                    , roll
+                    , rollList
+                    , rollMod) where
 
 import Control.Monad.Random
-import Control.Monad.Trans.State
-
-type Dice = (Int, Int)
-
-data Die
-  = D4
-  | D6
-  | D8
-  | D10
-  | D12
-  | D20
-  | D100
-  deriving (Show, Eq, Ord)
+import Data.List
+import System.Random
 
 -- | bag of dice
--- example with RandT
-d4 :: (RandomGen g) => Int -> RandT g (State ([Int], Int)) ()
-d4 i = do
-  r0 <- getRandomR (1,4)
-  s <- lift get
-  lift $ put ([], i + r0 + snd s)
+d4 :: Int -> Int
+d4 s = fromIntegral $ rollMod 1 4 0 s
 
-d6 :: (RandomGen g) => Int -> RandT g (State ([Int], Int)) ()
-d6 i = do
-  r0 <- getRandomR (1,6)
-  s <- lift get
-  lift $ put ([], i + r0 + snd s)
+d6 :: Int -> Int
+d6 s = fromIntegral $ rollMod 1 6 0 s
 
-d8 :: (RandomGen g) => Int -> RandT g (State ([Int], Int)) ()
-d8 i = do
-  r0 <- getRandomR (1,8)
-  s <- lift get
-  lift $ put ([], i + r0 + snd s)
+d8 :: Int -> Int
+d8 s = fromIntegral $ rollMod 1 8 0 s
 
-d10 :: (RandomGen g) => Int -> RandT g (State ([Int], Int)) ()
-d10 i = do
-  r0 <- getRandomR (1,10)
-  s <- lift get
-  lift $ put ([], i + r0 + snd s)
+d10 :: Int -> Int
+d10 s = fromIntegral $ rollMod 1 10 0 s
 
-d12 :: (RandomGen g) => Int -> RandT g (State ([Int], Int)) ()
-d12 i = do
-  r0 <- getRandomR (1,12)
-  s <- lift get
-  lift $ put ([], i + r0 + snd s)
+d12 :: Int -> Int
+d12 s = fromIntegral $ rollMod 1 12 0 s
 
-d20 :: (RandomGen g) => Int -> RandT g (State ([Int], Int)) ()
-d20 i = do
-  r0 <- getRandomR (1,20)
-  s <- lift get
-  lift $ put ([], i + r0 + snd s)
+d20 :: Int -> Int
+d20 s = fromIntegral $ rollMod 1 20 0 s
 
-d100 :: (RandomGen g) => Int -> RandT g (State ([Int], Int)) ()
-d100 i = do
-  r0 <- getRandomR (1,100)
-  s <- lift get
-  lift $ put ([], i + r0 + snd s)
+d100 :: Int -> Int
+d100 s = fromIntegral $ rollMod 1 100 0 s
 
-mkDie :: RandomGen g => Die -> Int -> RandT g (State ([Int], Int)) ()
-mkDie D4 = d4
-mkDie D8 = d6
-mkDie D6 = d8
-mkDie D10 = d10
-mkDie D12 = d12
-mkDie D20 = d20
-mkDie D100 = d100
+-- | roll w/ seed
+roll :: Int -> Word -> Int -> [Word]
+roll r side seed = let
+  rolls :: RandomGen g => Int -> Word -> g -> [Word]
+  rolls n s = take n . unfoldr (Just . uniformR (1,s))
+  pureGen = mkStdGen seed
+  in rolls r side pureGen :: [Word]
 
--- | roll D20 + mod
-rollMod :: RandomGen g => Die -> Int -> g -> Int
-rollMod d i g = let
-  r0 = snd $ flip execState ([], i) $ evalRandT (mkDie d i) g
-  in r0
+-- | rollList w/ seed
+rollList :: Int -> Word -> Int -> [Int]
+rollList n side seed = let
+  r0 = roll n side seed
+  in [ i | r <- r0, let i = fromIntegral r ]
 
--- | roll is rolls D side
--- RNG pick last number from randomList
--- ix creates different sized lists for entropy
--- avg is the minimum value
-roll :: RandomGen g => Int -> Int -> Int -> Int -> g -> Int
-roll ix avg rolls side g = let
-  result = last $ randomList (ix*10) (rolls, side) g
-  in min (rolls*side) (max avg result)
-
--- | randomList of rolls
--- example: roll 6 3d6
---          or roll 10 2d10
---          or roll 1000 4d6
-randomList :: (RandomGen g) => Int -> Dice -> g -> [Int]
-randomList 0 (_, _) _ = []
-randomList n (rolls, sides) gen = let
-  (r, newGen) = randomR (rolls, rolls * sides) gen
-  in r : randomList (n-1) (rolls, sides) newGen
+-- | rollMod w/ seed
+-- example: D20 + 1
+-- rollMod 1 20 + 1
+rollMod :: Int -> Word -> Word -> Int -> Word
+rollMod r side n seed = let
+  r0 = sum $ roll r side seed
+  in r0 + n

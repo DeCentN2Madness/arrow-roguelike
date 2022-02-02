@@ -16,9 +16,11 @@ source-repository head
 
 library
   hs-source-dirs:   src
-  exposed-modules:  Engine.Arrow.Data
+  exposed-modules:  Engine.Arrow.Compass
+                    , Engine.Arrow.Data
                     , Engine.Arrow.FoV
                     , Engine.Arrow.Util
+                    , Engine.Arrow.View
                     , Engine.Draw.Camera
                     , Engine.Draw.Textual
                     , Engine.Draw.Util
@@ -36,6 +38,7 @@ library
                     , containers
                     , MonadRandom
                     , primitive
+                    , random
                     , sdl2
                     , sdl2-image
                     , sdl2-ttf
@@ -46,9 +49,11 @@ library
 
 executable Main
   main-is:          Main.hs
-  other-modules:    Engine.Arrow.Data
+  other-modules:    Engine.Arrow.Compass
+                    , Engine.Arrow.Data
                     , Engine.Arrow.FoV
                     , Engine.Arrow.Util
+                    , Engine.Arrow.View
                     , Engine.Draw.Camera
                     , Engine.Draw.Textual
                     , Engine.Draw.Util
@@ -69,6 +74,7 @@ executable Main
                     , containers
                     , MonadRandom
                     , primitive
+                    , random
                     , sdl2
                     , sdl2-image
                     , sdl2-ttf

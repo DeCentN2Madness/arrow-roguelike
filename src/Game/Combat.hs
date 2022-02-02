@@ -38,21 +38,24 @@ mkCombat px mx w = if px == mx
     mEntity = GA.getEntityAt mx (entityT w)
     pxy = coord pEntity
     mxy = coord mEntity
-    g = gGen pEntity
+    pSeed = tick w + uncurry (*) mxy:: Int -- Seed, compute
+    mSeed = tick w + tick w * uncurry (*) pxy:: Int -- Seed, compute
     -- player
     pProp = prop pEntity
-    pAR = read $ Map.findWithDefault "0" "str" pProp :: Int
-    pDR = 10 + read (Map.findWithDefault "0" "dex" pProp) :: Int
+    pDex = read (Map.findWithDefault "1" "dex" pProp) :: Int
+    pStr = read $ Map.findWithDefault "1" "str" pProp :: Int
+    pDR = 10 + pDex
     pHP = hitPoint pEntity
-    pHit = clamp $ DS.roll (pDR + uncurry (*) pxy) 1 1 20 g + pAR
-    pDam = clamp $ DS.roll (pDR + mx) 1 1 4  g + abilityMod pAR
+    pHit = DS.d20 pSeed + abilityMod pDex
+    pDam = clamp $ DS.d4 pSeed + abilityMod pStr
     -- monster
     mProp = prop mEntity
-    mAR = read $ Map.findWithDefault "0" "str" mProp :: Int
+    mDex = read $ Map.findWithDefault "1" "dex" mProp :: Int
+    mStr = read $ Map.findWithDefault "1" "str" mProp :: Int
     mDR = 12 :: Int
     mHP = hitPoint mEntity
-    mHit = clamp $ DS.roll (mDR + uncurry (*) mxy) 1 1 20 g + mAR
-    mDam = clamp $ DS.roll (mDR + mx) 1 1 4 g + 2
+    mHit = DS.d20 mSeed + abilityMod mDex
+    mDam = clamp $ DS.d4 mSeed + abilityMod pStr
     -- attacks
     pAttack = if pHit >= mDR
       then mHP - pDam
@@ -66,8 +69,10 @@ mkCombat px mx w = if px == mx
       ++ show pHit
       ++ ", pDam="
       ++ show pDam
-      ++ ", pAR="
-      ++ show pAR
+      ++ ", pDex="
+      ++ show pDex
+      ++ ", pStr="
+      ++ show pStr
       ++ ", pDR="
       ++ show pDR
       ++ ", pHP="
@@ -77,8 +82,10 @@ mkCombat px mx w = if px == mx
       ++ show mHit
       ++ " mDam="
       ++ show mDam
-      ++ ", mAR="
-      ++ show mAR
+      ++ ", mDex="
+      ++ show mDex
+      ++ ", mStr="
+      ++ show mStr
       ++ ", mDR="
       ++ show mDR
       ++ ", mHP="

@@ -13,14 +13,11 @@ module Game.Actor(EntityMap
                , getPlayer
                , getEntityAt
                , getEntityBy
-               , insertMouse
                , insertPlayer
                , mkEntityMap
                , updateEntity
                , updatePlayer) where
 
-import Control.Monad.Random (StdGen)
-import Data.List (nub)
 import Data.Map (Map)
 import qualified Data.Map.Strict as Map
 import qualified Game.DiceSet as DS
@@ -65,51 +62,42 @@ getEntityBy xy em = let
   in [ ix | (ix, _) <- filter ((==xy).snd) entityList ]
 
 -- | inserEntity
-insertEntity :: Int -> Coord -> Entity -> StdGen -> EntityMap -> EntityMap
-insertEntity ix xy ek g em = let
-  e = mkEntity ek xy g
+insertEntity :: Int -> Coord -> Entity -> EntityMap -> EntityMap
+insertEntity ix xy ek em = let
+  e = mkEntity ek xy
   in Map.insert ix e em
 
 -- | insert @ into the TileMap
-insertPlayer :: TileMap -> EntityMap -> StdGen -> EntityMap
-insertPlayer tm em g = let
+insertPlayer :: TileMap -> EntityMap -> EntityMap
+insertPlayer tm em = let
   openList = [ v | (_, v) <- fromOpen tm]
   xy = head openList
-  in insertEntity 0 xy Actor g em
-
--- | three blind mice
--- next to @
-insertMouse :: TileMap -> StdGen -> EntityMap
-insertMouse tm g = let
-  openList = tail $ [ xy | (_, xy) <- fromOpen tm ]
-  miceList = [ m | v <- openList, let m = mkEntity Mouse v g ]
-  mice = zip [1..3] miceList
-  in insertPlayer tm (Map.fromList mice) g
+  in insertEntity 0 xy Actor em
 
 -- | insertRand all over the TileMap
-insertRand :: Entity -> Int -> Int -> [Coord] -> StdGen -> [(Int, EntityKind)]
-insertRand e start count openList g = let
+insertRand :: Entity -> Int -> Int -> [Coord] -> [(Int, EntityKind)]
+insertRand e start count openList = let
   end = start + count
   sz = length openList - 1
-  randList = nub $ DS.randomList sz (1, sz) g
-  entityList = [ m | v <- randList, let m = mkEntity e (openList!!v) g ]
+  randList = DS.rollList sz (fromIntegral sz) (end*sz)
+  entityList = [ m | v <- randList, let m = mkEntity e (openList!!v) ]
   in zip [start..end] entityList
 
 -- | mkEntityMap will do more
 -- drop $ take
 -- insert % of many things
 -- preserve 0 for the Hero
-mkEntityMap :: TileMap -> StdGen -> EntityMap
-mkEntityMap tm g = let
+mkEntityMap :: TileMap -> EntityMap
+mkEntityMap tm = let
   openList = tail $ [ xy | (_, xy) <- fromOpen tm ]
-  junk = concat [insertRand  Mouse    1  10 (drop 1  $ take 10 openList) g
-                , insertRand Mushroom 11 20 (drop 11 $ take 20 openList) g
-                , insertRand Corpse   21 30 (drop 21 $ take 30 openList) g
-                , insertRand Potion   31 40 (drop 31 $ take 40 openList) g
-                , insertRand Coin     41 50 (drop 41 $ take 50 openList) g
-                , insertRand Unknown  51 60 (drop 51 $ take 60 openList) g
+  junk = concat [insertRand  Mouse    1  10 (drop 1  $ take 10 openList)
+                , insertRand Mushroom 11 20 (drop 11 $ take 20 openList)
+                , insertRand Corpse   21 30 (drop 21 $ take 30 openList)
+                , insertRand Potion   31 40 (drop 31 $ take 40 openList)
+                , insertRand Coin     41 50 (drop 41 $ take 50 openList)
+                , insertRand Unknown  51 60 (drop 51 $ take 60 openList)
                 ]
-  in insertPlayer tm (Map.fromList junk) g
+  in insertPlayer tm (Map.fromList junk)
 
 -- | updateEntity at ix
 updateEntity :: Int -> Int -> EntityMap -> EntityMap

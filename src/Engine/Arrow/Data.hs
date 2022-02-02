@@ -11,7 +11,7 @@ module Engine.Arrow.Data where
 import Control.Monad.Random (StdGen)
 import Data.Text (Text)
 import Game.Actor (EntityMap, mkEntityMap)
-import Game.Dungeon (Dungeon, rogueDungeon)
+import Game.Dungeon (rogueDungeon)
 import Game.Tile (TileMap, mkTileMap)
 
 type Coord = (Int, Int)
@@ -43,10 +43,10 @@ data Intent
   | Quit
 
 data World = World
-  { -- the Dungeon
+  { -- the Dungeon seed
   gameGen    :: !StdGen
-  , dungeon  :: !Dungeon
-  -- Coord for Hero
+  -- GameT for Hero
+  , tick     :: !Int
   , gameT    :: !TileMap
   , entityT  :: !EntityMap
   , fovT     :: ![Coord]
@@ -67,11 +67,11 @@ mkWorld :: StdGen -> Coord -> Int -> Int -> World
 mkWorld gen (width, height) xMax yMax = let
   (d, g) = rogueDungeon xMax yMax gen
   gm = mkTileMap d
-  em = mkEntityMap gm g
+  em = mkEntityMap gm
   sx = 32.0 -- scaleXY based on tiles
   sy = 32.0
   in World { gameGen = g
-           , dungeon = d
+           , tick = 1
            , gameT = gm
            , entityT = em
            , fovT = []

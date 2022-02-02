@@ -26,16 +26,17 @@ data Direction
   | SouthWest
   | West
   | NorthWest
-  | C
-  | K
-  | Y
-  | H
   | B
+  | C
+  | G
+  | H
   | J
-  | U
+  | K
   | L
   | N
   | R
+  | U
+  | Y
   deriving (Eq)
 
 data Intent

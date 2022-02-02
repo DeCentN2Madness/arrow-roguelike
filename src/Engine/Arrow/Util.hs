@@ -48,7 +48,7 @@ actionAttack ix em = let
   in T.pack $ "Attack " ++ show (eKind e) ++ " id=" ++ show ix ++ ", ..."
 
 -- | actionBump
--- make entities block
+-- if there is a block...
 actionBump :: Coord -> EntityMap -> Int
 actionBump pos em = let
   blockList = filter ((==pos).snd) $ GA.fromBlock em
@@ -89,8 +89,23 @@ actionDirection input w = if starting w
       _ -> newWorld { dirty = False }
     in EDC.updateCamera run
 
+-- | actionGet
+-- if there is something to pickup...
+-- TODO pickup
+actionGet :: World -> World
+actionGet w = let
+  (_, playerCoord) = GA.getPlayer (entityT w)
+  e = GA.getEntityBy playerCoord (entityT w)
+  pEntry = case filter (/=0) e of
+    [x] -> T.pack $ "Get id=" ++ show x ++ ", ..."
+    _   -> T.pack "Nothing..."
+  final = if last (journal w) == pEntry
+      then journal w
+      else journal w ++ [pEntry]
+  in w { journal = final }
+
 -- | actionLook
--- if there are many things...
+-- if there is something to see...
 actionLook :: [Int] -> EntityMap -> Text
 actionLook [] _  = "..."
 actionLook ix em = let
@@ -114,13 +129,14 @@ applyIntent intent w = let
     Action West -> actionDirection West w
     Action NorthWest -> actionDirection NorthWest w
     Action C -> showCharacter w
+    Action G -> actionGet w
     Action R -> resetWorld w
     Quit -> quitWorld w
     _ -> w
   in newWorld
 
 -- | reset the world and redraw the World
--- handle gameStates of starting...
+-- handle gameStates of restarting...
 resetWorld :: World -> World
 resetWorld w = let
   (d, g) = uncurry GD.rogueDungeon (gridXY w) (gameGen w)

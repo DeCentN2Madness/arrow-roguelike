@@ -38,13 +38,13 @@ fromBlock em = let
                  let xy = if block ek then coord ek else (0,0) ]
   in entityList
 
--- | fromEntity in the World
+-- | fromEntityAt ix
 fromEntityAt :: EntityMap -> [(EntityKind, Int)]
 fromEntityAt em = let
   entityList = [ (ek, ix) | (ix, ek) <- Map.toList em ]
   in entityList
 
--- | fromEntity in the World
+-- | fromEntityBy Coord
 fromEntityBy :: EntityMap -> [(EntityKind, Coord)]
 fromEntityBy em = let
   entityList = [ (ek, pos) | (_, ek) <- Map.toList em,
@@ -57,7 +57,7 @@ getEntityAt ix em = let
   (Just e) = Map.lookup ix em
   in (e, coord e)
 
--- | getEntityBy Coord returns ix
+-- | getEntityBy Coord
 getEntityBy :: Coord -> EntityMap -> [(EntityKind, Coord)]
 getEntityBy xy em = let
   entityList = [(i, pos) | (i, ek) <- Map.toList em,
@@ -104,7 +104,7 @@ updateEntityHp ix hp em = let
 updateEntityMove :: Int -> [Coord] -> EntityMap -> EntityMap
 updateEntityMove ix moves em = let
   (Just e) = Map.lookup ix em
-  in Map.insert ix (e { moveE = moves }) em
+  in Map.insert ix (e { moveT = moves }) em
 
 -- | updateEntity at ix
 updateEntityPos :: Int -> Coord -> EntityMap -> EntityMap

@@ -37,7 +37,7 @@ data EntityKind = EntityKind
   , kind         :: Entity
   , prop         :: Properties
   , hitPoint     :: Int
-  , moveE         :: [Coord] -- where can the Entity move?
+  , moveT         :: [Coord] -- where can the Entity move?
   } deriving (Show)
 
 defaultEK :: EntityKind

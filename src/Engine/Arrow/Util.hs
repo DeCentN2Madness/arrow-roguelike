@@ -20,7 +20,6 @@ import qualified Engine.Draw.Camera as EDC
 import Game.Actor (EntityMap)
 import qualified Game.Actor as GA
 import qualified Game.Combat as GC
-import Game.Dungeon (Terrain(..))
 import qualified Game.Dungeon as GD
 import Game.Kind.Entity (EntityKind(..))
 import qualified Game.Tile as GT
@@ -79,29 +78,31 @@ actionDirection input w = if starting w
     bump             = actionBump clampCoord (entityT w)
     newCoord         = if bump < 1 then clampCoord else playerCoord
     -- newWorld from action
-    newWorld         = action bump newCoord w
-    run = case GT.getTerrainAt newCoord (gameT newWorld) of
-      Open -> EAV.updateView $ newWorld {
-        tick = newTick
-        , fovT = EAV.mkView newCoord (gameT newWorld)
-        , entityT = actionMove $ GA.updatePlayer newCoord (entityT newWorld)
-        , dirty = True }
-      _ -> newWorld { dirty = False }
-    in EDC.updateCamera run
+    newWorld         = actionMove $ action bump newCoord w
+    (pEntity, _)     = GA.getPlayer (entityT newWorld)
+    run = if newCoord `elem` moveT pEntity
+      then
+      EAV.updateView $ newWorld {
+      tick      = newTick
+      , fovT    = EAV.mkView newCoord (gameT newWorld)
+      , entityT = GA.updatePlayer newCoord (entityT newWorld)
+      , dirty   = True }
+      else newWorld { dirty = False }
+  in EDC.updateCamera run
 
 -- | actionGet
 -- if there is something to pickup...
 -- TODO pickup
 actionGet :: World -> World
 actionGet w = let
-  (_, playerCoord) = GA.getPlayer (entityT w)
-  items = GA.getEntityBy playerCoord (entityT w)
-  pEntry = case filter ((/=playerCoord).snd) items of
+  (_, pPos) = GA.getPlayer (entityT w)
+  items = GA.getEntityBy pPos (entityT w)
+  entry = case filter ((/=pPos).snd) items of
     [x] -> T.pack $ "Get id=" ++ show x ++ ", ..."
     _   -> T.pack "Nothing..."
-  final = if last (journal w) == pEntry
+  final = if last (journal w) == entry
       then journal w
-      else journal w ++ [pEntry]
+      else journal w ++ [entry]
   in w { journal = final }
 
 -- | actionLook
@@ -113,9 +114,18 @@ actionLook xs = let
   in T.append look "..."
 
 -- | actionMove
--- where can the mice move?
-actionMove :: EntityMap -> EntityMap
-actionMove em = em
+-- where can the Entity move?
+actionMove :: World -> World
+actionMove w = let
+  coordF :: [Coord] -> [Coord]
+  coordF xs = filter (`notElem` blockT) $ filter (`notElem` hardT) xs
+  hardT    = [ xy | (_, xy) <- GT.fromHard (gameT w) ]
+  blockT   = [ xy | (_, xy) <- GA.fromBlock (entityT w) ]
+  moveList = [ (i, ek) | (e, i) <- GA.fromEntityAt (entityT w),
+               let ek = if block e
+                     then e { moveT = coordF $ cardinal (coord e) }
+                     else e ]
+  in w { entityT = Map.fromList moveList }
 
 -- | applyIntent
 -- Events applied to the World

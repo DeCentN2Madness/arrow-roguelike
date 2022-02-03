@@ -25,7 +25,7 @@ import qualified SDL
 import Engine.Arrow.Data (World(..))
 import qualified Engine.SDL.Util as U
 import Game.Dungeon (Terrain(..))
-import Game.Kind.Entity (Entity(..))
+import Game.Kind.Entity (Entity(..), EntityKind(..))
 import qualified Game.Actor as GA
 import qualified Game.Tile as GT
 
@@ -110,8 +110,8 @@ mkVisualMap :: TextureMap -> World -> VisualMap
 mkVisualMap ts w = do
   let actors = GA.fromEntity (entityT w)
       walls  = GT.fromVisual (gameT w)
-      seen   = pos : filter (\(_, j) -> j `elem` fovT w && j /= snd pos) actors
-      pos    = GA.getPlayer (entityT w)
+      seen   = (pEntity, pPos) : filter (\(_, j) -> j `elem` fovT w && j /= pPos) actors
+      (pEntity, pPos) = GA.getPlayer (entityT w)
 
       -- draw *, %, :, #, .
       hardT = [ (xy, t) | (tk, xy) <- walls,
@@ -124,7 +124,7 @@ mkVisualMap ts w = do
 
       -- draw @, %, r, ',' if in fov
       seenT = [ (xy, t) | (ek, xy) <- seen,
-                let t = case ek of
+                let t = case kind ek of
                       Actor     -> mkVisual VActor    ts
                       Coin      -> mkVisual VCoin     ts
                       Corpse    -> mkVisual VCorpse   ts

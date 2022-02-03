@@ -34,10 +34,8 @@ mkCombat :: Int -> Int -> World -> World
 mkCombat px mx w = if px == mx
   then w
   else let
-    pEntity = GA.getEntityAt px (entityT w)
-    mEntity = GA.getEntityAt mx (entityT w)
-    pPos = coord pEntity
-    mPos = coord mEntity
+    (pEntity, pPos) = GA.getEntityAt px (entityT w)
+    (mEntity, mPos) = GA.getEntityAt mx (entityT w)
     -- random seed
     pSeed = tick w + uncurry (*) pPos :: Int
     mSeed = tick w + tick w * uncurry (*) mPos :: Int
@@ -47,7 +45,7 @@ mkCombat px mx w = if px == mx
     pStr = read $ Map.findWithDefault "1" "str" pProp :: Int
     pDR = 10 + abilityMod pDex
     pHP = hitPoint pEntity
-    pHit = clamp $ DS.d20 pSeed + abilityMod pDex
+    pAR = clamp $ DS.d20 pSeed + abilityMod pDex
     pDam = clamp $ DS.d4 pSeed + abilityMod pStr
     -- monster
     mProp = prop mEntity
@@ -55,35 +53,35 @@ mkCombat px mx w = if px == mx
     mStr = read $ Map.findWithDefault "1" "str" mProp :: Int
     mDR = 12 :: Int
     mHP = hitPoint mEntity
-    mHit = clamp $ DS.d20 mSeed + abilityMod mDex
+    mAR = clamp $ DS.d20 mSeed + abilityMod mDex
     mDam = clamp $ DS.d4 mSeed + abilityMod mStr
     -- attacks
-    pAttack = if pHit >= mDR
+    pAttack = if pAR >= mDR
       then mHP - pDam
       else mHP -- Miss
-    mAttack = if mHit >= pDR
+    mAttack = if mAR >= pDR
       then pHP - mDam
       else pHP -- Miss
     -- journal entry with damages
     pDeath = if mAttack < 1 then "Dead! id=" ++ show px else "..."
     mDeath = if pAttack < 1 then "Dead! id=" ++ show mx else "..."
     pEntry = T.pack $ "Kicks!"
-      ++ " pHit="
-      ++ show pHit
-      ++ ", pDam="
-      ++ show pDam
+      ++ " pAR="
+      ++ show pAR
       ++ ", pDR="
       ++ show pDR
+      ++ ", pDam="
+      ++ show pDam
       ++ ", pHP="
       ++ show pHP
       ++ ", " ++ pDeath
     mEntry = T.pack $ "Bites!"
-      ++ " mHit="
-      ++ show mHit
-      ++ " mDam="
-      ++ show mDam
+      ++ " mAR="
+      ++ show mAR
       ++ ", mDR="
       ++ show mDR
+      ++ " mDam="
+      ++ show mDam
       ++ ", mHP="
       ++ show mHP
       ++ ", " ++ mDeath
@@ -94,6 +92,6 @@ mkCombat px mx w = if px == mx
     -- player is Invulnerable for now
     newEntity = if pAttack < 1
       then GA.insertEntity mx mPos Corpse (entityT w)
-      else GA.updateEntity mx pAttack (entityT w)
-  in w { entityT = GA.updateEntity px mAttack newEntity
+      else GA.updateEntityHp mx pAttack (entityT w)
+  in w { entityT = GA.updateEntityHp px mAttack newEntity
        , journal = final}

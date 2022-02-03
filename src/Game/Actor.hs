@@ -16,7 +16,9 @@ module Game.Actor(EntityMap
                , insertPlayer
                , insertEntity
                , mkEntityMap
-               , updateEntity
+               , updateEntityHp
+               , updateEntityMove
+               , updateEntityPos
                , updatePlayer) where
 
 import Data.Map (Map)
@@ -36,44 +38,31 @@ fromBlock em = let
   in entityList
 
 -- | fromEntity in the World
-fromEntity :: EntityMap -> [(Entity, Coord)]
+fromEntity :: EntityMap -> [(EntityKind, Coord)]
 fromEntity em = let
-  entityList = [ (t, pos) | (_, ek) <- Map.toList em,
-                 let pos = coord ek
-                     t = eKind ek ]
+  entityList = [ (ek, pos) | (_, ek) <- Map.toList em,
+                 let pos = coord ek ]
   in entityList
 
--- | @ lives at 0
-getPlayer :: EntityMap -> (Entity, Coord)
-getPlayer em = let
-  e = getEntityAt 0 em
-  in (eKind e, coord e)
-
 -- | getEntityAt ix
-getEntityAt :: Int -> EntityMap -> EntityKind
+getEntityAt :: Int -> EntityMap -> (EntityKind, Coord)
 getEntityAt ix em = let
   (Just e) = Map.lookup ix em
-  in e
+  in (e, coord e)
 
 -- | getEntityBy Coord returns ix
-getEntityBy :: Coord -> EntityMap -> [Int]
+getEntityBy :: Coord -> EntityMap -> [(EntityKind, Coord)]
 getEntityBy xy em = let
   entityList = [(i, pos) | (i, ek) <- Map.toList em,
                 let pos = coord ek ]
-  in [ ix | (ix, _) <- filter ((==xy).snd) entityList ]
+  in [ e | (ix, _) <- filter ((==xy).snd) entityList,
+       let e = getEntityAt ix em ]
 
 -- | inserEntity
 insertEntity :: Int -> Coord -> Entity -> EntityMap -> EntityMap
 insertEntity ix xy ek em = let
   e = mkEntity ek xy
   in Map.insert ix e em
-
--- | insert @ into the TileMap
-insertPlayer :: TileMap -> EntityMap -> EntityMap
-insertPlayer tm em = let
-  openList = [ v | (_, v) <- fromOpen tm]
-  xy = head openList
-  in insertEntity 0 xy Actor em
 
 -- | insertRand all over the TileMap
 insertRand :: Entity -> Int -> Int -> [Coord] -> [(Int, EntityKind)]
@@ -99,13 +88,35 @@ mkEntityMap tm = let
   in insertPlayer tm (Map.fromList junk)
 
 -- | updateEntity at ix
-updateEntity :: Int -> Int -> EntityMap -> EntityMap
-updateEntity ix p em = let
+updateEntityHp :: Int -> Int -> EntityMap -> EntityMap
+updateEntityHp ix hp em = let
   (Just e) = Map.lookup ix em
-  in Map.insert ix (e { hitPoint = p }) em
+  in Map.insert ix (e { hitPoint = hp }) em
+
+-- | updateEntity at ix
+updateEntityMove :: Int -> [Coord] -> EntityMap -> EntityMap
+updateEntityMove ix moves em = let
+  (Just e) = Map.lookup ix em
+  in Map.insert ix (e { moveE = moves }) em
+
+-- | updateEntity at ix
+updateEntityPos :: Int -> Coord -> EntityMap -> EntityMap
+updateEntityPos ix pos em = let
+  (Just e) = Map.lookup ix em
+  in Map.insert ix (e { coord = pos }) em
+
+-- | @ lives at 0
+-- get Player
+getPlayer :: EntityMap -> (EntityKind, Coord)
+getPlayer em = getEntityAt 0 em
+
+-- | insert @ into the TileMap
+insertPlayer :: TileMap -> EntityMap -> EntityMap
+insertPlayer tm em = let
+  openList = [ v | (_, v) <- fromOpen tm]
+  xy = head openList
+  in insertEntity 0 xy Actor em
 
 -- | update @ position
 updatePlayer :: Coord -> EntityMap -> EntityMap
-updatePlayer v em = let
-  (Just e) = Map.lookup 0 em
-  in Map.insert 0 (e { coord = v }) em
+updatePlayer em = updateEntityPos 0 em

@@ -33,7 +33,7 @@ action ix pos w = let
   seen = GA.getEntityBy pos (entityT w)
   entry = if ix > 0
     then actionAttack ix (entityT w)
-    else actionLook seen (entityT w)
+    else actionLook seen
   -- journal the event
   final = if last (journal w) == entry
     then journal w
@@ -44,8 +44,8 @@ action ix pos w = let
 -- if there is an attack...
 actionAttack :: Int -> EntityMap -> Text
 actionAttack ix em = let
-  e = GA.getEntityAt ix em
-  in T.pack $ "Attack " ++ show (eKind e) ++ " id=" ++ show ix ++ ", ..."
+  (e, _) = GA.getEntityAt ix em
+  in T.pack $ "Attack " ++ show (kind e) ++ " id=" ++ show ix ++ ", ..."
 
 -- | actionBump
 -- if there is a block...
@@ -95,8 +95,8 @@ actionDirection input w = if starting w
 actionGet :: World -> World
 actionGet w = let
   (_, playerCoord) = GA.getPlayer (entityT w)
-  e = GA.getEntityBy playerCoord (entityT w)
-  pEntry = case filter (/=0) e of
+  items = GA.getEntityBy playerCoord (entityT w)
+  pEntry = case filter ((/=playerCoord).snd) items of
     [x] -> T.pack $ "Get id=" ++ show x ++ ", ..."
     _   -> T.pack "Nothing..."
   final = if last (journal w) == pEntry
@@ -106,13 +106,10 @@ actionGet w = let
 
 -- | actionLook
 -- if there is something to see...
-actionLook :: [Int] -> EntityMap -> Text
-actionLook [] _  = "..."
-actionLook ix em = let
-  look = T.concat [ t | i <- ix,
-                    let e = GA.getEntityAt i em
-                        t = T.pack $ show (eKind e)
-                          ++ " id=" ++ show i ++ ", " ]
+actionLook :: [(EntityKind, Coord)] -> Text
+actionLook xs = let
+  look = T.concat [ t | (e, _) <- xs,
+                    let t = T.pack $ show (kind e) ++ ", " ]
   in T.append look "..."
 
 -- | applyIntent
@@ -154,7 +151,7 @@ resetWorld w = let
 -- | showCharacter
 showCharacter :: World -> World
 showCharacter w = let
-  pEntity = GA.getEntityAt 0 (entityT w)
+  (pEntity, _) = GA.getEntityAt 0 (entityT w)
   pProp = prop pEntity
   pStr = read $ Map.findWithDefault "1" "str" pProp :: Int
   pDex = read $ Map.findWithDefault "1" "dex" pProp :: Int

@@ -34,10 +34,14 @@ data Entity
 data EntityKind = EntityKind
   { coord        :: Coord
   , block        :: Bool
-  , eKind        :: Entity
+  , kind         :: Entity
   , prop         :: Properties
   , hitPoint     :: Int
+  , moveE         :: [Coord] -- where can the Entity move?
   } deriving (Show)
+
+defaultEK :: EntityKind
+defaultEK = EntityKind (0,0) False Unknown (mkProp "Unknown" "~") 0 []
 
 -- | fighterProp
 fighterProp :: Properties
@@ -79,14 +83,36 @@ mkProp x y = Map.fromList [("Name", x), ("Desc", y)]
 
 -- | mkEntity
 mkEntity :: Entity -> Coord -> EntityKind
-mkEntity Actor xy     = EntityKind xy True Actor fighterProp 10
-mkEntity Coin xy      = EntityKind xy False Coin (mkProp "Coin" "$") 1
-mkEntity Corpse xy    = EntityKind xy False Corpse (mkProp "Corpse" "%") 1
-mkEntity Item xy      = EntityKind xy False Item (mkProp "Item" "[") 1
-mkEntity Mouse xy     = EntityKind xy True Mouse mouseProp 7
-mkEntity Mushroom xy  = EntityKind xy False Mushroom  (mkProp "Mushroom" ",") 1
-mkEntity Potion xy    = EntityKind xy False Potion (mkProp "Potion" "!") 1
-mkEntity StairDown xy = EntityKind xy False StairDown (mkProp "Stair" ">") 1
-mkEntity StairUp xy   = EntityKind xy False StairUp (mkProp "Stair" "<") 1
-mkEntity Trap xy      = EntityKind xy False Trap (mkProp "Trap" "^") 1
-mkEntity Unknown xy   = EntityKind xy False Unknown (mkProp "Unknown" "~") 1
+mkEntity Actor xy     = let
+  e = defaultEK
+  in e { coord=xy, block=True, kind=Actor, prop=fighterProp, hitPoint=10 }
+mkEntity Coin xy      = let
+  e = defaultEK
+  in e { coord=xy, kind=Coin, prop=mkProp "Coin" "$" }
+mkEntity Corpse xy    = let
+  e = defaultEK
+  in e { coord=xy, kind=Corpse, prop=mkProp "Corpse" "%" }
+mkEntity Item xy      = let
+  e = defaultEK
+  in e { coord=xy, kind=Item, prop=mkProp "Item" "[" }
+mkEntity Mouse xy     = let
+  e = defaultEK
+  in e { coord=xy, block=True, kind=Mouse, prop=mouseProp, hitPoint=7 }
+mkEntity Mushroom xy  = let
+  e = defaultEK
+  in e { coord=xy, kind=Mushroom, prop=mkProp "Mushroom" "," }
+mkEntity Potion xy    = let
+  e = defaultEK
+  in e { coord=xy, kind=Potion, prop=mkProp "Potion" "!" }
+mkEntity StairDown xy = let
+  e = defaultEK
+  in e { coord=xy, kind=StairDown, prop=mkProp "Stair" ">" }
+mkEntity StairUp xy   = let
+  e = defaultEK
+  in e { coord=xy, kind=Trap, prop=mkProp "Stair" "<" }
+mkEntity Trap xy      = let
+  e = defaultEK
+  in e { coord=xy, kind=Trap, prop=mkProp "Trap" "^" }
+mkEntity Unknown xy   = let
+  e = defaultEK
+  in e { coord=xy }

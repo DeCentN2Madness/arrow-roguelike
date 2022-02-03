@@ -108,7 +108,7 @@ mkVisual VUnknown  ts = Visual (448, 0) (style ts) 32 36
 -- make the visual map to render
 mkVisualMap :: TextureMap -> World -> VisualMap
 mkVisualMap ts w = do
-  let actors = GA.fromEntity (entityT w)
+  let actors = GA.fromEntityBy (entityT w)
       walls  = GT.fromVisual (gameT w)
       seen   = (pEntity, pPos) : filter (\(_, j) -> j `elem` fovT w && j /= pPos) actors
       (pEntity, pPos) = GA.getPlayer (entityT w)

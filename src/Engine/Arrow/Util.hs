@@ -84,7 +84,7 @@ actionDirection input w = if starting w
       Open -> EAV.updateView $ newWorld {
         tick = newTick
         , fovT = EAV.mkView newCoord (gameT newWorld)
-        , entityT = GA.updatePlayer newCoord (entityT newWorld)
+        , entityT = actionMove $ GA.updatePlayer newCoord (entityT newWorld)
         , dirty = True }
       _ -> newWorld { dirty = False }
     in EDC.updateCamera run
@@ -111,6 +111,11 @@ actionLook xs = let
   look = T.concat [ t | (e, _) <- xs,
                     let t = T.pack $ show (kind e) ++ ", " ]
   in T.append look "..."
+
+-- | actionMove
+-- where can the mice move?
+actionMove :: EntityMap -> EntityMap
+actionMove em = em
 
 -- | applyIntent
 -- Events applied to the World

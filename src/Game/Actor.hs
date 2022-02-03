@@ -9,7 +9,8 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 -}
 module Game.Actor(EntityMap
                , fromBlock
-               , fromEntity
+               , fromEntityAt
+               , fromEntityBy
                , getPlayer
                , getEntityAt
                , getEntityBy
@@ -38,8 +39,14 @@ fromBlock em = let
   in entityList
 
 -- | fromEntity in the World
-fromEntity :: EntityMap -> [(EntityKind, Coord)]
-fromEntity em = let
+fromEntityAt :: EntityMap -> [(EntityKind, Int)]
+fromEntityAt em = let
+  entityList = [ (ek, ix) | (ix, ek) <- Map.toList em ]
+  in entityList
+
+-- | fromEntity in the World
+fromEntityBy :: EntityMap -> [(EntityKind, Coord)]
+fromEntityBy em = let
   entityList = [ (ek, pos) | (_, ek) <- Map.toList em,
                  let pos = coord ek ]
   in entityList

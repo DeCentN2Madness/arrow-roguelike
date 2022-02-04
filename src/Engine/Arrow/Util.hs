@@ -17,11 +17,10 @@ import Engine.Arrow.Compass
 import Engine.Arrow.Data
 import qualified Engine.Arrow.View as EAV
 import qualified Engine.Draw.Camera as EDC
-import Game.Actor (EntityMap)
 import qualified Game.AI as GAI
+import Game.Actor (EntityMap)
 import qualified Game.Actor as GA
 import qualified Game.Combat as GC
-import qualified Game.Dungeon as GD
 import Game.Kind.Entity (EntityKind(..))
 import qualified Game.Tile as GT
 
@@ -29,23 +28,15 @@ import qualified Game.Tile as GT
 -- handle the action within the World
 action :: Int -> Coord -> World -> World
 action ix pos w = let
-  -- see event
-  seen = GA.getEntityBy pos (entityT w)
-  entry = if ix > 0
-    then actionAttack ix (entityT w)
-    else actionLook seen
-  -- journal the event
-  final = if last (journal w) == entry
-    then journal w
-    else journal w ++ [entry]
-  in GC.mkCombat 0 ix $ w { journal = final }
-
--- | actionAttack
--- if there is an attack...
-actionAttack :: Int -> EntityMap -> Text
-actionAttack ix em = let
-  (e, _) = GA.getEntityAt ix em
-  in T.pack $ "Attack " ++ show (kind e) ++ " id=" ++ show ix ++ ", ..."
+  -- Look event
+  entry = actionLook $ GA.getEntityBy pos (entityT w)
+  -- Combat event
+  newWorld = GC.mkCombat 0 ix w
+  -- final
+  final = if last (journal newWorld) == entry
+    then journal newWorld
+    else journal newWorld ++ [entry]
+  in newWorld { journal = final }
 
 -- | actionBump
 -- if there is a block...
@@ -89,7 +80,7 @@ actionDirection input w = if starting w
       , fovT    = EAV.mkView newCoord (gameT newWorld)
       , entityT = GA.updatePlayerBy newCoord (entityT newWorld)
       , dirty   = True }
-      else newWorld { dirty = False }
+      else newWorld { tick = newTick, dirty = False }
   in EDC.updateCamera run
 
 -- | actionGet
@@ -100,8 +91,8 @@ actionGet w = let
   (_, pPos) = GA.getPlayer (entityT w)
   items = GA.getEntityBy pPos (entityT w)
   entry = case filter ((/=pPos).snd) items of
-    [x] -> T.pack $ "Get id=" ++ show x ++ ", "
-    _   -> T.pack "Nothing"
+    [x] -> T.pack $ "Get id=" ++ show x ++ ", ..."
+    _   -> T.pack "Nothing..."
   in w { journal = journal w ++ [entry] }
 
 -- | actionLook
@@ -154,17 +145,10 @@ applyIntent intent w = let
 -- handle gameStates of restarting...
 resetWorld :: World -> World
 resetWorld w = let
-  (d, g) = uncurry GD.rogueDungeon (gridXY w) (gameGen w)
-  tm = GT.mkTileMap d
-  em = GA.mkEntityMap tm
-  in w { gameGen = g
-       , gameT = tm
-       , entityT = em
-       , fovT = []
-       , journal = journal w ++ ["Restarting..."]
-       , dirty = True
-       , starting = True
-       , exiting = False }
+  g = gameGen w
+  (width, height) = screenXY w
+  (row, col) = gridXY w
+  in mkWorld g (floor width, floor height) row col
 
 -- | showCharacter
 showCharacter :: World -> World

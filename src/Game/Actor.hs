@@ -35,7 +35,7 @@ type EntityMap = Map Int EntityKind
 -- | fromBlock
 fromBlock :: EntityMap -> [(Int, Coord)]
 fromBlock em = let
-  entityList = [ (i, xy) | (i, ek) <- Map.toList em,
+  entityList = [ (ix, xy) | (ix, ek) <- Map.toList em,
                  let xy = if block ek then coord ek else (0,0) ]
   in entityList
 
@@ -61,7 +61,7 @@ getEntityAt ix em = let
 -- | getEntityBy Coord
 getEntityBy :: Coord -> EntityMap -> [(EntityKind, Coord)]
 getEntityBy xy em = let
-  entityList = [(i, pos) | (i, ek) <- Map.toList em,
+  entityList = [(ix, pos) | (ix, ek) <- Map.toList em,
                 let pos = coord ek ]
   in [ e | (ix, _) <- filter ((==xy).snd) entityList,
        let e = getEntityAt ix em ]
@@ -77,7 +77,7 @@ insertRand :: Entity -> Int -> Int -> [Coord] -> [(Int, EntityKind)]
 insertRand e start end openList = let
   sz = length openList - 1
   randList = DS.rollList (end-start) (fromIntegral sz) (end*sz)
-  entityList = [ m | v <- randList, let m = mkEntity e (openList!!v) ]
+  entityList = [ ee | ix <- randList, let ee = mkEntity e (openList!!ix) ]
   in zip [start..end] entityList
 
 -- | mkEntityMap will do more
@@ -86,12 +86,12 @@ insertRand e start end openList = let
 mkEntityMap :: TileMap -> EntityMap
 mkEntityMap tm = let
   openList = tail $ [ xy | (_, xy) <- fromOpen tm ]
-  junk = concat [insertRand  Mouse    1  10 openList
-                , insertRand Mushroom 11 20 openList
-                , insertRand Corpse   21 30 openList
-                , insertRand Potion   31 40 openList
-                , insertRand Coin     41 50 openList
-                , insertRand Unknown  51 60 openList
+  junk = concat [insertRand  Mouse    1  20 openList
+                , insertRand Mushroom 21 30 openList
+                , insertRand Corpse   31 40 openList
+                , insertRand Potion   41 50 openList
+                , insertRand Coin     51 60 openList
+                , insertRand Unknown  61 70 openList
                 ]
   in insertPlayer tm (Map.fromList junk)
 

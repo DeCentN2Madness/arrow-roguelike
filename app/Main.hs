@@ -33,8 +33,8 @@ main = do
       ts <- loadTextures r assetPaths
       mainLoop world r ts
       mapM_ (SDL.destroyTexture . fst) ts
-  q <- readIORef world
-  print $ entityT q
+  -- q <- readIORef world
+  -- print q
   SDL.quit
 
 -- | mainLoop

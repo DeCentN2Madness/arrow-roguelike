@@ -68,13 +68,13 @@ data World = World
 mkWorld :: StdGen -> Coord -> Int -> Int -> World
 mkWorld gen (width, height) xMax yMax = let
   (d, g) = rogueDungeon xMax yMax gen
-  gm = mkTileMap d
-  em = mkEntityMap gm
+  tm = mkTileMap d
+  em = mkEntityMap tm
   sx = 32.0 -- scaleXY based on tiles
   sy = 32.0
   in World { gameGen = g
            , tick = 1
-           , gameT = gm
+           , gameT = tm
            , entityT = em
            , fovT = []
            , gridXY = (xMax, yMax)

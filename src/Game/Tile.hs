@@ -3,7 +3,7 @@
 Game.Tile.hs
 
 Game.Tile is the engine for the Tile Kind and mostly returns from the map
-in pattern of [(Kind, Coord)]
+in pattern of [(Terrain, Coord)]
 
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
@@ -68,7 +68,6 @@ mkTileMap d = let
   in Map.fromList gm
 
 -- | updateTileMap
--- foldr mkTile
 -- just visible for now...
 updateTileMap :: [Coord] -> TileMap -> TileMap
 updateTileMap [] gm = gm

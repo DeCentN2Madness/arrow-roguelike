@@ -25,10 +25,9 @@ pathFinder :: (Int, Int) -> [(Int, Int)] -> EntityKind -> (Int, Int)
 pathFinder goal move e = if kind e == Actor
   then coord e
   else let
-  distanceList = [ (d, v) | v <- move,
-                   let d = distance goal v ]
+  distanceList = [ (d, xy) | xy <- move,
+                   let d = distance goal xy ]
   -- filter based on +1 FoV
-  -- stop at distance 1
   moveList = [ xy | (d, v) <- sort distanceList,
                let xy = if d == 1 || d > 5 then coord e else v ]
   in head moveList

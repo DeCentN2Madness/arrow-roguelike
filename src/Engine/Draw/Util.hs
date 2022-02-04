@@ -20,7 +20,7 @@ import Engine.Draw.Visual (AssetMap(..)
                           , mkVisualMap
                           , TextureMap
                           , Visual(..))
-import Engine.Draw.Textual (drawText)
+import qualified Engine.Draw.Textual as EDT
 import qualified Engine.SDL.Util as U
 
 data Colour = White | Red | Blue | Green | Yellow
@@ -42,7 +42,7 @@ draw r ts w = do
      -- HUD
      renderTexture r (hud ts) (0.0, hudHt)
      -- Text
-     drawText r w
+     EDT.drawText r w
   -- Screen
   SDL.present r
 

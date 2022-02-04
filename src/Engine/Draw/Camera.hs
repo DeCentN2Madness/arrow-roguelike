@@ -8,7 +8,7 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 module Engine.Draw.Camera (updateCamera) where
 
 import Engine.Arrow.Data (World(..))
-import Game.Actor (getPlayer)
+import qualified Game.Actor as GA
 
 -- | setCamera
 setCamera :: Double
@@ -26,7 +26,7 @@ setCamera x y (w, h) (scaleX, scaleY) = let
 updateCamera :: World -> World
 updateCamera w = let
   newCamera = setCamera camX camY (screenXY w) (scaleXY w)
-  (_, (heroX, heroY)) = getPlayer (entityT w)
+  (_, (heroX, heroY)) = GA.getPlayer (entityT w)
   camX = fromIntegral heroX * sx
   camY = fromIntegral heroY * sy
   (sx, sy) = scaleXY w

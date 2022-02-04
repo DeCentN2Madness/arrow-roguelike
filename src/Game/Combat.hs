@@ -85,13 +85,10 @@ mkCombat px mx w = if px == mx
       ++ ", mHP="
       ++ show mHP
       ++ ", " ++ mDeath
-    final = if last (journal w) == pEntry
-      then journal w
-      else journal w ++ [pEntry, mEntry]
     -- entity map with damages and deaths
     -- player is Invulnerable for now
     newEntity = if pAttack < 1
       then GA.insertEntity mx mPos Corpse (entityT w)
       else GA.updateEntityHp mx pAttack (entityT w)
   in w { entityT = GA.updateEntityHp px mAttack newEntity
-       , journal = final}
+       , journal = journal w ++ [pEntry, mEntry] }

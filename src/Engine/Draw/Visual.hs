@@ -110,10 +110,8 @@ mkVisualMap :: TextureMap -> World -> VisualMap
 mkVisualMap ts w = do
   let actors = GA.fromEntityBy (entityT w)
       walls  = GT.fromVisual (gameT w)
-      seen   = (pEntity, pPos) : filter (\(_, j) -> j `elem` fovT w && j /= pPos) actors
-      (pEntity, pPos) = GA.getPlayer (entityT w)
-
-      -- draw *, %, :, #, .
+      seen   = filter (\(_, j) -> j `elem` fovT w) actors
+      -- draw Terrain if Visible
       hardT = [ (xy, t) | (tk, xy) <- walls,
                 let t = case tk of
                       Magma  -> mkVisual VMagma  ts
@@ -121,8 +119,7 @@ mkVisualMap ts w = do
                       Rubble -> mkVisual VRubble ts
                       Wall   -> mkVisual VWall   ts
                       Open   -> mkVisual VOpen   ts ]
-
-      -- draw @, %, r, ',' if in fov
+      -- draw Items if in fovT
       seenT = [ (xy, t) | (ek, xy) <- seen,
                 let t = case kind ek of
                       Actor     -> mkVisual VActor    ts
@@ -136,4 +133,10 @@ mkVisualMap ts w = do
                       StairUp   -> mkVisual VStairUp  ts
                       Trap      -> mkVisual VTrap     ts
                       Unknown   -> mkVisual VUnknown  ts ]
-    in Map.fromList $ hardT ++ seenT
+      -- draw Actors if in fovT
+      actorT = filter ((/=(0,0)).fst) $ [ t | (ek, xy) <- seen,
+                 let t = case kind ek of
+                       Actor -> (xy, mkVisual VActor ts)
+                       Mouse -> (xy, mkVisual VMouse ts)
+                       _     -> ((0,0), mkVisual VUnknown ts) ]
+   in Map.fromList $ concat [hardT, seenT, actorT]

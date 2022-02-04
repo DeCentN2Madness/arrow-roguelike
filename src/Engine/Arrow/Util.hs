@@ -100,12 +100,9 @@ actionGet w = let
   (_, pPos) = GA.getPlayer (entityT w)
   items = GA.getEntityBy pPos (entityT w)
   entry = case filter ((/=pPos).snd) items of
-    [x] -> T.pack $ "Get id=" ++ show x ++ ", ..."
-    _   -> T.pack "Nothing..."
-  final = if last (journal w) == entry
-      then journal w
-      else journal w ++ [entry]
-  in w { journal = final }
+    [x] -> T.pack $ "Get id=" ++ show x ++ ", "
+    _   -> T.pack "Nothing"
+  in w { journal = journal w ++ [entry] }
 
 -- | actionLook
 -- if there is something to see...
@@ -116,7 +113,7 @@ actionLook xs = let
   in T.append look "..."
 
 -- | actionMove
--- where can the Entity move?
+-- Where can the Entity move? And then move the Entity.
 actionMove :: World -> World
 actionMove w = let
   coordF :: [Coord] -> [Coord]
@@ -125,7 +122,7 @@ actionMove w = let
   hardT    = [ xy | (_, xy) <- GT.fromHard (gameT w) ]
   blockT   = [ xy | (_, xy) <- GA.fromBlock (entityT w) ]
   moveList = [ (i, ek) | (e, i) <- GA.fromEntityAt (entityT w),
-               let ek = if block e
+               let ek = if block e -- Movable Entity
                      then let
                      move = coordF $ cardinal (coord e)
                      pos  = GAI.pathFinder pPos move e
@@ -192,10 +189,7 @@ showCharacter w = let
       ++ show pWis
       ++ ", HP="
       ++ show (hitPoint pEntity)
-  final = if last (journal w) == pEntry
-      then journal w
-      else journal w ++ [pEntry]
-  in w { journal = final }
+  in w { journal = journal w ++ [pEntry] }
 
 -- | quitWorld
 -- handle exiting...

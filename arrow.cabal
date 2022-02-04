@@ -27,6 +27,7 @@ library
                     , Engine.Draw.Visual
                     , Engine.SDL.Event
                     , Engine.SDL.Util
+                    , Game.AI
                     , Game.Actor
                     , Game.Combat
                     , Game.DiceSet
@@ -60,6 +61,7 @@ executable Main
                     , Engine.Draw.Visual
                     , Engine.SDL.Event
                     , Engine.SDL.Util
+                    , Game.AI
                     , Game.Actor
                     , Game.Combat
                     , Game.DiceSet

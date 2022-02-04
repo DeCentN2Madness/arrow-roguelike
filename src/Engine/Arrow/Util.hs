@@ -18,6 +18,7 @@ import Engine.Arrow.Data
 import qualified Engine.Arrow.View as EAV
 import qualified Engine.Draw.Camera as EDC
 import Game.Actor (EntityMap)
+import qualified Game.AI as GAI
 import qualified Game.Actor as GA
 import qualified Game.Combat as GC
 import qualified Game.Dungeon as GD
@@ -75,9 +76,10 @@ actionDirection input w = if starting w
     (_, playerCoord) = GA.getPlayer (entityT w)
     (heroX, heroY)   = playerCoord |+| dirToCoord input
     clampCoord       = clamp (heroX, heroY) (gridXY w)
+    -- @ bump Combat
     bump             = actionBump clampCoord (entityT w)
     newCoord         = if bump < 1 then clampCoord else playerCoord
-    -- newWorld from action
+    -- newWorld from actionMove $ action
     newWorld         = actionMove $ action bump newCoord w
     (pEntity, _)     = GA.getPlayer (entityT newWorld)
     run = if newCoord `elem` moveT pEntity
@@ -85,7 +87,7 @@ actionDirection input w = if starting w
       EAV.updateView $ newWorld {
       tick      = newTick
       , fovT    = EAV.mkView newCoord (gameT newWorld)
-      , entityT = GA.updatePlayer newCoord (entityT newWorld)
+      , entityT = GA.updatePlayerBy newCoord (entityT newWorld)
       , dirty   = True }
       else newWorld { dirty = False }
   in EDC.updateCamera run
@@ -119,11 +121,15 @@ actionMove :: World -> World
 actionMove w = let
   coordF :: [Coord] -> [Coord]
   coordF xs = filter (`notElem` blockT) $ filter (`notElem` hardT) xs
+  (_, pPos) = GA.getPlayer (entityT w)
   hardT    = [ xy | (_, xy) <- GT.fromHard (gameT w) ]
   blockT   = [ xy | (_, xy) <- GA.fromBlock (entityT w) ]
   moveList = [ (i, ek) | (e, i) <- GA.fromEntityAt (entityT w),
                let ek = if block e
-                     then e { moveT = coordF $ cardinal (coord e) }
+                     then let
+                     move = coordF $ cardinal (coord e)
+                     pos  = GAI.pathFinder pPos move e
+                     in e { coord = pos, moveT = move }
                      else e ]
   in w { entityT = Map.fromList moveList }
 

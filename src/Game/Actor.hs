@@ -2,7 +2,11 @@
 
 Game.Actor.hs
 
-Game.Actor is the engine for the Entity Kind.
+Game.Actor is the engine for the EntityKind.
+
+Example:
+  getEntityAt uses the EntityMap by index Ix
+  getEntityBy uses the EntityMap by Coord
 
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
@@ -14,13 +18,10 @@ module Game.Actor(EntityMap
                , getPlayer
                , getEntityAt
                , getEntityBy
-               , insertPlayer
                , insertEntity
                , mkEntityMap
                , updateEntityHp
-               , updateEntityMove
-               , updateEntityPos
-               , updatePlayer) where
+               , updatePlayerBy) where
 
 import Data.Map (Map)
 import qualified Data.Map.Strict as Map
@@ -101,12 +102,6 @@ updateEntityHp ix hp em = let
   in Map.insert ix (e { hitPoint = hp }) em
 
 -- | updateEntity at ix
-updateEntityMove :: Int -> [Coord] -> EntityMap -> EntityMap
-updateEntityMove ix moves em = let
-  (Just e) = Map.lookup ix em
-  in Map.insert ix (e { moveT = moves }) em
-
--- | updateEntity at ix
 updateEntityPos :: Int -> Coord -> EntityMap -> EntityMap
 updateEntityPos ix pos em = let
   (Just e) = Map.lookup ix em
@@ -115,7 +110,7 @@ updateEntityPos ix pos em = let
 -- | @ lives at 0
 -- get Player
 getPlayer :: EntityMap -> (EntityKind, Coord)
-getPlayer em = getEntityAt 0 em
+getPlayer = getEntityAt 0
 
 -- | insert @ into the TileMap
 insertPlayer :: TileMap -> EntityMap -> EntityMap
@@ -125,5 +120,5 @@ insertPlayer tm em = let
   in insertEntity 0 xy Actor em
 
 -- | update @ position
-updatePlayer :: Coord -> EntityMap -> EntityMap
-updatePlayer em = updateEntityPos 0 em
+updatePlayerBy :: Coord -> EntityMap -> EntityMap
+updatePlayerBy = updateEntityPos 0

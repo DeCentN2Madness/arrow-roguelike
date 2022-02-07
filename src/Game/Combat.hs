@@ -43,7 +43,7 @@ mkCombat px mx w = if px == mx
     pSeed = (tick w + pHP) * uncurry (*) pPos :: Int
     mSeed = (tick w - mHP) * uncurry (*) mPos :: Int
     -- player
-    pProp = prop pEntity
+    pProp = property pEntity
     pDex = read $ Map.findWithDefault "1" "dex" pProp :: Int
     pStr = read $ Map.findWithDefault "1" "str" pProp :: Int
     pDR = 10 + abilityMod pDex
@@ -51,7 +51,7 @@ mkCombat px mx w = if px == mx
     pAR = clamp $ DS.d20 pSeed + abilityMod pDex
     pDam = clamp $ DS.d4 pSeed + abilityMod pStr
     -- monster
-    mProp = prop mEntity
+    mProp = property mEntity
     mDex = read $ Map.findWithDefault "1" "dex" mProp :: Int
     mStr = read $ Map.findWithDefault "1" "str" mProp :: Int
     mDR = 12 :: Int

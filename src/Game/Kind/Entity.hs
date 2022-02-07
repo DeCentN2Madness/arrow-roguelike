@@ -16,6 +16,7 @@ import qualified Data.Map as Map
 
 type Coord = (Int, Int)
 type Properties = Map String String
+type Inventories = Map String Int
 
 data Entity
   = Actor
@@ -35,13 +36,14 @@ data EntityKind = EntityKind
   { coord        :: Coord
   , block        :: Bool
   , kind         :: Entity
-  , prop         :: Properties
+  , property     :: Properties
+  , inventory    :: Inventories
   , hitPoint     :: Int
   , moveT         :: [Coord] -- where can the Entity move?
   } deriving (Show)
 
 defaultEK :: EntityKind
-defaultEK = EntityKind (0,0) False Unknown (mkProp "Unknown" "~") 0 []
+defaultEK = EntityKind (0,0) False Unknown (mkProp "zero" "0") Map.empty 0 []
 
 -- | fighterProp
 fighterProp :: Properties
@@ -85,34 +87,34 @@ mkProp x y = Map.fromList [("Name", x), ("Desc", y)]
 mkEntity :: Entity -> Coord -> EntityKind
 mkEntity Actor xy     = let
   e = defaultEK
-  in e { coord=xy, block=True, kind=Actor, prop=fighterProp, hitPoint=10 }
+  in e { coord=xy, block=True, kind=Actor, property=fighterProp, hitPoint=10 }
 mkEntity Coin xy      = let
   e = defaultEK
-  in e { coord=xy, kind=Coin, prop=mkProp "Coin" "$" }
+  in e { coord=xy, kind=Coin, property=mkProp "Coin" "$" }
 mkEntity Corpse xy    = let
   e = defaultEK
-  in e { coord=xy, kind=Corpse, prop=mkProp "Corpse" "%" }
+  in e { coord=xy, kind=Corpse, property=mkProp "Corpse" "%" }
 mkEntity Item xy      = let
   e = defaultEK
-  in e { coord=xy, kind=Item, prop=mkProp "Item" "[" }
+  in e { coord=xy, kind=Item, property=mkProp "Item" "[" }
 mkEntity Mouse xy     = let
   e = defaultEK
-  in e { coord=xy, block=True, kind=Mouse, prop=mouseProp, hitPoint=7 }
+  in e { coord=xy, block=True, kind=Mouse, property=mouseProp, hitPoint=7 }
 mkEntity Mushroom xy  = let
   e = defaultEK
-  in e { coord=xy, kind=Mushroom, prop=mkProp "Mushroom" "," }
+  in e { coord=xy, kind=Mushroom, property=mkProp "Mushroom" "," }
 mkEntity Potion xy    = let
   e = defaultEK
-  in e { coord=xy, kind=Potion, prop=mkProp "Potion" "!" }
+  in e { coord=xy, kind=Potion, property=mkProp "Potion" "!" }
 mkEntity StairDown xy = let
   e = defaultEK
-  in e { coord=xy, kind=StairDown, prop=mkProp "Stair" ">" }
+  in e { coord=xy, kind=StairDown, property=mkProp "Stair" ">" }
 mkEntity StairUp xy   = let
   e = defaultEK
-  in e { coord=xy, kind=Trap, prop=mkProp "Stair" "<" }
+  in e { coord=xy, kind=Trap, property=mkProp "Stair" "<" }
 mkEntity Trap xy      = let
   e = defaultEK
-  in e { coord=xy, kind=Trap, prop=mkProp "Trap" "^" }
+  in e { coord=xy, kind=Trap, property=mkProp "Trap" "^" }
 mkEntity Unknown xy   = let
   e = defaultEK
   in e { coord=xy }

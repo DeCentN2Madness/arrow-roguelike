@@ -14,7 +14,7 @@ import Game.Kind.Entity (Entity(..), EntityKind(..))
 
 type Coord = (Int, Int)
 
-groupEK :: [Entity] -> [(Entity, Int)]
+groupEK :: [String] -> [(String, Int)]
 groupEK = map (head &&& length) . group . sort
 
 noPickup :: [Entity]
@@ -23,8 +23,8 @@ noPickup = [Actor, Mouse, Corpse, StairDown, StairUp, Trap]
 -- | pickup
 pickup :: [(EntityKind, Coord)] -> EntityKind -> EntityKind
 pickup xs ek = let
-  pProp = Map.toList $ prop ek
-  entityList = filter (`notElem` noPickup) $ [ kind e | (e, _) <- xs ]
-  em = [ ("pickup", show $ groupEK entityList) ]
-  picks = Map.fromList $ concat [pProp, em]
-  in ek { prop = picks }
+  invT = let
+    pickList = filter (`notElem` noPickup) $ [ kind e | (e, _) <- xs ]
+    in groupEK $ map show pickList
+  picks = Map.unionWith (+) (inventory ek) (Map.fromList invT)
+  in ek { inventory = picks }

@@ -163,7 +163,7 @@ resetWorld w = let
 showCharacter :: World -> World
 showCharacter w = let
   (pEntity, _) = GA.getEntityAt 0 (entityT w)
-  pProp = prop pEntity
+  pProp = property pEntity
   pStr = read $ Map.findWithDefault "1" "str" pProp :: Int
   pDex = read $ Map.findWithDefault "1" "dex" pProp :: Int
   pCon = read $ Map.findWithDefault "1" "con" pProp :: Int
@@ -188,10 +188,8 @@ showCharacter w = let
 showInventory :: World -> World
 showInventory w = let
   (pEntity, _) = GA.getEntityAt 0 (entityT w)
-  pProp = prop pEntity
-  pInventory = Map.findWithDefault "None" "pickup" pProp
-  pEntry = T.pack $ "Inventory="
-      ++ show pInventory
+  pInv = inventory pEntity
+  pEntry = T.pack $ "Inventory=" ++ show pInv
   in w { journal = journal w ++ [pEntry] }
 
 -- | quitWorld

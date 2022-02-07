@@ -127,4 +127,4 @@ updatePlayerBy = updateEntityPos 0
 
 -- | update @ properties
 updatePlayer :: EntityKind -> EntityMap -> EntityMap
-updatePlayer ek em = Map.insert 0 ek em
+updatePlayer = Map.insert 0

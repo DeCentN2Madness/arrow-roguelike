@@ -44,16 +44,16 @@ mkCombat px mx w = if px == mx
     mSeed = (tick w - mHP) * uncurry (*) mPos :: Int
     -- player
     pProp = property pEntity
-    pDex = read $ Map.findWithDefault "1" "dex" pProp :: Int
     pStr = read $ Map.findWithDefault "1" "str" pProp :: Int
+    pDex = read $ Map.findWithDefault "1" "dex" pProp :: Int
     pDR = 10 + abilityMod pDex
     pHP = hitPoint pEntity
     pAR = clamp $ DS.d20 pSeed + abilityMod pDex
     pDam = clamp $ DS.d4 pSeed + abilityMod pStr
     -- monster
     mProp = property mEntity
-    mDex = read $ Map.findWithDefault "1" "dex" mProp :: Int
     mStr = read $ Map.findWithDefault "1" "str" mProp :: Int
+    mDex = read $ Map.findWithDefault "1" "dex" mProp :: Int
     mDR = 12 :: Int
     mHP = hitPoint mEntity
     mAR = clamp $ DS.d20 mSeed + abilityMod mDex
@@ -84,6 +84,5 @@ mkCombat px mx w = if px == mx
       then GA.insertEntity mx mPos Corpse (entityT w)
       else GA.updateEntityHp mx pAttack (entityT w)
     -- newWorld
-    newWorld = w { entityT = GA.updateEntityHp px mAttack newEntity
-                 , journal = journal w ++ [pEntry, mEntry] }
-  in newWorld
+  in w { entityT = GA.updateEntityHp px mAttack newEntity
+       , journal = journal w ++ [pEntry, mEntry] }

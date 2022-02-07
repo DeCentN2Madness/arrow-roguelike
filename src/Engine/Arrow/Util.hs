@@ -50,7 +50,7 @@ actionBump pos em = let
   in ix
 
 -- | actionDirection the world will change with @input@
--- Processs:
+--
 -- 1. clamp check the grid
 -- 2. bumpAction checks Entity w/ block
 -- 3. action handles activities in the World
@@ -86,7 +86,6 @@ actionDirection input w = if starting w
 
 -- | actionGet
 -- if there is something to pickup...
--- TODO pickup
 actionGet :: World -> World
 actionGet w = let
   (pEntity, pPos) = GA.getPlayer (entityT w)
@@ -94,13 +93,14 @@ actionGet w = let
   newPlayer = if not (null items)
     then GI.pickup items pEntity
     else pEntity
-  entry = case items of
-    [x] -> T.pack $ "Get id=" ++ show x ++ ", ..."
-    _   -> T.pack "Nothing..."
-  -- newWorld
-  newWorld = w { entityT = GA.updatePlayer newPlayer (entityT w)
-               , journal = journal w ++ [entry] }
-  in newWorld
+  newEntity = if not (null items)
+    then GI.emptyBy pPos items (entityT w)
+    else entityT w
+  entry = case filter ((/=pPos).snd) items of
+    [x] -> T.pack $ "Get id=" ++ show x ++ ", "
+    _   -> T.pack "..."
+  in w { entityT = GA.updatePlayer newPlayer newEntity
+       , journal = journal w ++ [entry] }
 
 -- | actionLook
 -- if there is something to see...
@@ -164,22 +164,21 @@ showCharacter :: World -> World
 showCharacter w = let
   (pEntity, _) = GA.getEntityAt 0 (entityT w)
   pProp = property pEntity
-  pStr = read $ Map.findWithDefault "1" "str" pProp :: Int
-  pDex = read $ Map.findWithDefault "1" "dex" pProp :: Int
-  pCon = read $ Map.findWithDefault "1" "con" pProp :: Int
-  pInt = read $ Map.findWithDefault "1" "int" pProp :: Int
-  pWis = read $ Map.findWithDefault "1" "wis" pProp :: Int
-  pEntry = T.pack $ "Player"
-    ++ " Str="
-      ++ show pStr
+  pStr = Map.findWithDefault "1" "str" pProp
+  pDex = Map.findWithDefault "1" "dex" pProp
+  pCon = Map.findWithDefault "1" "con" pProp
+  pInt = Map.findWithDefault "1" "int" pProp
+  pWis = Map.findWithDefault "1" "wis" pProp
+  pEntry = T.pack $ "Str="
+      ++ pStr
       ++ ", Dex="
-      ++ show pDex
-      ++ ", Int="
-      ++ show pInt
+      ++ pDex
       ++ ", Con="
-      ++ show pCon
+      ++ pCon
+      ++ ", Int="
+      ++ pInt
       ++ ", Wis="
-      ++ show pWis
+      ++ pWis
       ++ ", HP="
       ++ show (hitPoint pEntity)
   in w { journal = journal w ++ [pEntry] }
@@ -188,12 +187,19 @@ showCharacter w = let
 showInventory :: World -> World
 showInventory w = let
   (pEntity, _) = GA.getEntityAt 0 (entityT w)
-  pInv = inventory pEntity
-  pEntry = T.pack $ "Inventory=" ++ show pInv
+  pInv   = inventory pEntity
+  pCoin  = Map.findWithDefault 0 "Coin"     pInv
+  pMush  = Map.findWithDefault 0 "Mushroom" pInv
+  pPot   = Map.findWithDefault 0 "Potion"   pInv
+  pEntry = T.pack $ "Coin="
+    ++ show pCoin
+    ++ ", Mushroom="
+    ++ show pMush
+    ++ ", Potion="
+    ++ show pPot
   in w { journal = journal w ++ [pEntry] }
 
 -- | quitWorld
 -- handle exiting...
 quitWorld :: World -> World
-quitWorld w = w { journal = journal w ++ ["Exiting..."]
-                  , exiting = True }
+quitWorld w = w { journal = journal w ++ ["Exiting..."], exiting = True }

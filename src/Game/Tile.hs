@@ -40,8 +40,8 @@ fromOpen tm = let
 
 -- | fromVisual return visual terrain
 fromVisual :: TileMap -> [(Terrain, Coord)]
-fromVisual gm = let
-  visualList = [ (t, xy) | (_, TileKind pos vis t) <- Map.toList gm,
+fromVisual tm = let
+  visualList = [ (t, xy) | (_, TileKind pos vis t) <- Map.toList tm,
                  let xy = if vis then pos else (0,0)]
   in visualList
 

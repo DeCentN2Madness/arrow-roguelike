@@ -47,9 +47,9 @@ mainLoop :: IORef World
   -> TextureMap
   -> IO ()
 mainLoop world render ts = do
-  let s = SDL.pollEvent
-  e <- mkIntent <$> s
+  e <- mkIntent <$> SDL.pollEvent
   modifyIORef world (applyIntent e)
   q <- readIORef world
   draw render ts q
+  SDL.delay(1)
   unless (exiting q) $ mainLoop world render ts

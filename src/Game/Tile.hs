@@ -25,7 +25,6 @@ import Game.Kind.Tile
 type Coord = (Int, Int)
 type TileMap = Map Int TileKind
 
-
 -- | fromHard list of Hard surfaces
 fromHard :: TileMap -> [(Terrain, Coord)]
 fromHard tm = let
@@ -63,8 +62,8 @@ mkTileMap :: Dungeon -> TileMap
 mkTileMap d = let
   grid = mkGrid (dungeonWidth d) (dungeonHeight d)
   terrainList = V.toList $ dungeonTiles d
-  tileList = [ v | (t, xy) <- zip terrainList grid
-               , let v = TileKind xy False t]
+  tileList = [ tk | (t, xy) <- zip terrainList grid,
+               let tk = TileKind xy False t]
   tm = zip [0 :: Int ..] tileList
   in Map.fromList tm
 

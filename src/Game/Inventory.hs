@@ -10,7 +10,7 @@ module Game.Inventory (emptyBy
 
 import Control.Arrow ((&&&))
 import Data.List
-import qualified Data.Map as Map
+import qualified Data.Map.Strict as Map
 import Game.Actor (EntityMap)
 import Game.Kind.Entity (Entity(..), EntityKind(..))
 

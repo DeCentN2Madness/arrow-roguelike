@@ -20,7 +20,7 @@ import qualified Game.Tile as GT
 mkView :: Coord -> TileMap -> [Coord]
 mkView pos gm = let
   hardT    = [ xy | (_, xy) <- GT.fromHard gm ]
-  viewList = S.toList $ EAF.checkFov pos hardT 5
+  viewList = S.toList $ EAF.checkFov pos hardT 4
   coordList = EAC.cardinal pos
   in viewList ++ coordList
 

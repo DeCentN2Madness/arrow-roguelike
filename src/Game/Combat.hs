@@ -8,7 +8,7 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 -}
 module Game.Combat (mkCombat) where
 
-import qualified Data.Map as Map
+import qualified Data.Map.Strict as Map
 import qualified Data.Text as T
 import Engine.Arrow.Data (World (..))
 import qualified Game.Actor as GA

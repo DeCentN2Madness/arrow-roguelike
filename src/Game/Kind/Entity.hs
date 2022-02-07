@@ -12,7 +12,7 @@ module Game.Kind.Entity (Entity(..)
                         , Properties) where
 
 import Data.Map (Map)
-import qualified Data.Map as Map
+import qualified Data.Map.Strict as Map
 
 type Coord = (Int, Int)
 type Properties = Map String String

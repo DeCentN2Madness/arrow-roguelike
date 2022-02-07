@@ -10,7 +10,7 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 -}
 module Engine.Arrow.Util (applyIntent) where
 
-import qualified Data.Map as Map
+import qualified Data.Map.Strict as Map
 import Data.Text (Text)
 import qualified Data.Text as T
 import Engine.Arrow.Compass

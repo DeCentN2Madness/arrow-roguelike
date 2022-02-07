@@ -19,7 +19,7 @@ module Engine.Draw.Visual (assetPaths
 
 import Control.Monad.IO.Class (MonadIO)
 import Data.Map (Map)
-import qualified Data.Map as Map
+import qualified Data.Map.Strict as Map
 import Foreign.C.Types (CInt)
 import qualified SDL
 import Engine.Arrow.Data (World(..))

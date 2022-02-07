@@ -12,7 +12,7 @@ module Engine.Draw.Util where
 import Prelude hiding (lookup)
 import Control.Monad (forM_)
 import Control.Monad.IO.Class (MonadIO)
-import qualified Data.Map as Map
+import qualified Data.Map.Strict as Map
 import qualified SDL
 import SDL (($=))
 import Engine.Arrow.Data (World(..))

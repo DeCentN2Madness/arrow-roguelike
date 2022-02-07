@@ -54,13 +54,13 @@ roll r side seed = let
 -- | rollList w/ seed
 rollList :: Int -> Word -> Int -> [Int]
 rollList n side seed = let
-  r0 = roll n side seed
-  in [ i | r <- r0, let i = fromIntegral r ]
+  rs = roll n side seed
+  in [ i | r <- rs, let i = fromIntegral r ]
 
 -- | rollMod w/ seed
 -- example: D20 + 1
 -- rollMod 1 20 + 1
 rollMod :: Int -> Word -> Word -> Int -> Word
 rollMod r side n seed = let
-  r0 = sum $ roll r side seed
-  in r0 + n
+  rs = sum $ roll r side seed
+  in rs + n

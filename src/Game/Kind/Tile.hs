@@ -10,5 +10,4 @@ module Game.Kind.Tile (TileKind(..)) where
 import Game.Dungeon (Terrain(..))
 
 type Coord = (Int, Int)
-
 data TileKind = TileKind !Coord !Bool !Terrain deriving (Show, Eq)

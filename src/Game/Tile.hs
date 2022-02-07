@@ -25,23 +25,17 @@ import Game.Kind.Tile
 type Coord = (Int, Int)
 type TileMap = Map Int TileKind
 
--- | getTerrainAt
-getTerrainAt :: Coord -> TileMap -> Terrain
-getTerrainAt k gm = let
-  terrainList = [ (pos, t) | (_, tk) <- Map.toList gm,
-                  let TileKind pos _ t = tk ]
-  in snd $ head $ filter ((==k).fst) terrainList
 
 -- | fromHard list of Hard surfaces
 fromHard :: TileMap -> [(Terrain, Coord)]
-fromHard gm = let
-  terrainList = [ (t, pos) | (_, TileKind pos _ t) <- Map.toList gm ]
+fromHard tm = let
+  terrainList = [ (t, xy) | (_, TileKind xy _ t) <- Map.toList tm ]
   in filter ((/=Open).fst) terrainList
 
 -- | fromOpen list of Open surfaces
 fromOpen :: TileMap -> [(Terrain, Coord)]
-fromOpen gm = let
-  terrainList = [ (t, pos) | (_, TileKind pos _ t) <- Map.toList gm ]
+fromOpen tm = let
+  terrainList = [ (t, xy) | (_, TileKind xy _ t) <- Map.toList tm ]
   in filter ((==Open).fst) terrainList
 
 -- | fromVisual return visual terrain
@@ -51,7 +45,14 @@ fromVisual gm = let
                  let xy = if vis then pos else (0,0)]
   in visualList
 
--- | mkGrid helper function for zip
+-- | getTerrainAt
+getTerrainAt :: Coord -> TileMap -> Terrain
+getTerrainAt pos tm = let
+  terrainList = [ (xy, t) | (_, tk) <- Map.toList tm,
+                  let TileKind xy _ t = tk ]
+  in snd $ head $ filter ((==pos).fst) terrainList
+
+-- | mkGrid uniform grid helper function for zip
 mkGrid :: Int -> Int -> [Coord]
 mkGrid maxX maxY = let
   maxXY = if maxX > maxY then maxX else maxY
@@ -62,19 +63,19 @@ mkTileMap :: Dungeon -> TileMap
 mkTileMap d = let
   grid = mkGrid (dungeonWidth d) (dungeonHeight d)
   terrainList = V.toList $ dungeonTiles d
-  tileList = zip terrainList grid
-  gameList = [ v | (i, j) <- tileList, let v = TileKind j False i]
-  gm = zip [0 :: Int ..] gameList
-  in Map.fromList gm
+  tileList = [ v | (t, xy) <- zip terrainList grid
+               , let v = TileKind xy False t]
+  tm = zip [0 :: Int ..] tileList
+  in Map.fromList tm
 
 -- | updateTileMap
 -- just visible for now...
 updateTileMap :: [Coord] -> TileMap -> TileMap
-updateTileMap [] gm = gm
-updateTileMap (x:xs) gm = let
-  ixList = [(i, pos) | (i, TileKind pos _ _) <- Map.toList gm]
+updateTileMap [] tm = tm
+updateTileMap (x:xs) tm = let
+  ixList = [(i, pos) | (i, TileKind pos _ _) <- Map.toList tm]
   ix = case filter ((==x).snd) ixList of
     [k] -> fst k
     _ -> 0
-  TileKind xy _ t = Map.findWithDefault (TileKind (0,0) False Open) ix gm
-  in updateTileMap xs (Map.insert ix (TileKind xy True t) gm)
+  TileKind xy _ t = Map.findWithDefault (TileKind (0,0) False Open) ix tm
+  in updateTileMap xs (Map.insert ix (TileKind xy True t) tm)

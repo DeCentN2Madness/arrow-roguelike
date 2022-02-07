@@ -21,7 +21,8 @@ import qualified Game.AI as GAI
 import Game.Actor (EntityMap)
 import qualified Game.Actor as GA
 import qualified Game.Combat as GC
-import Game.Kind.Entity (EntityKind(..))
+import qualified Game.Inventory as GI
+import Game.Kind.Entity (Entity(..), EntityKind(..))
 import qualified Game.Tile as GT
 
 -- | action
@@ -53,7 +54,7 @@ actionBump pos em = let
 -- 1. clamp check the grid
 -- 2. bumpAction checks Entity w/ block
 -- 3. action handles activities in the World
--- 4. getTerrainAt checks the TileMap
+-- 4. moveT checks valid moves
 -- 5. updateView will create new FoV
 -- 6. updateCamera w/ newWorld
 actionDirection :: Direction -> World -> World
@@ -88,19 +89,26 @@ actionDirection input w = if starting w
 -- TODO pickup
 actionGet :: World -> World
 actionGet w = let
-  (_, pPos) = GA.getPlayer (entityT w)
+  (pEntity, pPos) = GA.getPlayer (entityT w)
   items = GA.getEntityBy pPos (entityT w)
-  entry = case filter ((/=pPos).snd) items of
+  newPlayer = if not (null items)
+    then GI.pickup items pEntity
+    else pEntity
+  entry = case items of
     [x] -> T.pack $ "Get id=" ++ show x ++ ", ..."
     _   -> T.pack "Nothing..."
-  in w { journal = journal w ++ [entry] }
+  -- newWorld
+  newWorld = w { entityT = GA.updatePlayer newPlayer (entityT w)
+               , journal = journal w ++ [entry] }
+  in newWorld
 
 -- | actionLook
 -- if there is something to see...
 actionLook :: [(EntityKind, Coord)] -> Text
 actionLook xs = let
-  look = T.concat [ t | (e, _) <- xs,
-                    let t = T.pack $ show (kind e) ++ ", " ]
+  look = T.concat [ t | (ek, _) <- xs,
+                    let t = if kind ek /= Actor then
+                          T.pack $ show (kind ek) ++ ", " else "" ]
   in T.append look "..."
 
 -- | actionMove
@@ -136,6 +144,7 @@ applyIntent intent w = let
     Action NorthWest -> actionDirection NorthWest w
     Action C -> showCharacter w
     Action G -> actionGet w
+    Action I -> showInventory w
     Action R -> resetWorld w
     Quit -> quitWorld w
     _ -> w
@@ -175,9 +184,18 @@ showCharacter w = let
       ++ show (hitPoint pEntity)
   in w { journal = journal w ++ [pEntry] }
 
+-- | showInventory
+showInventory :: World -> World
+showInventory w = let
+  (pEntity, _) = GA.getEntityAt 0 (entityT w)
+  pProp = prop pEntity
+  pInventory = Map.findWithDefault "None" "pickup" pProp
+  pEntry = T.pack $ "Inventory="
+      ++ show pInventory
+  in w { journal = journal w ++ [pEntry] }
+
 -- | quitWorld
 -- handle exiting...
 quitWorld :: World -> World
 quitWorld w = w { journal = journal w ++ ["Exiting..."]
-                  , starting = False
                   , exiting = True }

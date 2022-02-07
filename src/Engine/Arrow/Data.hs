@@ -30,6 +30,7 @@ data Direction
   | C
   | G
   | H
+  | I
   | J
   | K
   | L

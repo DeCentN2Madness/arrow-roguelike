@@ -18,6 +18,9 @@ import Game.Kind.Entity (Entity(..), EntityKind(..))
 abilityMod :: Int -> Int
 abilityMod n = (n-10) `div` 2
 
+attack :: Int -> Int -> String
+attack ar dr = if ar >= dr then " hits the " else " misses the "
+
 -- | clamp crits on > 20
 clamp :: Int -> Int
 clamp n
@@ -65,30 +68,22 @@ mkCombat px mx w = if px == mx
     -- journal entry with damages
     pDeath = if mAttack < 1 then "Dead! id=" ++ show px else "..."
     mDeath = if pAttack < 1 then "Dead! id=" ++ show mx else "..."
-    pEntry = T.pack $ "Kicks!"
-      ++ " pAR="
-      ++ show pAR
-      ++ ", pDR="
-      ++ show pDR
-      ++ ", pDam="
-      ++ show pDam
-      ++ ", pHP="
-      ++ show pHP
-      ++ ", " ++ pDeath
-    mEntry = T.pack $ "Bites!"
-      ++ " mAR="
-      ++ show mAR
-      ++ ", mDR="
-      ++ show mDR
-      ++ " mDam="
-      ++ show mDam
-      ++ ", mHP="
-      ++ show mHP
-      ++ ", " ++ mDeath
+    pEntry = T.pack $
+      show (kind pEntity)
+      ++ attack pAR mDR
+      ++ show (kind mEntity)
+      ++ ". " ++ mDeath
+    mEntry = T.pack $
+      show (kind mEntity)
+      ++ attack mAR pDR
+      ++ show (kind pEntity)
+      ++ ". " ++ pDeath
     -- entity map with damages and deaths
     -- player is Invulnerable for now
     newEntity = if pAttack < 1
       then GA.insertEntity mx mPos Corpse (entityT w)
       else GA.updateEntityHp mx pAttack (entityT w)
-  in w { entityT = GA.updateEntityHp px mAttack newEntity
-       , journal = journal w ++ [pEntry, mEntry] }
+    -- newWorld
+    newWorld = w { entityT = GA.updateEntityHp px mAttack newEntity
+                 , journal = journal w ++ [pEntry, mEntry] }
+  in newWorld

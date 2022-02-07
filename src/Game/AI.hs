@@ -17,17 +17,18 @@ distance (x1, y1) (x2, y2) = let
   in sqrt (distX + distY)
 
 -- | pathFinder
+-- TODO goal is affected by hitPoint, patrol, status; npc, so on...
 -- 1. distance from goal
 -- 2. decide by distance
 -- 3. stop at distance 1
 -- 3. update pos
 pathFinder :: (Int, Int) -> [(Int, Int)] -> EntityKind -> (Int, Int)
-pathFinder goal move e = if kind e == Actor
-  then coord e
+pathFinder goal move ek = if kind ek == Actor
+  then coord ek
   else let
   distanceList = [ (d, xy) | xy <- move,
                    let d = distance goal xy ]
   -- filter based on +1 FoV
   moveList = [ xy | (d, v) <- sort distanceList,
-               let xy = if d == 1 || d > 5 then coord e else v ]
+               let xy = if d == 1 || d > 5 then coord ek else v ]
   in head moveList

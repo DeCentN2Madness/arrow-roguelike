@@ -21,12 +21,14 @@ module Game.Actor(EntityMap
                , insertEntity
                , mkEntityMap
                , updateEntityHp
-               , updatePlayerBy) where
+               , updatePlayerBy
+               , updatePlayer) where
 
 import Data.Map (Map)
 import qualified Data.Map.Strict as Map
 import qualified Game.DiceSet as DS
-import Game.Tile (fromOpen, TileMap)
+import Game.Tile (TileMap)
+import qualified Game.Tile as GT
 import Game.Kind.Entity
 
 type Coord = (Int, Int)
@@ -48,22 +50,22 @@ fromEntityAt em = let
 -- | fromEntityBy Coord
 fromEntityBy :: EntityMap -> [(EntityKind, Coord)]
 fromEntityBy em = let
-  entityList = [ (ek, pos) | (_, ek) <- Map.toList em,
-                 let pos = coord ek ]
+  entityList = [ (ek, xy) | (_, ek) <- Map.toList em,
+                 let xy = coord ek ]
   in entityList
 
 -- | getEntityAt ix
 getEntityAt :: Int -> EntityMap -> (EntityKind, Coord)
 getEntityAt ix em = let
-  (Just e) = Map.lookup ix em
-  in (e, coord e)
+  (Just ek) = Map.lookup ix em
+  in (ek, coord ek)
 
 -- | getEntityBy Coord
 getEntityBy :: Coord -> EntityMap -> [(EntityKind, Coord)]
-getEntityBy xy em = let
-  entityList = [(ix, pos) | (ix, ek) <- Map.toList em,
-                let pos = coord ek ]
-  in [ e | (ix, _) <- filter ((==xy).snd) entityList,
+getEntityBy pos em = let
+  entityList = [(ix, xy) | (ix, ek) <- Map.toList em,
+                let xy = coord ek ]
+  in [ e | (ix, _) <- filter ((==pos).snd) entityList,
        let e = getEntityAt ix em ]
 
 -- | inserEntity
@@ -77,7 +79,7 @@ insertRand :: Entity -> Int -> Int -> [Coord] -> [(Int, EntityKind)]
 insertRand e start end openList = let
   sz = length openList - 1
   randList = DS.rollList (end-start) (fromIntegral sz) (end*sz)
-  entityList = [ ee | ix <- randList, let ee = mkEntity e (openList!!ix) ]
+  entityList = [ ek | ix <- randList, let ek = mkEntity e (openList!!ix) ]
   in zip [start..end] entityList
 
 -- | mkEntityMap will do more
@@ -85,7 +87,7 @@ insertRand e start end openList = let
 -- preserve 0 for the Hero
 mkEntityMap :: TileMap -> EntityMap
 mkEntityMap tm = let
-  openList = tail $ [ xy | (_, xy) <- fromOpen tm ]
+  openList = tail $ [ pos | (_, pos) <- GT.fromOpen tm ]
   junk = concat [insertRand  Mouse    1  20 openList
                 , insertRand Mushroom 21 30 openList
                 , insertRand Corpse   31 40 openList
@@ -98,14 +100,14 @@ mkEntityMap tm = let
 -- | updateEntity at ix
 updateEntityHp :: Int -> Int -> EntityMap -> EntityMap
 updateEntityHp ix hp em = let
-  (Just e) = Map.lookup ix em
-  in Map.insert ix (e { hitPoint = hp }) em
+  (Just ek) = Map.lookup ix em
+  in Map.insert ix (ek { hitPoint = hp }) em
 
 -- | updateEntity at ix
 updateEntityPos :: Int -> Coord -> EntityMap -> EntityMap
 updateEntityPos ix pos em = let
-  (Just e) = Map.lookup ix em
-  in Map.insert ix (e { coord = pos }) em
+  (Just ek) = Map.lookup ix em
+  in Map.insert ix (ek { coord = pos }) em
 
 -- | @ lives at 0
 -- get Player
@@ -115,10 +117,14 @@ getPlayer = getEntityAt 0
 -- | insert @ into the TileMap
 insertPlayer :: TileMap -> EntityMap -> EntityMap
 insertPlayer tm em = let
-  openList = [ v | (_, v) <- fromOpen tm]
+  openList = [ pos | (_, pos) <- GT.fromOpen tm]
   xy = head openList
   in insertEntity 0 xy Actor em
 
 -- | update @ position
 updatePlayerBy :: Coord -> EntityMap -> EntityMap
 updatePlayerBy = updateEntityPos 0
+
+-- | update @ properties
+updatePlayer :: EntityKind -> EntityMap -> EntityMap
+updatePlayer ek em = Map.insert 0 ek em

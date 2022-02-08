@@ -21,7 +21,7 @@ import qualified Engine.SDL.Util as U
 drawText :: SDL.Renderer -> World -> IO ()
 drawText r w = do
   let logs = zip [0..2] $ filter (/="...") $ reverse $ journal w
-  fn <- SDL.Font.load "./assets/fonts/Source_Code_Pro_for_Powerline.otf" 16
+  fn <- SDL.Font.load "./assets/fonts/Hack-Regular.ttf" 16
   forM_ logs $ \(i,j) -> do
     -- Color
     let color x

@@ -32,10 +32,7 @@ import qualified Game.Tile as GT
 data AssetMap a = AssetMap
   { arrow      :: a
   , background :: a
-  , hero       :: a
   , hud        :: a
-  , open       :: a
-  , wall       :: a
   , style      :: a
   } deriving (Functor, Foldable, Traversable)
 
@@ -70,10 +67,7 @@ assetPaths :: PathMap
 assetPaths = AssetMap
   { arrow      = "./assets/Arrow.png"
   , background = "./assets/Background.png"
-  , hero       = "./assets/Hero.png"
   , hud        = "./assets/Hud.png"
-  , open       = "./assets/Open.png"
-  , wall       = "./assets/Wall.png"
   , style      = "./assets/ArrowSheet.png"
   }
 

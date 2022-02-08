@@ -1,4 +1,5 @@
 {-# LANGUAGE Trustworthy #-}
+{-# LANGUAGE DeriveGeneric #-}
 {-
 
 Game.Dungeon.hs
@@ -17,11 +18,13 @@ import Control.Monad.Primitive (PrimMonad, PrimState)
 import Control.Monad.Random.Class (MonadRandom, uniformMay)
 import Control.Monad.Random (getRandomR, RandomGen, runRandT)
 import Control.Monad.ST (runST)
+import Data.Aeson
 import Data.Set (Set)
 import qualified Data.Set as S
 import Data.Vector (Vector)
 import qualified Data.Vector as V
 import qualified Data.Vector.Mutable as VM
+import GHC.Generics
 
 data Dungeon = Dungeon
   { dungeonWidth :: Int
@@ -30,9 +33,7 @@ data Dungeon = Dungeon
   } deriving (Read, Show)
 
 type Hall = Room
-
 data Orientation = Vertical | Horizontal deriving (Show)
-
 data Room = Room !Int !Int !Int !Int deriving (Show)
 
 data Terrain
@@ -41,7 +42,10 @@ data Terrain
   | Rubble
   | Magma
   | Rock
-  deriving (Read, Show, Eq)
+  deriving (Read, Show, Eq, Generic)
+
+instance FromJSON Terrain
+instance ToJSON Terrain
 
 -- | boxDungeon builds the dungeon
 -- Output:

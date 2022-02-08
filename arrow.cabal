@@ -19,6 +19,7 @@ library
   exposed-modules:  Engine.Arrow.Compass
                     , Engine.Arrow.Data
                     , Engine.Arrow.FoV
+                    , Engine.Arrow.Save
                     , Engine.Arrow.Util
                     , Engine.Arrow.View
                     , Engine.Draw.Camera
@@ -37,7 +38,10 @@ library
                     , Game.Kind.Tile
                     , Game.Tile
   build-depends:    base
+                    , aeson
+                    , bytestring
                     , containers
+                    , directory
                     , MonadRandom
                     , primitive
                     , random
@@ -54,6 +58,7 @@ executable Arrow
   other-modules:    Engine.Arrow.Compass
                     , Engine.Arrow.Data
                     , Engine.Arrow.FoV
+                    , Engine.Arrow.Save
                     , Engine.Arrow.Util
                     , Engine.Arrow.View
                     , Engine.Draw.Camera
@@ -74,8 +79,11 @@ executable Arrow
   hs-source-dirs:   app
                     , src
   build-depends:    base
-                    , extra
+                    , aeson
+                    , bytestring
                     , containers
+                    , directory
+                    , extra
                     , MonadRandom
                     , primitive
                     , random

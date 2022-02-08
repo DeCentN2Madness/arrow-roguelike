@@ -13,6 +13,7 @@ module Engine.Arrow.Util (applyIntent) where
 import qualified Data.Map.Strict as Map
 import Data.Text (Text)
 import qualified Data.Text as T
+import System.Random (mkStdGen)
 import Engine.Arrow.Compass
 import Engine.Arrow.Data
 import qualified Engine.Arrow.View as EAV
@@ -155,7 +156,7 @@ applyIntent intent w = let
 -- handle gameStates of restarting...
 resetWorld :: World -> World
 resetWorld w = let
-  g = gameGen w
+  g = mkStdGen (tick w)
   (width, height) = screenXY w
   (row, col) = gridXY w
   in mkWorld g (floor width, floor height) row col

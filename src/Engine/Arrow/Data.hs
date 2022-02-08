@@ -1,4 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE DeriveGeneric #-}
 {-
 
 Engine.Arrow.Data.hs
@@ -9,7 +10,9 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 module Engine.Arrow.Data where
 
 import Control.Monad.Random (StdGen)
+import Data.Aeson
 import Data.Text (Text)
+import GHC.Generics
 import Game.Actor (EntityMap, mkEntityMap)
 import Game.Dungeon (rogueDungeon)
 import Game.Tile (TileMap, mkTileMap)
@@ -46,10 +49,8 @@ data Intent
   | Quit
 
 data World = World
-  { -- the Dungeon seed
-  gameGen    :: !StdGen
-  -- GameT for Hero
-  , tick     :: !Int
+  { -- GameWorld
+  tick     :: !Int
   , gameT    :: !TileMap
   , entityT  :: !EntityMap
   , fovT     :: ![Coord]
@@ -63,18 +64,20 @@ data World = World
   , dirty    :: !Bool
   , starting :: !Bool
   , exiting  :: !Bool
-  } deriving (Show)
+  } deriving (Show, Generic)
+
+instance FromJSON World
+instance ToJSON World
 
 -- | mkWorld build the World
 mkWorld :: StdGen -> Coord -> Int -> Int -> World
 mkWorld gen (width, height) xMax yMax = let
-  (d, g) = rogueDungeon xMax yMax gen
+  (d, _) = rogueDungeon xMax yMax gen
   tm = mkTileMap d
   em = mkEntityMap tm
   sx = 32.0 -- scaleXY based on tiles
   sy = 32.0
-  in World { gameGen = g
-           , tick = 1
+  in World { tick = 1
            , gameT = tm
            , entityT = em
            , fovT = []

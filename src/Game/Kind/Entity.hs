@@ -1,4 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE DeriveGeneric #-}
 {-
 
 Game.Kind.Entity.hs
@@ -11,7 +12,9 @@ module Game.Kind.Entity (Entity(..)
                         , mkEntity
                         , Properties) where
 
+import Data.Aeson
 import Data.Map (Map)
+import GHC.Generics
 import qualified Data.Map.Strict as Map
 
 type Coord = (Int, Int)
@@ -30,7 +33,10 @@ data Entity
   | StairUp
   | Trap
   | Unknown
-  deriving (Show, Eq, Ord)
+  deriving (Show, Eq, Ord, Generic)
+
+instance FromJSON Entity
+instance ToJSON Entity
 
 data EntityKind = EntityKind
   { coord        :: Coord
@@ -40,7 +46,10 @@ data EntityKind = EntityKind
   , inventory    :: Inventories
   , hitPoint     :: Int
   , moveT         :: [Coord] -- where can the Entity move?
-  } deriving (Show)
+  } deriving (Show, Generic)
+
+instance FromJSON EntityKind
+instance ToJSON EntityKind
 
 defaultEK :: EntityKind
 defaultEK = EntityKind (0,0) False Unknown (mkProp "zero" "0") Map.empty 0 []

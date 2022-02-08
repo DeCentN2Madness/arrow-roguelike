@@ -13,6 +13,7 @@ import Control.Monad.Random (getStdGen)
 import Control.Monad.Extra (unless)
 import qualified SDL
 import Engine.Arrow.Data (mkWorld, World(..))
+import Engine.Arrow.Save (saveFile)
 import Engine.Arrow.Util (applyIntent)
 import Engine.Draw.Util (draw)
 import Engine.Draw.Visual (assetPaths, loadTextures, TextureMap)
@@ -33,8 +34,8 @@ main = do
       ts <- loadTextures r assetPaths
       mainLoop world r ts
       mapM_ (SDL.destroyTexture . fst) ts
-  -- q <- readIORef world
-  -- print q
+  q <- readIORef world
+  saveFile "arrow.json" q
   SDL.quit
 
 -- | mainLoop

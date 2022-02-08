@@ -13,6 +13,7 @@ Step 6 of the 15 Steps...
 ![Hero.png](images/Hero.png)
 
 1. `Game.AI`
+1. `Game.Inventory`
 1. `rogueDungeon`
 1. `Game.Combat` for exciting battles
 1. 3 Blind Mice

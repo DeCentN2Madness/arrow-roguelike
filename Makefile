@@ -1,9 +1,9 @@
 CWD     := $(shell pwd)
-RANDOMPATH := $(CWD)
+ARROWPATH := $(CWD)
 STACK   := stack
 BUILD   := $(STACK) build
 COMMIT  := commit.hs
-RANDOM  := $(STACK) exec Main
+ARROW  := $(STACK) exec Arrow
 
 GIT       := git
 GITDIFF   := $(GIT) diff
@@ -12,7 +12,7 @@ GITSTATUS := $(GIT) status
 GITPULL   := $(GIT) pull
 GITPUSH   := $(GIT) push
 
-all: build random
+all: build arrow
 .PHONY: all
 
 build:
@@ -21,8 +21,8 @@ build:
 commit:
 	$(COMMIT)
 
-random:
-	$(RANDOM)
+arrow:
+	$(ARROW)
 
 diff:
 	$(GITDIFF)

@@ -1,8 +1,8 @@
 name:          arrow
-version:       0.1.1.0
+version:       0.2.0.0
 license:       MIT
 synopsis:      Haskell
-description:   SDL2 for the Hero '@'
+description:   tiny roguelike for the Hero '@'
 license-file:  LICENSE.md
 author:        Joel E Carlson
 maintainer:    "Joel E Carlson" <joel.elmer.carlson@gmail.com>
@@ -49,7 +49,7 @@ library
                     , vector
   default-language: Haskell2010
 
-executable Main
+executable Arrow
   main-is:          Main.hs
   other-modules:    Engine.Arrow.Compass
                     , Engine.Arrow.Data

@@ -26,8 +26,11 @@ drawText r w = do
     tx <- SDL.Font.blended fn black j
     sz <- SDL.Font.size fn j
     rt <- SDL.createTextureFromSurface r tx
+    -- HUD
     let hudT = snd (screenXY w) - fromIntegral (snd sz  + (i * snd sz))
     renderText r rt sz (5, hudT)
+    -- Cleanup
+    SDL.freeSurface tx
     SDL.destroyTexture rt
   SDL.Font.free fn
   SDL.delay 1

@@ -116,18 +116,18 @@ actionLook xs = let
 actionMove :: World -> World
 actionMove w = let
   coordF :: [Coord] -> [Coord]
-  coordF xs = filter (`notElem` blockT) $ filter (`notElem` hardT) xs
-  (_, pPos) = GA.getPlayer (entityT w)
-  hardT    = [ xy | (_, xy) <- GT.fromHard (gameT w) ]
-  blockT   = [ xy | (_, xy) <- GA.fromBlock (entityT w) ]
-  moveList = [ (ix, ek) | (e, ix) <- GA.fromEntityAt (entityT w),
-               let ek = if block e -- Movable Entity
-                     then let
-                     move = coordF $ cardinal (coord e)
-                     pos  = GAI.pathFinder pPos move e
-                     in e { coord = pos, moveT = move }
-                     else e ]
-  in w { entityT = Map.fromList moveList }
+  coordF = filter (`notElem` hardT)
+  (_, pPos)  = GA.getPlayer (entityT w)
+  hardT      = [ xy | (_, xy) <- GT.fromHard (gameT w) ]
+  blockT     = [ xy | (_, xy) <- GA.fromBlock (entityT w) ]
+  entityList = [ (ix, ek) | (e, ix) <- GA.fromEntityAt (entityT w),
+                 let ek = if block e -- Movable Entity
+                       then let
+                       move = coordF $ cardinal (coord e)
+                       pos  = GAI.pathFinder pPos move blockT e
+                       in e { coord = pos, moveT = move }
+                       else e ]
+  in w { entityT = Map.fromList entityList }
 
 -- | applyIntent
 -- Events applied to the World

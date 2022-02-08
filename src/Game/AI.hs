@@ -20,15 +20,23 @@ distance (x1, y1) (x2, y2) = let
 -- TODO goal is affected by hitPoint, patrol, status; npc, so on...
 -- 1. distance from goal
 -- 2. decide by distance
--- 3. stop at distance 1
--- 3. update pos
-pathFinder :: (Int, Int) -> [(Int, Int)] -> EntityKind -> (Int, Int)
-pathFinder goal move ek = if kind ek == Actor
+-- 3. check blockList
+-- 4. update pos
+pathFinder :: (Int, Int)
+  -> [(Int, Int)]
+  -> [(Int, Int)]
+  -> EntityKind
+  -> (Int, Int)
+pathFinder goal move blockList ek = if kind ek == Actor
   then coord ek
   else let
+  coordF :: [(Int, Int)] -> [(Int, Int)]
+  coordF = filter (`notElem` blockList)
   distanceList = [ (d, xy) | xy <- move,
                    let d = distance goal xy ]
   -- filter based on +1 FoV
-  moveList = [ xy | (d, v) <- sort distanceList,
-               let xy = if d == 1 || d > 4 then coord ek else v ]
-  in head moveList
+  moveList = coordF $ [ xy | (d, pos) <- sort distanceList,
+               let xy = if d==1 || d > 4 then coord ek else pos ]
+  in if not (null moveList)
+  then head moveList
+  else coord ek

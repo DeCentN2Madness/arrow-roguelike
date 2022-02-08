@@ -30,11 +30,11 @@ import qualified Game.Tile as GT
 action :: Int -> Coord -> World -> World
 action ix pos w = let
   -- Look event
-  entry = actionLook $ GA.getEntityBy pos (entityT w)
+  entry    = actionLook $ GA.getEntityBy pos (entityT w)
   -- Combat event
   newWorld = GC.mkCombat 0 ix w
   -- final
-  final = if last (journal newWorld) == entry
+  final    = if last (journal newWorld) == entry
     then journal newWorld
     else journal newWorld ++ [entry]
   in newWorld { journal = final }
@@ -87,6 +87,7 @@ actionDirection input w = if starting w
 -- if there is something to pickup...
 actionGet :: World -> World
 actionGet w = let
+  newTick = tick w + 1
   (pEntity, pPos) = GA.getPlayer (entityT w)
   items     = GA.getEntityBy pPos (entityT w)
   newPlayer = if not (null items)
@@ -98,8 +99,9 @@ actionGet w = let
   entry     = if length items > 1
     then T.pack "Get..."
     else T.pack "..."
-  in w { entityT = GA.updatePlayer newPlayer newEntity
-       , journal = journal w ++ [entry] }
+  in w { tick = newTick
+         , entityT = GA.updatePlayer newPlayer newEntity
+         , journal = journal w ++ [entry] }
 
 -- | actionLook
 -- if there is something to see...

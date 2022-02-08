@@ -120,7 +120,7 @@ actionMove w = let
   (_, pPos) = GA.getPlayer (entityT w)
   hardT    = [ xy | (_, xy) <- GT.fromHard (gameT w) ]
   blockT   = [ xy | (_, xy) <- GA.fromBlock (entityT w) ]
-  moveList = [ (i, ek) | (e, i) <- GA.fromEntityAt (entityT w),
+  moveList = [ (ix, ek) | (e, ix) <- GA.fromEntityAt (entityT w),
                let ek = if block e -- Movable Entity
                      then let
                      move = coordF $ cardinal (coord e)

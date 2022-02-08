@@ -16,25 +16,10 @@ import qualified SDL.Font
 import Engine.Arrow.Data (World(..))
 import qualified Engine.SDL.Util as U
 
-black :: SDL.Font.Color
-black = SDL.V4 0 0 0 255
-
-red :: SDL.Font.Color
-red = SDL.V4 255 0 0 255
-
-green :: SDL.Font.Color
-green = SDL.V4 0 255 0 255
-
-blue :: SDL.Font.Color
-blue = SDL.V4 0 0 255 255
-
-white :: SDL.Font.Color
-white = SDL.V4 255 255 255 255
-
 -- | drawText Textual the last 3 entries
 drawText :: SDL.Renderer -> World -> IO ()
 drawText r w = do
-  let logs = zip [0..2] $ reverse $ journal w
+  let logs = zip [0..2] $ filter (/="...") $ reverse $ journal w
   forM_ logs $ \(i,j) -> do
     -- Text
     fn <- SDL.Font.load "./assets/fonts/Source_Code_Pro_for_Powerline.otf" 16
@@ -44,6 +29,8 @@ drawText r w = do
     SDL.Font.free fn
     let hudT = snd (screenXY w) - fromIntegral (snd sz  + (i * snd sz))
     renderText r rt sz (5, hudT)
+    SDL.destroyTexture rt
+  SDL.delay 1
 
 -- | renderText
 -- write Text to the screen
@@ -56,3 +43,18 @@ renderText :: (Num a, RealFrac a)
 renderText r t (tw, th) (x, y) = let
   rectB = U.mkRect (floor x) (floor y) (fromIntegral tw) (fromIntegral th)
   in SDL.copy r t Nothing (Just  rectB)
+
+red :: SDL.Font.Color
+red = SDL.V4 255 0 0 255
+
+green :: SDL.Font.Color
+green = SDL.V4 0 255 0 255
+
+blue :: SDL.Font.Color
+blue = SDL.V4 0 0 255 255
+
+black :: SDL.Font.Color
+black = SDL.V4 0 0 0 255
+
+white :: SDL.Font.Color
+white = SDL.V4 255 255 255 255

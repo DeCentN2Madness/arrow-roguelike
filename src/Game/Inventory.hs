@@ -27,7 +27,9 @@ emptyBy pos items em = let
                          then i else (-1) ]
     newEntity = filter ((/=(-1)).fst) $ [ (ix, ek) | (i, ek) <- Map.toList em,
                   let ix = if i `notElem` deleteList then i else (-1) ]
-  in if not (null deleteList) then Map.fromList newEntity else em
+  in if not (null deleteList)
+  then Map.fromList newEntity
+  else em
 
 -- | groupEK builds counts from a list
 groupEK :: [String] -> [(String, Int)]

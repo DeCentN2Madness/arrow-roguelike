@@ -44,10 +44,9 @@ action ix pos w = let
 actionBump :: Coord -> EntityMap -> Int
 actionBump pos em = let
   blockList = filter ((==pos).snd) $ GA.fromBlock em
-  ix = if null blockList
+  in if null blockList
     then 0
     else fst $ head blockList
-  in ix
 
 -- | actionDirection the world will change with @input@
 --
@@ -134,19 +133,19 @@ actionMove w = let
 applyIntent :: Intent -> World -> World
 applyIntent intent w = let
   newWorld = case intent of
-    Action North -> actionDirection North w
+    Action North     -> actionDirection North w
     Action NorthEast -> actionDirection NorthEast w
-    Action East -> actionDirection East w
+    Action East      -> actionDirection East w
     Action SouthEast -> actionDirection SouthEast w
-    Action South -> actionDirection South w
+    Action South     -> actionDirection South w
     Action SouthWest -> actionDirection SouthWest w
-    Action West -> actionDirection West w
+    Action West      -> actionDirection West w
     Action NorthWest -> actionDirection NorthWest w
     Action C -> showCharacter w
     Action G -> actionGet w
     Action I -> showInventory w
     Action R -> resetWorld w
-    Quit -> quitWorld w
+    Quit     -> quitWorld w
     _ -> w
   in newWorld
 
@@ -164,11 +163,11 @@ showCharacter :: World -> World
 showCharacter w = let
   (pEntity, _) = GA.getEntityAt 0 (entityT w)
   pProp = property pEntity
-  pStr = Map.findWithDefault "1" "str" pProp
-  pDex = Map.findWithDefault "1" "dex" pProp
-  pCon = Map.findWithDefault "1" "con" pProp
-  pInt = Map.findWithDefault "1" "int" pProp
-  pWis = Map.findWithDefault "1" "wis" pProp
+  pStr  = Map.findWithDefault "1" "str" pProp
+  pDex  = Map.findWithDefault "1" "dex" pProp
+  pCon  = Map.findWithDefault "1" "con" pProp
+  pInt  = Map.findWithDefault "1" "int" pProp
+  pWis  = Map.findWithDefault "1" "wis" pProp
   pEntry = T.pack $ "Str="
       ++ pStr
       ++ ", Dex="

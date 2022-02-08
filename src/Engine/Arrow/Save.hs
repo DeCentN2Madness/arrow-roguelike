@@ -18,16 +18,18 @@ import Game.Dungeon ()
 import Game.Kind.Entity ()
 import Game.Kind.Tile ()
 
+saveGame :: FilePath -> FilePath -> FilePath
+saveGame home fp = do
+  home ++ "/Documents/" ++ fp
+
 -- | saveFile
 saveFile :: FilePath -> World -> IO ()
 saveFile fp w = do
   homeDir <- getHomeDirectory
-  encodeFile (homeDir ++ "/Documents/" ++ fp) w
+  encodeFile (saveGame homeDir fp) w
 
 -- | loadFile
 loadFile :: FilePath -> IO (Either String World)
 loadFile fp = do
-  d <- eitherDecode <$> L8.readFile fp
-  return $ case d of
-    Left err -> Left err
-    Right w  -> Right w
+  homeDir <- getHomeDirectory
+  eitherDecode <$> L8.readFile (saveGame homeDir fp)

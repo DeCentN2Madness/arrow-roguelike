@@ -13,7 +13,7 @@ import Control.Monad.Random (getStdGen)
 import Control.Monad.Extra (unless)
 import qualified SDL
 import Engine.Arrow.Data (mkWorld, World(..))
-import Engine.Arrow.Save (saveFile)
+import Engine.Arrow.Save (loadFile, saveFile)
 import Engine.Arrow.Util (applyIntent)
 import Engine.Draw.Util (draw)
 import Engine.Draw.Visual (assetPaths, loadTextures, TextureMap)
@@ -23,10 +23,17 @@ import qualified Engine.SDL.Util as U
 width, height :: Int
 (width, height) = (640, 480)
 
+saveGame :: String
+saveGame = "arrow.json"
+
+-- | main
 main :: IO ()
 main = do
   gen <- getStdGen
-  world <- newIORef $ mkWorld gen (width, height) 80 50
+  d <- loadFile saveGame
+  world <- case d of
+    Left _ -> newIORef $ mkWorld gen (width, height) 80 50
+    Right savedWorld -> newIORef savedWorld
   U.withSDL $ U.withSDLFont $ U.withSDLImage $ do
     U.setHintQuality
     U.withWindow "Arrow" (width, height) $ \w ->
@@ -35,8 +42,7 @@ main = do
       mainLoop world r ts
       mapM_ (SDL.destroyTexture . fst) ts
   q <- readIORef world
-  saveFile "arrow.json" q
-  SDL.quit
+  saveFile saveGame q
 
 -- | mainLoop
 -- unless exiting

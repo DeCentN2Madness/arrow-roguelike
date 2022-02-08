@@ -206,4 +206,5 @@ showInventory w = let
 -- | quitWorld
 -- handle exiting...
 quitWorld :: World -> World
-quitWorld w = w { journal = journal w ++ ["Exiting..."], exiting = True }
+quitWorld w = w { journal = journal w ++ ["Saving Game..."]
+                , exiting = True }

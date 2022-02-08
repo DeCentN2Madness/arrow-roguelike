@@ -1,5 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE RecordWildCards #-}
 {-
 
 Engine.Arrow.Data.hs
@@ -67,7 +68,21 @@ data World = World
   } deriving (Show, Generic)
 
 instance FromJSON World
-instance ToJSON World
+instance ToJSON World where
+  toJSON World{..} = object [
+    "tick"       .= tick
+    , "gameT"    .= gameT
+    , "entityT"  .= entityT
+    , "fovT"     .= fovT
+    , "gridXY"   .= gridXY
+    , "cameraXY" .= cameraXY
+    , "screenXY" .= screenXY
+    , "scaleXY"  .= scaleXY
+    , "journal"  .= journal
+    , "dirty"    .= True
+    , "starting" .= True
+    , "exiting"  .= False
+    ]
 
 -- | mkWorld build the World
 mkWorld :: StdGen -> Coord -> Int -> Int -> World

@@ -8,7 +8,9 @@ Save the World
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
 -}
-module Engine.Arrow.Save (saveFile, loadFile) where
+module Engine.Arrow.Save (loadFile
+                         , saveFile
+                         , saveGame) where
 
 import Data.Aeson
 import qualified Data.ByteString.Lazy.Char8 as L8
@@ -18,18 +20,17 @@ import Game.Dungeon ()
 import Game.Kind.Entity ()
 import Game.Kind.Tile ()
 
-saveGame :: FilePath -> FilePath -> FilePath
-saveGame home fp = do
-  home ++ "/Documents/" ++ fp
+-- | loadFile
+loadFile :: FilePath -> IO (Either String World)
+loadFile fp = do
+  homeDir <- getHomeDirectory
+  eitherDecode <$> L8.readFile (homeDir ++ fp)
 
 -- | saveFile
 saveFile :: FilePath -> World -> IO ()
 saveFile fp w = do
   homeDir <- getHomeDirectory
-  encodeFile (saveGame homeDir fp) w
+  encodeFile (homeDir ++ fp) w
 
--- | loadFile
-loadFile :: FilePath -> IO (Either String World)
-loadFile fp = do
-  homeDir <- getHomeDirectory
-  eitherDecode <$> L8.readFile (saveGame homeDir fp)
+saveGame :: FilePath
+saveGame = "/Documents/arrow.json"

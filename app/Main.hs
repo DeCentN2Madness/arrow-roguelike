@@ -13,7 +13,7 @@ import Control.Monad.Random (getStdGen)
 import Control.Monad.Extra (unless)
 import qualified SDL
 import Engine.Arrow.Data (mkWorld, World(..))
-import Engine.Arrow.Save (loadFile, saveFile)
+import Engine.Arrow.Save (loadFile, saveFile, saveGame)
 import Engine.Arrow.Util (applyIntent)
 import Engine.Draw.Util (draw)
 import Engine.Draw.Visual (assetPaths, loadTextures, TextureMap)
@@ -22,9 +22,6 @@ import qualified Engine.SDL.Util as U
 
 width, height :: Int
 (width, height) = (640, 480)
-
-saveGame :: String
-saveGame = "arrow.json"
 
 -- | main
 main :: IO ()

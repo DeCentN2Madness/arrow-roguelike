@@ -88,16 +88,16 @@ actionDirection input w = if starting w
 actionGet :: World -> World
 actionGet w = let
   (pEntity, pPos) = GA.getPlayer (entityT w)
-  items = GA.getEntityBy pPos (entityT w)
+  items     = GA.getEntityBy pPos (entityT w)
   newPlayer = if not (null items)
     then GI.pickup items pEntity
     else pEntity
   newEntity = if not (null items)
     then GI.emptyBy pPos items (entityT w)
     else entityT w
-  entry = case filter ((/=pPos).snd) items of
-    [x] -> T.pack $ "Get id=" ++ show x ++ ", "
-    _   -> T.pack "..."
+  entry     = if length items > 1
+    then T.pack "Get..."
+    else T.pack "..."
   in w { entityT = GA.updatePlayer newPlayer newEntity
        , journal = journal w ++ [entry] }
 
@@ -107,7 +107,7 @@ actionLook :: [(EntityKind, Coord)] -> Text
 actionLook xs = let
   look = T.concat [ t | (ek, _) <- xs,
                     let t = if kind ek /= Actor then
-                          T.pack $ show (kind ek) ++ ", " else "" ]
+                          T.pack $ "See " ++ show (kind ek) ++ ", " else "" ]
   in T.append look "..."
 
 -- | actionMove
@@ -168,7 +168,8 @@ showCharacter w = let
   pCon  = Map.findWithDefault "1" "con" pProp
   pInt  = Map.findWithDefault "1" "int" pProp
   pWis  = Map.findWithDefault "1" "wis" pProp
-  pEntry = T.pack $ "Str="
+  pEntry = T.pack $ "@ "
+      ++ "Str="
       ++ pStr
       ++ ", Dex="
       ++ pDex
@@ -190,7 +191,8 @@ showInventory w = let
   pCoin  = Map.findWithDefault 0 "Coin"     pInv
   pMush  = Map.findWithDefault 0 "Mushroom" pInv
   pPot   = Map.findWithDefault 0 "Potion"   pInv
-  pEntry = T.pack $ "Coin="
+  pEntry = T.pack $ "@ "
+    ++ "Coin="
     ++ show pCoin
     ++ ", Mushroom="
     ++ show pMush

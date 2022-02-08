@@ -66,18 +66,18 @@ mkCombat px mx w = if px == mx
       then pHP - mDam
       else pHP -- Miss
     -- journal entry with damages
-    pDeath = if mAttack < 1 then "Dead! id=" ++ show px else "..."
-    mDeath = if pAttack < 1 then "Dead! id=" ++ show mx else "..."
+    pDeath = if mAttack < 1 then "Dead!" else "..."
+    mDeath = if pAttack < 1 then "Dead!" else "..."
     pEntry = T.pack $
       show (kind pEntity)
       ++ attack pAR mDR
       ++ show (kind mEntity)
-      ++ ". " ++ mDeath
+      ++ "! " ++ mDeath
     mEntry = T.pack $
       show (kind mEntity)
       ++ attack mAR pDR
       ++ show (kind pEntity)
-      ++ ". " ++ pDeath
+      ++ "! " ++ pDeath
     -- entity map with damages and deaths
     -- player is Invulnerable for now
     newEntity = if pAttack < 1

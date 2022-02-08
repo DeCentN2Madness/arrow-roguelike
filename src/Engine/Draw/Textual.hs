@@ -11,6 +11,7 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 module Engine.Draw.Textual where
 
 import Control.Monad (forM_)
+import qualified Data.Text as T
 import qualified SDL
 import qualified SDL.Font
 import Engine.Arrow.Data (World(..))
@@ -22,8 +23,13 @@ drawText r w = do
   let logs = zip [0..2] $ filter (/="...") $ reverse $ journal w
   fn <- SDL.Font.load "./assets/fonts/Source_Code_Pro_for_Powerline.otf" 16
   forM_ logs $ \(i,j) -> do
+    -- Color
+    let color x
+          | T.any (=='!') x = red
+          | T.any (=='@') x = blue
+          | otherwise = black
     -- Text
-    tx <- SDL.Font.blended fn black j
+    tx <- SDL.Font.blended fn (color j) j
     sz <- SDL.Font.size fn j
     rt <- SDL.createTextureFromSurface r tx
     -- HUD
@@ -33,7 +39,6 @@ drawText r w = do
     SDL.freeSurface tx
     SDL.destroyTexture rt
   SDL.Font.free fn
-  SDL.delay 1
 
 -- | renderText
 -- write Text to the screen

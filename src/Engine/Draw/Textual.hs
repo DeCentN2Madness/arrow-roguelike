@@ -20,16 +20,16 @@ import qualified Engine.SDL.Util as U
 drawText :: SDL.Renderer -> World -> IO ()
 drawText r w = do
   let logs = zip [0..2] $ filter (/="...") $ reverse $ journal w
+  fn <- SDL.Font.load "./assets/fonts/Source_Code_Pro_for_Powerline.otf" 16
   forM_ logs $ \(i,j) -> do
     -- Text
-    fn <- SDL.Font.load "./assets/fonts/Source_Code_Pro_for_Powerline.otf" 16
     tx <- SDL.Font.blended fn black j
     sz <- SDL.Font.size fn j
     rt <- SDL.createTextureFromSurface r tx
-    SDL.Font.free fn
     let hudT = snd (screenXY w) - fromIntegral (snd sz  + (i * snd sz))
     renderText r rt sz (5, hudT)
     SDL.destroyTexture rt
+  SDL.Font.free fn
   SDL.delay 1
 
 -- | renderText

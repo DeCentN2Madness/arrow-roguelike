@@ -13,8 +13,8 @@ module Engine.Arrow.Data where
 import Control.Monad.Random (StdGen)
 import Data.Aeson
 import GHC.Generics
-import Game.Actor (EntityMap, mkEntityMap)
 import Game.Dungeon (rogueDungeon)
+import Game.Entity (EntityMap, mkEntityMap)
 import Game.Journal (TextMap)
 import qualified Game.Journal as GJ
 import Game.Tile (TileMap, mkTileMap)

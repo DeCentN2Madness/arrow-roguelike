@@ -20,9 +20,9 @@ import Engine.Arrow.Data
 import qualified Engine.Arrow.View as EAV
 import qualified Engine.Draw.Camera as EDC
 import qualified Game.AI as GAI
-import Game.Actor (EntityMap)
-import qualified Game.Actor as GA
 import qualified Game.Combat as GC
+import Game.Entity (EntityMap)
+import qualified Game.Entity as GE
 import qualified Game.Inventory as GI
 import qualified Game.Journal as GJ
 import Game.Kind.Entity (Entity(..), EntityKind(..))
@@ -33,7 +33,7 @@ import qualified Game.Tile as GT
 action :: Int -> Coord -> World -> World
 action ix pos w = let
   -- Look event
-  entry    = actionLook $ GA.getEntityBy pos (entityT w)
+  entry    = actionLook $ GE.getEntityBy pos (entityT w)
   -- Combat event
   newWorld = GC.mkCombat 0 ix w
   in newWorld { journalT = GJ.updateJournal [entry] (journalT newWorld) }
@@ -42,7 +42,7 @@ action ix pos w = let
 -- if there is a block...
 actionBump :: Coord -> EntityMap -> Int
 actionBump pos em = let
-  blockList = filter ((==pos).snd) $ GA.fromBlock em
+  blockList = filter ((==pos).snd) $ GE.fromBlock em
   in if null blockList
     then 0
     else fst $ head blockList
@@ -63,7 +63,7 @@ actionDirection input w = if starting w
   else let
     -- oldWorld
     newTick          = tick w + 1
-    (_, playerCoord) = GA.getPlayer (entityT w)
+    (_, playerCoord) = GE.getPlayer (entityT w)
     (heroX, heroY)   = playerCoord |+| dirToCoord input
     clampCoord       = clamp (heroX, heroY) (gridXY w)
     -- @ bump Combat
@@ -71,12 +71,12 @@ actionDirection input w = if starting w
     newCoord         = if bump < 1 then clampCoord else playerCoord
     -- newWorld from actionMove $ action
     newWorld         = actionMove $ action bump newCoord w
-    (pEntity, _)     = GA.getPlayer (entityT newWorld)
+    (pEntity, _)     = GE.getPlayer (entityT newWorld)
     run = if newCoord `elem` moveT pEntity
       then
       EAV.updateView $ newWorld {
       tick      = newTick
-      , entityT = GA.updatePlayerBy newCoord (entityT newWorld)
+      , entityT = GE.updatePlayerBy newCoord (entityT newWorld)
       , fovT    = EAV.mkView newCoord (gameT newWorld)
       , dirty   = True }
       else newWorld { tick = newTick, dirty = False }
@@ -87,8 +87,8 @@ actionDirection input w = if starting w
 actionGet :: World -> World
 actionGet w = let
   newTick = tick w + 1
-  (pEntity, pPos) = GA.getPlayer (entityT w)
-  items     = GA.getEntityBy pPos (entityT w)
+  (pEntity, pPos) = GE.getPlayer (entityT w)
+  items     = GE.getEntityBy pPos (entityT w)
   newPlayer = if not (null items)
     then GI.pickup items pEntity
     else pEntity
@@ -99,7 +99,7 @@ actionGet w = let
     then T.pack "Get..."
     else T.pack "..."
   in w { tick = newTick
-         , entityT = GA.updatePlayer newPlayer newEntity
+         , entityT = GE.updatePlayer newPlayer newEntity
          , journalT = GJ.updateJournal [entry] (journalT w) }
 
 -- | actionLook
@@ -112,22 +112,22 @@ actionLook xs = let
   in T.append look "..."
 
 -- | actionMove
--- Where can the Entity move? And then move the Entity.
+-- Where can the Entity move in relation to the Terrain?
+-- And then move the Entity in relation to the other Entities...
 actionMove :: World -> World
 actionMove w = let
   coordF :: [Coord] -> [Coord]
   coordF = filter (`notElem` hardT)
-  (_, pPos)  = GA.getPlayer (entityT w)
   hardT      = [ xy | (_, xy) <- GT.fromHard (gameT w) ]
-  blockT     = [ xy | (_, xy) <- GA.fromBlock (entityT w) ]
-  entityList = [ (ix, ek) | (e, ix) <- GA.fromEntityAt (entityT w),
+  entityList = [ (ix, ek) | (e, ix) <- GE.fromEntityAt (entityT w),
                  let ek = if block e -- Movable Entity
                        then let
                        move = coordF $ cardinal (coord e)
-                       pos  = GAI.pathFinder pPos move blockT e
-                       in e { coord = pos, moveT = move }
+                       in e { moveT = move }
                        else e ]
-  in w { entityT = Map.fromList entityList }
+  -- move w/ hardT
+  newWorld = w { entityT = Map.fromList entityList }
+  in GAI.pathFinder entityList newWorld
 
 -- | applyIntent
 -- Events applied to the World
@@ -162,7 +162,7 @@ resetWorld w = let
 -- | showCharacter
 showCharacter :: World -> World
 showCharacter w = let
-  (pEntity, _) = GA.getEntityAt 0 (entityT w)
+  (pEntity, _) = GE.getEntityAt 0 (entityT w)
   pProp = property pEntity
   pStr  = Map.findWithDefault "1" "str" pProp
   pDex  = Map.findWithDefault "1" "dex" pProp
@@ -187,7 +187,7 @@ showCharacter w = let
 -- | showInventory
 showInventory :: World -> World
 showInventory w = let
-  (pEntity, _) = GA.getEntityAt 0 (entityT w)
+  (pEntity, _) = GE.getEntityAt 0 (entityT w)
   pInv   = inventory pEntity
   pCoin  = Map.findWithDefault 0 "Coin"     pInv
   pMush  = Map.findWithDefault 0 "Mushroom" pInv

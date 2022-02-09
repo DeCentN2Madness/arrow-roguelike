@@ -7,8 +7,10 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 -}
 module Game.AI (pathFinder) where
 
+import Engine.Arrow.Data (World(..))
 import Data.List
-import Game.Kind.Entity (Entity(..), EntityKind(..))
+import qualified Game.Entity as GE
+import Game.Kind.Entity (EntityKind(..))
 
 distance :: (Int, Int) -> (Int, Int) -> Double
 distance (x1, y1) (x2, y2) = let
@@ -17,26 +19,28 @@ distance (x1, y1) (x2, y2) = let
   in sqrt (distX + distY)
 
 -- | pathFinder
+-- 0. Don't move the Player at 0
+-- 1. Distance from goal
+-- 2. Decide by distance
+-- 3. Check blockList
+-- 4. Update coord
 -- TODO goal is affected by hitPoint, patrol, status; npc, so on...
--- 1. distance from goal
--- 2. decide by distance
--- 3. check blockList
--- 4. update pos
-pathFinder :: (Int, Int)
-  -> [(Int, Int)]
-  -> [(Int, Int)]
-  -> EntityKind
-  -> (Int, Int)
-pathFinder goal move blockList ek = if kind ek == Actor
-  then coord ek
+pathFinder :: [(Int, EntityKind)] -> World -> World
+pathFinder [] w = w
+pathFinder ((mx, mEntity):xs) w = if mx == 0
+  then pathFinder xs w
   else let
   coordF :: [(Int, Int)] -> [(Int, Int)]
-  coordF = filter (`notElem` blockList)
-  distanceList = [ (d, xy) | xy <- move,
-                   let d = distance goal xy ]
-  -- filter based on +1 FoV
+  coordF = filter (`notElem` blockT)
+  blockT = [ xy | (_, xy) <- GE.fromBlock (entityT w) ]
+  (_, pPos) = GE.getPlayer (entityT w)
+  distanceList = [ (d, xy) | xy <- moveT mEntity,
+                  let d = distance pPos xy ]
   moveList = coordF $ [ xy | (d, pos) <- sort distanceList,
-               let xy = if d==1 || d > 4 then coord ek else pos ]
-  in if not (null moveList)
-  then head moveList
-  else coord ek
+                        let xy = if d==1 || d > 5 then coord mEntity else pos ]
+  move = if not (null moveList)
+    then head moveList
+    else coord mEntity
+  -- move w/ blockT
+  newWorld = w { entityT = GE.updateEntityPos mx move (entityT w) }
+  in pathFinder xs newWorld

@@ -1,8 +1,8 @@
 {-
 
-Game.Actor.hs
+Game.Entity.hs
 
-Game.Actor is the engine for the EntityKind.
+Game.Entity is the engine for the EntityKind.
 
 Example:
   getEntityAt uses the EntityMap by index Ix
@@ -11,7 +11,7 @@ Example:
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
 -}
-module Game.Actor(EntityMap
+module Game.Entity(EntityMap
                , fromBlock
                , fromEntityAt
                , fromEntityBy
@@ -21,6 +21,7 @@ module Game.Actor(EntityMap
                , insertEntity
                , mkEntityMap
                , updateEntityHp
+               , updateEntityPos
                , updatePlayerBy
                , updatePlayer) where
 

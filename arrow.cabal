@@ -29,10 +29,10 @@ library
                     , Engine.SDL.Event
                     , Engine.SDL.Util
                     , Game.AI
-                    , Game.Actor
                     , Game.Combat
                     , Game.DiceSet
                     , Game.Dungeon
+                    , Game.Entity
                     , Game.Journal
                     , Game.Inventory
                     , Game.Kind.Entity
@@ -69,10 +69,10 @@ executable Arrow
                     , Engine.SDL.Event
                     , Engine.SDL.Util
                     , Game.AI
-                    , Game.Actor
                     , Game.Combat
                     , Game.DiceSet
                     , Game.Dungeon
+                    , Game.Entity
                     , Game.Journal
                     , Game.Inventory
                     , Game.Kind.Entity

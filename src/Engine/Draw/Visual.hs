@@ -25,8 +25,8 @@ import Foreign.C.Types (CInt)
 import qualified SDL
 import Engine.Arrow.Data (World(..))
 import qualified Engine.SDL.Util as U
+import qualified Game.Entity as GE
 import Game.Kind.Entity (Entity(..), EntityKind(..))
-import qualified Game.Actor as GA
 import Game.Kind.Tile (Terrain(..))
 import qualified Game.Tile as GT
 
@@ -103,7 +103,7 @@ mkVisual VUnknown  ts = Visual (448, 0) (style ts) 32 36
 -- make the visual map to render
 mkVisualMap :: TextureMap -> World -> VisualMap
 mkVisualMap ts w = do
-  let actors = GA.fromEntityBy (entityT w)
+  let actors = GE.fromEntityBy (entityT w)
       walls  = GT.fromVisual (gameT w)
       seen   = filter (\(_, j) -> j `elem` fovT w) actors
       -- draw Terrain if Visible

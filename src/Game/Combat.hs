@@ -11,8 +11,8 @@ module Game.Combat (mkCombat) where
 import qualified Data.Map.Strict as Map
 import qualified Data.Text as T
 import Engine.Arrow.Data (World (..))
-import qualified Game.Actor as GA
 import qualified Game.DiceSet as DS
+import qualified Game.Entity as GE
 import qualified Game.Journal as GJ
 import Game.Kind.Entity (Entity(..), EntityKind(..))
 
@@ -38,8 +38,8 @@ mkCombat :: Int -> Int -> World -> World
 mkCombat px mx w = if px == mx
   then w
   else let
-    (pEntity, pPos) = GA.getEntityAt px (entityT w)
-    (mEntity, mPos) = GA.getEntityAt mx (entityT w)
+    (pEntity, pPos) = GE.getEntityAt px (entityT w)
+    (mEntity, mPos) = GE.getEntityAt mx (entityT w)
     -- random seed
     pSeed = (tick w + pHP*pHP) * uncurry (*) pPos :: Int
     mSeed = (tick w + mHP*mHP) * uncurry (*) mPos :: Int
@@ -82,7 +82,7 @@ mkCombat px mx w = if px == mx
     -- entity map with damages and deaths
     -- player is Invulnerable for now
     newEntity = if pAttack < 1
-      then GA.insertEntity mx mPos Corpse (entityT w)
-      else GA.updateEntityHp mx pAttack (entityT w)
-  in w { entityT  = GA.updateEntityHp px mAttack newEntity
+      then GE.insertEntity mx mPos Corpse (entityT w)
+      else GE.updateEntityHp mx pAttack (entityT w)
+  in w { entityT  = GE.updateEntityHp px mAttack newEntity
        , journalT = GJ.updateJournal [pEntry, mEntry] (journalT w) }

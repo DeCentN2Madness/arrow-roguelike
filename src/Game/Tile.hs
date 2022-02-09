@@ -19,7 +19,7 @@ module Game.Tile(fromHard
 import Data.Map (Map)
 import qualified Data.Map.Strict as Map
 import qualified Data.Vector as V
-import Game.Dungeon (Dungeon(..), Terrain(..))
+import Game.Dungeon (Dungeon(..))
 import Game.Kind.Tile
 
 type Coord = (Int, Int)

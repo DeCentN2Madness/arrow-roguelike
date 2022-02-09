@@ -24,9 +24,9 @@ import Foreign.C.Types (CInt)
 import qualified SDL
 import Engine.Arrow.Data (World(..))
 import qualified Engine.SDL.Util as U
-import Game.Dungeon (Terrain(..))
 import Game.Kind.Entity (Entity(..), EntityKind(..))
 import qualified Game.Actor as GA
+import Game.Kind.Tile (Terrain(..))
 import qualified Game.Tile as GT
 
 data AssetMap a = AssetMap

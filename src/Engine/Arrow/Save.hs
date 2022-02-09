@@ -16,7 +16,6 @@ import Data.Aeson
 import qualified Data.ByteString.Lazy.Char8 as L8
 import System.Directory
 import Engine.Arrow.Data (World)
-import Game.Dungeon ()
 import Game.Kind.Entity ()
 import Game.Kind.Tile ()
 

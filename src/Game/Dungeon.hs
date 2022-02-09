@@ -30,7 +30,7 @@ data Dungeon = Dungeon
   { dungeonWidth :: Int
   , dungeonHeight :: Int
   , dungeonTiles :: Vector Terrain
-  } deriving (Read, Show)
+  } deriving (Show)
 
 type Hall = Room
 data Orientation = Vertical | Horizontal deriving (Show)
@@ -42,7 +42,7 @@ data Terrain
   | Rubble
   | Magma
   | Rock
-  deriving (Read, Show, Eq, Generic)
+  deriving (Show, Eq, Generic)
 
 instance FromJSON Terrain
 instance ToJSON Terrain
@@ -206,8 +206,8 @@ setPoint :: PrimMonad m
   -> Room
   -> a
   -> m ()
-setPoint width vec (Room x1 y1 _ _) tile
-  = setBox width vec (Room x1 y1 x2 y2) tile
+setPoint width vec (Room x1 y1 _ _)
+  = setBox width vec (Room x1 y1 x2 y2)
   where
     x2 = x1 + 1
     y2 = y1 + 1

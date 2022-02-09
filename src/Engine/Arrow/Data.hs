@@ -15,8 +15,7 @@ import Data.Aeson
 import GHC.Generics
 import Game.Dungeon (rogueDungeon)
 import Game.Entity (EntityMap, mkEntityMap)
-import Game.Journal (TextMap)
-import qualified Game.Journal as GJ
+import Game.Journal (TextMap, mkTextMap, updateJournal)
 import Game.Tile (TileMap, mkTileMap)
 
 type Coord = (Int, Int)
@@ -91,13 +90,13 @@ mkWorld gen (width, height) xMax yMax = let
   (d, _) = rogueDungeon xMax yMax gen
   tm = mkTileMap d
   em = mkEntityMap tm
-  jm = GJ.updateJournal ["Welcome to Arrow...", "Catch the Mice..."] GJ.mkTextMap
+  jm = mkTextMap
   sx = 32.0 -- scaleXY based on tiles
   sy = 32.0
   in World { tick = 1
            , gameT = tm
            , entityT = em
-           , journalT = jm
+           , journalT = updateJournal ["Catch the Mice...", "Welcome to Arrow..."] jm
            , fovT = []
            , gridXY = (xMax, yMax)
            , cameraXY = (0.0, 0.0)

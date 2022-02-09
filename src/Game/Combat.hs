@@ -85,4 +85,4 @@ mkCombat px mx w = if px == mx
       then GE.insertEntity mx mPos Corpse (entityT w)
       else GE.updateEntityHp mx pAttack (entityT w)
   in w { entityT  = GE.updateEntityHp px mAttack newEntity
-       , journalT = GJ.updateJournal [pEntry, mEntry] (journalT w) }
+       , journalT = GJ.updateJournal [mEntry, pEntry] (journalT w) }

@@ -16,6 +16,7 @@ module Game.Tile(fromHard
                , mkTileMap
                , updateTileMap) where
 
+import Prelude hiding (lookup)
 import Data.Map (Map)
 import qualified Data.Map.Strict as Map
 import qualified Data.Vector as V

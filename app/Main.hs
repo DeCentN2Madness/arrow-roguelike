@@ -31,7 +31,6 @@ main = do
   world <- case d of
     Left err -> do { print err ; newIORef $ mkWorld gen (width, height) 80 50 }
     Right savedWorld -> newIORef savedWorld
-  --world <- newIORef $ mkWorld gen (width, height) 80 50
   U.withSDL $ U.withSDLFont $ U.withSDLImage $ do
     U.setHintQuality
     U.withWindow "Arrow" (width, height) $ \w ->

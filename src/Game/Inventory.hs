@@ -8,6 +8,7 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 module Game.Inventory (emptyBy
                        , pickup) where
 
+import Prelude hiding (lookup)
 import Control.Arrow ((&&&))
 import Data.List
 import qualified Data.Map.Strict as Map

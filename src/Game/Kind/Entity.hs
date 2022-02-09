@@ -12,6 +12,7 @@ module Game.Kind.Entity (Entity(..)
                         , mkEntity
                         , Properties) where
 
+import Prelude hiding (lookup)
 import Data.Aeson
 import Data.Map (Map)
 import GHC.Generics

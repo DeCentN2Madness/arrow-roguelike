@@ -41,8 +41,8 @@ mkCombat px mx w = if px == mx
     (pEntity, pPos) = GA.getEntityAt px (entityT w)
     (mEntity, mPos) = GA.getEntityAt mx (entityT w)
     -- random seed
-    pSeed = (tick w + pHP) * uncurry (*) pPos :: Int
-    mSeed = (tick w - mHP) * uncurry (*) mPos :: Int
+    pSeed = (tick w + pHP*pHP) * uncurry (*) pPos :: Int
+    mSeed = (tick w + mHP*mHP) * uncurry (*) mPos :: Int
     -- player
     pProp = property pEntity
     pStr = read $ Map.findWithDefault "1" "str" pProp :: Int

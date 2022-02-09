@@ -17,6 +17,7 @@ module Engine.Draw.Visual (assetPaths
                           , Visual(..)
                           , VisualMap) where
 
+import Prelude hiding (lookup)
 import Control.Monad.IO.Class (MonadIO)
 import Data.Map (Map)
 import qualified Data.Map.Strict as Map

@@ -12,10 +12,11 @@ module Engine.Arrow.Data where
 
 import Control.Monad.Random (StdGen)
 import Data.Aeson
-import Data.Text (Text)
 import GHC.Generics
 import Game.Actor (EntityMap, mkEntityMap)
 import Game.Dungeon (rogueDungeon)
+import Game.Journal (TextMap)
+import qualified Game.Journal as GJ
 import Game.Tile (TileMap, mkTileMap)
 
 type Coord = (Int, Int)
@@ -54,6 +55,7 @@ data World = World
   tick     :: !Int
   , gameT    :: !TileMap
   , entityT  :: !EntityMap
+  , journalT :: !TextMap
   , fovT     :: ![Coord]
   -- XY for Screen
   , gridXY   :: !Coord
@@ -61,7 +63,6 @@ data World = World
   , screenXY :: !(Double, Double)
   , scaleXY  :: !(Double, Double)
   -- GameStates
-  , journal  :: ![Text]
   , dirty    :: !Bool
   , starting :: !Bool
   , exiting  :: !Bool
@@ -73,8 +74,8 @@ instance ToJSON World where
     "tick"       .= tick
     , "gameT"    .= gameT
     , "entityT"  .= entityT
+    , "journalT" .= journalT
     , "fovT"     .= fovT
-    , "journal"  .= journal
     , "gridXY"   .= gridXY
     , "cameraXY" .= cameraXY
     , "screenXY" .= screenXY
@@ -90,13 +91,14 @@ mkWorld gen (width, height) xMax yMax = let
   (d, _) = rogueDungeon xMax yMax gen
   tm = mkTileMap d
   em = mkEntityMap tm
+  jm = GJ.updateJournal ["Welcome to Arrow...", "Catch the Mice..."] GJ.mkTextMap
   sx = 32.0 -- scaleXY based on tiles
   sy = 32.0
   in World { tick = 1
            , gameT = tm
            , entityT = em
+           , journalT = jm
            , fovT = []
-           , journal = ["Welcome to Arrow...", "Catch the Mice..."]
            , gridXY = (xMax, yMax)
            , cameraXY = (0.0, 0.0)
            , screenXY = (fromIntegral width, fromIntegral height)

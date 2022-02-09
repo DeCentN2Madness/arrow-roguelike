@@ -13,6 +13,7 @@ import qualified Data.Text as T
 import Engine.Arrow.Data (World (..))
 import qualified Game.Actor as GA
 import qualified Game.DiceSet as DS
+import qualified Game.Journal as GJ
 import Game.Kind.Entity (Entity(..), EntityKind(..))
 
 abilityMod :: Int -> Int
@@ -83,6 +84,5 @@ mkCombat px mx w = if px == mx
     newEntity = if pAttack < 1
       then GA.insertEntity mx mPos Corpse (entityT w)
       else GA.updateEntityHp mx pAttack (entityT w)
-    -- newWorld
-  in w { entityT = GA.updateEntityHp px mAttack newEntity
-       , journal = journal w ++ [pEntry, mEntry] }
+  in w { entityT  = GA.updateEntityHp px mAttack newEntity
+       , journalT = GJ.updateJournal [pEntry, mEntry] (journalT w) }

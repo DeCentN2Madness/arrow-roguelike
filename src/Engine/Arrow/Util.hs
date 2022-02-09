@@ -23,6 +23,7 @@ import Game.Actor (EntityMap)
 import qualified Game.Actor as GA
 import qualified Game.Combat as GC
 import qualified Game.Inventory as GI
+import qualified Game.Journal as GJ
 import Game.Kind.Entity (Entity(..), EntityKind(..))
 import qualified Game.Tile as GT
 
@@ -34,11 +35,7 @@ action ix pos w = let
   entry    = actionLook $ GA.getEntityBy pos (entityT w)
   -- Combat event
   newWorld = GC.mkCombat 0 ix w
-  -- final
-  final    = if last (journal newWorld) == entry
-    then journal newWorld
-    else journal newWorld ++ [entry]
-  in newWorld { journal = final }
+  in newWorld { journalT = GJ.updateJournal [entry] (journalT newWorld) }
 
 -- | actionBump
 -- if there is a block...
@@ -78,8 +75,8 @@ actionDirection input w = if starting w
       then
       EAV.updateView $ newWorld {
       tick      = newTick
-      , fovT    = EAV.mkView newCoord (gameT newWorld)
       , entityT = GA.updatePlayerBy newCoord (entityT newWorld)
+      , fovT    = EAV.mkView newCoord (gameT newWorld)
       , dirty   = True }
       else newWorld { tick = newTick, dirty = False }
   in EDC.updateCamera run
@@ -102,7 +99,7 @@ actionGet w = let
     else T.pack "..."
   in w { tick = newTick
          , entityT = GA.updatePlayer newPlayer newEntity
-         , journal = journal w ++ [entry] }
+         , journalT = GJ.updateJournal [entry] (journalT w) }
 
 -- | actionLook
 -- if there is something to see...
@@ -184,7 +181,7 @@ showCharacter w = let
       ++ pWis
       ++ ", HP="
       ++ show (hitPoint pEntity)
-  in w { journal = journal w ++ [pEntry] }
+  in w { journalT = GJ.updateJournal [pEntry] (journalT w) }
 
 -- | showInventory
 showInventory :: World -> World
@@ -201,10 +198,10 @@ showInventory w = let
     ++ show pMush
     ++ ", Potion="
     ++ show pPot
-  in w { journal = journal w ++ [pEntry] }
+  in w { journalT = GJ.updateJournal [pEntry] (journalT w) }
 
 -- | quitWorld
 -- handle exiting...
 quitWorld :: World -> World
-quitWorld w = w { journal = journal w ++ ["Saving Game..."]
+quitWorld w = w { journalT = GJ.updateJournal ["Saving Game..."] (journalT w)
                 , exiting = True }

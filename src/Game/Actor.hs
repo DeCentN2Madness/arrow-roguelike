@@ -24,6 +24,7 @@ module Game.Actor(EntityMap
                , updatePlayerBy
                , updatePlayer) where
 
+import Prelude hiding (lookup)
 import Data.Map (Map)
 import qualified Data.Map.Strict as Map
 import qualified Game.DiceSet as DS

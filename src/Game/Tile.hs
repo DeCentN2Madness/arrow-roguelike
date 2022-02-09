@@ -2,8 +2,8 @@
 
 Game.Tile.hs
 
-Game.Tile is the engine for the Tile Kind and mostly returns from the map
-in pattern of [(Terrain, Coord)]
+Game.Tile is the engine for the Tile Kind and returns from the Map
+w/ [(Terrain, Coord)]
 
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 

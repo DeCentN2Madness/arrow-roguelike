@@ -16,11 +16,12 @@ import qualified SDL
 import qualified SDL.Font
 import Engine.Arrow.Data (World(..))
 import qualified Engine.SDL.Util as U
+import Game.Journal (fromJournal)
 
 -- | drawText Textual the last 3 entries
 drawText :: SDL.Renderer -> World -> IO ()
 drawText r w = do
-  let logs = zip [0..2] $ filter (/="...") $ reverse $ journal w
+  let logs  = fromJournal [0..2] (journalT w)
   fn <- SDL.Font.load "./assets/fonts/Hack-Regular.ttf" 16
   forM_ logs $ \(i,j) -> do
     -- Color

@@ -33,6 +33,7 @@ library
                     , Game.Combat
                     , Game.DiceSet
                     , Game.Dungeon
+                    , Game.Journal
                     , Game.Inventory
                     , Game.Kind.Entity
                     , Game.Kind.Tile
@@ -72,6 +73,7 @@ executable Arrow
                     , Game.Combat
                     , Game.DiceSet
                     , Game.Dungeon
+                    , Game.Journal
                     , Game.Inventory
                     , Game.Kind.Entity
                     , Game.Kind.Tile

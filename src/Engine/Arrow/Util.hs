@@ -40,11 +40,12 @@ actionBump pos em = let
 -- | actionDirection the world will change with @input@
 --
 -- 1. clamp check the grid
--- 2. bumpAction checks Entity w/ block
--- 3. action handles activities in the World
--- 4. moveT checks valid moves
--- 5. updateView will create new FoV
--- 6. updateCamera w/ newWorld
+-- 2. actionBump checks Player w/ block
+-- 3. actionPlayer handles @ activities in the World
+-- 4. actionMove handles Entities activities in the Worl
+-- 5. moveT checks valid moves
+-- 6. updateView will create new FoV
+-- 7. updateCamera w/ newWorld
 actionDirection :: Direction -> World -> World
 actionDirection input w = if starting w
   then let
@@ -56,12 +57,12 @@ actionDirection input w = if starting w
     (_, playerCoord) = GE.getPlayer (entityT w)
     (heroX, heroY)   = playerCoord |+| dirToCoord input
     clampCoord       = clamp (heroX, heroY) (gridXY w)
-    -- @ bump Combat
+    -- @ Bump Event
     bump             = actionBump clampCoord (entityT w)
     newCoord         = if bump < 1 then clampCoord else playerCoord
-    -- newWorld from actionMove $ actionPlayer
     newWorld         = actionMove $ actionPlayer bump newCoord w
     (pEntity, _)     = GE.getPlayer (entityT newWorld)
+    -- newWorld
     run = if newCoord `elem` moveT pEntity
       then
       EAV.updateView $ newWorld {
@@ -78,14 +79,14 @@ actionGet :: World -> World
 actionGet w = let
   newTick = tick w + 1
   (pEntity, pPos) = GE.getPlayer (entityT w)
-  items     = GE.getEntityBy pPos (entityT w)
+  items = GE.getEntityBy pPos (entityT w)
   newPlayer = if not (null items)
     then GI.pickup items pEntity
     else pEntity
   newEntity = if not (null items)
     then GI.emptyBy pPos items (entityT w)
     else entityT w
-  entry     = if length items > 1
+  entry = if length items > 1
     then T.pack "Get..."
     else T.pack "..."
   in w { tick = newTick
@@ -126,7 +127,7 @@ actionMove w = let
 actionPlayer :: Int -> Coord -> World -> World
 actionPlayer ix pos w = let
   -- Look event
-  entry    = actionLook $ GE.getEntityBy pos (entityT w)
+  entry = actionLook $ GE.getEntityBy pos (entityT w)
   -- Combat event
   newWorld = GC.mkCombat 0 ix w
   in newWorld { journalT = GJ.updateJournal [entry] (journalT newWorld) }
@@ -182,7 +183,9 @@ showCharacter w = let
       ++ ", Wis="
       ++ pWis
       ++ ", HP="
-      ++ show (hitPoint pEntity)
+      ++ show (eHP pEntity)
+      ++ "/"
+      ++ show (eMaxHP pEntity)
   in w { journalT = GJ.updateJournal [pEntry] (journalT w) }
 
 -- | showInventory
@@ -200,6 +203,10 @@ showInventory w = let
     ++ show pMush
     ++ ", Potion="
     ++ show pPot
+    ++ ", Exp="
+    ++ show (eXP pEntity)
+    ++ ", Lvl="
+    ++ show (eLvl pEntity)
   in w { journalT = GJ.updateJournal [pEntry] (journalT w) }
 
 -- | quitWorld

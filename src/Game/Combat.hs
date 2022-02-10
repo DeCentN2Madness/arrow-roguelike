@@ -49,18 +49,20 @@ mkCombat px mx w = if px == mx
     pProp = property pEntity
     pStr  = read $ Map.findWithDefault "1" "str" pProp :: Int
     pDex  = read $ Map.findWithDefault "1" "dex" pProp :: Int
-    pHP   = hitPoint pEntity
+    pHP   = eHP pEntity
     pAR   = clamp $ DS.d20 pSeed + abilityMod pDex
     pDam  = clamp $ DS.d4 pSeed + abilityMod pStr
     -- mDR
     mProp = property mEntity
     mDex  = read $ Map.findWithDefault "1" "dex" mProp :: Int
+    mHP   = eHP mEntity
+    mExp  = eXP mEntity
     mDR   = 10 + abilityMod mDex
-    mHP   = hitPoint mEntity
     -- p v m
     pAttack = if pAR >= mDR
       then mHP - pDam
       else mHP -- Miss
+    -- journal
     mDeath = if pAttack < 1 then "Dead!" else "..."
     pEntry = T.pack $
       show (kind pEntity)
@@ -68,9 +70,9 @@ mkCombat px mx w = if px == mx
       ++ show (kind mEntity)
       ++ "! " ++ mDeath
     -- newEntity with damages and deaths
-    -- @ is invulnerable for now
-    newEntity = if pAttack < 1 && mx > 0
-      then GE.insertEntity mx mPos Corpse (entityT w)
+    -- Exp Award
+    newEntity = if pAttack < 1
+      then GE.insertEntity mx mPos Corpse $ GE.updatePlayerXP mExp (entityT w)
       else GE.updateEntityHp mx pAttack (entityT w)
   in w { entityT  = newEntity
        , journalT = GJ.updateJournal [pEntry] (journalT w) }

@@ -1,5 +1,5 @@
-{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE OverloadedStrings #-}
 {-
 
 Game.Kind.Entity.hs
@@ -34,58 +34,62 @@ data Entity
   | StairUp
   | Trap
   | Unknown
-  deriving (Show, Eq, Ord, Generic)
+  deriving (Show, Eq, Generic)
 
 instance FromJSON Entity
 instance ToJSON Entity
 
 data EntityKind = EntityKind
-  { coord        :: Coord
-  , block        :: Bool
-  , kind         :: Entity
-  , property     :: Properties
-  , inventory    :: Inventories
-  , hitPoint     :: Int
-  , moveT         :: [Coord] -- where can the Entity move?
+  { coord      :: Coord
+  , block      :: Bool
+  , kind       :: Entity
+  , moveT      :: [Coord] -- where can the Entity move?
+  , property   :: Properties
+  , inventory  :: Inventories
+  , eLvl       :: Int
+  , eHP        :: Int
+  , eMaxHP     :: Int
+  , eXP        :: Int
   } deriving (Show, Generic)
 
 instance FromJSON EntityKind
 instance ToJSON EntityKind
 
 defaultEK :: EntityKind
-defaultEK = EntityKind (0,0) False Unknown (mkProp "zero" "0") Map.empty 0 []
+defaultEK = EntityKind {
+  coord = (0,0)
+  , block = False
+  , kind = Unknown
+  , moveT = []
+  , property = mkProp "zero" "0"
+  , inventory = Map.empty
+  , eLvl = 0
+  , eHP = 0
+  , eMaxHP = 0
+  , eXP = 0
+  }
 
 -- | fighterProp
 fighterProp :: Properties
 fighterProp = let
-  std          = Map.toList $ mkProp "Player" "@"
-  strength     = 15 :: Int
-  dexterity    = 14 :: Int
-  constitution = 13 :: Int
-  intelligence = 12 :: Int
-  wisdom       = 10 :: Int
-  stats = [ ("str", show strength)
-          , ("int", show intelligence)
-          , ("dex", show dexterity)
-          , ("con", show constitution)
-          , ("wis", show wisdom)
+  std = Map.toList $ mkProp "Player" "@"
+  stats = [ ("str", "15")
+          , ("int", "14")
+          , ("dex", "13")
+          , ("con", "12")
+          , ("wis", "10")
           ] ++ std
   in Map.fromList stats
 
 -- | mouseProp
 mouseProp :: Properties
 mouseProp = let
-  std          = Map.toList $ mkProp "Mouse" "r"
-  strength     = 7  :: Int
-  dexterity    = 15 :: Int
-  constitution = 11 :: Int
-  intelligence = 2  :: Int
-  wisdom       = 10 :: Int
-  stats = [ ("str", show strength)
-          , ("int", show intelligence)
-          , ("dex", show dexterity)
-          , ("con", show constitution)
-          , ("wis", show wisdom)
+  std = Map.toList $ mkProp "Mouse" "r"
+  stats = [ ("str", "10")
+          , ("int", "15")
+          , ("dex", "11")
+          , ("con", "2")
+          , ("wis", "10")
           ] ++ std
   in Map.fromList stats
 
@@ -95,36 +99,49 @@ mkProp x y = Map.fromList [("Name", x), ("Desc", y)]
 
 -- | mkEntity
 mkEntity :: Entity -> Coord -> EntityKind
-mkEntity Actor xy     = let
+mkEntity Actor xy = let
   e = defaultEK
-  in e { coord=xy, block=True, kind=Actor, property=fighterProp, hitPoint=10 }
-mkEntity Coin xy      = let
+  in e { coord=xy
+       , block=True
+       , kind=Actor
+       , property=fighterProp
+       , eHP=10
+       , eMaxHP=10
+       , eLvl=1 }
+mkEntity Coin xy = let
   e = defaultEK
   in e { coord=xy, kind=Coin, property=mkProp "Coin" "$" }
-mkEntity Corpse xy    = let
+mkEntity Corpse xy = let
   e = defaultEK
   in e { coord=xy, kind=Corpse, property=mkProp "Corpse" "%" }
-mkEntity Item xy      = let
+mkEntity Item xy = let
   e = defaultEK
   in e { coord=xy, kind=Item, property=mkProp "Item" "[" }
-mkEntity Mouse xy     = let
+mkEntity Mouse xy = let
   e = defaultEK
-  in e { coord=xy, block=True, kind=Mouse, property=mouseProp, hitPoint=7 }
-mkEntity Mushroom xy  = let
+  in e { coord=xy
+       , block=True
+       , kind=Mouse
+       , property=mouseProp
+       , eHP=7
+       , eXP=35
+       , eLvl=1
+       }
+mkEntity Mushroom xy = let
   e = defaultEK
   in e { coord=xy, kind=Mushroom, property=mkProp "Mushroom" "," }
-mkEntity Potion xy    = let
+mkEntity Potion xy = let
   e = defaultEK
   in e { coord=xy, kind=Potion, property=mkProp "Potion" "!" }
 mkEntity StairDown xy = let
   e = defaultEK
   in e { coord=xy, kind=StairDown, property=mkProp "Stair" ">" }
-mkEntity StairUp xy   = let
+mkEntity StairUp xy = let
   e = defaultEK
   in e { coord=xy, kind=Trap, property=mkProp "Stair" "<" }
-mkEntity Trap xy      = let
+mkEntity Trap xy = let
   e = defaultEK
   in e { coord=xy, kind=Trap, property=mkProp "Trap" "^" }
-mkEntity Unknown xy   = let
+mkEntity Unknown xy = let
   e = defaultEK
   in e { coord=xy }

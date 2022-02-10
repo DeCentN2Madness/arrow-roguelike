@@ -1,12 +1,12 @@
 name:          arrow
-version:       0.2.0.0
+version:       0.2.1.0
 license:       MIT
 synopsis:      Haskell
 description:   tiny roguelike for the Hero '@'
 license-file:  LICENSE.md
 author:        Joel E Carlson
 maintainer:    "Joel E Carlson" <joel.elmer.carlson@gmail.com>
-category:      Productivity
+category:      Game
 cabal-version: >= 1.10
 build-type:    Simple
 

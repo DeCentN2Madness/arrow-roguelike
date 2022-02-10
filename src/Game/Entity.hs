@@ -23,7 +23,9 @@ module Game.Entity(EntityMap
                , updateEntityHp
                , updateEntityPos
                , updatePlayerBy
-               , updatePlayer) where
+               , updatePlayer
+               , updatePlayerXP
+               ) where
 
 import Prelude hiding (lookup)
 import Data.Map (Map)
@@ -103,7 +105,7 @@ mkEntityMap tm = let
 updateEntityHp :: Int -> Int -> EntityMap -> EntityMap
 updateEntityHp ix hp em = let
   (Just ek) = Map.lookup ix em
-  in Map.insert ix (ek { hitPoint = hp }) em
+  in Map.insert ix (ek { eHP = hp }) em
 
 -- | updateEntity at ix
 updateEntityPos :: Int -> Coord -> EntityMap -> EntityMap
@@ -130,3 +132,22 @@ updatePlayerBy = updateEntityPos 0
 -- | update @ properties
 updatePlayer :: EntityKind -> EntityMap -> EntityMap
 updatePlayer = Map.insert 0
+
+-- | updateEntityXP at ix
+updatePlayerXP :: Int -> EntityMap -> EntityMap
+updatePlayerXP xp em = let
+  (Just ek) = Map.lookup 0 em
+  pTot = eXP ek + xp
+  pLvl = xpLevel pTot
+  pHP = if pLvl > eLvl ek then pMaxHP else eHP ek
+  pMaxHP = pLvl * 10
+  in Map.insert 0 (ek { eLvl=pLvl, eHP=pHP, eMaxHP=pMaxHP, eXP=pTot }) em
+
+-- | xpLevel simple
+xpLevel :: Int -> Int
+xpLevel n
+  | n > 30  && n < 100 = 2
+  | n > 100 && n < 200 = 3
+  | n > 200 && n < 300 = 4
+  | n > 300 = 5
+  | otherwise = n

@@ -13,8 +13,8 @@ import qualified Game.Combat as GC
 import qualified Game.Entity as GE
 import Game.Kind.Entity (EntityKind(..))
 
-data AI = AI
-  | Attack
+data AI
+  = Attack
   | Move
   | Wait
   deriving (Show, Eq)
@@ -39,14 +39,13 @@ aiAction ((mx, mEntity):xs) w = if mx == 0 || not (block mEntity)
     Attack -> GC.mkCombat mx 0 w
     Move   -> w
     Wait   -> w
-    _      -> w
   in aiAction xs newWorld
 
 -- | distance
 distance :: (Int, Int) -> (Int, Int) -> Double
 distance (x1, y1) (x2, y2) = let
-  distX = fromIntegral $ (x1 - x2) * (x1 - x2)
-  distY = fromIntegral $ (y1 - y2) * (y1 - y2)
+  distX = fromIntegral $ (x2 - x1) * (x2 - x1)
+  distY = fromIntegral $ (y2 - y1) * (y2 - y1)
   in sqrt (distX + distY)
 
 -- | pathFinder

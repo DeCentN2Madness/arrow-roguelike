@@ -33,10 +33,10 @@ clamp n
 
 -- | mkCombat
 -- p v m
--- 1. toHit AR >= DR
--- 2. damage D4 + pStr
--- 3. record damage
--- 4. updateWorld
+-- 1. if pAR >= mDR then pDam
+-- 2. pDam is Weapon + pStr
+-- 3. mHP is recorder
+-- 4. updateWorld with deaths and corpses
 mkCombat :: Int -> Int -> World -> World
 mkCombat px mx w = if px == mx
   then w
@@ -44,20 +44,20 @@ mkCombat px mx w = if px == mx
     (pEntity, pPos) = GE.getEntityAt px (entityT w)
     (mEntity, mPos) = GE.getEntityAt mx (entityT w)
     -- random seed
-    pSeed = (tick w + pHP*pHP) * uncurry (*) pPos :: Int
-    -- p attacks
+    pSeed = (tick w + pHP*mHP) * uncurry (*) pPos :: Int
+    -- pAR and pDam
     pProp = property pEntity
     pStr  = read $ Map.findWithDefault "1" "str" pProp :: Int
     pDex  = read $ Map.findWithDefault "1" "dex" pProp :: Int
     pHP   = hitPoint pEntity
     pAR   = clamp $ DS.d20 pSeed + abilityMod pDex
     pDam  = clamp $ DS.d4 pSeed + abilityMod pStr
-    -- m defends
+    -- mDR
     mProp = property mEntity
     mDex  = read $ Map.findWithDefault "1" "dex" mProp :: Int
     mDR   = 10 + abilityMod mDex
     mHP   = hitPoint mEntity
-    -- attack
+    -- p v m
     pAttack = if pAR >= mDR
       then mHP - pDam
       else mHP -- Miss
@@ -68,7 +68,8 @@ mkCombat px mx w = if px == mx
       ++ show (kind mEntity)
       ++ "! " ++ mDeath
     -- newEntity with damages and deaths
-    newEntity = if pAttack < 1
+    -- @ is invulnerable for now
+    newEntity = if pAttack < 1 && mx > 0
       then GE.insertEntity mx mPos Corpse (entityT w)
       else GE.updateEntityHp mx pAttack (entityT w)
   in w { entityT  = newEntity

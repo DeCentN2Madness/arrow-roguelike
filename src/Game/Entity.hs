@@ -90,12 +90,12 @@ insertRand e start end openList = let
 mkEntityMap :: TileMap -> EntityMap
 mkEntityMap tm = let
   openList = tail $ [ pos | (_, pos) <- GT.fromOpen tm ]
-  junk = concat [insertRand  Mouse    1  20 openList
-                , insertRand Mushroom 21 30 openList
-                , insertRand Corpse   31 40 openList
-                , insertRand Potion   41 50 openList
-                , insertRand Coin     51 60 openList
-                , insertRand Unknown  61 70 openList
+  junk = concat [ insertRand  Mouse    1  10 openList
+                , insertRand Mushroom 11 20 openList
+                , insertRand Corpse   21 30 openList
+                , insertRand Potion   31 40 openList
+                , insertRand Coin     41 50 openList
+                , insertRand Unknown  51 60 openList
                 ]
   in insertPlayer tm (Map.fromList junk)
 

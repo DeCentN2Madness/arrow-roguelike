@@ -21,7 +21,7 @@ data AI = AI
 
 -- | aiAction
 -- handle actions based on goal
--- TODO goal is affected by hitPoint, patrol, status; npc, so on...
+-- TODO goal is affected by Entity condition
 aiAction :: [(Int, EntityKind)] -> World -> World
 aiAction [] w = w
 aiAction ((mx, mEntity):xs) w = if mx == 0 || not (block mEntity)
@@ -31,7 +31,7 @@ aiAction ((mx, mEntity):xs) w = if mx == 0 || not (block mEntity)
   distanceList = [ (d, xy) | xy <- moveT mEntity,
                   let d = distance pPos xy ]
   actionList   = [ x | (d, _) <- sort distanceList,
-                        let x = if d==1 then Attack else Wait ]
+                        let x = if d < 1 then Attack else Wait ]
   action = if not (null actionList)
     then head actionList
     else Wait

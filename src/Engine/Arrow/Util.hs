@@ -28,18 +28,8 @@ import qualified Game.Journal as GJ
 import Game.Kind.Entity (Entity(..), EntityKind(..))
 import qualified Game.Tile as GT
 
--- | action
--- handle the action within the World
-action :: Int -> Coord -> World -> World
-action ix pos w = let
-  -- Look event
-  entry    = actionLook $ GE.getEntityBy pos (entityT w)
-  -- Combat event
-  newWorld = GC.mkCombat 0 ix w
-  in newWorld { journalT = GJ.updateJournal [entry] (journalT newWorld) }
-
 -- | actionBump
--- if there is a block...
+-- if there is a bump...
 actionBump :: Coord -> EntityMap -> Int
 actionBump pos em = let
   blockList = filter ((==pos).snd) $ GE.fromBlock em
@@ -69,8 +59,8 @@ actionDirection input w = if starting w
     -- @ bump Combat
     bump             = actionBump clampCoord (entityT w)
     newCoord         = if bump < 1 then clampCoord else playerCoord
-    -- newWorld from actionMove $ action
-    newWorld         = actionMove $ action bump newCoord w
+    -- newWorld from actionMove $ actionPlayer
+    newWorld         = actionMove $ actionPlayer bump newCoord w
     (pEntity, _)     = GE.getPlayer (entityT newWorld)
     run = if newCoord `elem` moveT pEntity
       then
@@ -113,6 +103,7 @@ actionLook xs = let
 
 -- | actionMove
 -- 1. Where can the Entity move in relation to Terrain
+--    a. also applies to Player
 -- 2. pathFinder based on Entities
 -- 3. aiAction based on newWorld
 actionMove :: World -> World
@@ -129,6 +120,16 @@ actionMove w = let
   -- move w/ hardT
   newWorld = w { entityT = Map.fromList entityList }
   in GAI.aiAction entityList $ GAI.pathFinder entityList newWorld
+
+-- | actionPlayer
+-- handle the player within the World
+actionPlayer :: Int -> Coord -> World -> World
+actionPlayer ix pos w = let
+  -- Look event
+  entry    = actionLook $ GE.getEntityBy pos (entityT w)
+  -- Combat event
+  newWorld = GC.mkCombat 0 ix w
+  in newWorld { journalT = GJ.updateJournal [entry] (journalT newWorld) }
 
 -- | applyIntent
 -- Events applied to the World
@@ -202,7 +203,6 @@ showInventory w = let
   in w { journalT = GJ.updateJournal [pEntry] (journalT w) }
 
 -- | quitWorld
--- handle exiting...
 quitWorld :: World -> World
 quitWorld w = w { journalT = GJ.updateJournal ["Saving Game..."] (journalT w)
                 , exiting = True }

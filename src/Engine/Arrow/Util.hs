@@ -112,8 +112,9 @@ actionLook xs = let
   in T.append look "..."
 
 -- | actionMove
--- Where can the Entity move in relation to the Terrain?
--- And then move the Entity in relation to the other Entities...
+-- 1. Where can the Entity move in relation to Terrain
+-- 2. pathFinder based on Entities
+-- 3. aiAction based on newWorld
 actionMove :: World -> World
 actionMove w = let
   coordF :: [Coord] -> [Coord]
@@ -127,7 +128,7 @@ actionMove w = let
                        else e ]
   -- move w/ hardT
   newWorld = w { entityT = Map.fromList entityList }
-  in GAI.pathFinder entityList newWorld
+  in GAI.aiAction entityList $ GAI.pathFinder entityList newWorld
 
 -- | applyIntent
 -- Events applied to the World
@@ -150,8 +151,7 @@ applyIntent intent w = let
     _ -> w
   in newWorld
 
--- | reset the world and redraw the World
--- handle gameStates of restarting...
+-- | resetWorld and redraw the World
 resetWorld :: World -> World
 resetWorld w = let
   g = mkStdGen (tick w)

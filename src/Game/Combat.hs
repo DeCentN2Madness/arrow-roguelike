@@ -16,9 +16,11 @@ import qualified Game.Entity as GE
 import qualified Game.Journal as GJ
 import Game.Kind.Entity (Entity(..), EntityKind(..))
 
+-- | abilityMod
 abilityMod :: Int -> Int
 abilityMod n = (n-10) `div` 2
 
+-- | attack string
 attack :: Int -> Int -> String
 attack ar dr = if ar >= dr then " hits the " else " misses the "
 
@@ -30,8 +32,9 @@ clamp n
   | otherwise = n
 
 -- | mkCombat
--- 1. toHit D20 + AR > 10 + DR
--- 2. damage D4 + 2
+-- p v m
+-- 1. toHit AR >= DR
+-- 2. damage D4 + pStr
 -- 3. record damage
 -- 4. updateWorld
 mkCombat :: Int -> Int -> World -> World
@@ -42,47 +45,31 @@ mkCombat px mx w = if px == mx
     (mEntity, mPos) = GE.getEntityAt mx (entityT w)
     -- random seed
     pSeed = (tick w + pHP*pHP) * uncurry (*) pPos :: Int
-    mSeed = (tick w + mHP*mHP) * uncurry (*) mPos :: Int
-    -- player
+    -- p attacks
     pProp = property pEntity
-    pStr = read $ Map.findWithDefault "1" "str" pProp :: Int
-    pDex = read $ Map.findWithDefault "1" "dex" pProp :: Int
-    pDR = 10 + abilityMod pDex
-    pHP = hitPoint pEntity
-    pAR = clamp $ DS.d20 pSeed + abilityMod pDex
-    pDam = clamp $ DS.d4 pSeed + abilityMod pStr
-    -- monster
+    pStr  = read $ Map.findWithDefault "1" "str" pProp :: Int
+    pDex  = read $ Map.findWithDefault "1" "dex" pProp :: Int
+    pHP   = hitPoint pEntity
+    pAR   = clamp $ DS.d20 pSeed + abilityMod pDex
+    pDam  = clamp $ DS.d4 pSeed + abilityMod pStr
+    -- m defends
     mProp = property mEntity
-    mStr = read $ Map.findWithDefault "1" "str" mProp :: Int
-    mDex = read $ Map.findWithDefault "1" "dex" mProp :: Int
-    mDR = 12 :: Int
-    mHP = hitPoint mEntity
-    mAR = clamp $ DS.d20 mSeed + abilityMod mDex
-    mDam = clamp $ DS.d4 mSeed + abilityMod mStr
-    -- attacks
+    mDex  = read $ Map.findWithDefault "1" "dex" mProp :: Int
+    mDR   = 10 + abilityMod mDex
+    mHP   = hitPoint mEntity
+    -- attack
     pAttack = if pAR >= mDR
       then mHP - pDam
       else mHP -- Miss
-    mAttack = if mAR >= pDR
-      then pHP - mDam
-      else pHP -- Miss
-    -- journal entry with damages
-    pDeath = if mAttack < 1 then "Dead!" else "..."
     mDeath = if pAttack < 1 then "Dead!" else "..."
     pEntry = T.pack $
       show (kind pEntity)
       ++ attack pAR mDR
       ++ show (kind mEntity)
       ++ "! " ++ mDeath
-    mEntry = T.pack $
-      show (kind mEntity)
-      ++ attack mAR pDR
-      ++ show (kind pEntity)
-      ++ "! " ++ pDeath
-    -- entity map with damages and deaths
-    -- player is Invulnerable for now
+    -- newEntity with damages and deaths
     newEntity = if pAttack < 1
       then GE.insertEntity mx mPos Corpse (entityT w)
       else GE.updateEntityHp mx pAttack (entityT w)
-  in w { entityT  = GE.updateEntityHp px mAttack newEntity
-       , journalT = GJ.updateJournal [mEntry, pEntry] (journalT w) }
+  in w { entityT  = newEntity
+       , journalT = GJ.updateJournal [pEntry] (journalT w) }

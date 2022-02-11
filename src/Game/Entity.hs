@@ -75,13 +75,6 @@ insertEntity ix xy ek em = let
   e = mkEntity ek xy
   in Map.insert ix e em
 
--- | insert @ into the TileMap
-insertPlayer :: TileMap -> EntityMap -> EntityMap
-insertPlayer tm em = let
-  openList = [ pos | (_, pos) <- GT.fromOpen tm]
-  xy = head openList
-  in insertEntity 0 xy Actor em
-
 -- | insertRand all over the TileMap
 insertRand :: Entity -> Int -> Int -> [Coord] -> [(Int, EntityKind)]
 insertRand e start end openList = let
@@ -96,6 +89,7 @@ insertRand e start end openList = let
 mkEntityMap :: TileMap -> EntityMap
 mkEntityMap tm = let
   openList = tail $ [ pos | (_, pos) <- GT.fromOpen tm ]
+  p = mkEntity Actor (0, 0)
   junk = concat [ insertRand Mouse    1  10 openList
                 , insertRand Mushroom 11 20 openList
                 , insertRand Corpse   21 30 openList
@@ -103,7 +97,7 @@ mkEntityMap tm = let
                 , insertRand Coin     41 50 openList
                 , insertRand Unknown  51 60 openList
                 ]
-  in insertPlayer tm (Map.fromList junk)
+  in safeInsertEntity 0 p tm (Map.fromList junk)
 
 -- | insert @ into the TileMap
 safeInsertEntity :: Int -> EntityKind -> TileMap -> EntityMap -> EntityMap

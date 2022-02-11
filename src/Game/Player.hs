@@ -59,4 +59,4 @@ xpLevel n
   | n > 700 && n < 800  = 8
   | n > 900 && n < 1000 = 9
   | n > 1000            = 10
-  | otherwise = 1
+  | otherwise = n

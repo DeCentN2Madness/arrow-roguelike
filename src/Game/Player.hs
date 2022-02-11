@@ -50,9 +50,13 @@ updatePlayerXP xp em = let
 -- | xpLevel simple
 xpLevel :: Int -> Int
 xpLevel n
-  | n > 30  && n < 100 = 2
-  | n > 100 && n < 200 = 3
-  | n > 200 && n < 300 = 4
-  | n > 300 && n < 400 = 5
-  | n > 400 = 6
-  | otherwise = n
+  | n > 30  && n < 100  = 2
+  | n > 100 && n < 200  = 3
+  | n > 200 && n < 300  = 4
+  | n > 300 && n < 400  = 5
+  | n > 400 && n < 500  = 6
+  | n > 600 && n < 600  = 7
+  | n > 700 && n < 800  = 8
+  | n > 900 && n < 1000 = 9
+  | n > 1000            = 10
+  | otherwise = 1

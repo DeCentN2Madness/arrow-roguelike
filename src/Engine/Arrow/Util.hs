@@ -154,13 +154,16 @@ applyIntent intent w = let
     _ -> w
   in newWorld
 
--- | resetWorld and redraw the World
+-- | resetWorld, save the Player, and redraw the World
 resetWorld :: World -> World
 resetWorld w = let
   g = mkStdGen (tick w)
   (width, height) = screenXY w
   (row, col) = gridXY w
-  in mkWorld g (floor width, floor height) row col
+  (pEntity, _) = GP.getPlayer (entityT w)
+  world = mkWorld g (floor width, floor height) row col
+  in world {
+  entityT = GE.safeInsertEntity 0 pEntity (gameT world) (entityT world) }
 
 -- | showCharacter
 showCharacter :: World -> World

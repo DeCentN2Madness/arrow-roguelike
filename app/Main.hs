@@ -9,11 +9,10 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 module Main (main) where
 
 import Data.IORef
-import Control.Monad.Random (getStdGen)
 import Control.Monad.Extra (unless)
 import qualified SDL
-import Engine.Arrow.Data (mkWorld, World(..))
-import Engine.Arrow.Save (loadFile, saveFile, saveGame)
+import Engine.Arrow.Data (World(..))
+import Engine.Arrow.Save (loadFile, saveFile)
 import Engine.Arrow.Util (applyIntent)
 import Engine.Draw.Util (draw)
 import Engine.Draw.Visual (assetPaths, loadTextures, TextureMap)
@@ -26,11 +25,8 @@ width, height :: Int
 -- | main
 main :: IO ()
 main = do
-  gen <- getStdGen
-  d <- loadFile saveGame
-  world <- case d of
-    Left err -> do { print err ; newIORef $ mkWorld gen (width, height) 80 50 }
-    Right savedWorld -> newIORef savedWorld
+  saveWorld <- loadFile
+  world <- newIORef saveWorld
   U.withSDL $ U.withSDLFont $ U.withSDLImage $ do
     U.setHintQuality
     U.withWindow "Arrow" (width, height) $ \w ->
@@ -39,7 +35,7 @@ main = do
       mainLoop world r ts
       mapM_ (SDL.destroyTexture . fst) ts
   q <- readIORef world
-  saveFile saveGame q
+  saveFile q
 
 -- | mainLoop
 -- unless exiting

@@ -19,6 +19,7 @@ module Game.Entity(EntityMap
                , getEntityBy
                , insertEntity
                , mkEntityMap
+               , safeInsertEntity
                , updateEntityHp
                , updateEntityPos
                ) where
@@ -103,6 +104,15 @@ mkEntityMap tm = let
                 , insertRand Unknown  51 60 openList
                 ]
   in insertPlayer tm (Map.fromList junk)
+
+-- | insert @ into the TileMap
+safeInsertEntity :: Int -> EntityKind -> TileMap -> EntityMap -> EntityMap
+safeInsertEntity ix ek tm em = let
+  openList = [ pos | (_, pos) <- GT.fromOpen tm]
+  xy = if coord ek `elem` openList
+    then coord ek
+    else head openList
+  in Map.insert ix (ek { coord = xy }) em
 
 -- | updateEntity at ix
 updateEntityHp :: Int -> Int -> EntityMap -> EntityMap

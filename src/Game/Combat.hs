@@ -35,7 +35,7 @@ clamp n
 -- p v m
 -- 1. if pAR >= mDR then pDam
 -- 2. pDam is Weapon + pStr
--- 3. mHP is recorder
+-- 3. mHP is recorded
 -- 4. updateWorld with deaths and corpses
 mkCombat :: Int -> Int -> World -> World
 mkCombat px mx w = if px == mx

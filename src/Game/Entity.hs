@@ -15,16 +15,12 @@ module Game.Entity(EntityMap
                , fromBlock
                , fromEntityAt
                , fromEntityBy
-               , getPlayer
                , getEntityAt
                , getEntityBy
                , insertEntity
                , mkEntityMap
                , updateEntityHp
                , updateEntityPos
-               , updatePlayerBy
-               , updatePlayer
-               , updatePlayerXP
                ) where
 
 import Prelude hiding (lookup)
@@ -78,6 +74,13 @@ insertEntity ix xy ek em = let
   e = mkEntity ek xy
   in Map.insert ix e em
 
+-- | insert @ into the TileMap
+insertPlayer :: TileMap -> EntityMap -> EntityMap
+insertPlayer tm em = let
+  openList = [ pos | (_, pos) <- GT.fromOpen tm]
+  xy = head openList
+  in insertEntity 0 xy Actor em
+
 -- | insertRand all over the TileMap
 insertRand :: Entity -> Int -> Int -> [Coord] -> [(Int, EntityKind)]
 insertRand e start end openList = let
@@ -112,42 +115,3 @@ updateEntityPos :: Int -> Coord -> EntityMap -> EntityMap
 updateEntityPos ix pos em = let
   (Just ek) = Map.lookup ix em
   in Map.insert ix (ek { coord = pos }) em
-
--- | @ lives at 0
--- get Player
-getPlayer :: EntityMap -> (EntityKind, Coord)
-getPlayer = getEntityAt 0
-
--- | insert @ into the TileMap
-insertPlayer :: TileMap -> EntityMap -> EntityMap
-insertPlayer tm em = let
-  openList = [ pos | (_, pos) <- GT.fromOpen tm]
-  xy = head openList
-  in insertEntity 0 xy Actor em
-
--- | update @ position
-updatePlayerBy :: Coord -> EntityMap -> EntityMap
-updatePlayerBy = updateEntityPos 0
-
--- | update @ properties
-updatePlayer :: EntityKind -> EntityMap -> EntityMap
-updatePlayer = Map.insert 0
-
--- | updateEntityXP at ix
-updatePlayerXP :: Int -> EntityMap -> EntityMap
-updatePlayerXP xp em = let
-  (Just ek) = Map.lookup 0 em
-  pTot = eXP ek + xp
-  pLvl = xpLevel pTot
-  pHP = if pLvl > eLvl ek then pMaxHP else eHP ek
-  pMaxHP = pLvl * 10
-  in Map.insert 0 (ek { eLvl=pLvl, eHP=pHP, eMaxHP=pMaxHP, eXP=pTot }) em
-
--- | xpLevel simple
-xpLevel :: Int -> Int
-xpLevel n
-  | n > 30  && n < 100 = 2
-  | n > 100 && n < 200 = 3
-  | n > 200 && n < 300 = 4
-  | n > 300 = 5
-  | otherwise = n

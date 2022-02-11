@@ -12,6 +12,7 @@ import Data.List
 import qualified Game.Combat as GC
 import qualified Game.Entity as GE
 import Game.Kind.Entity (EntityKind(..))
+import qualified Game.Player as GP
 
 data AI
   = Attack
@@ -27,7 +28,7 @@ aiAction [] w = w
 aiAction ((mx, mEntity):xs) w = if mx == 0 || not (block mEntity)
   then aiAction xs w
   else let
-  (_, pPos) = GE.getPlayer (entityT w)
+  (_, pPos) = GP.getPlayer (entityT w)
   distanceList = [ (d, xy) | xy <- moveT mEntity,
                   let d = distance pPos xy ]
   actionList   = [ x | (d, _) <- sort distanceList,
@@ -63,7 +64,7 @@ pathFinder ((mx, mEntity):xs) w = if mx == 0 || not (block mEntity)
   coordF :: [(Int, Int)] -> [(Int, Int)]
   coordF = filter (`notElem` blockT)
   blockT = [ xy | (_, xy) <- GE.fromBlock (entityT w) ]
-  (_, pPos) = GE.getPlayer (entityT w)
+  (_, pPos) = GP.getPlayer (entityT w)
   distanceList = [ (d, xy) | xy <- moveT mEntity,
                   let d = distance pPos xy ]
   moveList = coordF $ [ xy | (d, pos) <- sort distanceList,

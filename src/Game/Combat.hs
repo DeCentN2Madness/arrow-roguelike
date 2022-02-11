@@ -15,6 +15,7 @@ import qualified Game.DiceSet as DS
 import qualified Game.Entity as GE
 import qualified Game.Journal as GJ
 import Game.Kind.Entity (Entity(..), EntityKind(..))
+import qualified Game.Player as GP
 
 -- | abilityMod
 abilityMod :: Int -> Int
@@ -72,7 +73,7 @@ mkCombat px mx w = if px == mx
     -- newEntity with damages and deaths
     -- Exp Award
     newEntity = if pAttack < 1
-      then GE.insertEntity mx mPos Corpse $ GE.updatePlayerXP mExp (entityT w)
+      then GE.insertEntity mx mPos Corpse $ GP.updatePlayerXP mExp (entityT w)
       else GE.updateEntityHp mx pAttack (entityT w)
   in w { entityT  = newEntity
        , journalT = GJ.updateJournal [pEntry] (journalT w) }

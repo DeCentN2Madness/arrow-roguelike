@@ -25,7 +25,8 @@ import Game.Entity (EntityMap)
 import qualified Game.Entity as GE
 import qualified Game.Inventory as GI
 import qualified Game.Journal as GJ
-import Game.Kind.Entity (Entity(..), EntityKind(..))
+import Game.Kind.Entity (EntityKind(..))
+import qualified Game.Player as GP
 import qualified Game.Tile as GT
 
 -- | actionBump
@@ -54,20 +55,20 @@ actionDirection input w = if starting w
   else let
     -- oldWorld
     newTick          = tick w + 1
-    (_, playerCoord) = GE.getPlayer (entityT w)
+    (_, playerCoord) = GP.getPlayer (entityT w)
     (heroX, heroY)   = playerCoord |+| dirToCoord input
     clampCoord       = clamp (heroX, heroY) (gridXY w)
     -- @ Bump Event
     bump             = actionBump clampCoord (entityT w)
     newCoord         = if bump < 1 then clampCoord else playerCoord
     newWorld         = actionMove $ actionPlayer bump newCoord w
-    (pEntity, _)     = GE.getPlayer (entityT newWorld)
+    (pEntity, _)     = GP.getPlayer (entityT newWorld)
     -- newWorld
     run = if newCoord `elem` moveT pEntity
       then
       EAV.updateView $ newWorld {
       tick      = newTick
-      , entityT = GE.updatePlayerBy newCoord (entityT newWorld)
+      , entityT = GP.updatePlayerBy newCoord (entityT newWorld)
       , fovT    = EAV.mkView newCoord (gameT newWorld)
       , dirty   = True }
       else newWorld { tick = newTick, dirty = False }
@@ -78,7 +79,7 @@ actionDirection input w = if starting w
 actionGet :: World -> World
 actionGet w = let
   newTick = tick w + 1
-  (pEntity, pPos) = GE.getPlayer (entityT w)
+  (pEntity, pPos) = GP.getPlayer (entityT w)
   items = GE.getEntityBy pPos (entityT w)
   newPlayer = if not (null items)
     then GI.pickup items pEntity
@@ -90,7 +91,7 @@ actionGet w = let
     then T.pack "Get..."
     else T.pack "..."
   in w { tick = newTick
-         , entityT = GE.updatePlayer newPlayer newEntity
+         , entityT = GP.updatePlayer newPlayer newEntity
          , journalT = GJ.updateJournal [entry] (journalT w) }
 
 -- | actionLook
@@ -98,7 +99,7 @@ actionGet w = let
 actionLook :: [(EntityKind, Coord)] -> Text
 actionLook xs = let
   look = T.concat [ t | (ek, _) <- xs,
-                    let t = if kind ek /= Actor then
+                    let t = if not (block ek) then
                           T.pack $ "See " ++ show (kind ek) ++ ", " else "" ]
   in T.append look "..."
 
@@ -164,7 +165,7 @@ resetWorld w = let
 -- | showCharacter
 showCharacter :: World -> World
 showCharacter w = let
-  (pEntity, _) = GE.getEntityAt 0 (entityT w)
+  (pEntity, _) = GP.getPlayer (entityT w)
   pProp = property pEntity
   pStr  = Map.findWithDefault "1" "str" pProp
   pDex  = Map.findWithDefault "1" "dex" pProp
@@ -191,7 +192,7 @@ showCharacter w = let
 -- | showInventory
 showInventory :: World -> World
 showInventory w = let
-  (pEntity, _) = GE.getEntityAt 0 (entityT w)
+  (pEntity, _) = GP.getPlayer(entityT w)
   pInv   = inventory pEntity
   pCoin  = Map.findWithDefault 0 "Coin"     pInv
   pMush  = Map.findWithDefault 0 "Mushroom" pInv

@@ -33,10 +33,11 @@ library
                     , Game.DiceSet
                     , Game.Dungeon
                     , Game.Entity
-                    , Game.Journal
                     , Game.Inventory
+                    , Game.Journal
                     , Game.Kind.Entity
                     , Game.Kind.Tile
+                    , Game.Player
                     , Game.Tile
   build-depends:    base
                     , aeson
@@ -73,10 +74,11 @@ executable Arrow
                     , Game.DiceSet
                     , Game.Dungeon
                     , Game.Entity
-                    , Game.Journal
                     , Game.Inventory
+                    , Game.Journal
                     , Game.Kind.Entity
                     , Game.Kind.Tile
+                    , Game.Player
                     , Game.Tile
   hs-source-dirs:   app
                     , src

@@ -106,7 +106,11 @@ safeInsertEntity ix ek tm em = let
   xy = if coord ek `elem` openList
     then coord ek
     else head openList
-  in Map.insert ix (ek { coord = xy }) em
+  -- dead Player
+  newEntity = if kind ek == Corpse
+    then mkEntity Actor xy
+    else ek
+  in Map.insert ix (newEntity { coord = xy }) em
 
 -- | updateEntity at ix
 updateEntityHp :: Int -> Int -> EntityMap -> EntityMap

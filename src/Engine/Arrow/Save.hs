@@ -23,7 +23,7 @@ import qualified Game.Entity as GE
 import qualified Game.Player as GP
 
 width, height :: Int
-(width, height) = (640, 480)
+(width, height) = (1024, 768)
 
 -- | loadFile
 loadFile :: IO World

@@ -28,7 +28,7 @@ data Colour = White | Red | Blue | Green | Yellow
 -- | draw main drawing loop
 draw :: SDL.Renderer -> TextureMap -> World -> IO ()
 draw r ts w = do
-  let hudHt = snd (screenXY w) - 75
+  let hudHt = snd (screenXY w) - 100
   setColor r White
   SDL.clear r
   -- Background

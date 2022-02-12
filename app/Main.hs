@@ -20,7 +20,7 @@ import Engine.SDL.Event (mkIntent)
 import qualified Engine.SDL.Util as U
 
 width, height :: Int
-(width, height) = (640, 480)
+(width, height) = (1024, 768)
 
 -- | main
 main :: IO ()

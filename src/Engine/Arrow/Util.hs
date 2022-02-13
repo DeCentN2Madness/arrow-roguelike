@@ -25,7 +25,7 @@ import Game.Entity (EntityMap)
 import qualified Game.Entity as GE
 import qualified Game.Inventory as GI
 import qualified Game.Journal as GJ
-import Game.Kind.Entity (Entity(..), EntityKind(..))
+import Game.Kind.Entity (EntityKind(..))
 import qualified Game.Player as GP
 import qualified Game.Tile as GT
 
@@ -89,13 +89,14 @@ actionGet w = let
          , journalT = GJ.updateJournal [entry] (journalT w) }
 
 -- | actionHear
--- if there is something to see...
+-- if there is something to hear...
 actionHear :: EntityMap -> Coord -> Text
 actionHear em listen = let
-  hear = T.concat [ t | (i, pos) <- GE.fromBlock em,
-                    let t = if i > 0 && GAI.distance pos listen < 6
-                          then T.pack $ "Something moved id=" ++ show i
-                          else "" ]
+  hear = T.concat [ t | (ix, pos) <- GE.fromBlock em,
+                    let t = if ix > 0 && (d > 4 && d < 7)
+                          then T.pack "Something moved, "
+                          else ""
+                        d = GAI.distance pos listen ]
   in T.append hear "..."
 
 -- | actionLook
@@ -128,7 +129,7 @@ actionMonster w = let
   in GAI.aiAction entityList $ GAI.pathFinder entityList newWorld
 
 -- | actionPlayer
--- handle the player within the World
+-- handle the Player within the World
 actionPlayer :: Coord -> World -> World
 actionPlayer pos w = let
   (pEntity, pPos) = GP.getPlayer (entityT w)

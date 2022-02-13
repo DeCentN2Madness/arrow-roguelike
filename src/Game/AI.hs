@@ -5,7 +5,7 @@ Game.AI.hs
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
 -}
-module Game.AI (aiAction, pathFinder) where
+module Game.AI (aiAction, distance, pathFinder) where
 
 import Engine.Arrow.Data (World(..))
 import Data.List

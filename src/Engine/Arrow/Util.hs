@@ -25,7 +25,7 @@ import Game.Entity (EntityMap)
 import qualified Game.Entity as GE
 import qualified Game.Inventory as GI
 import qualified Game.Journal as GJ
-import Game.Kind.Entity (EntityKind(..))
+import Game.Kind.Entity (Entity(..), EntityKind(..))
 import qualified Game.Player as GP
 import qualified Game.Tile as GT
 
@@ -88,6 +88,16 @@ actionGet w = let
          , entityT = GP.updatePlayer newPlayer newEntity
          , journalT = GJ.updateJournal [entry] (journalT w) }
 
+-- | actionHear
+-- if there is something to see...
+actionHear :: EntityMap -> Coord -> Text
+actionHear em listen = let
+  hear = T.concat [ t | (i, pos) <- GE.fromBlock em,
+                    let t = if i > 0 && GAI.distance pos listen < 6
+                          then T.pack $ "Something moved id=" ++ show i
+                          else "" ]
+  in T.append hear "..."
+
 -- | actionLook
 -- if there is something to see...
 actionLook :: [(EntityKind, Coord)] -> Text
@@ -126,19 +136,21 @@ actionPlayer pos w = let
   bump = actionBump pos (entityT w)
   bumpCoord = if bump < 1 then pos else pPos
   -- Move event
-  newCoord = if bumpCoord `elem` moveT pEntity then bumpCoord else pPos
-  moveWorld = w { entityT = GP.updatePlayerBy newCoord (entityT w) }
+  newCoord   = if bumpCoord `elem` moveT pEntity then bumpCoord else pPos
+  moveWorld  = w { entityT = GP.updatePlayerBy newCoord (entityT w) }
   -- Look event
-  entry = actionLook $ GE.getEntityBy newCoord (entityT moveWorld)
+  look = actionLook $ GE.getEntityBy newCoord (entityT moveWorld)
+  -- Hear event
+  listen = actionHear (entityT moveWorld) newCoord
   -- Combat event
   newWorld = if bump > 0 then GC.mkCombat 0 bump moveWorld else moveWorld
   -- XP event
   (player, _) = GP.getPlayer (entityT newWorld)
-  xpEntry = if eLvl player > eLvl pEntity
+  learn = if eLvl player > eLvl pEntity
     then T.pack $ "Welcome to Level " ++ show (eLvl player) ++ "..."
     else "..."
   in newWorld {
-  journalT = GJ.updateJournal [entry, xpEntry] (journalT newWorld) }
+  journalT = GJ.updateJournal [look, listen, learn] (journalT newWorld) }
 
 -- | applyIntent
 -- Events applied to the World

@@ -40,13 +40,10 @@ actionBump pos em = let
 
 -- | actionDirection the world will change with @input@
 --
--- 1. clamp check the grid
--- 2. actionBump checks Player w/ block
--- 3. actionPlayer handles @ activities in the World
--- 4. actionMove handles Entities activities in the Worl
--- 5. moveT checks valid moves
--- 6. updateView will create new FoV
--- 7. updateCamera w/ newWorld
+-- 1. clampCoord checks the input vs grid
+-- 2. actionPlayer handles @ events in the world
+-- 3. actionMonster handles M events in the World
+-- 4. if @ moved then update FoV and Camera
 actionDirection :: Direction -> World -> World
 actionDirection input w = if starting w
   then let
@@ -58,24 +55,20 @@ actionDirection input w = if starting w
     (_, playerCoord) = GP.getPlayer (entityT w)
     (heroX, heroY)   = playerCoord |+| dirToCoord input
     clampCoord       = clamp (heroX, heroY) (gridXY w)
-    -- @ Bump Event
-    bump             = actionBump clampCoord (entityT w)
-    newCoord         = if bump < 1 then clampCoord else playerCoord
-    newWorld         = actionMove $ actionPlayer bump newCoord w
-    (pEntity, _)     = GP.getPlayer (entityT newWorld)
-    -- newWorld
-    run = if newCoord `elem` moveT pEntity
+    -- newWorld from Monster && Player Events
+    newWorld         = actionMonster $ actionPlayer clampCoord w
+    (_, pPos) = GP.getPlayer (entityT newWorld)
+    run = if pPos == clampCoord
       then
       EAV.updateView $ newWorld {
       tick      = newTick
-      , entityT = GP.updatePlayerBy newCoord (entityT newWorld)
-      , fovT    = EAV.mkView newCoord (gameT newWorld)
+      , fovT    = EAV.mkView pPos (gameT newWorld)
       , dirty   = True }
       else newWorld { tick = newTick, dirty = False }
   in EDC.updateCamera run
 
 -- | actionGet
--- if there is something to pickup...
+-- if there is something to get...
 actionGet :: World -> World
 actionGet w = let
   newTick = tick w + 1
@@ -88,7 +81,8 @@ actionGet w = let
     then GI.emptyBy pPos items (entityT w)
     else entityT w
   entry = if length items > 1
-    then T.pack "Get..."
+    then let
+      in T.append "Get " (actionLook $ tail items)
     else T.pack "..."
   in w { tick = newTick
          , entityT = GP.updatePlayer newPlayer newEntity
@@ -100,16 +94,16 @@ actionLook :: [(EntityKind, Coord)] -> Text
 actionLook xs = let
   look = T.concat [ t | (ek, _) <- xs,
                     let t = if not (block ek) then
-                          T.pack $ "See " ++ show (kind ek) ++ ", " else "" ]
+                          T.pack $ show (kind ek) ++ ", " else "" ]
   in T.append look "..."
 
--- | actionMove
+-- | actionMonster
 -- 1. Where can the Entity move in relation to Terrain
 --    a. also applies to Player
 -- 2. pathFinder based on Entities
 -- 3. aiAction based on newWorld
-actionMove :: World -> World
-actionMove w = let
+actionMonster :: World -> World
+actionMonster w = let
   coordF :: [Coord] -> [Coord]
   coordF = filter (`notElem` hardT)
   hardT      = [ xy | (_, xy) <- GT.fromHard (gameT w) ]
@@ -125,13 +119,26 @@ actionMove w = let
 
 -- | actionPlayer
 -- handle the player within the World
-actionPlayer :: Int -> Coord -> World -> World
-actionPlayer ix pos w = let
+actionPlayer :: Coord -> World -> World
+actionPlayer pos w = let
+  (pEntity, pPos) = GP.getPlayer (entityT w)
+  -- Bump event
+  bump = actionBump pos (entityT w)
+  bumpCoord = if bump < 1 then pos else pPos
+  -- Move event
+  newCoord = if bumpCoord `elem` moveT pEntity then bumpCoord else pPos
+  moveWorld = w { entityT = GP.updatePlayerBy newCoord (entityT w) }
   -- Look event
-  entry = actionLook $ GE.getEntityBy pos (entityT w)
+  entry = actionLook $ GE.getEntityBy newCoord (entityT moveWorld)
   -- Combat event
-  newWorld = GC.mkCombat 0 ix w
-  in newWorld { journalT = GJ.updateJournal [entry] (journalT newWorld) }
+  newWorld = if bump > 0 then GC.mkCombat 0 bump moveWorld else moveWorld
+  -- XP event
+  (player, _) = GP.getPlayer (entityT newWorld)
+  xpEntry = if eLvl player > eLvl pEntity
+    then T.pack $ "Welcome to Level " ++ show (eLvl player) ++ "..."
+    else "..."
+  in newWorld {
+  journalT = GJ.updateJournal [entry, xpEntry] (journalT newWorld) }
 
 -- | applyIntent
 -- Events applied to the World
@@ -161,9 +168,9 @@ resetWorld w = let
   (width, height) = screenXY w
   (row, col) = gridXY w
   (pEntity, _) = GP.getPlayer (entityT w)
-  world = mkWorld g (floor width, floor height) row col
-  in world {
-  entityT = GE.safeInsertEntity 0 pEntity (gameT world) (entityT world) }
+  newWorld = mkWorld g (floor width, floor height) row col
+  in newWorld {
+  entityT = GE.safeInsertEntity 0 pEntity (gameT newWorld) (entityT newWorld) }
 
 -- | showCharacter
 showCharacter :: World -> World

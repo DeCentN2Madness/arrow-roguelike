@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedStrings #-}
 {-
 
 Game.Player.hs
@@ -10,14 +11,17 @@ Example: getPlayer returns the Player from the EntityMap
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
 -}
-module Game.Player(getPlayer
-               , updatePlayerBy
-               , updatePlayer
-               , updatePlayerXP
-               ) where
+module Game.Player(characterSheet
+                   , getPlayer
+                   , updatePlayerBy
+                   , updatePlayer
+                   , updatePlayerXP
+                   ) where
 
 import Prelude hiding (lookup)
 import qualified Data.Map.Strict as Map
+import Data.Text (Text)
+import qualified Data.Text as T
 import Game.Entity (EntityMap)
 import qualified Game.Entity as GE
 import Game.Kind.Entity (EntityKind(..))
@@ -28,6 +32,20 @@ type Player = EntityKind
 -- | abilityMod
 abilityMod :: Int -> Int
 abilityMod n = (n-10) `div` 2
+
+characterSheet :: EntityMap -> [Text]
+characterSheet em = let
+  (pEntity, _) = getPlayer em
+  pProp = property pEntity
+  pStr  = T.pack $ "Str: " ++ Map.findWithDefault "1" "str" pProp
+  pDex  = T.pack $ "Dex: " ++ Map.findWithDefault "1" "dex" pProp
+  pCon  = T.pack $ "Con: " ++ Map.findWithDefault "1" "con" pProp
+  pInt  = T.pack $ "Int: " ++ Map.findWithDefault "1" "int" pProp
+  pWis  = T.pack $ "Wis: " ++ Map.findWithDefault "1" "wis" pProp
+  pLvl  = T.pack $ "Level " ++ show (eLvl pEntity)
+  pExp  = T.pack $ "Exp: " ++ show (eXP pEntity)
+  pHP   = T.pack $ "HP: " ++ show (eHP pEntity) ++ "/" ++ show (eMaxHP pEntity)
+  in [ "Player", pLvl, pExp, pStr, pDex, pCon, pInt, pWis, pHP ]
 
 -- | @ lives at 0
 -- get Player

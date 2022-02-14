@@ -17,18 +17,21 @@ import qualified SDL.Font
 import Engine.Arrow.Data (World(..))
 import qualified Engine.SDL.Util as U
 import Game.Journal (fromJournal)
+import Game.Player (characterSheet)
 
 -- | drawText Textual the last 5 entries
 drawText :: SDL.Renderer -> World -> IO ()
 drawText r w = do
   let logs  = fromJournal [0..4] (journalT w)
+      cs    = zip [0..] $ characterSheet (entityT w)
+      -- Color
+      color x
+        | T.any (=='!') x = red
+        | T.any (=='@') x = blue
+        | otherwise = black
   fn <- SDL.Font.load "./assets/fonts/Hack-Regular.ttf" 16
-  forM_ logs $ \(i,j) -> do
-    -- Color
-    let color x
-          | T.any (=='!') x = red
-          | T.any (=='@') x = blue
-          | otherwise = black
+  -- Journal
+  forM_ logs $ \(i, j) -> do
     -- Text
     tx <- SDL.Font.blended fn (color j) j
     sz <- SDL.Font.size fn j
@@ -36,6 +39,16 @@ drawText r w = do
     -- HUD
     let hudT = snd (screenXY w) - fromIntegral (snd sz  + (i * snd sz))
     renderText r rt sz (5, hudT)
+    -- Cleanup
+    SDL.freeSurface tx
+    SDL.destroyTexture rt
+  -- Character Sheet
+  forM_ cs $ \(i, j) -> do
+    tx <- SDL.Font.blended fn green j
+    sz <- SDL.Font.size fn j
+    rt <- SDL.createTextureFromSurface r tx
+    let charT = fromIntegral (snd sz + (i * snd sz)) :: Double
+    renderText r rt sz (5.0, charT)
     -- Cleanup
     SDL.freeSurface tx
     SDL.destroyTexture rt

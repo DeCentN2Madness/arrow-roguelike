@@ -11,13 +11,12 @@ Example: getPlayer returns the Player from the EntityMap
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
 -}
-module Game.Player(characterSheet
+module Game.Player (characterSheet
                    , characterInventory
                    , getPlayer
                    , updatePlayerBy
                    , updatePlayer
-                   , updatePlayerXP
-                   ) where
+                   , updatePlayerXP) where
 
 import Prelude hiding (lookup)
 import qualified Data.Map.Strict as Map

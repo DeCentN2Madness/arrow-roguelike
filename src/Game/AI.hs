@@ -5,7 +5,8 @@ Game.AI.hs
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
 -}
-module Game.AI (aiAction
+module Game.AI (adjacent
+               , aiAction
                , chessDist
                , distance
                , pathFinder) where
@@ -34,10 +35,10 @@ aiAction ((mx, mEntity):xs) w = if mx == 0 || not (block mEntity)
   then aiAction xs w
   else let
   (_, pPos) = GP.getPlayer (entityT w)
-  distanceList = [ (d, xy) | xy <- moveT mEntity,
-                  let d = distance pPos xy ]
-  actionList   = [ x | (d, _) <- sort distanceList,
-                        let x = if d < 1 then Attack else Wait ]
+  actionList = [ x | xy <- moveT mEntity,
+                 let x = if adjacent xy pPos
+                       then Attack
+                       else Wait ]
   action = if not (null actionList)
     then head actionList
     else Wait
@@ -46,6 +47,11 @@ aiAction ((mx, mEntity):xs) w = if mx == 0 || not (block mEntity)
     Move   -> w
     Wait   -> w
   in aiAction xs newWorld
+
+-- | adjacent -- checks whether two points are adjacent
+adjacent :: Point -> Point -> Bool
+{-# INLINE adjacent #-}
+adjacent s t = chessDist s t == 1
 
 -- | chessDist - Chess distance between two points.
 chessDist :: Point -> Point -> Int
@@ -77,7 +83,9 @@ pathFinder ((mx, mEntity):xs) w = if mx == 0 || not (block mEntity)
   distanceList = [ (d, xy) | xy <- moveT mEntity,
                   let d = chessDist pPos xy ]
   moveList = coordF $ [ xy | (d, pos) <- sort distanceList,
-                        let xy = if d==0 || d > 5 then coord mEntity else pos ]
+                        let xy = if adjacent pos pPos || d > 5
+                              then coord mEntity
+                              else pos ]
   move = if not (null moveList)
     then head moveList
     else coord mEntity

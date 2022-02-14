@@ -8,7 +8,7 @@ Game.Journal is round-robin Text returns from the Map w/ [(ix, Text)]
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
 -}
-module Game.Journal(fromJournal
+module Game.Journal (fromJournal
                , mkTextMap
                , TextMap
                , updateJournal) where

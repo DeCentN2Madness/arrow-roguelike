@@ -11,7 +11,7 @@ Example:
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
 -}
-module Game.Entity(EntityMap
+module Game.Entity (EntityMap
                , fromBlock
                , fromEntityAt
                , fromEntityBy
@@ -21,8 +21,7 @@ module Game.Entity(EntityMap
                , mkEntityMap
                , safeInsertEntity
                , updateEntityHp
-               , updateEntityPos
-               ) where
+               , updateEntityPos) where
 
 import Prelude hiding (lookup)
 import Data.Map (Map)

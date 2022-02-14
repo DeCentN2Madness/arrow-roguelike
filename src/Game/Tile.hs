@@ -8,7 +8,7 @@ w/ [(Terrain, Coord)]
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
 -}
-module Game.Tile(fromHard
+module Game.Tile (fromHard
                , fromOpen
                , fromVisual
                , getTerrainAt

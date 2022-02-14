@@ -50,8 +50,8 @@ instance ToJSON Terrain
 -- | boxDungeon builds the dungeon
 -- Output:
 -- ######
--- #,,,,#
--- #,,,,#
+-- #....#
+-- #....#
 -- ######
 boxDungeon :: Int -> Int -> Dungeon
 boxDungeon xMax yMax = Dungeon xMax yMax tiles
@@ -118,6 +118,20 @@ pickHallways r1@(Room _ r1yl _ r1yh) r2@(Room _ r2yl _ r2yh)
     Nothing -> do
       pure []
 
+-- | randDebris
+randDebris :: (MonadRandom m) => Int -> Int -> m (Room, Orientation, Terrain)
+randDebris width height = do
+  t <- getRandomR (0, 6)
+  r <- randRoom 1 (width-1) 1 (height-1)
+  pure $ case (t :: Int) of
+    0 -> (r, Horizontal, Rubble)
+    1 -> (r, Vertical,   Rubble)
+    2 -> (r, Horizontal, Magma)
+    3 -> (r, Vertical,   Magma)
+    4 -> (r, Horizontal, Rock)
+    5 -> (r, Vertical,   Rock)
+    _ -> (r, Horizontal, Wall)
+
 -- | randRoom
 randRoom :: (MonadRandom m) => Int -> Int -> Int -> Int -> m Room
 randRoom xlow xhigh ylow yhigh = do
@@ -147,15 +161,9 @@ rogueDungeon width height g = let
   (tileVector, gFinal) = runST $ flip runRandT g $ do
     vec <- VM.replicate tileCount Wall
     -- add Debris
-    forM_ [1 :: Int .. 20] $ \_ -> do
-      r <- randRoom 1 (width-2) 1 (height-2)
-      setPoint width vec r Rubble
-    forM_ [1 :: Int .. 20] $ \_ -> do
-      r <- randRoom 1 (width-2) 1 (height-2)
-      setPoint width vec r Magma
-    forM_ [1 :: Int .. 20] $ \_ -> do
-      r <- randRoom 1 (width-2) 1 (height-2)
-      setPoint width vec r Rock
+    forM_ [1 :: Int .. 100] $ \_ -> do
+      (r, o, t) <- randDebris (width-1) (height-1)
+      setPoint width vec r o t
     -- pick the rooms
     rooms <- sequence [
             randRoom   1 (secWidth-1) 1 (secHeight-1)
@@ -204,13 +212,13 @@ setPoint :: PrimMonad m
   => Int
   -> VM.MVector (PrimState m) a
   -> Room
+  -> Orientation
   -> a
   -> m ()
-setPoint width vec (Room x1 y1 _ _)
-  = setBox width vec (Room x1 y1 x2 y2)
-  where
-    x2 = x1 + 1
-    y2 = y1 + 1
+setPoint width vec (Room x1 y1 _ _) Horizontal
+  = setBox width vec (Room x1 y1 (x1+1) y1)
+setPoint width vec (Room x1 y1 _ _) Vertical
+  = setBox width vec (Room x1 y1 x1 (y1+1))
 
 -- | setBox
 -- Modify the vector w/ Room and Terrain

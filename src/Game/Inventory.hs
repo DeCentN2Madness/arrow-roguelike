@@ -5,7 +5,7 @@ Game.Inventory.hs
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
 -}
-module Game.Inventory (emptyBy, pickup) where
+module Game.Inventory (emptyBy, pickup, pickList) where
 
 import Prelude hiding (lookup)
 import Control.Arrow ((&&&))

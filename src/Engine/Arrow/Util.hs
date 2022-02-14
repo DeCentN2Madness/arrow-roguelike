@@ -81,8 +81,7 @@ actionGet w = let
     then GI.emptyBy pPos items (entityT w)
     else entityT w
   entry = if length items > 1
-    then let
-      in T.append "Get " (actionLook $ tail items)
+    then T.append "Get " (actionLook $ tail items)
     else T.pack "..."
   in w { tick = newTick
          , entityT = GP.updatePlayer newPlayer newEntity
@@ -196,9 +195,7 @@ showCharacter w = let
   pInt  = Map.findWithDefault "1" "int" pProp
   pWis  = Map.findWithDefault "1" "wis" pProp
   pEntry = T.pack $ "@ "
-      ++ "Lvl="
-      ++ show (eLvl pEntity)
-      ++ ", Str="
+      ++ "Str="
       ++ pStr
       ++ ", Dex="
       ++ pDex
@@ -230,10 +227,8 @@ showInventory w = let
     ++ show pMush
     ++ ", Potion="
     ++ show pPot
-    ++ ", Unk="
+    ++ ", Unknown="
     ++ show pUnk
-    ++ ", Exp="
-    ++ show (eXP pEntity)
   in w { journalT = GJ.updateJournal [pEntry] (journalT w) }
 
 -- | quitWorld

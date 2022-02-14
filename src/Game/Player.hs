@@ -37,15 +37,15 @@ characterSheet :: EntityMap -> [Text]
 characterSheet em = let
   (pEntity, _) = getPlayer em
   pProp = property pEntity
-  pStr  = T.pack $ "Str: " ++ Map.findWithDefault "1" "str" pProp
-  pDex  = T.pack $ "Dex: " ++ Map.findWithDefault "1" "dex" pProp
-  pCon  = T.pack $ "Con: " ++ Map.findWithDefault "1" "con" pProp
-  pInt  = T.pack $ "Int: " ++ Map.findWithDefault "1" "int" pProp
-  pWis  = T.pack $ "Wis: " ++ Map.findWithDefault "1" "wis" pProp
-  pLvl  = T.pack $ "Level " ++ show (eLvl pEntity)
-  pExp  = T.pack $ "Exp: " ++ show (eXP pEntity)
+  pStr  = T.pack $ "STR: " ++ Map.findWithDefault "1" "str" pProp
+  pDex  = T.pack $ "DEX: " ++ Map.findWithDefault "1" "dex" pProp
+  pCon  = T.pack $ "CON: " ++ Map.findWithDefault "1" "con" pProp
+  pInt  = T.pack $ "INT: " ++ Map.findWithDefault "1" "int" pProp
+  pWis  = T.pack $ "WIS: " ++ Map.findWithDefault "1" "wis" pProp
+  pLvl  = T.pack $ "Level: " ++ show (eLvl pEntity)
+  pExp  = T.pack $ "EXP: " ++ show (eXP pEntity)
   pHP   = T.pack $ "HP: " ++ show (eHP pEntity) ++ "/" ++ show (eMaxHP pEntity)
-  in [ "Player", pLvl, pExp, pStr, pDex, pCon, pInt, pWis, pHP ]
+  in [ "Player:", pLvl, pExp, " ", pStr, pDex, pCon, pInt, pWis, " ", pHP ]
 
 -- | @ lives at 0
 -- get Player

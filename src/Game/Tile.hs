@@ -41,9 +41,9 @@ fromOpen tm = let
 -- | fromVisual return visual terrain
 fromVisual :: TileMap -> [(Terrain, Coord)]
 fromVisual tm = let
-  visualList = [ (t, xy) | (_, TileKind pos vis t) <- Map.toList tm,
-                 let xy = if vis then pos else (0,0)]
-  in visualList
+  terrainList = [ (t, xy) | (_, TileKind pos vis t) <- Map.toList tm,
+                 let xy = if vis then pos else (0,0) ]
+  in filter ((/=(0,0)).snd) terrainList
 
 -- | getTerrainAt
 getTerrainAt :: Coord -> TileMap -> Terrain
@@ -62,20 +62,16 @@ mkGrid maxX maxY = let
 mkTileMap :: Dungeon -> TileMap
 mkTileMap d = let
   grid = mkGrid (dungeonWidth d) (dungeonHeight d)
-  terrainList = V.toList $ dungeonTiles d
-  tileList = [ tk | (t, xy) <- zip terrainList grid,
+  tileList = V.toList $ dungeonTiles d
+  terrainList = [ tk | (t, xy) <- zip tileList grid,
                let tk = TileKind xy False t]
-  tm = zip [0 :: Int ..] tileList
-  in Map.fromList tm
+  in Map.fromList $ zip [0 :: Int ..] terrainList
 
 -- | updateTileMap
--- just visible for now...
 updateTileMap :: [Coord] -> TileMap -> TileMap
-updateTileMap [] tm = tm
-updateTileMap (x:xs) tm = let
-  ixList = [(i, pos) | (i, TileKind pos _ _) <- Map.toList tm]
-  ix = case filter ((==x).snd) ixList of
-    [k] -> fst k
-    _ -> 0
-  TileKind xy _ t = Map.findWithDefault (TileKind (0,0) False Open) ix tm
-  in updateTileMap xs (Map.insert ix (TileKind xy True t) tm)
+updateTileMap seen tm = let
+  tileList = [ (ix, tk) | (ix, TileKind xy vis t) <- Map.toList tm,
+               let tk = if xy `elem` seen
+                     then TileKind xy True t
+                     else TileKind xy vis  t ]
+  in Map.fromList tileList

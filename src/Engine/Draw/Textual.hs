@@ -19,7 +19,9 @@ import qualified Engine.SDL.Util as U
 import Game.Journal (fromJournal)
 import Game.Player (characterSheet)
 
--- | drawText Textual the last 5 entries
+-- | drawText
+-- Show the last 5 Journal entries
+-- Show the Character
 drawText :: SDL.Renderer -> World -> IO ()
 drawText r w = do
   let logs  = fromJournal [0..4] (journalT w)
@@ -27,6 +29,7 @@ drawText r w = do
       -- Color
       color x
         | T.any (=='!') x = red
+        | T.any (==':') x = green
         | T.any (=='@') x = blue
         | otherwise = black
   fn <- SDL.Font.load "./assets/fonts/Hack-Regular.ttf" 16
@@ -42,9 +45,9 @@ drawText r w = do
     -- Cleanup
     SDL.freeSurface tx
     SDL.destroyTexture rt
-  -- Character Sheet
+  -- Character
   forM_ cs $ \(i, j) -> do
-    tx <- SDL.Font.blended fn green j
+    tx <- SDL.Font.blended fn (color j) j
     sz <- SDL.Font.size fn j
     rt <- SDL.createTextureFromSurface r tx
     let charT = fromIntegral (snd sz + (i * snd sz)) :: Double

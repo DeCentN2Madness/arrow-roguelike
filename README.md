@@ -1,6 +1,6 @@
 # Arrow
 
-Arrow is a small roguelike implemented in Haskell with SDL2. This
+Arrow is a tiny roguelike implemented in Haskell with SDL2. This
 project was inspired by RogueLike Tutorials. Arrow is currently a
 Step 6 of the 15 Steps...
 

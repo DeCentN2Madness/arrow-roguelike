@@ -196,7 +196,9 @@ showCharacter w = let
   pInt  = Map.findWithDefault "1" "int" pProp
   pWis  = Map.findWithDefault "1" "wis" pProp
   pEntry = T.pack $ "@ "
-      ++ "Str="
+      ++ "Lvl="
+      ++ show (eLvl pEntity)
+      ++ ", Str="
       ++ pStr
       ++ ", Dex="
       ++ pDex
@@ -220,6 +222,7 @@ showInventory w = let
   pCoin  = Map.findWithDefault 0 "Coin"     pInv
   pMush  = Map.findWithDefault 0 "Mushroom" pInv
   pPot   = Map.findWithDefault 0 "Potion"   pInv
+  pUnk   = Map.findWithDefault 0 "Unknown"   pInv
   pEntry = T.pack $ "@ "
     ++ "Coin="
     ++ show pCoin
@@ -227,10 +230,10 @@ showInventory w = let
     ++ show pMush
     ++ ", Potion="
     ++ show pPot
+    ++ ", Unk="
+    ++ show pUnk
     ++ ", Exp="
     ++ show (eXP pEntity)
-    ++ ", Lvl="
-    ++ show (eLvl pEntity)
   in w { journalT = GJ.updateJournal [pEntry] (journalT w) }
 
 -- | quitWorld

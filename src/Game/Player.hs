@@ -22,11 +22,16 @@ import Game.Entity (EntityMap)
 import qualified Game.Entity as GE
 import Game.Kind.Entity (EntityKind(..))
 
+type Coord = (Int, Int)
 type Player = EntityKind
+
+-- | abilityMod
+abilityMod :: Int -> Int
+abilityMod n = (n-10) `div` 2
 
 -- | @ lives at 0
 -- get Player
-getPlayer :: EntityMap -> (Player, (Int,Int))
+getPlayer :: EntityMap -> (Player, Coord)
 getPlayer = GE.getEntityAt 0
 
 -- | update @ properties
@@ -34,17 +39,19 @@ updatePlayer :: Player -> EntityMap -> EntityMap
 updatePlayer = Map.insert 0
 
 -- | update @ position
-updatePlayerBy :: (Int, Int) -> EntityMap -> EntityMap
+updatePlayerBy :: Coord -> EntityMap -> EntityMap
 updatePlayerBy = GE.updateEntityPos 0
 
 -- | updateEntityXP at ix
 updatePlayerXP :: Int -> EntityMap -> EntityMap
 updatePlayerXP xp em = let
   (pEntity, _ ) = getPlayer em
+  pProp = property pEntity
+  pCon  = read $ Map.findWithDefault "1" "con" pProp :: Int
   pTot = eXP pEntity + xp
   pLvl = xpLevel pTot
   pHP = if pLvl > eLvl pEntity then pMaxHP else eHP pEntity
-  pMaxHP = pLvl * 10
+  pMaxHP = pLvl * (10 + abilityMod pCon)
   in updatePlayer (pEntity { eLvl=pLvl, eHP=pHP, eMaxHP=pMaxHP, eXP=pTot }) em
 
 -- | xpLevel simple

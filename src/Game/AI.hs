@@ -5,7 +5,10 @@ Game.AI.hs
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
 -}
-module Game.AI (aiAction, distance, pathFinder) where
+module Game.AI (aiAction
+               , chessDist
+               , distance
+               , pathFinder) where
 
 import Engine.Arrow.Data (World(..))
 import Data.List
@@ -42,11 +45,15 @@ aiAction ((mx, mEntity):xs) w = if mx == 0 || not (block mEntity)
     Wait   -> w
   in aiAction xs newWorld
 
--- | distance
+-- | chessDist - Chess distance between two points.
+chessDist :: (Int, Int) -> (Int, Int) -> Int
+chessDist (x1, y1) (x2, y2) = max (abs (x2 - x1)) (abs (y2 - y1))
+
+-- | distance - Euclidean distance between two points.
 distance :: (Int, Int) -> (Int, Int) -> Double
 distance (x1, y1) (x2, y2) = let
-  distX = fromIntegral $ (x2 - x1) * (x2 - x1)
-  distY = fromIntegral $ (y2 - y1) * (y2 - y1)
+  distX = fromIntegral $ (x2 - x1) ^ (2 :: Int)
+  distY = fromIntegral $ (y2 - y1) ^ (2 :: Int)
   in sqrt (distX + distY)
 
 -- | pathFinder
@@ -66,9 +73,9 @@ pathFinder ((mx, mEntity):xs) w = if mx == 0 || not (block mEntity)
   blockT = [ xy | (_, xy) <- GE.fromBlock (entityT w) ]
   (_, pPos) = GP.getPlayer (entityT w)
   distanceList = [ (d, xy) | xy <- moveT mEntity,
-                  let d = distance pPos xy ]
+                  let d = chessDist pPos xy ]
   moveList = coordF $ [ xy | (d, pos) <- sort distanceList,
-                        let xy = if d==1 || d > 5 then coord mEntity else pos ]
+                        let xy = if d==0 || d > 5 then coord mEntity else pos ]
   move = if not (null moveList)
     then head moveList
     else coord mEntity

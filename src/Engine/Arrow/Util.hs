@@ -96,7 +96,7 @@ actionHear em listen = let
                     let t = if ix > 0 && (d > 4 && d < 7)
                           then T.pack "Something moved, "
                           else ""
-                        d = GAI.distance pos listen ]
+                        d = GAI.chessDist pos listen ]
   in T.append hear "..."
 
 -- | actionLook

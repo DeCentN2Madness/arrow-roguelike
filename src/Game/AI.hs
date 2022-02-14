@@ -23,6 +23,8 @@ data AI
   | Wait
   deriving (Show, Eq)
 
+type Point = (Int, Int)
+
 -- | aiAction
 -- handle actions based on goal
 -- TODO goal is affected by Entity condition
@@ -46,11 +48,11 @@ aiAction ((mx, mEntity):xs) w = if mx == 0 || not (block mEntity)
   in aiAction xs newWorld
 
 -- | chessDist - Chess distance between two points.
-chessDist :: (Int, Int) -> (Int, Int) -> Int
+chessDist :: Point -> Point -> Int
 chessDist (x1, y1) (x2, y2) = max (abs (x2 - x1)) (abs (y2 - y1))
 
 -- | distance - Euclidean distance between two points.
-distance :: (Int, Int) -> (Int, Int) -> Double
+distance :: Point -> Point -> Double
 distance (x1, y1) (x2, y2) = let
   distX = fromIntegral $ (x2 - x1) ^ (2 :: Int)
   distY = fromIntegral $ (y2 - y1) ^ (2 :: Int)

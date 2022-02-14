@@ -23,13 +23,12 @@ import Engine.Draw.Visual (AssetMap(..)
 import qualified Engine.Draw.Textual as EDT
 import qualified Engine.SDL.Util as U
 
-data Colour = White | Red | Blue | Green | Yellow
+data Colour = Red | Green | Blue | White | Black | Yellow
 
 -- | draw main drawing loop
 draw :: SDL.Renderer -> TextureMap -> World -> IO ()
 draw r ts w = do
-  let hudHt = snd (screenXY w) - 100
-  setColor r White
+  setColor r Black
   SDL.clear r
   -- Background
   renderTexture r (background ts) (0.0, 0.0 :: Double)
@@ -39,9 +38,7 @@ draw r ts w = do
     else do
      -- Draw Visual Map
      drawMap r ts w
-     -- HUD
-     renderTexture r (hud ts) (0.0, hudHt)
-     -- Text
+     -- HUD Text
      EDT.drawText r w
   -- Screen
   SDL.present r
@@ -99,8 +96,9 @@ renderVisual r (Visual (xi, yi) (t, _) tw th) (x, y) = let
 
 -- | setColor
 setColor :: (MonadIO m) => SDL.Renderer -> Colour -> m ()
-setColor r Blue   = SDL.rendererDrawColor r $= SDL.V4 0 0 maxBound maxBound
-setColor r Green  = SDL.rendererDrawColor r $= SDL.V4 0 maxBound 0 maxBound
 setColor r Red    = SDL.rendererDrawColor r $= SDL.V4 maxBound 0 0 maxBound
+setColor r Green  = SDL.rendererDrawColor r $= SDL.V4 0 maxBound 0 maxBound
+setColor r Blue   = SDL.rendererDrawColor r $= SDL.V4 0 0 maxBound maxBound
 setColor r White  = SDL.rendererDrawColor r $= SDL.V4 maxBound maxBound maxBound maxBound
+setColor r Black  = SDL.rendererDrawColor r $= SDL.V4 0 0 0 0
 setColor r Yellow = SDL.rendererDrawColor r $= SDL.V4 maxBound maxBound 0 maxBound

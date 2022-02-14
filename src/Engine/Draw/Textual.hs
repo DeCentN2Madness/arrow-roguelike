@@ -31,7 +31,7 @@ drawText r w = do
         | T.any (=='!') x = red
         | T.any (==':') x = green
         | T.any (=='@') x = blue
-        | otherwise = black
+        | otherwise = white
   fn <- SDL.Font.load "./assets/fonts/Hack-Regular.ttf" 16
   -- Journal
   forM_ logs $ \(i, j) -> do

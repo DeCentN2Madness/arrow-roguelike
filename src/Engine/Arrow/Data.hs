@@ -32,6 +32,7 @@ data Direction
   | NorthWest
   | B
   | C
+  | E
   | G
   | H
   | I
@@ -40,6 +41,7 @@ data Direction
   | L
   | N
   | R
+  | Q
   | U
   | Y
   deriving (Eq)

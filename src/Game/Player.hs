@@ -12,6 +12,7 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
 -}
 module Game.Player(characterSheet
+                   , characterInventory
                    , getPlayer
                    , updatePlayerBy
                    , updatePlayer
@@ -33,6 +34,7 @@ type Player = EntityKind
 abilityMod :: Int -> Int
 abilityMod n = (n-10) `div` 2
 
+-- | @ Stats
 characterSheet :: EntityMap -> [Text]
 characterSheet em = let
   (pEntity, _) = getPlayer em
@@ -45,7 +47,18 @@ characterSheet em = let
   pLvl  = T.pack $ "Level: " ++ show (eLvl pEntity)
   pExp  = T.pack $ "EXP: " ++ show (eXP pEntity)
   pHP   = T.pack $ "HP: " ++ show (eHP pEntity) ++ "/" ++ show (eMaxHP pEntity)
-  in [ "Player:", pLvl, pExp, " ", pStr, pDex, pCon, pInt, pWis, " ", pHP ]
+  in [ "@", pLvl, pExp, " ", pStr, pDex, pCon, pInt, pWis, " ", pHP ]
+
+-- | @ Inv
+characterInventory :: EntityMap -> [Text]
+characterInventory em = let
+  (pEntity, _) = getPlayer em
+  pInv   = inventory pEntity
+  pCoin  = T.pack $ "Coin: "     ++ show (Map.findWithDefault 0 "Coin"     pInv)
+  pMush  = T.pack $ "Mushroom: " ++ show (Map.findWithDefault 0 "Mushroom" pInv)
+  pPot   = T.pack $ "Potion: "   ++ show (Map.findWithDefault 0 "Potion"   pInv)
+  pUnk   = T.pack $ "Unknown: "  ++ show (Map.findWithDefault 0 "Unknown"  pInv)
+  in [ "@", pCoin, pMush, pPot, pUnk ]
 
 -- | @ lives at 0
 -- get Player

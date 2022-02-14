@@ -39,11 +39,10 @@ actionBump pos em = let
     else fst $ head blockList
 
 -- | actionDirection the world will change with @input@
---
 -- 1. clampCoord checks the input vs grid
--- 2. actionPlayer handles @ events in the world
+-- 2. actionPlayer handles P events in the World
 -- 3. actionMonster handles M events in the World
--- 4. if @ moved then update FoV and Camera
+-- 4. if P moved then update FoV and Camera
 actionDirection :: Direction -> World -> World
 actionDirection input w = if starting w
   then let
@@ -66,6 +65,24 @@ actionDirection input w = if starting w
       , dirty   = True }
       else newWorld { tick = newTick, dirty = False }
   in EDC.updateCamera run
+
+-- | actionEat
+-- if there is something to eat...
+actionEat :: World -> World
+actionEat w = let
+  newTick = tick w + 1
+  (pEntity, _) = GP.getPlayer (entityT w)
+  pInv   = inventory pEntity
+  pMush  = Map.findWithDefault 0 "Mushroom" pInv
+  newPlayer = if pMush > 0
+    then pEntity { inventory = Map.insert "Mushroom" (pMush-1) pInv }
+    else pEntity
+  entry = if pMush > 0
+    then T.pack "Eat a tasty Mushroom..."
+    else T.pack "..."
+  in w { tick = newTick
+         , entityT = GP.updatePlayer newPlayer (entityT w)
+         , journalT = GJ.updateJournal [entry] (journalT w) }
 
 -- | actionGet
 -- if there is something to get...
@@ -108,8 +125,7 @@ actionLook xs = let
   in T.append look "..."
 
 -- | actionMonster
--- 1. Where can the Entity move in relation to Terrain
---    a. also applies to Player
+-- 1. Where can P and M move in relation to Terrain
 -- 2. pathFinder based on Entities
 -- 3. aiAction based on newWorld
 actionMonster :: World -> World
@@ -152,6 +168,27 @@ actionPlayer pos w = let
   in newWorld {
   journalT = GJ.updateJournal [look, listen, learn] (journalT newWorld) }
 
+-- | actionQuaff
+-- if there is something to drink...
+actionQuaff :: World -> World
+actionQuaff w = let
+  newTick = tick w + 1
+  (pEntity, _) = GP.getPlayer (entityT w)
+  pInv = inventory pEntity
+  pPot = Map.findWithDefault 0 "Potion" pInv
+  newPlayer = if pPot > 0
+    then let
+    heal = eHP pEntity + 5
+    in pEntity { inventory = Map.insert "Potion" (pPot-1) pInv
+               , eHP = if heal > eMaxHP pEntity then eMaxHP pEntity else heal }
+    else pEntity
+  entry = if pPot > 0
+    then T.pack "Drink a delicious Potion..."
+    else T.pack "..."
+  in w { tick = newTick
+         , entityT = GP.updatePlayer newPlayer (entityT w)
+         , journalT = GJ.updateJournal [entry] (journalT w) }
+
 -- | applyIntent
 -- Events applied to the World
 applyIntent :: Intent -> World -> World
@@ -166,9 +203,11 @@ applyIntent intent w = let
     Action West      -> actionDirection West w
     Action NorthWest -> actionDirection NorthWest w
     Action C -> showCharacter w
+    Action E -> actionEat w
     Action G -> actionGet w
     Action I -> showInventory w
     Action R -> resetWorld w
+    Action Q -> actionQuaff w
     Quit     -> quitWorld w
     _ -> w
   in newWorld
@@ -187,48 +226,13 @@ resetWorld w = let
 -- | showCharacter
 showCharacter :: World -> World
 showCharacter w = let
-  (pEntity, _) = GP.getPlayer (entityT w)
-  pProp = property pEntity
-  pStr  = Map.findWithDefault "1" "str" pProp
-  pDex  = Map.findWithDefault "1" "dex" pProp
-  pCon  = Map.findWithDefault "1" "con" pProp
-  pInt  = Map.findWithDefault "1" "int" pProp
-  pWis  = Map.findWithDefault "1" "wis" pProp
-  pEntry = T.pack $ "@ "
-      ++ "Str="
-      ++ pStr
-      ++ ", Dex="
-      ++ pDex
-      ++ ", Con="
-      ++ pCon
-      ++ ", Int="
-      ++ pInt
-      ++ ", Wis="
-      ++ pWis
-      ++ ", HP="
-      ++ show (eHP pEntity)
-      ++ "/"
-      ++ show (eMaxHP pEntity)
+  pEntry = T.intercalate ", " $ filter (/=" ") $ GP.characterSheet (entityT w)
   in w { journalT = GJ.updateJournal [pEntry] (journalT w) }
 
 -- | showInventory
 showInventory :: World -> World
 showInventory w = let
-  (pEntity, _) = GP.getPlayer(entityT w)
-  pInv   = inventory pEntity
-  pCoin  = Map.findWithDefault 0 "Coin"     pInv
-  pMush  = Map.findWithDefault 0 "Mushroom" pInv
-  pPot   = Map.findWithDefault 0 "Potion"   pInv
-  pUnk   = Map.findWithDefault 0 "Unknown"   pInv
-  pEntry = T.pack $ "@ "
-    ++ "Coin="
-    ++ show pCoin
-    ++ ", Mushroom="
-    ++ show pMush
-    ++ ", Potion="
-    ++ show pPot
-    ++ ", Unknown="
-    ++ show pUnk
+  pEntry = T.intercalate ", " $ GP.characterInventory (entityT w)
   in w { journalT = GJ.updateJournal [pEntry] (journalT w) }
 
 -- | quitWorld

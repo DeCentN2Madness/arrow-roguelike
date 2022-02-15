@@ -28,7 +28,7 @@ type Point = (Int, Int)
 
 -- | aiAction
 -- handle actions based on goal
--- TODO goal is affected by Entity condition
+-- TODO goal is affected by hitPoint, patrol, status; npc, so on...
 aiAction :: [(Int, EntityKind)] -> World -> World
 aiAction [] w = w
 aiAction ((mx, mEntity):xs) w = if mx == 0 || not (block mEntity)
@@ -69,8 +69,7 @@ distance (x1, y1) (x2, y2) = let
 -- 1. Distance from goal
 -- 2. Decide by distance
 -- 3. Check blockList
--- 4. Update coord
--- TODO goal is affected by hitPoint, patrol, status; npc, so on...
+-- 4. Update move
 pathFinder :: [(Int, EntityKind)] -> World -> World
 pathFinder [] w = w
 pathFinder ((mx, mEntity):xs) w = if mx == 0 || not (block mEntity)
@@ -80,15 +79,16 @@ pathFinder ((mx, mEntity):xs) w = if mx == 0 || not (block mEntity)
   coordF = filter (`notElem` blockT)
   blockT = [ xy | (_, xy) <- GE.fromBlock (entityT w) ]
   (_, pPos) = GP.getPlayer (entityT w)
+  mPos      = coord mEntity
   distanceList = [ (d, xy) | xy <- moveT mEntity,
                   let d = chessDist pPos xy ]
   moveList = coordF $ [ xy | (d, pos) <- sort distanceList,
-                        let xy = if adjacent pos pPos || d > 5
-                              then coord mEntity
+                        let xy = if adjacent mPos pPos || d > 5
+                              then mPos
                               else pos ]
-  move = if not (null moveList)
-    then head moveList
-    else coord mEntity
+  move = if null moveList
+    then mPos
+    else head moveList
   -- move w/ blockT
   newWorld = w { entityT = GE.updateEntityPos mx move (entityT w) }
   in pathFinder xs newWorld

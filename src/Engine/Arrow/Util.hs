@@ -109,10 +109,10 @@ actionGet w = let
 actionHear :: EntityMap -> Coord -> Text
 actionHear em listen = let
   hear = T.concat [ t | (ix, pos) <- GE.fromBlock em,
-                    let t = if ix > 0 && (d > 4 && d < 7)
+                    let t = if ix > 0 && (d > 4 && d < 8)
                           then T.pack "Something moved, "
                           else ""
-                        d = GAI.chessDist pos listen ]
+                        d = GAI.distance pos listen ]
   in T.append hear "..."
 
 -- | actionLook
@@ -126,8 +126,8 @@ actionLook xs = let
 
 -- | actionMonster
 -- 1. Where can P and M move in relation to Terrain
--- 2. pathFinder based on Entities
--- 3. aiAction based on newWorld
+-- 2. aiAction based on newWorld
+-- 3. pathFinder based on aiAction
 actionMonster :: World -> World
 actionMonster w = let
   coordF :: [Coord] -> [Coord]
@@ -141,7 +141,7 @@ actionMonster w = let
                        else e ]
   -- move w/ hardT
   newWorld = w { entityT = Map.fromList entityList }
-  in GAI.aiAction entityList $ GAI.pathFinder entityList newWorld
+  in GAI.pathFinder entityList $ GAI.aiAction entityList newWorld
 
 -- | actionPlayer
 -- handle the Player within the World

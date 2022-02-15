@@ -75,7 +75,10 @@ actionEat w = let
   pInv   = inventory pEntity
   pMush  = Map.findWithDefault 0 "Mushroom" pInv
   newPlayer = if pMush > 0
-    then pEntity { inventory = Map.insert "Mushroom" (pMush-1) pInv }
+    then let
+    heal = eHP pEntity + 3
+    in pEntity { inventory = Map.insert "Mushroom" (pMush-1) pInv
+               , eHP = if heal > eMaxHP pEntity then eMaxHP pEntity else heal }
     else pEntity
   entry = if pMush > 0
     then T.pack "Eat a tasty Mushroom..."

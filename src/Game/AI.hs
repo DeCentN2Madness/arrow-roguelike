@@ -20,7 +20,6 @@ import qualified Game.Player as GP
 
 data AI
   = Attack
-  | Move
   | Wait
   deriving (Show, Eq)
 
@@ -35,17 +34,14 @@ aiAction ((mx, mEntity):xs) w = if mx == 0 || not (block mEntity)
   then aiAction xs w
   else let
   (_, pPos) = GP.getPlayer (entityT w)
-  actionList = [ x | xy <- moveT mEntity,
-                 let x = if adjacent xy pPos
-                       then Attack
-                       else Wait ]
-  action = if not (null actionList)
-    then head actionList
+  mPos      = coord mEntity
+  action    = if adjacent pPos mPos
+    then Attack
     else Wait
   newWorld = case action of
     Attack -> GC.mkCombat mx 0 w
-    Move   -> w
     Wait   -> w
+  -- newWorld w/ action
   in aiAction xs newWorld
 
 -- | adjacent -- checks whether two points are adjacent
@@ -80,15 +76,13 @@ pathFinder ((mx, mEntity):xs) w = if mx == 0 || not (block mEntity)
   blockT = [ xy | (_, xy) <- GE.fromBlock (entityT w) ]
   (_, pPos) = GP.getPlayer (entityT w)
   mPos      = coord mEntity
-  distanceList = [ (d, xy) | xy <- moveT mEntity,
-                  let d = chessDist pPos xy ]
-  moveList = coordF $ [ xy | (d, pos) <- sort distanceList,
+  distList  = [ (d, xy) | xy <- moveT mEntity,
+                let d = chessDist pPos xy ]
+  moveList  = coordF $ [ xy | (d, pos) <- sort distList,
                         let xy = if adjacent mPos pPos || d > 5
                               then mPos
                               else pos ]
   move = if null moveList
     then mPos
     else head moveList
-  -- move w/ blockT
-  newWorld = w { entityT = GE.updateEntityPos mx move (entityT w) }
-  in pathFinder xs newWorld
+  in pathFinder xs w { entityT = GE.updateEntityPos mx move (entityT w) }

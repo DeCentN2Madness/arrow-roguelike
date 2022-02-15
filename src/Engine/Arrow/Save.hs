@@ -32,23 +32,23 @@ loadFile = do
   gen <- getStdGen
   homeDir <- getHomeDirectory
   createDirectoryIfMissing False (homeDir ++ "/Arrow")
-  w <- loadWorld (homeDir ++ saveWorld)
-  p <- loadPlayer (homeDir ++ savePlayer)
+  copyFile (homeDir ++ sourceEntity) (homeDir ++ saveEntity)
   e <- loadAsset (homeDir ++ saveEntity)
-  let world = if null w
-        then mkWorld gen (width, height) 80 50
-        else head w
+  p <- loadPlayer (homeDir ++ savePlayer)
+  w <- loadWorld (homeDir ++ saveWorld)
+  let asset = if null e
+        then assetT world
+        else head e
       player = if null p
         then let
         (pEntity, _) = GP.getPlayer (entityT world)
         in pEntity
         else head p
-      asset = if null e
-        then assetT world
-        else head e
-      newWorld = world { assetT  = asset
-                       , entityT = GE.safeInsertEntity 0 player (gameT world) (entityT world) }
-  return newWorld
+      world = if null w
+        then mkWorld gen (width, height) 80 50
+        else head w
+  return world { assetT  = asset
+               , entityT = GE.safeInsertEntity 0 player (gameT world) (entityT world) }
 
 -- | loadAsset -- all the stuff
 loadAsset :: FilePath -> IO [EntityMap]
@@ -86,6 +86,7 @@ saveFile w = do
   encodeFile (homeDir ++ savePlayer) pEntity
   encodeFile (homeDir ++ saveEntity) (assetT w)
 
+
 -- | saveEntity
 saveEntity :: FilePath
 saveEntity = "/Documents/Arrow/entity.json"
@@ -98,6 +99,10 @@ savePlayer = "/Documents/Arrow/player.json"
 saveWorld :: FilePath
 saveWorld = "/Documents/Arrow/arrow.json"
 
+-- | sourceEntity
+-- from git
+sourceEntity :: FilePath
+sourceEntity = "/arrow/data/entity.json"
 
 -- | touch file in case doesn't exist
 touch :: FilePath -> IO ()

@@ -67,7 +67,7 @@ mkCombat px mx w = if px == mx
     mDeath = if pAttack < 1
       then if mx == 0
       then "Player died!"
-      else "Dead!" else "..."
+      else "Dead!" else ""
     pEntry = T.pack $
       show (kind pEntity)
       ++ attack pAR mDR

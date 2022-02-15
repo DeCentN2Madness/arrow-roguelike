@@ -97,7 +97,7 @@ savePlayer = "/Documents/Arrow/player.json"
 
 -- | saveGame
 saveWorld :: FilePath
-saveWorld = "/Documents/Arrow/arrow.json"
+saveWorld = "/Documents/Arrow/world.json"
 
 -- | sourceEntity
 -- from git

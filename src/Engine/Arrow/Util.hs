@@ -56,7 +56,7 @@ actionDirection input w = if starting w
     clampCoord       = clamp (heroX, heroY) (gridXY w)
     -- newWorld from Monster && Player Events
     newWorld         = actionMonster $ actionPlayer clampCoord w
-    (_, pPos) = GP.getPlayer (entityT newWorld)
+    (_, pPos)        = GP.getPlayer (entityT newWorld)
     run = if pPos == clampCoord
       then
       EAV.updateView $ newWorld {
@@ -111,9 +111,9 @@ actionGet w = let
 -- if there is something to hear...
 actionHear :: EntityMap -> Coord -> Text
 actionHear em listen = let
-  hearList = [ t | (ix, pos) <- GE.fromBlock em,
-               let t = if ix > 0 && (d > 4 && d < 8) then 1 else 0
-                   d = GAI.distance pos listen ]
+  hearList = [ t | (ek, _) <- GE.fromEntityAt em,
+               let t = if block ek && (d > 4 && d < 7) then 1 else 0
+                   d = GAI.distance (coord ek) listen ]
   total = sum hearList :: Int
   hear x
     | x > 1  = T.pack $ "Something moved " ++ "<x" ++ show x ++ ">, "

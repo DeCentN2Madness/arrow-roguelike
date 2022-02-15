@@ -38,8 +38,9 @@ type EntityMap = Map Int EntityKind
 -- | fromBlock
 fromBlock :: EntityMap -> [(Int, Coord)]
 fromBlock em = let
-  entityList = [ (ix, xy) | (ix, ek) <- Map.toList em,
-                 let xy = if block ek then coord ek else (0,0) ]
+  entityList = [ (ix, xy) | (ek, ix) <- filter (\(i, _) -> block i) $
+                 fromEntityAt em,
+                 let xy = coord ek ]
   in entityList
 
 -- | fromEntityAt ix
@@ -51,8 +52,7 @@ fromEntityAt em = let
 -- | fromEntityBy Coord
 fromEntityBy :: EntityMap -> [(EntityKind, Coord)]
 fromEntityBy em = let
-  entityList = [ (ek, xy) | (_, ek) <- Map.toList em,
-                 let xy = coord ek ]
+  entityList = [ (ek, xy) | (_, ek) <- Map.toList em, let xy = coord ek ]
   in entityList
 
 -- | getEntityAt ix
@@ -64,8 +64,7 @@ getEntityAt ix em = let
 -- | getEntityBy Coord
 getEntityBy :: Coord -> EntityMap -> [(EntityKind, Coord)]
 getEntityBy pos em = let
-  entityList = [(ix, xy) | (ix, ek) <- Map.toList em,
-                let xy = coord ek ]
+  entityList = [(ix, xy) | (ix, ek) <- Map.toList em, let xy = coord ek ]
   in [ e | (ix, _) <- filter ((==pos).snd) entityList,
        let e = getEntityAt ix em ]
 

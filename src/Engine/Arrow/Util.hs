@@ -83,8 +83,8 @@ actionEat w = let
   entry = if pMush > 0
     then T.pack "Eat a tasty Mushroom..."
     else T.pack "..."
-  in w { tick = newTick
-         , entityT = GP.updatePlayer newPlayer (entityT w)
+  in w { tick       = newTick
+         , entityT  = GP.updatePlayer newPlayer (entityT w)
          , journalT = GJ.updateJournal [entry] (journalT w) }
 
 -- | actionGet
@@ -103,20 +103,23 @@ actionGet w = let
   entry = if length items > 1
     then T.append "Get " (actionLook $ tail items)
     else T.pack "..."
-  in w { tick = newTick
-         , entityT = GP.updatePlayer newPlayer newEntity
+  in w { tick       = newTick
+         , entityT  = GP.updatePlayer newPlayer newEntity
          , journalT = GJ.updateJournal [entry] (journalT w) }
 
 -- | actionHear
 -- if there is something to hear...
 actionHear :: EntityMap -> Coord -> Text
 actionHear em listen = let
-  hear = T.concat [ t | (ix, pos) <- GE.fromBlock em,
-                    let t = if ix > 0 && (d > 4 && d < 8)
-                          then T.pack "Something moved, "
-                          else ""
-                        d = GAI.distance pos listen ]
-  in T.append hear "..."
+  hearList = [ t | (ix, pos) <- GE.fromBlock em,
+               let t = if ix > 0 && (d > 4 && d < 8) then 1 else 0
+                   d = GAI.distance pos listen ]
+  total = sum hearList :: Int
+  hear x
+    | x > 1  = T.pack $ "Something moved " ++ "<x" ++ show x ++ ">, "
+    | x == 1 = T.pack "Something moved, "
+    | otherwise = ""
+  in T.append (hear total) "..."
 
 -- | actionLook
 -- if there is something to see...
@@ -142,7 +145,7 @@ actionMonster w = let
                        move = coordF $ cardinal (coord e)
                        in e { moveT = move }
                        else e ]
-  -- move w/ hardT
+  -- newWorld w/ hardT
   newWorld = w { entityT = Map.fromList entityList }
   in GAI.pathFinder entityList $ GAI.aiAction entityList newWorld
 
@@ -164,9 +167,9 @@ actionPlayer pos w = let
   -- Combat event
   newWorld = if bump > 0 then GC.mkCombat 0 bump moveWorld else moveWorld
   -- XP event
-  (player, _) = GP.getPlayer (entityT newWorld)
-  learn = if eLvl player > eLvl pEntity
-    then T.pack $ "Welcome to Level " ++ show (eLvl player) ++ "..."
+  (p, _) = GP.getPlayer (entityT newWorld)
+  learn = if eLvl p > eLvl pEntity
+    then T.pack $ "Welcome to Level " ++ show (eLvl p) ++ "..."
     else "..."
   in newWorld {
   journalT = GJ.updateJournal [look, listen, learn] (journalT newWorld) }
@@ -188,8 +191,8 @@ actionQuaff w = let
   entry = if pPot > 0
     then T.pack "Drink a delicious Potion..."
     else T.pack "..."
-  in w { tick = newTick
-         , entityT = GP.updatePlayer newPlayer (entityT w)
+  in w { tick       = newTick
+         , entityT  = GP.updatePlayer newPlayer (entityT w)
          , journalT = GJ.updateJournal [entry] (journalT w) }
 
 -- | applyIntent
@@ -215,28 +218,27 @@ applyIntent intent w = let
     _ -> w
   in newWorld
 
--- | resetWorld, save the Player, and redraw the World
+-- | resetWorld, save the Player, and rebuild the World
 resetWorld :: World -> World
 resetWorld w = let
   g = mkStdGen (tick w)
   (width, height) = screenXY w
   (row, col) = gridXY w
-  (pEntity, _) = GP.getPlayer (entityT w)
-  newWorld = mkWorld g (floor width, floor height) row col
-  in newWorld {
-  entityT = GE.safeInsertEntity 0 pEntity (gameT newWorld) (entityT newWorld) }
+  (p, _) = GP.getPlayer (entityT w)
+  world = mkWorld g (floor width, floor height) row col
+  in world { entityT = GE.safeInsertEntity 0 p (gameT world) (entityT world) }
 
 -- | showCharacter
 showCharacter :: World -> World
 showCharacter w = let
-  pEntry = T.intercalate ", " $ filter (/=" ") $ GP.characterSheet (entityT w)
-  in w { journalT = GJ.updateJournal [pEntry] (journalT w) }
+  entry = T.intercalate ", " $ filter (/=" ") $ GP.characterSheet (entityT w)
+  in w { journalT = GJ.updateJournal [entry] (journalT w) }
 
 -- | showInventory
 showInventory :: World -> World
 showInventory w = let
-  pEntry = T.intercalate ", " $ GP.characterInventory (entityT w)
-  in w { journalT = GJ.updateJournal [pEntry] (journalT w) }
+  entry = T.intercalate ", " $ GP.characterInventory (entityT w)
+  in w { journalT = GJ.updateJournal [entry] (journalT w) }
 
 -- | quitWorld
 quitWorld :: World -> World

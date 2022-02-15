@@ -18,6 +18,7 @@ module Game.Entity (EntityMap
                , getEntityAt
                , getEntityBy
                , insertEntity
+               , mkAssetMap
                , mkEntityMap
                , safeInsertEntity
                , updateEntityHp
@@ -81,6 +82,27 @@ insertRand e start end openList = let
   randList = DS.rollList (end-start) (fromIntegral sz) (end*sz)
   entityList = [ ek | ix <- randList, let ek = mkEntity e (openList!!ix) ]
   in zip [start..end] entityList
+
+-- | mkAssetMap
+-- All the entities within the World
+mkAssetMap :: [EntityKind] -> EntityMap
+mkAssetMap ek = let
+  spawn = (0, 0)
+  em = if null ek
+    then [ mkEntity Actor spawn
+         , mkEntity Coin spawn
+         , mkEntity Corpse spawn
+         , mkEntity Item spawn
+         , mkEntity Mouse spawn
+         , mkEntity Mushroom spawn
+         , mkEntity Potion spawn
+         , mkEntity StairDown spawn
+         , mkEntity StairUp spawn
+         , mkEntity Trap spawn
+         , mkEntity Unknown spawn
+         ]
+    else ek
+  in Map.fromList $ zip [0..] em
 
 -- | mkEntityMap will do more
 -- insert % of many things

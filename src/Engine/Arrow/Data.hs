@@ -14,9 +14,12 @@ import Control.Monad.Random (StdGen)
 import Data.Aeson
 import GHC.Generics
 import Game.Dungeon (rogueDungeon)
-import Game.Entity (EntityMap, mkEntityMap)
-import Game.Journal (TextMap, mkTextMap, updateJournal)
-import Game.Tile (TileMap, mkTileMap)
+import Game.Entity (EntityMap)
+import qualified Game.Entity as GE
+import Game.Journal (TextMap)
+import qualified Game.Journal as GJ
+import Game.Tile (TileMap)
+import qualified Game.Tile as GT
 
 type Coord = (Int, Int)
 
@@ -53,9 +56,10 @@ data Intent
 
 data World = World
   { -- GameWorld
-  tick     :: !Int
+  tick       :: !Int
   , gameT    :: !TileMap
   , entityT  :: !EntityMap
+  , assetT   :: !EntityMap
   , journalT :: !TextMap
   , fovT     :: ![Coord]
   -- XY for Screen
@@ -75,6 +79,7 @@ instance ToJSON World where
     "tick"       .= tick
     , "gameT"    .= gameT
     , "entityT"  .= entityT
+    , "assetT"   .= assetT
     , "journalT" .= journalT
     , "fovT"     .= fovT
     , "gridXY"   .= gridXY
@@ -90,21 +95,23 @@ instance ToJSON World where
 mkWorld :: StdGen -> Coord -> Int -> Int -> World
 mkWorld gen (width, height) xMax yMax = let
   (d, _) = rogueDungeon xMax yMax gen
-  tm = mkTileMap d
-  em = mkEntityMap tm
-  jm = mkTextMap
+  tm = GT.mkTileMap d
+  em = GE.mkEntityMap tm
+  am = GE.mkAssetMap []
+  jm = GJ.mkTextMap
   sx = 32.0 -- scaleXY based on tiles
   sy = 32.0
-  in World { tick = 1
-           , gameT = tm
-           , entityT = em
-           , journalT = updateJournal ["Catch the Mice...", "Welcome to Arrow..."] jm
-           , fovT = []
-           , gridXY = (xMax, yMax)
+  in World { tick     = 1
+           , gameT    = tm
+           , entityT  = em
+           , assetT   = am
+           , journalT = GJ.updateJournal ["Catch the Mice...", "Welcome to Arrow..."] jm
+           , fovT     = []
+           , gridXY   = (xMax, yMax)
            , cameraXY = (0.0, 0.0)
            , screenXY = (fromIntegral width, fromIntegral height)
-           , scaleXY = (sx, sy)
-           , dirty = True
+           , scaleXY  = (sx, sy)
+           , dirty    = True
            , starting = True
-           , exiting = False
+           , exiting  = False
            }

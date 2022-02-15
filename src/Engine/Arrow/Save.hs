@@ -31,7 +31,7 @@ loadFile :: IO World
 loadFile = do
   gen <- getStdGen
   homeDir <- getHomeDirectory
-  createDirectoryIfMissing False (homeDir ++ "/Arrow")
+  createDirectoryIfMissing False (homeDir ++ "/Documents/Arrow")
   copyFile (homeDir ++ sourceEntity) (homeDir ++ saveEntity)
   e <- loadAsset (homeDir ++ saveEntity)
   p <- loadPlayer (homeDir ++ savePlayer)

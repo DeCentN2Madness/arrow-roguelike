@@ -95,10 +95,10 @@ instance ToJSON World where
 mkWorld :: StdGen -> Coord -> Int -> Int -> World
 mkWorld gen (width, height) xMax yMax = let
   (d, _) = rogueDungeon xMax yMax gen
-  tm = GT.mkTileMap d
-  em = GE.mkEntityMap tm
   am = GE.mkAssetMap []
+  em = GE.mkEntityMap tm am
   jm = GJ.mkTextMap
+  tm = GT.mkTileMap d
   sx = 32.0 -- scaleXY based on tiles
   sy = 32.0
   in World { tick     = 1

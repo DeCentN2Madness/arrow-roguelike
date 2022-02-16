@@ -37,7 +37,7 @@ groupEK = map (head &&& length) . group . sort
 
 -- | noPickup
 noPickup :: [Entity]
-noPickup = [Actor, Mouse, Corpse, StairDown, StairUp, Trap]
+noPickup = [Actor, Corpse, Monster, StairDown, StairUp, Trap]
 
 -- | pickup
 pickup :: [(EntityKind, Coord)] -> EntityKind -> EntityKind

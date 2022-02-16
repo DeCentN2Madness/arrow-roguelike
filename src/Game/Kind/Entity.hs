@@ -27,7 +27,7 @@ data Entity
   | Coin
   | Corpse
   | Item
-  | Mouse
+  | Monster
   | Mushroom
   | Potion
   | StairDown
@@ -58,15 +58,15 @@ instance ToJSON EntityKind
 defaultEK :: (Int, Int) -> String -> String -> EntityKind
 defaultEK xy name desc = EntityKind {
   coord = xy
-  , block = False
-  , kind = Unknown
-  , moveT = []
-  , property = mkProp name desc xy
+  , block     = False
+  , kind      = Unknown
+  , moveT     = []
+  , property  = mkProp name desc xy
   , inventory = Map.empty
-  , eLvl = 0
-  , eHP = 0
-  , eMaxHP = 0
-  , eXP = 0
+  , eLvl      = 0
+  , eHP       = 0
+  , eMaxHP    = 0
+  , eXP       = 0
   }
 
 -- | fighterProp
@@ -81,14 +81,14 @@ fighterProp xy = let
           ] ++ std
   in Map.fromList stats
 
--- | mouseProp
-mouseProp :: (Int, Int) -> Properties
-mouseProp xy = let
-  std = Map.toList $ mkProp "Mouse" "r" xy
+-- | monsterProp
+monsterProp :: (Int, Int) -> Properties
+monsterProp xy = let
+  std = Map.toList $ mkProp "Monster" "o" xy
   stats = [ ("str", "10")
-          , ("int", "15")
-          , ("dex", "11")
-          , ("con", "2")
+          , ("int", "10")
+          , ("dex", "10")
+          , ("con", "10")
           , ("wis", "10")
           ] ++ std
   in Map.fromList stats
@@ -118,13 +118,13 @@ mkEntity Corpse xy = let
 mkEntity Item xy = let
   e = defaultEK xy "Item" "["
   in e { kind=Item }
-mkEntity Mouse xy = let
-  e = defaultEK xy "Mouse" "r"
+mkEntity Monster xy = let
+  e = defaultEK xy "Monster" "o"
   in e { block=True
-       , kind=Mouse
-       , property=mouseProp xy
-       , eHP=7
-       , eXP=35
+       , kind=Monster
+       , property=monsterProp xy
+       , eHP=10
+       , eXP=50
        , eLvl=1
        }
 mkEntity Mushroom xy = let

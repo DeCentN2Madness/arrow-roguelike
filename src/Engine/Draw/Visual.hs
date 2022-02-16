@@ -25,6 +25,7 @@ import Foreign.C.Types (CInt)
 import qualified SDL
 import Engine.Arrow.Data (World(..))
 import qualified Engine.SDL.Util as U
+import qualified Game.AI as GAI
 import qualified Game.Entity as GE
 import Game.Kind.Entity (Entity(..), EntityKind(..))
 import Game.Kind.Tile (Terrain(..))
@@ -64,6 +65,19 @@ data VisualKind
   | VWall
   | VLWall
   | VLOpen
+  | VLRock
+  | VLMagma
+  | VLRubble
+  | VSpider
+  | VPoison
+  | VFire
+  | VCold
+  | VDragon
+  | VWolf
+  | VSkeleton
+  | VOrc
+  | VTroll
+  | VHuman
   deriving (Show, Eq, Ord)
 
 assetPaths :: PathMap
@@ -72,10 +86,6 @@ assetPaths = AssetMap
   , background = "./assets/Background.png"
   , style      = "./assets/ArrowSheet.png"
   }
-
--- | chessDist
-chessDist :: Coord -> Coord -> Int
-chessDist (x1, y1) (x2, y2) = max (abs (x2 - x1)) (abs (y2 - y1))
 
 -- | loadTextures
 loadTextures :: (MonadIO m)
@@ -105,6 +115,19 @@ mkVisual VItem     ts = Visual (416, 0) (style ts) 32 36
 mkVisual VUnknown  ts = Visual (448, 0) (style ts) 32 36
 mkVisual VLWall    ts = Visual (480, 0) (style ts) 32 36
 mkVisual VLOpen    ts = Visual (512, 0) (style ts) 32 36
+mkVisual VLRock    ts = Visual (0,  36) (style ts) 32 36
+mkVisual VLMagma   ts = Visual (32, 36) (style ts) 32 36
+mkVisual VLRubble  ts = Visual (64, 36) (style ts) 32 36
+mkVisual VSpider   ts = Visual (96, 36) (style ts) 32 36
+mkVisual VPoison   ts = Visual (128, 36) (style ts) 32 36
+mkVisual VFire     ts = Visual (160, 36) (style ts) 32 36
+mkVisual VCold     ts = Visual (192, 36) (style ts) 32 36
+mkVisual VDragon   ts = Visual (224, 36) (style ts) 32 36
+mkVisual VWolf     ts = Visual (256, 36) (style ts) 32 36
+mkVisual VSkeleton ts = Visual (288, 36) (style ts) 32 36
+mkVisual VOrc      ts = Visual (320, 36) (style ts) 32 36
+mkVisual VTroll    ts = Visual (352, 36) (style ts) 32 36
+mkVisual VHuman    ts = Visual (384, 36) (style ts) 32 36
 
 -- | mkVisualMao
 -- make the visual map to render
@@ -113,8 +136,8 @@ mkVisualMap ts w = do
   let actors = GE.fromEntityBy (entityT w)
       lit    = filter (\(_, j) -> j `elem` fovT w) walls
       seen   = filter (\(_, j) -> j `elem` fovT w) actors
-      (_, gPos) = GP.getPlayer (entityT w)
       walls  = GT.fromVisual (gameT w)
+      (_, gPos) = GP.getPlayer (entityT w)
       -- draw Terrain if Visible
       hardT = [ (xy, t) | (tk, xy) <- walls,
                 let t = case tk of
@@ -124,33 +147,41 @@ mkVisualMap ts w = do
                       Rubble -> mkVisual VRubble ts
                       Wall   -> mkVisual VWall   ts ]
       -- draw Terrain if lit
-      litT = [ (xy, t) | (tk, xy) <- lit,
+      litT = filter ((/=(0,0)).fst) $ [ (xy, t) | (tk, pos) <- lit,
                 let t = case tk of
-                      Magma  -> mkVisual VMagma  ts
-                      Open   -> mkVisual VLOpen ts
-                      Rock   -> mkVisual VRock   ts
-                      Rubble -> mkVisual VRubble ts
-                      Wall   -> if chessDist xy gPos > 1
-                        then mkVisual VWall ts
-                        else mkVisual VLWall ts ]
+                      Magma  -> mkVisual VLMagma  ts
+                      Open   -> mkVisual VLOpen   ts
+                      Rock   -> mkVisual VLRock   ts
+                      Rubble -> mkVisual VLRubble ts
+                      Wall   -> mkVisual VLWall   ts
+                    xy = if GAI.adjacent gPos pos then pos else (0,0) ]
       -- draw Items if in fovT
       seenT = [ (xy, t) | (ek, xy) <- seen,
                 let t = case kind ek of
-                      Actor     -> mkVisual VActor    ts
                       Coin      -> mkVisual VCoin     ts
                       Corpse    -> mkVisual VCorpse   ts
                       Item      -> mkVisual VItem     ts
-                      Mouse     -> mkVisual VMouse    ts
                       Mushroom  -> mkVisual VMushroom ts
                       Potion    -> mkVisual VPotion   ts
                       StairDown -> mkVisual VStairDn  ts
                       StairUp   -> mkVisual VStairUp  ts
                       Trap      -> mkVisual VTrap     ts
-                      Unknown   -> mkVisual VUnknown  ts ]
+                      Unknown   -> mkVisual VUnknown  ts
+                      _         -> mkVisual VCorpse   ts ]
       -- draw Actors if in fovT
       actorT = filter ((/=(0,0)).fst) $ [ t | (ek, xy) <- seen,
-                 let t = case kind ek of
-                       Actor -> (xy, mkVisual VActor ts)
-                       Mouse -> (xy, mkVisual VMouse ts)
-                       _     -> ((0,0), mkVisual VUnknown ts) ]
+                                          let t = identify xy ek ts ]
    in Map.fromList $ concat [hardT, litT, seenT, actorT]
+
+identify :: Coord -> EntityKind -> TextureMap -> (Coord, Visual)
+identify pos ek ts = let
+  eProp = property ek
+  v = Map.findWithDefault "0" "Name" eProp
+  vt = case v of
+    "Player" -> VActor
+    "Corpse" -> VCorpse
+    "Mouse" -> VMouse
+    "Monster" -> VOrc
+    _ -> VUnknown
+  xy = if vt /= VUnknown then pos else (0, 0)
+  in (xy, mkVisual vt ts)

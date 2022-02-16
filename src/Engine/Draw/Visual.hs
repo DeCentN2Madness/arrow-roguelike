@@ -69,6 +69,7 @@ data VisualKind
   | VLMagma
   | VLRubble
   | VSpider
+  | VRMouse
   | VPoison
   | VFire
   | VCold
@@ -78,6 +79,9 @@ data VisualKind
   | VOrc
   | VTroll
   | VHuman
+  | V0
+  | V1
+  | V2
   deriving (Show, Eq, Ord)
 
 assetPaths :: PathMap
@@ -119,26 +123,32 @@ mkVisual VLRock    ts = Visual (0,  36) (style ts) 32 36
 mkVisual VLMagma   ts = Visual (32, 36) (style ts) 32 36
 mkVisual VLRubble  ts = Visual (64, 36) (style ts) 32 36
 mkVisual VSpider   ts = Visual (96, 36) (style ts) 32 36
-mkVisual VPoison   ts = Visual (128, 36) (style ts) 32 36
-mkVisual VFire     ts = Visual (160, 36) (style ts) 32 36
-mkVisual VCold     ts = Visual (192, 36) (style ts) 32 36
-mkVisual VDragon   ts = Visual (224, 36) (style ts) 32 36
-mkVisual VWolf     ts = Visual (256, 36) (style ts) 32 36
-mkVisual VSkeleton ts = Visual (288, 36) (style ts) 32 36
-mkVisual VOrc      ts = Visual (320, 36) (style ts) 32 36
-mkVisual VTroll    ts = Visual (352, 36) (style ts) 32 36
-mkVisual VHuman    ts = Visual (384, 36) (style ts) 32 36
+mkVisual VRMouse   ts = Visual (128, 36) (style ts) 32 36
+mkVisual VPoison   ts = Visual (160, 36) (style ts) 32 36
+mkVisual VFire     ts = Visual (192, 36) (style ts) 32 36
+mkVisual VCold     ts = Visual (224, 36) (style ts) 32 36
+mkVisual VDragon   ts = Visual (256, 36) (style ts) 32 36
+mkVisual VWolf     ts = Visual (288, 36) (style ts) 32 36
+mkVisual VSkeleton ts = Visual (320, 36) (style ts) 32 36
+mkVisual VOrc      ts = Visual (352, 36) (style ts) 32 36
+mkVisual VTroll    ts = Visual (384, 36) (style ts) 32 36
+mkVisual VHuman    ts = Visual (416, 36) (style ts) 32 36
+mkVisual V0        ts = Visual (448, 36) (style ts) 32 36
+mkVisual V1        ts = Visual (480, 36) (style ts) 32 36
+mkVisual V2        ts = Visual (512, 36) (style ts) 32 36
 
 -- | mkVisualMao
 -- make the visual map to render
 mkVisualMap :: TextureMap -> World -> VisualMap
 mkVisualMap ts w = do
-  let actors = GE.fromEntityBy (entityT w)
-      lit    = filter (\(_, j) -> j `elem` fovT w) walls
-      seen   = filter (\(_, j) -> j `elem` fovT w) actors
-      walls  = GT.fromVisual (gameT w)
-      (_, gPos) = GP.getPlayer (entityT w)
-      -- draw Terrain if Visible
+  let entities = GE.fromEntityBy (entityT w)
+      walls    = GT.fromVisual (gameT w)
+      blockT   = [ xy | (_, xy) <- GE.fromBlock (entityT w) ]
+      actors   = filter (\(_, j) -> j `elem` blockT) seen
+      lit      = filter (\(_, j) -> j `elem` fovT w) walls
+      seen     = filter (\(_, j) -> j `elem` fovT w) entities
+      (_,gPos) = GP.getPlayer (entityT w)
+      -- draw Terrain if visible
       hardT = [ (xy, t) | (tk, xy) <- walls,
                 let t = case tk of
                       Magma  -> mkVisual VMagma  ts
@@ -155,7 +165,7 @@ mkVisualMap ts w = do
                       Rubble -> mkVisual VLRubble ts
                       Wall   -> mkVisual VLWall   ts
                     xy = if GAI.adjacent gPos pos then pos else (0,0) ]
-      -- draw Items if in fovT
+      -- draw Entities if in fovT
       seenT = [ (xy, t) | (ek, xy) <- seen,
                 let t = case kind ek of
                       Coin      -> mkVisual VCoin     ts
@@ -169,19 +179,16 @@ mkVisualMap ts w = do
                       Unknown   -> mkVisual VUnknown  ts
                       _         -> mkVisual VCorpse   ts ]
       -- draw Actors if in fovT
-      actorT = filter ((/=(0,0)).fst) $ [ t | (ek, xy) <- seen,
-                                          let t = identify xy ek ts ]
+      actorT = [ t | (ek, xy) <- actors, let t = identify xy ek ts ]
    in Map.fromList $ concat [hardT, litT, seenT, actorT]
 
+-- | identify Monster by Name
 identify :: Coord -> EntityKind -> TextureMap -> (Coord, Visual)
 identify pos ek ts = let
   eProp = property ek
   v = Map.findWithDefault "0" "Name" eProp
   vt = case v of
-    "Player" -> VActor
-    "Corpse" -> VCorpse
-    "Mouse" -> VMouse
+    "Mouse"   -> VMouse
     "Monster" -> VOrc
-    _ -> VUnknown
-  xy = if vt /= VUnknown then pos else (0, 0)
-  in (xy, mkVisual vt ts)
+    _         -> VActor
+  in (pos, mkVisual vt ts)

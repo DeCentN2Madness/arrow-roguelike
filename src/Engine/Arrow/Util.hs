@@ -45,12 +45,9 @@ actionBump pos em = let
 -- 4. if P moved then update FoV and Camera
 actionDirection :: Direction -> World -> World
 actionDirection input w = if starting w
-  then let
-    run = w { starting = False }
-    in EDC.updateCamera run
+  then EDC.updateCamera w { starting = False }
   else let
     -- oldWorld
-    newTick          = tick w + 1
     (_, playerCoord) = GP.getPlayer (entityT w)
     (heroX, heroY)   = playerCoord |+| dirToCoord input
     clampCoord       = clamp (heroX, heroY) (gridXY w)
@@ -58,22 +55,18 @@ actionDirection input w = if starting w
     newWorld         = actionMonster $ actionPlayer clampCoord w
     (_, pPos)        = GP.getPlayer (entityT newWorld)
     run = if pPos == clampCoord
-      then
-      EAV.updateView $ newWorld {
-      tick      = newTick
-      , fovT    = EAV.mkView pPos (gameT newWorld)
-      , dirty   = True }
-      else newWorld { tick = newTick, dirty = False }
+      then EAV.updateView $ newWorld { fovT = EAV.mkView pPos (gameT newWorld)
+                                     , dirty = True }
+      else newWorld { dirty = False }
   in EDC.updateCamera run
 
 -- | actionEat
 -- if there is something to eat...
 actionEat :: World -> World
 actionEat w = let
-  newTick = tick w + 1
   (pEntity, _) = GP.getPlayer (entityT w)
-  pInv   = inventory pEntity
-  pMush  = Map.findWithDefault 0 "Mushroom" pInv
+  pInv         = inventory pEntity
+  pMush        = Map.findWithDefault 0 "Mushroom" pInv
   newPlayer = if pMush > 0
     then let
     heal = eHP pEntity + 3
@@ -83,17 +76,15 @@ actionEat w = let
   entry = if pMush > 0
     then T.pack "Eat a tasty Mushroom..."
     else T.pack "..."
-  in w { tick       = newTick
-         , entityT  = GP.updatePlayer newPlayer (entityT w)
-         , journalT = GJ.updateJournal [entry] (journalT w) }
+  in w { entityT  = GP.updatePlayer newPlayer (entityT w)
+       , journalT = GJ.updateJournal [entry] (journalT w) }
 
 -- | actionGet
 -- if there is something to get...
 actionGet :: World -> World
 actionGet w = let
-  newTick = tick w + 1
   (pEntity, pPos) = GP.getPlayer (entityT w)
-  items = GE.getEntityBy pPos (entityT w)
+  items           = GE.getEntityBy pPos (entityT w)
   newPlayer = if not (null items)
     then GI.pickup items pEntity
     else pEntity
@@ -103,9 +94,8 @@ actionGet w = let
   entry = if length items > 1
     then T.append "Get " (actionLook $ tail items)
     else T.pack "..."
-  in w { tick       = newTick
-         , entityT  = GP.updatePlayer newPlayer newEntity
-         , journalT = GJ.updateJournal [entry] (journalT w) }
+  in w { entityT  = GP.updatePlayer newPlayer newEntity
+       , journalT = GJ.updateJournal [entry] (journalT w) }
 
 -- | actionHear
 -- if there is something to hear...
@@ -151,37 +141,38 @@ actionMonster w = let
 
 -- | actionPlayer
 -- handle the Player within the World
+-- TODO handle statuses
 actionPlayer :: Coord -> World -> World
 actionPlayer pos w = let
+  -- Time event
+  newTick         = tick w + 1
   (pEntity, pPos) = GP.getPlayer (entityT w)
   -- Bump event
-  bump = actionBump pos (entityT w)
-  bumpCoord = if bump < 1 then pos else pPos
+  bump       = actionBump pos (entityT w)
+  bumpCoord  = if bump < 1 then pos else pPos
   -- Move event
   newCoord   = if bumpCoord `elem` moveT pEntity then bumpCoord else pPos
   moveWorld  = w { entityT = GP.updatePlayerBy newCoord (entityT w) }
-  -- Look event
-  look = actionLook $ GE.getEntityBy newCoord (entityT moveWorld)
-  -- Hear event
-  listen = actionHear (entityT moveWorld) newCoord
+  -- Look && Listen event
+  look       = actionLook $ GE.getEntityBy newCoord (entityT moveWorld)
+  listen     = actionHear (entityT moveWorld) newCoord
   -- Combat event
-  newWorld = if bump > 0 then GC.mkCombat 0 bump moveWorld else moveWorld
+  newWorld   = if bump > 0 then GC.mkCombat 0 bump moveWorld else moveWorld
   -- XP event
   (p, _) = GP.getPlayer (entityT newWorld)
   learn = if eLvl p > eLvl pEntity
     then T.pack $ "Welcome to Level " ++ show (eLvl p) ++ "..."
     else "..."
-  in newWorld {
-  journalT = GJ.updateJournal [look, listen, learn] (journalT newWorld) }
+  in newWorld { tick     = newTick,
+                journalT = GJ.updateJournal [look, listen, learn] (journalT newWorld) }
 
 -- | actionQuaff
 -- if there is something to drink...
 actionQuaff :: World -> World
 actionQuaff w = let
-  newTick = tick w + 1
   (pEntity, _) = GP.getPlayer (entityT w)
-  pInv = inventory pEntity
-  pPot = Map.findWithDefault 0 "Potion" pInv
+  pInv         = inventory pEntity
+  pPot         = Map.findWithDefault 0 "Potion" pInv
   newPlayer = if pPot > 0
     then let
     heal = eHP pEntity + 5
@@ -191,9 +182,8 @@ actionQuaff w = let
   entry = if pPot > 0
     then T.pack "Drink a delicious Potion..."
     else T.pack "..."
-  in w { tick       = newTick
-         , entityT  = GP.updatePlayer newPlayer (entityT w)
-         , journalT = GJ.updateJournal [entry] (journalT w) }
+  in w { entityT  = GP.updatePlayer newPlayer (entityT w)
+       , journalT = GJ.updateJournal [entry] (journalT w) }
 
 -- | applyIntent
 -- Events applied to the World

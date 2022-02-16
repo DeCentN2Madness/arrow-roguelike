@@ -104,13 +104,17 @@ mkAssetMap ek = let
          , mkEntity Coin spawn
          , mkEntity Corpse spawn
          , mkEntity Item spawn
-         , mkEntity Monster spawn
          , mkEntity Mushroom spawn
          , mkEntity Potion spawn
          , mkEntity StairDown spawn
          , mkEntity StairUp spawn
          , mkEntity Trap spawn
-         , mkEntity Unknown spawn ]
+         , mkEntity Unknown spawn
+         , mkMonster "Human" spawn
+         , mkMonster "Orc" spawn
+         , mkMonster "Mouse" spawn
+         , mkMonster "Spider" spawn
+         ]
     else ek
   in Map.fromList $ zip [0..] em
 
@@ -129,7 +133,7 @@ mkEntityMap tm am = let
   e3 = Map.findWithDefault unk "Potion" assetMap
   e4 = Map.findWithDefault unk "Coin" assetMap
   e5 = Map.findWithDefault unk "Unknown" assetMap
-  e6 = Map.findWithDefault unk "Monster" assetMap
+  e6 = Map.findWithDefault unk "Orc" assetMap
   junk = concat [ insertRand e0 1  10 openList
                 , insertRand e1 11 20 openList
                 , insertRand e2 21 30 openList

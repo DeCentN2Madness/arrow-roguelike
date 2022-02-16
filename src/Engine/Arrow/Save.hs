@@ -32,6 +32,7 @@ loadFile = do
   gen <- getStdGen
   homeDir <- getHomeDirectory
   createDirectoryIfMissing False (homeDir ++ "/Documents/Arrow")
+  -- git
   copyFile (homeDir ++ sourceEntity) (homeDir ++ saveEntity)
   e <- loadAsset (homeDir ++ saveEntity)
   p <- loadPlayer (homeDir ++ savePlayer)

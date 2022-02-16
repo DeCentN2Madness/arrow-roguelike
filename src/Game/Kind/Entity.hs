@@ -10,6 +10,7 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 module Game.Kind.Entity (Entity(..)
                         , EntityKind(..)
                         , mkEntity
+                        , mkMonster
                         , Properties) where
 
 import Prelude hiding (lookup)
@@ -70,31 +71,61 @@ defaultEK xy name desc = EntityKind {
   }
 
 -- | fighterProp
-fighterProp :: (Int, Int) -> Properties
-fighterProp xy = let
-  std = Map.toList $ mkProp "Player" "@" xy
+fighterProp :: String -> String -> Coord -> Properties
+fighterProp name desc xy = let
+  std = Map.toList $ mkProp name desc xy
   stats = [ ("str", "15")
-          , ("int", "14")
           , ("dex", "13")
           , ("con", "12")
+          , ("int", "14")
           , ("wis", "10")
           ] ++ std
   in Map.fromList stats
 
 -- | monsterProp
-monsterProp :: (Int, Int) -> Properties
-monsterProp xy = let
-  std = Map.toList $ mkProp "Monster" "o" xy
+monsterProp :: String -> String -> Coord -> Properties
+monsterProp name desc xy = let
+  std = Map.toList $ mkProp name desc xy
   stats = [ ("str", "10")
-          , ("int", "10")
           , ("dex", "10")
           , ("con", "10")
+          , ("int", "10")
           , ("wis", "10")
           ] ++ std
   in Map.fromList stats
 
+-- | mouseProp
+mouseProp :: String -> String -> Coord -> Properties
+mouseProp name desc xy = let
+  std = Map.toList $ mkProp name desc xy
+  stats = [ ("str", "7")
+          , ("dex", "15")
+          , ("con", "11")
+          , ("int", "2")
+          , ("wis", "10")
+          ] ++ std
+  in Map.fromList stats
+
+-- | mkMonster
+mkMonster :: String -> Coord -> EntityKind
+mkMonster name xy = let
+  p = case name of
+    "Mouse" -> mouseProp   name "r"  xy
+    "Orc"   -> monsterProp name "o" xy
+    "Human" -> fighterProp name "h" xy
+    "Spider" -> monsterProp name "S" xy
+    _       -> monsterProp name "o" xy
+  e = defaultEK xy name "asset"
+  in e { block=True
+       , kind=Monster
+       , property=p
+       , eHP=10
+       , eXP=50
+       , eLvl=1
+       }
+
 -- | mkProp
-mkProp :: String -> String -> (Int, Int) -> Properties
+mkProp :: String -> String -> Coord -> Properties
 mkProp name desc xy = Map.fromList [ ("Name", name)
                                    , ("Description", desc)
                                    , ("spawn", show xy) ]
@@ -105,7 +136,7 @@ mkEntity Actor xy = let
   e = defaultEK xy "Player" "@"
   in e { block=True
        , kind=Actor
-       , property=fighterProp xy
+       , property=fighterProp "Player" "@" xy
        , eHP=10
        , eMaxHP=10
        , eLvl=1 }
@@ -122,7 +153,7 @@ mkEntity Monster xy = let
   e = defaultEK xy "Monster" "o"
   in e { block=True
        , kind=Monster
-       , property=monsterProp xy
+       , property=monsterProp "Orc" "o" xy
        , eHP=10
        , eXP=50
        , eLvl=1

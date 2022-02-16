@@ -188,7 +188,8 @@ identify pos ek ts = let
   eProp = property ek
   v = Map.findWithDefault "0" "Name" eProp
   vt = case v of
-    "Mouse"   -> VMouse
-    "Monster" -> VOrc
-    _         -> VActor
+    "Mouse"  -> VMouse
+    "Orc"    -> VOrc
+    "Player" -> VActor
+    _        -> VMouse
   in (pos, mkVisual vt ts)

@@ -70,6 +70,8 @@ mkCombat px mx w = if px == mx
       else "Dead!" else ""
     pEntry = T.pack $
       show (kind pEntity)
+      ++ " id="
+      ++ show px
       ++ attack pAR mDR
       ++ show (kind mEntity)
       ++ "! " ++ mDeath

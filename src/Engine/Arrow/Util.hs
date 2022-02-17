@@ -69,7 +69,7 @@ actionEat w = let
   pMush        = Map.findWithDefault 0 "Mushroom" pInv
   newPlayer = if pMush > 0
     then let
-    heal = eHP pEntity + 3
+    heal = eHP pEntity + 5
     in pEntity { inventory = Map.insert "Mushroom" (pMush-1) pInv
                , eHP = if heal > eMaxHP pEntity then eMaxHP pEntity else heal }
     else pEntity
@@ -175,7 +175,7 @@ actionQuaff w = let
   pPot         = Map.findWithDefault 0 "Potion" pInv
   newPlayer = if pPot > 0
     then let
-    heal = eHP pEntity + 5
+    heal = eHP pEntity + 7
     in pEntity { inventory = Map.insert "Potion" (pPot-1) pInv
                , eHP = if heal > eMaxHP pEntity then eMaxHP pEntity else heal }
     else pEntity

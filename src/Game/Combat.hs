@@ -48,6 +48,7 @@ mkCombat px mx w = if px == mx
     pSeed = (tick w + pHP*mHP) * uncurry (*) pPos :: Int
     -- pAR and pDam
     pProp = property pEntity
+    pName = Map.findWithDefault "P" "Name" pProp
     pStr  = read $ Map.findWithDefault "1" "str" pProp :: Int
     pDex  = read $ Map.findWithDefault "1" "dex" pProp :: Int
     pHP   = eHP pEntity
@@ -55,6 +56,7 @@ mkCombat px mx w = if px == mx
     pDam  = clamp $ DS.d4 pSeed + abilityMod pStr
     -- mDR
     mProp = property mEntity
+    mName = Map.findWithDefault "M" "Name" mProp
     mDex  = read $ Map.findWithDefault "1" "dex" mProp :: Int
     mHP   = eHP mEntity
     mExp  = eXP mEntity
@@ -68,12 +70,9 @@ mkCombat px mx w = if px == mx
       then if mx == 0
       then "Player died!"
       else "Dead!" else ""
-    pEntry = T.pack $
-      show (kind pEntity)
-      ++ " id="
-      ++ show px
+    pEntry = T.pack $ pName
       ++ attack pAR mDR
-      ++ show (kind mEntity)
+      ++ mName
       ++ "! " ++ mDeath
     -- newEntity with damages and deaths
     -- Exp Award

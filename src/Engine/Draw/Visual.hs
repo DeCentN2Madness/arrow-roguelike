@@ -143,10 +143,8 @@ mkVisualMap :: TextureMap -> World -> VisualMap
 mkVisualMap ts w = do
   let entity  = GE.fromEntityBy (entityT w)
       walls  = GT.fromVisual (gameT w)
-      blocks = [ xy | (_, xy) <- GE.fromBlock (entityT w) ]
-      actors = filter (\(_, j) -> j `elem` fovT w && j `elem` blocks) entity
       lit    = filter (\(_, j) -> j `elem` fovT w) walls
-      seen   = filter (\(_, j) -> j `elem` fovT w && j `notElem` blocks) entity
+      seen   = filter (\(_, j) -> j `elem` fovT w) entity
       (_,gPos) = GP.getPlayer (entityT w)
       -- draw Terrain if visible
       hardT = [ (xy, t) | (tk, xy) <- walls,
@@ -167,29 +165,30 @@ mkVisualMap ts w = do
                     xy = if GAI.adjacent gPos pos then pos else (0,0) ]
       -- draw Entities if in fovT
       seenT = [ (xy, t) | (ek, xy) <- seen,
-                let t = case kind ek of
+                let t = if xy == gPos
+                      then mkVisual VActor ts
+                      else case kind ek of
+                      Actor     -> mkVisual VActor    ts
                       Coin      -> mkVisual VCoin     ts
                       Corpse    -> mkVisual VCorpse   ts
                       Item      -> mkVisual VItem     ts
                       Mushroom  -> mkVisual VMushroom ts
+                      Monster   -> identify ek ts
                       Potion    -> mkVisual VPotion   ts
                       StairDown -> mkVisual VStairDn  ts
                       StairUp   -> mkVisual VStairUp  ts
                       Trap      -> mkVisual VTrap     ts
-                      Unknown   -> mkVisual VUnknown  ts
-                      _         -> mkVisual VCorpse   ts ]
-      -- draw Actors if in fovT
-      actorT = [ t | (ek, xy) <- actors, let t = identify xy ek ts ]
-   in Map.fromList $ concat [hardT, litT, seenT, actorT]
+                      Unknown   -> mkVisual VUnknown  ts ]
+   in Map.fromList $ concat [hardT, litT, seenT]
 
--- | identify Monster by Name
-identify :: Coord -> EntityKind -> TextureMap -> (Coord, Visual)
-identify pos ek ts = let
+-- | identify Item, Monster, ... by Name
+identify :: EntityKind -> TextureMap -> Visual
+identify ek ts = let
   eProp = property ek
-  v = Map.findWithDefault "0" "Name" eProp
+  v = Map.findWithDefault "~" "Name" eProp
   vt = case v of
     "Mouse"  -> VMouse
     "Orc"    -> VOrc
     "Spider" -> VSpider
-    _        -> VActor
-  in (pos, mkVisual vt ts)
+    _        -> VUnknown
+  in mkVisual vt ts

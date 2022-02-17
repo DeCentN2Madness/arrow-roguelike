@@ -141,7 +141,7 @@ mkEntityMap tm am = let
                 , insertRand e4 41 50 openList
                 , insertRand e5 51 60 openList
                 , insertRand e6 61 63 openList
-                , insertRand e7 63 65 openList ]
+                , insertRand e7 63 64 openList ]
   in safeInsertEntity 0 p0 tm (Map.fromList junk)
 
 -- | insert @ into the TileMap

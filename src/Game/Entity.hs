@@ -135,8 +135,10 @@ mkEntityMap tm am = let
   e3 = Map.findWithDefault unk "Coin" assetMap
   e4 = Map.findWithDefault unk "Unknown" assetMap
   e5 = Map.findWithDefault unk "Mouse" assetMap
-  e6 = Map.findWithDefault unk "Orc" assetMap
-  e7 = Map.findWithDefault unk "Spider" assetMap
+  e6 = Map.findWithDefault unk "Wolf" assetMap
+  e7 = Map.findWithDefault unk "Orc" assetMap
+  e8 = Map.findWithDefault unk "Spider" assetMap
+  e9 = Map.findWithDefault unk "Troll" assetMap
   junk = concat [ insertRand e0 1  10 openList
                 , insertRand e1 11 20 openList
                 , insertRand e2 21 30 openList
@@ -144,7 +146,9 @@ mkEntityMap tm am = let
                 , insertRand e4 41 50 openList
                 , insertRand e5 51 60 openList
                 , insertRand e6 61 65 openList
-                , insertRand e7 65 66 openList ]
+                , insertRand e7 65 70 openList
+                , insertRand e8 71 72 openList
+                , insertRand e9 72 73 openList ]
   in safeInsertEntity 0 p0 tm (Map.fromList junk)
 
 -- | insert @ into the TileMap

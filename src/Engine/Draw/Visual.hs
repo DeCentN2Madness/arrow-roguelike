@@ -122,24 +122,24 @@ mkVisual VItem     ts = Visual (416, 0) (style ts) width height
 mkVisual VUnknown  ts = Visual (448, 0) (style ts) width height
 mkVisual VLWall    ts = Visual (480, 0) (style ts) width height
 mkVisual VLOpen    ts = Visual (512, 0) (style ts) width height
-mkVisual VLRock    ts = Visual (0,  36) (style ts) width height
-mkVisual VLMagma   ts = Visual (32, 36) (style ts) width height
-mkVisual VLRubble  ts = Visual (64, 36) (style ts) width height
-mkVisual VCorpse   ts = Visual (64, 36) (style ts) width height
-mkVisual VSpider   ts = Visual (96, 36) (style ts) width height
-mkVisual VPerson   ts = Visual (128, 36) (style ts) width height
-mkVisual VPoison   ts = Visual (160, 36) (style ts) width height
-mkVisual VFire     ts = Visual (192, 36) (style ts) width height
-mkVisual VCold     ts = Visual (224, 36) (style ts) width height
-mkVisual VDragon   ts = Visual (256, 36) (style ts) width height
-mkVisual VWolf     ts = Visual (288, 36) (style ts) width height
-mkVisual VSkeleton ts = Visual (320, 36) (style ts) width height
-mkVisual VOrc      ts = Visual (352, 36) (style ts) width height
-mkVisual VTroll    ts = Visual (384, 36) (style ts) width height
-mkVisual VHuman    ts = Visual (416, 36) (style ts) width height
-mkVisual V0        ts = Visual (448, 36) (style ts) width height
-mkVisual V1        ts = Visual (480, 36) (style ts) width height
-mkVisual V2        ts = Visual (512, 36) (style ts) width height
+mkVisual VLRock    ts = Visual (0,  34) (style ts) width height
+mkVisual VLMagma   ts = Visual (32, 34) (style ts) width height
+mkVisual VLRubble  ts = Visual (64, 34) (style ts) width height
+mkVisual VCorpse   ts = Visual (64, 34) (style ts) width height
+mkVisual VSpider   ts = Visual (96, 34) (style ts) width height
+mkVisual VPerson   ts = Visual (128, 34) (style ts) width height
+mkVisual VPoison   ts = Visual (160, 34) (style ts) width height
+mkVisual VFire     ts = Visual (192, 34) (style ts) width height
+mkVisual VCold     ts = Visual (224, 34) (style ts) width height
+mkVisual VDragon   ts = Visual (256, 34) (style ts) width height
+mkVisual VWolf     ts = Visual (288, 34) (style ts) width height
+mkVisual VSkeleton ts = Visual (320, 34) (style ts) width height
+mkVisual VOrc      ts = Visual (352, 34) (style ts) width height
+mkVisual VTroll    ts = Visual (384, 34) (style ts) width height
+mkVisual VHuman    ts = Visual (416, 34) (style ts) width height
+mkVisual V0        ts = Visual (448, 34) (style ts) width height
+mkVisual V1        ts = Visual (480, 34) (style ts) width height
+mkVisual V2        ts = Visual (512, 34) (style ts) width height
 
 -- | mkVisualMao
 -- Make the visual for rendering
@@ -200,5 +200,7 @@ identify ek ts = let
     "Mouse"  -> VMouse
     "Orc"    -> VOrc
     "Spider" -> VSpider
-    _        -> VUnknown
+    "Troll"  -> VTroll
+    "Wolf"   -> VWolf
+    _        -> VMouse
   in mkVisual vt ts

@@ -64,6 +64,15 @@ characterInventory em = let
 getPlayer :: EntityMap -> (Player, Coord)
 getPlayer = GE.getEntityAt 0
 
+proficiency :: Int -> Int
+proficiency lvl
+  | lvl >= 1  && lvl <= 4 = 2
+  | lvl >= 5  && lvl <= 8 = 3
+  | lvl >= 9  && lvl <= 12 = 4
+  | lvl >= 13 && lvl <= 16 = 5
+  | lvl >= 17 && lvl <= 20 = 6
+  | otherwise = 2
+
 -- | update @ properties
 updatePlayer :: Player -> EntityMap -> EntityMap
 updatePlayer = Map.insert 0
@@ -82,19 +91,31 @@ updatePlayerXP xp em = let
   pLvl = xpLevel pTot
   pHP = if pLvl > eLvl pEntity then pMaxHP else eHP pEntity
   pMaxHP = pLvl * (10 + abilityMod pCon)
-  in updatePlayer (pEntity { eLvl=pLvl, eHP=pHP, eMaxHP=pMaxHP, eXP=pTot }) em
+  newProp = Map.insert "Proficiency" (show $ proficiency pLvl) pProp
+  newPlayer = pEntity { property=newProp, eLvl=pLvl, eHP=pHP, eMaxHP=pMaxHP, eXP=pTot }
+  in updatePlayer newPlayer em
 
 -- | xpLevel simple
 xpLevel :: Int -> Int
-xpLevel n
-  | n > 0   && n <= 30  = 1
-  | n > 30  && n <= 100 = 2
-  | n > 100 && n <= 200 = 3
-  | n > 200 && n <= 300 = 4
-  | n > 300 && n <= 400 = 5
-  | n > 400 && n <= 500 = 6
-  | n > 500 && n <= 600 = 7
-  | n > 600 && n <= 700 = 8
-  | n > 700 && n <= 800 = 9
-  | n > 800             = 10
+xpLevel x
+  | x > 0    && x <= 35  = 1
+  | x > 35   && x <= 100 = 2
+  | x > 100  && x <= 200 = 3
+  | x > 200  && x <= 300 = 4
+  | x > 300  && x <= 400 = 5
+  | x > 400  && x <= 600 = 6
+  | x > 600  && x <= 800 = 7
+  | x > 800  && x <= 1000 = 8
+  | x > 1000 && x <= 1200 = 9
+  | x > 1200 && x <= 1400 = 10
+  | x > 1400 && x <= 1600 = 11
+  | x > 1600 && x <= 1800 = 12
+  | x > 1800 && x <= 2200 = 13
+  | x > 2200 && x <= 2600 = 14
+  | x > 2600 && x <= 3000 = 15
+  | x > 3000 && x <= 4000 = 16
+  | x > 4000 && x <= 5000 = 17
+  | x > 5060 && x <= 6000 = 18
+  | x > 6000 && x <= 10000 = 19
+  | x > 10000              = 20
   | otherwise = 1

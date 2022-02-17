@@ -82,6 +82,7 @@ fighterProp p = let
           , ("HP", "10")
           , ("XP", "0")
           , ("Weapon", "1d6+1")
+          , ("Proficiency", "2")
           ] ++ mProp
   in Map.fromList stats
 
@@ -97,6 +98,7 @@ smBeast p = let
           , ("HP", "7")
           , ("XP", "25")
           , ("Weapon", "1d4+2")
+          , ("Proficiency", "1")
           ] ++ mProp
   in Map.fromList stats
 
@@ -112,6 +114,7 @@ mdBeast p = let
           , ("HP", "11")
           , ("XP", "50")
           , ("Weapon", "2d4+2")
+          , ("Proficiency", "1")
           ] ++ mProp
   in Map.fromList stats
 
@@ -127,6 +130,7 @@ lgBeast p = let
           , ("HP", "26")
           , ("XP", "200")
           , ("Weapon", "1d8+1")
+          , ("Proficiency", "1")
           ] ++ mProp
   in Map.fromList stats
 
@@ -142,6 +146,7 @@ mdHumanoid p = let
           , ("HP", "15")
           , ("XP", "100")
           , ("Weapon", "1d12+3")
+          , ("Proficiency", "1")
           ] ++ mProp
   in Map.fromList stats
 
@@ -157,9 +162,9 @@ gtHumanoid p = let
           , ("HP", "84")
           , ("XP", "1800")
           , ("Weapon", "2d6+4")
+          , ("Proficiency", "3")
           ] ++ mProp
   in Map.fromList stats
-
 
 -- | mkMonster
 mkMonster :: String -> String -> Coord -> EntityKind

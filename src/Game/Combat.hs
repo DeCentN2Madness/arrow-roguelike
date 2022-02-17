@@ -45,22 +45,23 @@ mkCombat px mx w = if px == mx
     (pEntity, pPos) = GE.getEntityAt px (entityT w)
     (mEntity, mPos) = GE.getEntityAt mx (entityT w)
     -- random seed
-    pSeed = (tick w + pHP*mHP) * uncurry (*) pPos :: Int
-    -- pAR and pDam
+    pSeed = tick w + (uncurry (*) mPos * uncurry (*) pPos) :: Int
+    -- pAR, pDam, pMod
     pProp = property pEntity
     pName = Map.findWithDefault "P" "Name" pProp
     pStr  = read $ Map.findWithDefault "1" "str" pProp :: Int
     pDex  = read $ Map.findWithDefault "1" "dex" pProp :: Int
-    pHP   = eHP pEntity
-    pAR   = clamp $ DS.d20 pSeed + abilityMod pDex
-    pDam  = clamp $ DS.d4 pSeed + abilityMod pStr
-    -- mDR
+    pMod  = read $ Map.findWithDefault "1" "Proficiency" pProp :: Int
+    pAR   = clamp $ DS.d20 pSeed + abilityMod pDex + pMod
+    pDam  = clamp $ DS.d4 pSeed  + abilityMod pStr + pMod
+    -- mDR,  mMod
     mProp = property mEntity
     mName = Map.findWithDefault "M" "Name" mProp
     mDex  = read $ Map.findWithDefault "1" "dex" mProp :: Int
+    mMod  = read $ Map.findWithDefault "1" "Proficiency" mProp :: Int
     mHP   = eHP mEntity
     mExp  = eXP mEntity
-    mDR   = 10 + abilityMod mDex
+    mDR   = 10 + abilityMod mDex + mMod
     -- p v m
     pAttack = if pAR >= mDR
       then mHP - pDam

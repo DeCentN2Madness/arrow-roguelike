@@ -110,10 +110,9 @@ mkAssetMap ek = let
          , mkEntity StairUp spawn
          , mkEntity Trap spawn
          , mkEntity Unknown spawn
-         , mkMonster "Human" spawn
-         , mkMonster "Orc" spawn
-         , mkMonster "Mouse" spawn
-         , mkMonster "Spider" spawn
+         , mkMonster "Orc" "Medium humanoid (o)" spawn
+         , mkMonster "Mouse" "Small beast (r)" spawn
+         , mkMonster "Spider" "Large beast (S)" spawn
          ]
     else ek
   in Map.fromList $ zip [0..] em
@@ -134,13 +133,15 @@ mkEntityMap tm am = let
   e4 = Map.findWithDefault unk "Coin" assetMap
   e5 = Map.findWithDefault unk "Unknown" assetMap
   e6 = Map.findWithDefault unk "Orc" assetMap
+  e7 = Map.findWithDefault unk "Spider" assetMap
   junk = concat [ insertRand e0 1  10 openList
                 , insertRand e1 11 20 openList
                 , insertRand e2 21 30 openList
                 , insertRand e3 31 40 openList
                 , insertRand e4 41 50 openList
                 , insertRand e5 51 60 openList
-                , insertRand e6 61 70 openList ]
+                , insertRand e6 61 63 openList
+                , insertRand e7 63 65 openList ]
   in safeInsertEntity 0 p0 tm (Map.fromList junk)
 
 -- | insert @ into the TileMap

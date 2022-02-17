@@ -168,6 +168,7 @@ mkVisualMap ts w = do
       -- draw Entities if in fovT
       seenT = [ (xy, t) | (ek, xy) <- seen,
                 let t = case kind ek of
+                      Actor     -> mkVisual VActor    ts
                       Coin      -> mkVisual VCoin     ts
                       Corpse    -> mkVisual VCorpse   ts
                       Item      -> mkVisual VItem     ts
@@ -190,6 +191,6 @@ identify pos ek ts = let
   vt = case v of
     "Mouse"  -> VMouse
     "Orc"    -> VOrc
-    "Player" -> VActor
-    _        -> VMouse
+    "Spider" -> VSpider
+    _        -> VActor
   in (pos, mkVisual vt ts)

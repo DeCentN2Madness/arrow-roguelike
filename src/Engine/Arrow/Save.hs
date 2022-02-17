@@ -32,9 +32,8 @@ loadFile = do
   gen <- getStdGen
   homeDir <- getHomeDirectory
   createDirectoryIfMissing False (homeDir ++ "/Documents/Arrow")
-  -- git
-  copyFile (homeDir ++ sourceEntity) (homeDir ++ saveEntity)
-  e <- loadAsset (homeDir ++ saveEntity)
+  -- copyFile (homeDir ++ sourceAsset) (homeDir ++ saveAsset)
+  e <- loadAsset (homeDir ++ saveAsset)
   p <- loadPlayer (homeDir ++ savePlayer)
   w <- loadWorld (homeDir ++ saveWorld)
   let asset = if null e
@@ -85,12 +84,11 @@ saveFile w = do
   homeDir <- getHomeDirectory
   encodeFile (homeDir ++ saveWorld) w
   encodeFile (homeDir ++ savePlayer) pEntity
-  encodeFile (homeDir ++ saveEntity) (assetT w)
+  encodeFile (homeDir ++ saveAsset) (assetT w)
 
-
--- | saveEntity
-saveEntity :: FilePath
-saveEntity = "/Documents/Arrow/entity.json"
+-- | saveAsset
+saveAsset :: FilePath
+saveAsset = "/Documents/Arrow/asset.json"
 
 -- | savePlayer
 savePlayer :: FilePath
@@ -100,10 +98,9 @@ savePlayer = "/Documents/Arrow/player.json"
 saveWorld :: FilePath
 saveWorld = "/Documents/Arrow/world.json"
 
--- | sourceEntity
--- from git
-sourceEntity :: FilePath
-sourceEntity = "/arrow/data/entity.json"
+-- | sourceAsset from git
+sourceAssset :: FilePath
+sourceAssset = "/arrow/data/asset.json"
 
 -- | touch file in case doesn't exist
 touch :: FilePath -> IO ()

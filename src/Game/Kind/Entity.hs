@@ -71,56 +71,76 @@ defaultEK xy name desc = EntityKind {
   }
 
 -- | fighterProp
-fighterProp :: String -> String -> Coord -> Properties
-fighterProp name desc xy = let
-  std = Map.toList $ mkProp name desc xy
+fighterProp :: Properties -> Properties
+fighterProp p = let
+  mProp = Map.toList p
   stats = [ ("str", "15")
           , ("dex", "13")
           , ("con", "12")
           , ("int", "14")
           , ("wis", "10")
-          ] ++ std
+          ] ++ mProp
   in Map.fromList stats
 
 -- | monsterProp
-monsterProp :: String -> String -> Coord -> Properties
-monsterProp name desc xy = let
-  std = Map.toList $ mkProp name desc xy
-  stats = [ ("str", "10")
-          , ("dex", "10")
-          , ("con", "10")
-          , ("int", "10")
-          , ("wis", "10")
-          ] ++ std
+orcProp :: Properties -> Properties
+orcProp p = let
+  mProp = Map.toList p
+  stats = [ ("str", "16")
+          , ("dex", "12")
+          , ("con", "16")
+          , ("int", "7")
+          , ("wis", "11")
+          , ("HP", "15")
+          , ("XP", "100")
+          ] ++ mProp
   in Map.fromList stats
 
 -- | mouseProp
-mouseProp :: String -> String -> Coord -> Properties
-mouseProp name desc xy = let
-  std = Map.toList $ mkProp name desc xy
+mouseProp :: Properties -> Properties
+mouseProp p = let
+  mProp = Map.toList p
   stats = [ ("str", "7")
           , ("dex", "15")
           , ("con", "11")
           , ("int", "2")
           , ("wis", "10")
-          ] ++ std
+          , ("HP", "7")
+          , ("XP", "25")
+          ] ++ mProp
+  in Map.fromList stats
+
+-- | spiderProp
+spiderProp :: Properties -> Properties
+spiderProp p = let
+  mProp = Map.toList p
+  stats = [ ("str", "14")
+          , ("dex", "16")
+          , ("con", "12")
+          , ("int", "2")
+          , ("wis", "11")
+          , ("HP", "26")
+          , ("XP", "200")
+          ] ++ mProp
   in Map.fromList stats
 
 -- | mkMonster
-mkMonster :: String -> Coord -> EntityKind
-mkMonster name xy = let
+mkMonster :: String -> String -> Coord -> EntityKind
+mkMonster name desc xy = let
+  e = defaultEK xy name desc
   p = case name of
-    "Mouse" -> mouseProp   name "r"  xy
-    "Orc"   -> monsterProp name "o" xy
-    "Human" -> fighterProp name "h" xy
-    "Spider" -> monsterProp name "S" xy
-    _       -> monsterProp name "o" xy
-  e = defaultEK xy name "asset"
+    "Mouse"  -> mouseProp (property e)
+    "Orc"    -> orcProp (property e)
+    "Spider" -> spiderProp (property e)
+    _        -> fighterProp (property e)
+  mHP = read $ Map.findWithDefault "1" "HP" p :: Int
+  mXP = read $ Map.findWithDefault "1" "XP" p :: Int
   in e { block=True
        , kind=Monster
        , property=p
-       , eHP=10
-       , eXP=50
+       , eHP=mHP
+       , eMaxHP=mHP
+       , eXP=mXP
        , eLvl=1
        }
 
@@ -136,7 +156,7 @@ mkEntity Actor xy = let
   e = defaultEK xy "Player" "@"
   in e { block=True
        , kind=Actor
-       , property=fighterProp "Player" "@" xy
+       , property=fighterProp (property e)
        , eHP=10
        , eMaxHP=10
        , eLvl=1 }
@@ -150,12 +170,12 @@ mkEntity Item xy = let
   e = defaultEK xy "Item" "["
   in e { kind=Item }
 mkEntity Monster xy = let
-  e = defaultEK xy "Monster" "o"
+  e = defaultEK xy "Orc" "Medium humanoid (o)"
   in e { block=True
        , kind=Monster
-       , property=monsterProp "Orc" "o" xy
-       , eHP=10
-       , eXP=50
+       , property=orcProp (property e)
+       , eHP=15
+       , eXP=100
        , eLvl=1
        }
 mkEntity Mushroom xy = let
@@ -168,7 +188,7 @@ mkEntity StairDown xy = let
   e = defaultEK xy "StairDown" ">"
   in e { kind=StairDown }
 mkEntity StairUp xy = let
-  e = defaultEK xy "Stair" "<"
+  e = defaultEK xy "StairUp" "<"
   in e { kind=Trap }
 mkEntity Trap xy = let
   e = defaultEK xy "Trap" "^"

@@ -141,12 +141,12 @@ mkVisual V2        ts = Visual (512, 36) (style ts) 32 36
 -- make the visual map to render
 mkVisualMap :: TextureMap -> World -> VisualMap
 mkVisualMap ts w = do
-  let entities = GE.fromEntityBy (entityT w)
-      walls    = GT.fromVisual (gameT w)
-      blockT   = [ xy | (_, xy) <- GE.fromBlock (entityT w) ]
-      actors   = filter (\(_, j) -> j `elem` blockT) seen
-      lit      = filter (\(_, j) -> j `elem` fovT w) walls
-      seen     = filter (\(_, j) -> j `elem` fovT w) entities
+  let entity  = GE.fromEntityBy (entityT w)
+      walls  = GT.fromVisual (gameT w)
+      blocks = [ xy | (_, xy) <- GE.fromBlock (entityT w) ]
+      actors = filter (\(_, j) -> j `elem` fovT w && j `elem` blocks) entity
+      lit    = filter (\(_, j) -> j `elem` fovT w) walls
+      seen   = filter (\(_, j) -> j `elem` fovT w && j `notElem` blocks) entity
       (_,gPos) = GP.getPlayer (entityT w)
       -- draw Terrain if visible
       hardT = [ (xy, t) | (tk, xy) <- walls,
@@ -168,7 +168,6 @@ mkVisualMap ts w = do
       -- draw Entities if in fovT
       seenT = [ (xy, t) | (ek, xy) <- seen,
                 let t = case kind ek of
-                      Actor     -> mkVisual VActor    ts
                       Coin      -> mkVisual VCoin     ts
                       Corpse    -> mkVisual VCorpse   ts
                       Item      -> mkVisual VItem     ts

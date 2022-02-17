@@ -110,28 +110,31 @@ mkAssetMap ek = let
          , mkEntity StairUp spawn
          , mkEntity Trap spawn
          , mkEntity Unknown spawn
-         , mkMonster "Orc" "Medium humanoid (o)" spawn
-         , mkMonster "Mouse" "Small beast (r)" spawn
+         , mkMonster "Mouse"  "Small beast (r)" spawn
+         , mkMonster "Orc"    "Medium humanoid (o)" spawn
          , mkMonster "Spider" "Large beast (S)" spawn
+         , mkMonster "Troll"  "Large giant (T)" spawn
+         , mkMonster "Wolf"   "Medium beast (c)" spawn
          ]
     else ek
   in Map.fromList $ zip [0..] em
 
 -- | mkEntityMap will do more
--- insert % of many things
--- preserve 0 for the Hero
+-- insert many things
+-- insert Monsters
+-- insert the Hero at 0
 mkEntityMap :: TileMap -> AssetMap -> EntityMap
 mkEntityMap tm am = let
   openList = tail $ [ pos | (_, pos) <- GT.fromOpen tm ]
   unk      = mkEntity Unknown (0, 0)
   assetMap = mkNameMap am
   p0 = Map.findWithDefault unk "Player" assetMap
-  e0 = Map.findWithDefault unk "Mouse" assetMap
-  e1 = Map.findWithDefault unk "Mushroom" assetMap
-  e2 = Map.findWithDefault unk "Corpse" assetMap
-  e3 = Map.findWithDefault unk "Potion" assetMap
-  e4 = Map.findWithDefault unk "Coin" assetMap
-  e5 = Map.findWithDefault unk "Unknown" assetMap
+  e0 = Map.findWithDefault unk "Mushroom" assetMap
+  e1 = Map.findWithDefault unk "Corpse" assetMap
+  e2 = Map.findWithDefault unk "Potion" assetMap
+  e3 = Map.findWithDefault unk "Coin" assetMap
+  e4 = Map.findWithDefault unk "Unknown" assetMap
+  e5 = Map.findWithDefault unk "Mouse" assetMap
   e6 = Map.findWithDefault unk "Orc" assetMap
   e7 = Map.findWithDefault unk "Spider" assetMap
   junk = concat [ insertRand e0 1  10 openList
@@ -140,8 +143,8 @@ mkEntityMap tm am = let
                 , insertRand e3 31 40 openList
                 , insertRand e4 41 50 openList
                 , insertRand e5 51 60 openList
-                , insertRand e6 61 63 openList
-                , insertRand e7 63 64 openList ]
+                , insertRand e6 61 65 openList
+                , insertRand e7 65 66 openList ]
   in safeInsertEntity 0 p0 tm (Map.fromList junk)
 
 -- | insert @ into the TileMap

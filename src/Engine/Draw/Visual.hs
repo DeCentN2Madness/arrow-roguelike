@@ -69,7 +69,7 @@ data VisualKind
   | VLMagma
   | VLRubble
   | VSpider
-  | VRMouse
+  | VPerson
   | VPoison
   | VFire
   | VCold
@@ -98,47 +98,57 @@ loadTextures :: (MonadIO m)
   -> m TextureMap
 loadTextures r = mapM (U.loadTextureWithInfo r)
 
+-- | tile sizes
+width, height :: CInt
+(width, height) = (32, 35)
+
 -- | mkVisual
 -- 32 x 36 is Tile coordinates which look good to the screen
 mkVisual :: VisualKind -> TextureMap -> Visual
-mkVisual VActor    ts = Visual (0,   0) (style ts) 32 36
-mkVisual VWall     ts = Visual (32,  0) (style ts) 32 36
-mkVisual VOpen     ts = Visual (64,  0) (style ts) 32 36
-mkVisual VRubble   ts = Visual (96,  0) (style ts) 32 36
-mkVisual VCorpse   ts = Visual (96,  0) (style ts) 32 36
-mkVisual VMouse    ts = Visual (128, 0) (style ts) 32 36
-mkVisual VRock     ts = Visual (160, 0) (style ts) 32 36
-mkVisual VMagma    ts = Visual (192, 0) (style ts) 32 36
-mkVisual VMushroom ts = Visual (224, 0) (style ts) 32 36
-mkVisual VPotion   ts = Visual (256, 0) (style ts) 32 36
-mkVisual VStairDn  ts = Visual (288, 0) (style ts) 32 36
-mkVisual VStairUp  ts = Visual (320, 0) (style ts) 32 36
-mkVisual VTrap     ts = Visual (352, 0) (style ts) 32 36
-mkVisual VCoin     ts = Visual (384, 0) (style ts) 32 36
-mkVisual VItem     ts = Visual (416, 0) (style ts) 32 36
-mkVisual VUnknown  ts = Visual (448, 0) (style ts) 32 36
-mkVisual VLWall    ts = Visual (480, 0) (style ts) 32 36
-mkVisual VLOpen    ts = Visual (512, 0) (style ts) 32 36
-mkVisual VLRock    ts = Visual (0,  36) (style ts) 32 36
-mkVisual VLMagma   ts = Visual (32, 36) (style ts) 32 36
-mkVisual VLRubble  ts = Visual (64, 36) (style ts) 32 36
-mkVisual VSpider   ts = Visual (96, 36) (style ts) 32 36
-mkVisual VRMouse   ts = Visual (128, 36) (style ts) 32 36
-mkVisual VPoison   ts = Visual (160, 36) (style ts) 32 36
-mkVisual VFire     ts = Visual (192, 36) (style ts) 32 36
-mkVisual VCold     ts = Visual (224, 36) (style ts) 32 36
-mkVisual VDragon   ts = Visual (256, 36) (style ts) 32 36
-mkVisual VWolf     ts = Visual (288, 36) (style ts) 32 36
-mkVisual VSkeleton ts = Visual (320, 36) (style ts) 32 36
-mkVisual VOrc      ts = Visual (352, 36) (style ts) 32 36
-mkVisual VTroll    ts = Visual (384, 36) (style ts) 32 36
-mkVisual VHuman    ts = Visual (416, 36) (style ts) 32 36
-mkVisual V0        ts = Visual (448, 36) (style ts) 32 36
-mkVisual V1        ts = Visual (480, 36) (style ts) 32 36
-mkVisual V2        ts = Visual (512, 36) (style ts) 32 36
+mkVisual VActor    ts = Visual (0,   0) (style ts) width height
+mkVisual VWall     ts = Visual (32,  0) (style ts) width height
+mkVisual VOpen     ts = Visual (64,  0) (style ts) width height
+mkVisual VRubble   ts = Visual (96,  0) (style ts) width height
+mkVisual VMouse    ts = Visual (128, 0) (style ts) width height
+mkVisual VRock     ts = Visual (160, 0) (style ts) width height
+mkVisual VMagma    ts = Visual (192, 0) (style ts) width height
+mkVisual VMushroom ts = Visual (224, 0) (style ts) width height
+mkVisual VPotion   ts = Visual (256, 0) (style ts) width height
+mkVisual VStairDn  ts = Visual (288, 0) (style ts) width height
+mkVisual VStairUp  ts = Visual (320, 0) (style ts) width height
+mkVisual VTrap     ts = Visual (352, 0) (style ts) width height
+mkVisual VCoin     ts = Visual (384, 0) (style ts) width height
+mkVisual VItem     ts = Visual (416, 0) (style ts) width height
+mkVisual VUnknown  ts = Visual (448, 0) (style ts) width height
+mkVisual VLWall    ts = Visual (480, 0) (style ts) width height
+mkVisual VLOpen    ts = Visual (512, 0) (style ts) width height
+mkVisual VLRock    ts = Visual (0,  36) (style ts) width height
+mkVisual VLMagma   ts = Visual (32, 36) (style ts) width height
+mkVisual VLRubble  ts = Visual (64, 36) (style ts) width height
+mkVisual VCorpse   ts = Visual (64, 36) (style ts) width height
+mkVisual VSpider   ts = Visual (96, 36) (style ts) width height
+mkVisual VPerson   ts = Visual (128, 36) (style ts) width height
+mkVisual VPoison   ts = Visual (160, 36) (style ts) width height
+mkVisual VFire     ts = Visual (192, 36) (style ts) width height
+mkVisual VCold     ts = Visual (224, 36) (style ts) width height
+mkVisual VDragon   ts = Visual (256, 36) (style ts) width height
+mkVisual VWolf     ts = Visual (288, 36) (style ts) width height
+mkVisual VSkeleton ts = Visual (320, 36) (style ts) width height
+mkVisual VOrc      ts = Visual (352, 36) (style ts) width height
+mkVisual VTroll    ts = Visual (384, 36) (style ts) width height
+mkVisual VHuman    ts = Visual (416, 36) (style ts) width height
+mkVisual V0        ts = Visual (448, 36) (style ts) width height
+mkVisual V1        ts = Visual (480, 36) (style ts) width height
+mkVisual V2        ts = Visual (512, 36) (style ts) width height
 
 -- | mkVisualMao
--- make the visual map to render
+-- Make the visual for rendering
+-- 1. Terrain
+-- 2. Lit Terrain with Lamp effect in FoV
+-- 3. Entities in FoV
+--    a. Identify by Name...
+-- 4. Preserve @
+--     a. for stacking Monsters are near end of list...
 mkVisualMap :: TextureMap -> World -> VisualMap
 mkVisualMap ts w = do
   let entity  = GE.fromEntityBy (entityT w)

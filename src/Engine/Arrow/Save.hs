@@ -99,8 +99,8 @@ saveWorld :: FilePath
 saveWorld = "/Documents/Arrow/world.json"
 
 -- | sourceAsset from git
-sourceAssset :: FilePath
-sourceAssset = "/arrow/data/asset.json"
+-- sourceAssset :: FilePath
+-- sourceAssset = "/arrow/data/asset.json"
 
 -- | touch file in case doesn't exist
 touch :: FilePath -> IO ()

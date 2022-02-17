@@ -75,30 +75,19 @@ fighterProp :: Properties -> Properties
 fighterProp p = let
   mProp = Map.toList p
   stats = [ ("str", "15")
-          , ("dex", "13")
-          , ("con", "12")
-          , ("int", "14")
+          , ("dex", "14")
+          , ("con", "13")
+          , ("int", "12")
           , ("wis", "10")
+          , ("HP", "10")
+          , ("XP", "0")
+          , ("Weapon", "1d6+1")
           ] ++ mProp
   in Map.fromList stats
 
--- | monsterProp
-orcProp :: Properties -> Properties
-orcProp p = let
-  mProp = Map.toList p
-  stats = [ ("str", "16")
-          , ("dex", "12")
-          , ("con", "16")
-          , ("int", "7")
-          , ("wis", "11")
-          , ("HP", "15")
-          , ("XP", "100")
-          ] ++ mProp
-  in Map.fromList stats
-
--- | mouseProp
-mouseProp :: Properties -> Properties
-mouseProp p = let
+-- | Mouse
+smBeast :: Properties -> Properties
+smBeast p = let
   mProp = Map.toList p
   stats = [ ("str", "7")
           , ("dex", "15")
@@ -107,12 +96,28 @@ mouseProp p = let
           , ("wis", "10")
           , ("HP", "7")
           , ("XP", "25")
+          , ("Weapon", "1d4+2")
           ] ++ mProp
   in Map.fromList stats
 
--- | spiderProp
-spiderProp :: Properties -> Properties
-spiderProp p = let
+-- | Wolf
+mdBeast :: Properties -> Properties
+mdBeast p = let
+  mProp = Map.toList p
+  stats = [ ("str", "12")
+          , ("dex", "15")
+          , ("con", "12")
+          , ("int", "3")
+          , ("wis", "12")
+          , ("HP", "11")
+          , ("XP", "50")
+          , ("Weapon", "2d4+2")
+          ] ++ mProp
+  in Map.fromList stats
+
+-- | Spider
+lgBeast :: Properties -> Properties
+lgBeast p = let
   mProp = Map.toList p
   stats = [ ("str", "14")
           , ("dex", "16")
@@ -121,17 +126,52 @@ spiderProp p = let
           , ("wis", "11")
           , ("HP", "26")
           , ("XP", "200")
+          , ("Weapon", "1d8+1")
           ] ++ mProp
   in Map.fromList stats
+
+-- | Orc
+mdHumanoid :: Properties -> Properties
+mdHumanoid p = let
+  mProp = Map.toList p
+  stats = [ ("str", "16")
+          , ("dex", "12")
+          , ("con", "16")
+          , ("int", "7")
+          , ("wis", "11")
+          , ("HP", "15")
+          , ("XP", "100")
+          , ("Weapon", "1d12+3")
+          ] ++ mProp
+  in Map.fromList stats
+
+-- | Troll
+gtHumanoid :: Properties -> Properties
+gtHumanoid p = let
+  mProp = Map.toList p
+  stats = [ ("str", "18")
+          , ("dex", "13")
+          , ("con", "20")
+          , ("int", "7")
+          , ("wis", "9")
+          , ("HP", "84")
+          , ("XP", "1800")
+          , ("Weapon", "2d6+4")
+          ] ++ mProp
+  in Map.fromList stats
+
 
 -- | mkMonster
 mkMonster :: String -> String -> Coord -> EntityKind
 mkMonster name desc xy = let
   e = defaultEK xy name desc
   p = case name of
-    "Mouse"  -> mouseProp (property e)
-    "Orc"    -> orcProp (property e)
-    "Spider" -> spiderProp (property e)
+    "Mouse"  -> smBeast (property e)
+    "Spider" -> lgBeast (property e)
+    "Wolf"   -> mdBeast (property e)
+    "Orc"    -> mdHumanoid (property e)
+    "Troll"  -> gtHumanoid (property e)
+    "Player" -> fighterProp (property e)
     _        -> fighterProp (property e)
   mHP = read $ Map.findWithDefault "1" "HP" p :: Int
   mXP = read $ Map.findWithDefault "1" "XP" p :: Int
@@ -153,13 +193,8 @@ mkProp name desc xy = Map.fromList [ ("Name", name)
 -- | mkEntity
 mkEntity :: Entity -> Coord -> EntityKind
 mkEntity Actor xy = let
-  e = defaultEK xy "Player" "@"
-  in e { block=True
-       , kind=Actor
-       , property=fighterProp (property e)
-       , eHP=10
-       , eMaxHP=10
-       , eLvl=1 }
+  e = mkMonster "Player" "@" xy
+  in e { kind=Actor }
 mkEntity Coin xy = let
   e = defaultEK xy "Coin" "$"
   in e { kind=Coin }
@@ -169,15 +204,7 @@ mkEntity Corpse xy = let
 mkEntity Item xy = let
   e = defaultEK xy "Item" "["
   in e { kind=Item }
-mkEntity Monster xy = let
-  e = defaultEK xy "Orc" "Medium humanoid (o)"
-  in e { block=True
-       , kind=Monster
-       , property=orcProp (property e)
-       , eHP=15
-       , eXP=100
-       , eLvl=1
-       }
+mkEntity Monster xy = mkMonster "Orc" "Medium humanoid (o)" xy
 mkEntity Mushroom xy = let
   e = defaultEK xy "Mushroom" ","
   in e { kind=Mushroom }

@@ -39,6 +39,7 @@ library
                     , Game.Kind.Tile
                     , Game.Player
                     , Game.Tile
+                    , Game.Vault
   build-depends:    base
                     , aeson
                     , bytestring
@@ -80,6 +81,7 @@ executable Arrow
                     , Game.Kind.Tile
                     , Game.Player
                     , Game.Tile
+                    , Game.Vault
   hs-source-dirs:   app
                     , src
   build-depends:    base

@@ -156,12 +156,13 @@ randRoom xlow xhigh ylow yhigh = do
 rogueDungeon :: RandomGen g => Int -> Int -> g -> (Dungeon, g)
 rogueDungeon width height g = let
   tileCount = width*height
+  debrisCount = tileCount `div` 20
   secWidth = width `div` 3
   secHeight = height `div` 3
   (tileVector, gFinal) = runST $ flip runRandT g $ do
     vec <- VM.replicate tileCount Wall
     -- add Debris
-    forM_ [1 :: Int .. 100] $ \_ -> do
+    forM_ [1 :: Int .. debrisCount] $ \_ -> do
       (r, o, t) <- randDebris (width-1) (height-1)
       setPoint width vec r o t
     -- pick the rooms

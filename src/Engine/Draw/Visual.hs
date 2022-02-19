@@ -155,7 +155,7 @@ mkVisualMap ts w = do
       walls  = GT.fromVisual (gameT w)
       lit    = filter (\(_, j) -> j `elem` fovT w) walls
       seen   = filter (\(_, j) -> j `elem` fovT w) entity
-      (_,gPos) = GP.getPlayer (entityT w)
+      (pEntity, pPos) = GP.getPlayer (entityT w)
       -- draw Terrain if visible
       hardT = [ (xy, t) | (tk, xy) <- walls,
                 let t = case tk of
@@ -172,11 +172,13 @@ mkVisualMap ts w = do
                       Rock   -> mkVisual VLRock   ts
                       Rubble -> mkVisual VLRubble ts
                       Wall   -> mkVisual VLWall   ts
-                    xy = if GAI.adjacent gPos pos then pos else (0,0) ]
+                    xy = if GAI.adjacent pPos pos then pos else (0,0) ]
       -- draw Entities if in fovT
       seenT = [ (xy, t) | (ek, xy) <- seen,
-                let t = if xy == gPos
+                let t = if xy == pPos
+                      then if eHP pEntity > 0 -- player status
                       then mkVisual VActor ts
+                      else mkVisual VCorpse ts
                       else case kind ek of
                       Actor     -> mkVisual VActor    ts
                       Coin      -> mkVisual VCoin     ts

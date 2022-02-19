@@ -7,6 +7,7 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
 -}
 module Game.Vault (cave
+                  , insertVault
                   , lair
                   , showVault
                   , town) where
@@ -59,6 +60,13 @@ drawVault tm = let
                    Magma -> "*"
                    Open -> "." ]
   in textList
+
+-- | insertVault at pos
+-- TODO: Open Hallway
+insertVault :: Coord -> TileMap -> TileMap -> TileMap
+insertVault pos vault tm = let
+  tileList = [ t | (_, TileKind _ _ t) <- Map.toList vault ]
+  in add pos tileList tm
 
 -- | Monster lair
 lair :: TileMap

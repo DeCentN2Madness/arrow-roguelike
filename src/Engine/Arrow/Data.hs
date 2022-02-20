@@ -20,6 +20,7 @@ import Game.Journal (TextMap)
 import qualified Game.Journal as GJ
 import Game.Tile (TileMap)
 import qualified Game.Tile as GT
+--import qualified Game.Vault as GV
 
 type Coord = (Int, Int)
 
@@ -98,6 +99,7 @@ mkWorld gen (width, height) xMax yMax = let
   am = GE.mkAssetMap []
   em = GE.mkEntityMap tm am
   jm = GJ.mkTextMap
+  --tm = GV.insertVault (1,1) GV.lair $ GT.mkTileMap d
   tm = GT.mkTileMap d
   sx = 32.0 -- scaleXY based on tiles
   sy = 32.0

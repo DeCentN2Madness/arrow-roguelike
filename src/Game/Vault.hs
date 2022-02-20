@@ -7,7 +7,9 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
 -}
 module Game.Vault (cave
+                  , insertVault
                   , lair
+                  , mkLine
                   , showVault
                   , town) where
 
@@ -61,21 +63,20 @@ drawVault tm = let
                  ]
   in textList
 
-{-
 -- | insertVault at pos
--- TODO translate pos coords to dest coords then insert
 -- TODO Open Hallway
 insertVault :: Coord -> TileMap -> TileMap -> TileMap
-insertVault pos vault tm = let
-  (startX, startY) = pos
-  tileIX = [ (xy, ix, tk) | (ix, TileKind xy v t) <- Map.toList tm,
-                      let tk = TileKind xy v t ]
-  newTile = [ (newXY,  tk) | (_, TileKind (x, y) v t) <- Map.toList vault,
-                 let tk = TileKind newXY v t
-                     newXY = (startX + x, startY + y) ]
-  updateList = []
-  in tm
--}
+insertVault (startX, startY) vault tm = let
+  -- insert Vault
+  vaultList = [ (xy,  tk) | (_, TileKind (x, y) v t) <- Map.toList vault,
+                 let tk = TileKind xy v t
+                     xy = (startX + x, startY + y) ]
+  coordMap = Map.fromList vaultList
+  updateMap = [ (ix, tk) | (ix, TileKind xy v t) <- Map.toList tm,
+                let tk = case Map.lookup xy coordMap of
+                      Just x -> x
+                      Nothing -> TileKind xy v t]
+  in Map.fromList updateMap
 
 -- | Monster lair
 lair :: TileMap
@@ -83,7 +84,10 @@ lair = let
   --d = cave 1 10 10
   d = boxDungeon 10 10
   tm = mkTileMap d
-  in add (0,5) [Door] tm
+  in add (5,9) [Door] tm
+
+mkLine :: Coord -> Coord -> [Coord]
+mkLine (x1, y1) (x2, y2) = [(x, y) | x <- [x1..x2], y <- [y1..y2]]
 
 -- | uniform grid
 mkGrid :: Coord -> Int -> Int -> [Coord]

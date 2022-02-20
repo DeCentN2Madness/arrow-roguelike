@@ -52,13 +52,15 @@ cave seed rows cols = let
 -- | TileMap to Text
 drawVault :: TileMap -> [Text]
 drawVault tm = let
-  textList = [ v | (_, TileKind _ _ t) <- Map.toList tm,
-             let v = case t of
-                   Wall -> "#"
+  textList = [ tx | (_, TileKind _ _ t) <- Map.toList tm,
+             let tx = case t of
+                   Door -> "+"
+                   Magma -> "*"
+                   Open -> "."
                    Rock -> ":"
                    Rubble -> "%"
-                   Magma -> "*"
-                   Open -> "." ]
+                   Wall -> "#"
+                 ]
   in textList
 
 -- | insertVault at pos

@@ -37,11 +37,12 @@ data Orientation = Vertical | Horizontal deriving (Show)
 data Room = Room !Int !Int !Int !Int deriving (Show)
 
 data Terrain
-  = Open
-  | Wall
-  | Rubble
+  = Door
   | Magma
+  | Open
   | Rock
+  | Rubble
+  | Wall
   deriving (Show, Eq, Generic)
 
 instance FromJSON Terrain
@@ -156,7 +157,7 @@ randRoom xlow xhigh ylow yhigh = do
 rogueDungeon :: RandomGen g => Int -> Int -> g -> (Dungeon, g)
 rogueDungeon width height g = let
   tileCount = width*height
-  debrisCount = tileCount `div` 20
+  debrisCount = tileCount `div` 10
   secWidth = width `div` 3
   secHeight = height `div` 3
   (tileVector, gFinal) = runST $ flip runRandT g $ do

@@ -38,10 +38,9 @@ data AssetMap a = AssetMap
   , style      :: a
   } deriving (Functor, Foldable, Traversable)
 
-type Coord = (Int, Int)
 type PathMap = AssetMap FilePath
 type TextureMap = AssetMap (SDL.Texture, SDL.TextureInfo)
-type VisualMap = Map Coord Visual
+type VisualMap = Map (Int, Int) Visual
 
 -- Visual matches Foreign.C.Types for SDL.copy
 data Visual = Visual !(CInt, CInt) !(SDL.Texture, SDL.TextureInfo) !CInt !CInt
@@ -79,7 +78,7 @@ data VisualKind
   | VOrc
   | VTroll
   | VHuman
-  | V0
+  | VDoor
   | V1
   | V2
   deriving (Show, Eq, Ord)
@@ -137,7 +136,7 @@ mkVisual VSkeleton ts = Visual (320, 34) (style ts) width height
 mkVisual VOrc      ts = Visual (352, 34) (style ts) width height
 mkVisual VTroll    ts = Visual (384, 34) (style ts) width height
 mkVisual VHuman    ts = Visual (416, 34) (style ts) width height
-mkVisual V0        ts = Visual (448, 34) (style ts) width height
+mkVisual VDoor     ts = Visual (448, 34) (style ts) width height
 mkVisual V1        ts = Visual (480, 34) (style ts) width height
 mkVisual V2        ts = Visual (512, 34) (style ts) width height
 
@@ -152,27 +151,30 @@ mkVisual V2        ts = Visual (512, 34) (style ts) width height
 mkVisualMap :: TextureMap -> World -> VisualMap
 mkVisualMap ts w = do
   let entity  = GE.fromEntityBy (entityT w)
-      walls  = GT.fromVisual (gameT w)
+      walls  = filter (\(_, j) -> j `notElem` fovT w) $ GT.fromVisual (gameT w)
       lit    = filter (\(_, j) -> j `elem` fovT w) walls
       seen   = filter (\(_, j) -> j `elem` fovT w) entity
       (pEntity, pPos) = GP.getPlayer (entityT w)
       -- draw Terrain if visible
       hardT = [ (xy, t) | (tk, xy) <- walls,
                 let t = case tk of
+                      Door   -> mkVisual VDoor  ts
                       Magma  -> mkVisual VMagma  ts
                       Open   -> mkVisual VOpen   ts
                       Rock   -> mkVisual VRock   ts
                       Rubble -> mkVisual VRubble ts
                       Wall   -> mkVisual VWall   ts ]
       -- draw Terrain if lit
-      litT = filter ((/=(0,0)).fst) $ [ (xy, t) | (tk, pos) <- lit,
+      litT =  [ (xy, t) | (tk, xy) <- lit,
                 let t = case tk of
+                      Door   -> mkVisual VDoor  ts
                       Magma  -> mkVisual VLMagma  ts
                       Open   -> mkVisual VLOpen   ts
                       Rock   -> mkVisual VLRock   ts
                       Rubble -> mkVisual VLRubble ts
-                      Wall   -> mkVisual VLWall   ts
-                    xy = if GAI.adjacent pPos pos then pos else (0,0) ]
+                      Wall   -> if GAI.adjacent pPos xy
+                        then mkVisual VLWall ts
+                        else mkVisual VWall ts ]
       -- draw Entities if in fovT
       seenT = [ (xy, t) | (ek, xy) <- seen,
                 let t = if xy == pPos

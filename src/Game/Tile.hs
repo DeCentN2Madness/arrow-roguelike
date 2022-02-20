@@ -59,13 +59,15 @@ mkGrid maxX maxY = let
   in [(y, x)| x <- [0..maxXY-1], y <- [0..maxXY-1]]
 
 -- | mkTileMap builds the TileMap from Dungeon @d@
+-- insert lair in middle of the dungeon
 mkTileMap :: Dungeon -> TileMap
 mkTileMap d = let
   grid = mkGrid (dungeonWidth d) (dungeonHeight d)
   tileList = V.toList $ dungeonTiles d
   terrainList = [ tk | (t, xy) <- zip tileList grid,
                let tk = TileKind xy False t]
-  in Map.fromList $ zip [0 :: Int ..] terrainList
+  tm = Map.fromList $ zip [0 :: Int ..] terrainList
+  in tm
 
 -- | updateTileMap
 updateTileMap :: [Coord] -> TileMap -> TileMap

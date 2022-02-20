@@ -28,9 +28,9 @@ import Prelude hiding (lookup)
 import Data.Map (Map)
 import qualified Data.Map.Strict as Map
 import qualified Game.DiceSet as DS
+import Game.Kind.Entity
 import Game.Tile (TileMap)
 import qualified Game.Tile as GT
-import Game.Kind.Entity
 
 type Coord = (Int, Int)
 type EntityMap = Map Int EntityKind

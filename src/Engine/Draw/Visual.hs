@@ -151,7 +151,7 @@ mkVisual V2        ts = Visual (512, 34) (style ts) width height
 mkVisualMap :: TextureMap -> World -> VisualMap
 mkVisualMap ts w = do
   let entity  = GE.fromEntityBy (entityT w)
-      walls  = filter (\(_, j) -> j `notElem` fovT w) $ GT.fromVisual (gameT w)
+      walls  = GT.fromVisual (gameT w)
       lit    = filter (\(_, j) -> j `elem` fovT w) walls
       seen   = filter (\(_, j) -> j `elem` fovT w) entity
       (pEntity, pPos) = GP.getPlayer (entityT w)

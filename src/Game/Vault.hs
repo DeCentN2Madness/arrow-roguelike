@@ -7,7 +7,6 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
 -}
 module Game.Vault (cave
-                  , insertVault
                   , lair
                   , showVault
                   , town) where
@@ -19,8 +18,7 @@ import qualified Data.Map.Strict as Map
 import Data.Text (Text)
 import qualified Data.Text as T
 import Game.Dungeon (boxDungeon, rogueDungeon)
-import Game.Tile (TileMap)
-import qualified Game.Tile as GT
+import Game.Tile (TileMap, mkTileMap)
 import Game.Kind.Tile (Terrain(..), TileKind (..))
 import Text.Printf
 
@@ -47,7 +45,7 @@ cave :: Int -> Int -> Int -> TileMap
 cave seed rows cols = let
   g = mkStdGen (seed*rows*cols)
   (d, _) = rogueDungeon cols rows g
-  in GT.mkTileMap d
+  in mkTileMap d
 
 -- | TileMap to Text
 drawVault :: TileMap -> [Text]
@@ -63,16 +61,29 @@ drawVault tm = let
                  ]
   in textList
 
+{-
 -- | insertVault at pos
--- TODO: Open Hallway
+-- TODO translate pos coords to dest coords then insert
+-- TODO Open Hallway
 insertVault :: Coord -> TileMap -> TileMap -> TileMap
 insertVault pos vault tm = let
-  tileList = [ t | (_, TileKind _ _ t) <- Map.toList vault ]
-  in add pos tileList tm
+  (startX, startY) = pos
+  tileIX = [ (xy, ix, tk) | (ix, TileKind xy v t) <- Map.toList tm,
+                      let tk = TileKind xy v t ]
+  newTile = [ (newXY,  tk) | (_, TileKind (x, y) v t) <- Map.toList vault,
+                 let tk = TileKind newXY v t
+                     newXY = (startX + x, startY + y) ]
+  updateList = []
+  in tm
+-}
 
 -- | Monster lair
 lair :: TileMap
-lair = cave 1 10 10
+lair = let
+  --d = cave 1 10 10
+  d = boxDungeon 10 10
+  tm = mkTileMap d
+  in add (0,5) [Door] tm
 
 -- | uniform grid
 mkGrid :: Coord -> Int -> Int -> [Coord]
@@ -98,7 +109,7 @@ spot = replicate 2 Wall
 town :: TileMap
 town = let
   d = boxDungeon 10 10
-  tm = GT.mkTileMap d
+  tm = mkTileMap d
   a = add (6,4) board $ add (5,4) board tm
   b = add (3,4) board $ add (2,4) board a
   final = add (1,1) [Rock] $ add (8,4) spot b

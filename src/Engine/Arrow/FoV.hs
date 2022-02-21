@@ -186,9 +186,9 @@ visitCoord (sx, sy) (dx, dy) (qx, qy) activeViews vision visited = let
                                (True, False) -> (newVisited, bumpAndCheck addShallowBump activeViews viewIndex topLeft)
                                (False, True) -> (newVisited, bumpAndCheck addSteepBump activeViews viewIndex bottomRight)
                                (False, False) -> do
-                                 let clonedViews = add viewIndex activeViews currentView
-                                 let shallowChecked = bumpAndCheck addShallowBump clonedViews (viewIndex+1) topLeft
-                                 let steepChecked = bumpAndCheck addSteepBump shallowChecked viewIndex bottomRight
+                                 let clonedViews = add viewIndex activeViews currentView in
+                                   let shallowChecked = bumpAndCheck addShallowBump clonedViews (viewIndex+1) topLeft in
+                                     let steepChecked = bumpAndCheck addSteepBump shallowChecked viewIndex bottomRight
                                      in (newVisited, steepChecked)
                  else (newVisited, activeViews) -- vision not blocked
 

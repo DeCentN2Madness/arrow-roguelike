@@ -19,10 +19,8 @@ import qualified Game.Tile as GT
 -- | mkView utilizes FoV for @hardT@ to create the visible places
 mkView :: Coord -> TileMap -> [Coord]
 mkView pos gm = let
-  hardT    = [ xy | (_, xy) <- GT.fromHard gm ]
-  viewList = S.toList $ EAF.checkFov pos hardT 4
-  coordList = EAC.cardinal pos
-  in viewList ++ coordList
+  hardT = [ xy | (_, xy) <- GT.fromHard gm ]
+  in S.toList $ EAF.checkFov pos hardT 5
 
 -- | updateView, remember what @ has seen...
 -- clamp fovT to grid

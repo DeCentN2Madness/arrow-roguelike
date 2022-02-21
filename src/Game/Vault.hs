@@ -9,7 +9,6 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 module Game.Vault (cave
                   , insertVault
                   , lair
-                  , mkLine
                   , showVault
                   , town) where
 
@@ -84,10 +83,7 @@ lair = let
   --d = cave 1 10 10
   d = boxDungeon 10 10
   tm = mkTileMap d
-  in add (5,9) [Door] tm
-
-mkLine :: Coord -> Coord -> [Coord]
-mkLine (x1, y1) (x2, y2) = [(x, y) | x <- [x1..x2], y <- [y1..y2]]
+  in add (9,9) [Door] tm
 
 -- | uniform grid
 mkGrid :: Coord -> Int -> Int -> [Coord]

@@ -139,7 +139,7 @@ foldLineUsing pred line@(SightLine _ _ xf yf) loc@(x, y) = if line `pred` loc
 -- see checkFov
 fov :: VisionBlocked -> Int -> (Int, Int) -> Set (Int, Int)
 fov vision range start = unionMap (checkQuadrant vision range start)
-  [(1, 1), ((-1), 1), (1, (-1)), ((-1), (-1))]
+  [(1, 1), (-1, 1), (1, -1), (-1, -1)]
 
 -- | makes a new view using shallow and steep line w/o bumps
 mkView :: SightLine -> SightLine -> View
@@ -155,7 +155,7 @@ relativeSlope :: SightLine -> (Int, Int) -> Int
 relativeSlope (SightLine xi yi xf yf) (x, y) = let
   dx = xf - xi
   dy = yf - yi
-  in (dx * (xf -x)) - (dy * (yf-y))
+  in (dy * (xf - x)) - (dx * (yf - y))
 
 -- | adds a single location to the set of visited locations if its
 -- within one of the views, and updates any views as necessary.

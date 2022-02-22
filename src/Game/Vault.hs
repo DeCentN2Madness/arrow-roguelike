@@ -15,6 +15,7 @@ module Game.Vault (cave
 import Prelude hiding (lookup)
 import Control.Monad (forM_)
 import Control.Monad.Random (mkStdGen)
+import Data.List
 import qualified Data.Map.Strict as Map
 import Data.Text (Text)
 import qualified Data.Text as T
@@ -29,7 +30,7 @@ type Coord = (Int, Int)
 -- | add Terrain to TileMap at pos
 add :: Coord -> [Terrain] -> TileMap -> TileMap
 add pos ts tm = let
-  coordList = mkGrid pos (length ts)
+  coordList = mkGrid pos (length ts) (length ts)
   terrainList = zip coordList ts
   ixList = filter (/=(-1)) $ [ i | (ix, TileKind xy _ _) <- Map.toList tm,
              let i = if xy `elem` coordList then ix else (-1) ]
@@ -49,18 +50,50 @@ cave seed rows cols = let
   (d, _) = GD.rogueDungeon cols rows g
   in GT.mkTileMap d
 
--- | TileMap to Text
-drawVault :: TileMap -> [Text]
-drawVault tm = [ tx | (_, TileKind _ _ t) <- Map.toList tm,
-                 let tx = case t of
-                       Door -> "+"
-                       Magma -> "*"
-                       Open -> "."
-                       Rock -> ":"
-                       Rubble -> "%"
-                       Wall -> "#" ]
+-- | doorList
+doorList :: TileMap -> [Coord]
+doorList tm = nub $ [ xy | (_, TileKind pos _ t) <- Map.toList tm,
+                let xy = if t == Door then pos else (0,0) ]
+
+southHall :: Coord -> Int -> TileMap -> [Coord]
+southHall (x, y) range tm = let
+  (i, j) = (x, y-1)
+  belowT = nub $ [ xy | (x', y') <- openList tm,
+             let xy = if y' > j then (x', y') else (0,0) ]
+  hallT = [ (i, newY) | k <- [0..range], let newY = j + k ]
+  in filter(`elem` hallT) belowT
+
+northHall :: Coord -> Int -> TileMap -> [Coord]
+northHall (x, y) range tm = let
+  (i, j) = (x, y-1)
+  aboveT = nub $ [ xy | (x', y') <- openList tm,
+             let xy = if y' < j then (x', y') else (0,0) ]
+  hallT = [ (i, newY) | k <- [0..range], let newY = j - k ]
+  in filter(`elem` hallT) aboveT
+
+eastHall :: Coord -> Int -> TileMap -> [Coord]
+eastHall (x, y) range tm = let
+  (i, j) = (x -1, y)
+  rightT = nub $ [ xy | (x', y') <- openList tm,
+                   let xy = if x' > i then (x', y') else (0,0) ]
+  hallT = [ (newX, j) | k <- [0..range], let newX = i + k ]
+  in filter(`elem` hallT) rightT
+
+westHall :: Coord -> Int -> TileMap -> [Coord]
+westHall (x, y) range tm = let
+  (i, j) = (x -1, y)
+  leftT = nub $ [ xy | (x', y') <- openList tm,
+                   let xy = if x' < i then (x', y') else (0,0) ]
+  hallT = [ (newX, j) | k <- [0..range], let newX = i - k ]
+  in filter(`elem` hallT) leftT
+
+-- | openList
+openList :: TileMap -> [Coord]
+openList tm = nub $ [ xy | (_, TileKind pos _ t) <- Map.toList tm,
+                let xy = if t == Open then pos else (0,0) ]
 
 -- | insertVault at pos
+-- Game.Vault.showVault $ Game.Vault.insertVault (20,10) l c
 -- TODO Open Hallway
 insertVault :: Coord -> TileMap -> TileMap -> TileMap
 insertVault (startX, startY) vault tm = let
@@ -73,6 +106,7 @@ insertVault (startX, startY) vault tm = let
                 let tk = case Map.lookup xy coordMap of
                       Just x -> x
                       Nothing -> TileKind xy v t]
+  -- pickHall by door location
   in Map.fromList updateMap
 
 -- | Monster lair
@@ -84,23 +118,53 @@ lair = let
   in add (9,9) [Door] tm
 
 -- | uniform grid
-mkGrid :: Coord -> Int -> [Coord]
-mkGrid pos amt = let
+mkGrid :: Coord -> Int -> Int -> [Coord]
+mkGrid pos maxX maxY = let
   (startX, startY) = pos
-  in [(y, x) | x <- [startX..amt-1], y <- [startY..amt-1]]
+  maxXY = if startX+maxX > startY+maxY then startX+maxX else startY+maxY
+  in [(y, x) | x <- [startX..maxXY-1], y <- [startY..maxXY-1]]
 
 -- | IO for visualization
-showVault :: Int -> TileMap -> IO ()
-showVault width tx = do
-  let txList = zip [1::Int ..] $ drawVault tx
-  forM_ txList $ \(i, j) -> do
-    let t = if i `mod` width == 0
-          then T.append j (T.pack "\n") else j
-    printf "%s" t
+showVault :: TileMap -> IO ()
+showVault tm = do
+  let txList = [ (xy, v) | (_, TileKind xy _ t) <- Map.toList tm,
+                let v = terrainToText t ]
+      doors  = tail $ doorList tm
+      theDoor = head doors
+      west = westHall theDoor 80 tm
+      north = northHall theDoor 50 tm
+      east = eastHall theDoor 80 tm
+      south = southHall theDoor 50 tm
+
+  forM_ txList $ \((i,_), t) -> do
+    let vt = if i == 0
+          then T.append (T.pack "\n") t
+          else t
+    printf "%s" vt
+  printf "\n"
+  printf "door = %s\n" (show doors)
+  printf "north = %s\n" (show north)
+  printf "east = %s\n" (show east)
+  printf "west = %s\n" (show west)
+  printf "south = %s\n" (show south)
+  --printf "above = %s\n" (show $ aboveDoor theDoor tx)
+  --printf "right = %s\n" (show $ rightDoor theDoor tx)
+  --printf "left = %s\n"  (show $ leftDoor  theDoor tx)
+  --printf "below = %s\n" (show $ belowDoor theDoor tx)
 
 -- | 1 x 2
 spot :: [Terrain]
 spot = replicate 2 Wall
+
+-- | TileMap to Text
+terrainToText :: Terrain -> Text
+terrainToText t = case t of
+  Door -> "+"
+  Magma -> "*"
+  Open -> "."
+  Rock -> ":"
+  Rubble -> "%"
+  Wall -> "#"
 
 -- | nice little town
 town :: TileMap

@@ -16,10 +16,8 @@ import qualified Data.Map.Strict as Map
 import qualified SDL
 import SDL (($=))
 import Engine.Arrow.Data (World(..))
-import Engine.Draw.Visual (AssetMap(..)
-                          , mkVisualMap
-                          , TextureMap
-                          , Visual(..))
+import Engine.Draw.Visual (AssetMap(..), TextureMap, Visual(..))
+import qualified Engine.Draw.Visual as EDV
 import qualified Engine.Draw.Textual as EDT
 import qualified Engine.SDL.Util as U
 
@@ -64,7 +62,7 @@ drawCamera (x, y) r vis w = do
 -- | drawMap
 drawMap :: SDL.Renderer -> TextureMap -> World -> IO ()
 drawMap r ts w = do
-  let visual = mkVisualMap ts w
+  let visual = EDV.mkVisualMap ts w
       visualT = [(k, v) | k <- Map.keys visual,
                  let (Just v) = Map.lookup k visual]
   forM_ visualT $ \(i, j) -> drawCamera i r j w

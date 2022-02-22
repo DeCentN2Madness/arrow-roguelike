@@ -25,7 +25,6 @@ import Foreign.C.Types (CInt)
 import qualified SDL
 import Engine.Arrow.Data (World(..))
 import qualified Engine.SDL.Util as U
-import qualified Game.AI as GAI
 import qualified Game.Entity as GE
 import Game.Kind.Entity (Entity(..), EntityKind(..))
 import Game.Kind.Tile (Terrain(..))
@@ -102,7 +101,7 @@ width, height :: CInt
 (width, height) = (32, 35)
 
 -- | mkVisual
--- 32 x 36 is Tile coordinates which look good to the screen
+-- width x height is Tile coordinates which look good to the screen
 mkVisual :: VisualKind -> TextureMap -> Visual
 mkVisual VActor    ts = Visual (0,   0) (style ts) width height
 mkVisual VWall     ts = Visual (32,  0) (style ts) width height
@@ -172,9 +171,7 @@ mkVisualMap ts w = do
                       Open   -> mkVisual VLOpen   ts
                       Rock   -> mkVisual VRock    ts
                       Rubble -> mkVisual VLRubble ts
-                      Wall   -> if GAI.adjacent pPos xy
-                        then mkVisual VLWall ts
-                        else mkVisual VWall ts ]
+                      Wall   -> mkVisual VLWall   ts ]
       -- draw Entities if in fovT
       seenT = [ (xy, t) | (ek, xy) <- seen,
                 let t = if xy == pPos

@@ -15,7 +15,8 @@ import Data.Aeson
 import Data.Either
 import qualified Data.ByteString.Lazy.Char8 as C8
 import System.Directory
-import Engine.Arrow.Data (mkWorld, World(..))
+import Engine.Arrow.Data (World(..))
+import qualified Engine.Arrow.Data as EAD
 import Game.Entity (EntityMap)
 import qualified Game.Entity as GE
 import Game.Kind.Entity (EntityKind)
@@ -45,7 +46,7 @@ loadFile = do
         in pEntity
         else head p
       world = if null w
-        then mkWorld gen (width, height) 80 50
+        then EAD.mkWorld gen (width, height) 80 50
         else head w
   return world { assetT  = asset
                , entityT = GE.safeInsertEntity 0 player (gameT world) (entityT world) }

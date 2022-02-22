@@ -18,10 +18,11 @@ import Control.Monad.Random (mkStdGen)
 import qualified Data.Map.Strict as Map
 import Data.Text (Text)
 import qualified Data.Text as T
-import Game.Dungeon (boxDungeon, rogueDungeon)
-import Game.Tile (TileMap, mkTileMap)
-import Game.Kind.Tile (Terrain(..), TileKind (..))
 import Text.Printf
+import qualified Game.Dungeon as GD
+import Game.Kind.Tile (Terrain(..), TileKind (..))
+import Game.Tile (TileMap)
+import qualified Game.Tile as GT
 
 type Coord = (Int, Int)
 
@@ -45,8 +46,8 @@ board = replicate 4 Wall
 cave :: Int -> Int -> Int -> TileMap
 cave seed rows cols = let
   g = mkStdGen (seed*rows*cols)
-  (d, _) = rogueDungeon cols rows g
-  in mkTileMap d
+  (d, _) = GD.rogueDungeon cols rows g
+  in GT.mkTileMap d
 
 -- | TileMap to Text
 drawVault :: TileMap -> [Text]
@@ -81,8 +82,8 @@ insertVault (startX, startY) vault tm = let
 lair :: TileMap
 lair = let
   --d = cave 1 10 10
-  d = boxDungeon 10 10
-  tm = mkTileMap d
+  d = GD.boxDungeon 10 10
+  tm = GT.mkTileMap d
   in add (9,9) [Door] tm
 
 -- | uniform grid
@@ -108,8 +109,8 @@ spot = replicate 2 Wall
 -- | nice little town
 town :: TileMap
 town = let
-  d = boxDungeon 10 10
-  tm = mkTileMap d
+  d = GD.boxDungeon 10 10
+  tm = GT.mkTileMap d
   a = add (6,4) board $ add (5,4) board tm
   b = add (3,4) board $ add (2,4) board a
   final = add (1,1) [Rock] $ add (8,4) spot b

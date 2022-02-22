@@ -16,16 +16,16 @@ import qualified SDL
 import qualified SDL.Font
 import Engine.Arrow.Data (World(..))
 import qualified Engine.SDL.Util as U
-import Game.Journal (fromJournal)
-import Game.Player (characterSheet)
+import qualified Game.Journal as GJ
+import qualified Game.Player as GP
 
 -- | drawText
 -- Show the last 5 Journal entries
 -- Show the Character
 drawText :: SDL.Renderer -> World -> IO ()
 drawText r w = do
-  let logs  = fromJournal [0..4] (journalT w)
-      cs    = zip [0..] $ characterSheet (entityT w)
+  let logs  = GJ.fromJournal [0..4] (journalT w)
+      sheet = zip [0..] $ GP.characterSheet (entityT w)
       -- Color
       color x
         | T.any (=='!') x = red
@@ -46,7 +46,7 @@ drawText r w = do
     SDL.freeSurface tx
     SDL.destroyTexture rt
   -- Character
-  forM_ cs $ \(i, j) -> do
+  forM_ sheet $ \(i, j) -> do
     tx <- SDL.Font.blended fn (color j) j
     sz <- SDL.Font.size fn j
     rt <- SDL.createTextureFromSurface r tx

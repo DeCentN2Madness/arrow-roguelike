@@ -5,14 +5,12 @@ Game.AI.hs
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
 -}
-module Game.AI (adjacent
-               , aiAction
-               , chessDist
-               , distance
+module Game.AI (aiAction
                , pathFinder) where
 
-import Engine.Arrow.Data (World(..))
 import Data.List
+import Engine.Arrow.Data (World(..))
+import qualified Engine.Arrow.Compass as EAC
 import qualified Game.Combat as GC
 import qualified Game.Entity as GE
 import Game.Kind.Entity (EntityKind(..))
@@ -22,8 +20,6 @@ data AI
   = Attack
   | Wait
   deriving (Show, Eq)
-
-type Point = (Int, Int)
 
 -- | aiAction
 -- handle actions based on goal
@@ -35,7 +31,7 @@ aiAction ((mx, mEntity):xs) w = if mx == 0 || not (block mEntity)
   else let
   (_, pPos) = GP.getPlayer (entityT w)
   mPos      = coord mEntity
-  action    = if adjacent pPos mPos
+  action    = if EAC.adjacent pPos mPos
     then Attack
     else Wait
   newWorld = case action of
@@ -43,22 +39,6 @@ aiAction ((mx, mEntity):xs) w = if mx == 0 || not (block mEntity)
     Wait   -> w
   -- newWorld w/ action
   in aiAction xs newWorld
-
--- | adjacent -- checks whether two points are adjacent
-adjacent :: Point -> Point -> Bool
-{-# INLINE adjacent #-}
-adjacent s t = chessDist s t == 1
-
--- | chessDist - Chess distance between two points.
-chessDist :: Point -> Point -> Int
-chessDist (x1, y1) (x2, y2) = max (abs (x2 - x1)) (abs (y2 - y1))
-
--- | distance - Euclidean distance between two points.
-distance :: Point -> Point -> Double
-distance (x1, y1) (x2, y2) = let
-  distX = fromIntegral $ (x2 - x1) ^ (2 :: Int)
-  distY = fromIntegral $ (y2 - y1) ^ (2 :: Int)
-  in sqrt (distX + distY)
 
 -- | pathFinder
 -- 0. Don't move the Player at 0
@@ -77,9 +57,9 @@ pathFinder ((mx, mEntity):xs) w = if mx == 0 || not (block mEntity)
   (_, pPos) = GP.getPlayer (entityT w)
   mPos      = coord mEntity
   distList  = [ (d, xy) | xy <- moveT mEntity,
-                let d = chessDist pPos xy ]
+                let d = EAC.chessDist pPos xy ]
   moveList  = coordF $ [ xy | (d, pos) <- sort distList,
-                        let xy = if adjacent mPos pPos || d > 5
+                        let xy = if EAC.adjacent mPos pPos || d > 5
                               then mPos
                               else pos ]
   move = if null moveList

@@ -103,7 +103,7 @@ actionHear :: EntityMap -> Coord -> Text
 actionHear em listen = let
   hearList = [ t | (ek, _) <- GE.fromEntityAt em,
                let t = if block ek && (d > 4 && d < 7) then 1 else 0
-                   d = GAI.distance (coord ek) listen ]
+                   d = distance (coord ek) listen ]
   total = sum hearList :: Int
   hear x
     | x > 1  = T.pack $ "Something moved " ++ "<x" ++ show x ++ ">, "

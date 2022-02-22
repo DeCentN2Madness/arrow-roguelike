@@ -46,7 +46,7 @@ loadFile = do
         in pEntity
         else head p
       world = if null w
-        then EAD.mkWorld gen (width, height) 80 50
+        then EAD.mkWorld gen (width, height) 80 40
         else head w
   return world { assetT  = asset
                , entityT = GE.safeInsertEntity 0 player (gameT world) (entityT world) }

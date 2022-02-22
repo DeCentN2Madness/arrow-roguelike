@@ -20,6 +20,7 @@ import qualified Data.Map.Strict as Map
 import Data.Text (Text)
 import qualified Data.Text as T
 import Text.Printf
+import qualified Engine.Arrow.Compass as EAC
 import qualified Game.Dungeon as GD
 import Game.Kind.Tile (Terrain(..), TileKind (..))
 import Game.Tile (TileMap)
@@ -55,42 +56,64 @@ doorList :: TileMap -> [Coord]
 doorList tm = nub $ [ xy | (_, TileKind pos _ t) <- Map.toList tm,
                 let xy = if t == Door then pos else (0,0) ]
 
-southHall :: Coord -> Int -> TileMap -> [Coord]
-southHall (x, y) range tm = let
-  (i, j) = (x, y-1)
-  belowT = nub $ [ xy | (x', y') <- openList tm,
-             let xy = if y' > j then (x', y') else (0,0) ]
-  hallT = [ (i, newY) | k <- [0..range], let newY = j + k ]
-  in filter(`elem` hallT) belowT
-
-northHall :: Coord -> Int -> TileMap -> [Coord]
-northHall (x, y) range tm = let
-  (i, j) = (x, y-1)
-  aboveT = nub $ [ xy | (x', y') <- openList tm,
-             let xy = if y' < j then (x', y') else (0,0) ]
-  hallT = [ (i, newY) | k <- [0..range], let newY = j - k ]
-  in filter(`elem` hallT) aboveT
-
-eastHall :: Coord -> Int -> TileMap -> [Coord]
-eastHall (x, y) range tm = let
-  (i, j) = (x -1, y)
-  rightT = nub $ [ xy | (x', y') <- openList tm,
-                   let xy = if x' > i then (x', y') else (0,0) ]
-  hallT = [ (newX, j) | k <- [0..range], let newX = i + k ]
-  in filter(`elem` hallT) rightT
-
-westHall :: Coord -> Int -> TileMap -> [Coord]
-westHall (x, y) range tm = let
-  (i, j) = (x -1, y)
-  leftT = nub $ [ xy | (x', y') <- openList tm,
-                   let xy = if x' < i then (x', y') else (0,0) ]
-  hallT = [ (newX, j) | k <- [0..range], let newX = i - k ]
-  in filter(`elem` hallT) leftT
-
 -- | openList
 openList :: TileMap -> [Coord]
-openList tm = nub $ [ xy | (_, TileKind pos _ t) <- Map.toList tm,
+openList tm = [ xy | (_, TileKind pos _ t) <- Map.toList tm,
                 let xy = if t == Open then pos else (0,0) ]
+
+-- | need pattern match
+eastOpen :: Coord -> TileMap -> [Coord]
+eastOpen (i, j) tm = [ xy | (x, y) <- openList tm,
+             let xy = if j == y && x > i then (x, y) else (0,0) ]
+
+westOpen :: Coord -> TileMap -> [Coord]
+westOpen (i, j) tm = [ xy | (x, y) <- openList tm,
+             let xy = if j == y && x < i then (x, y) else (0,0) ]
+
+northOpen :: Coord -> TileMap -> [Coord]
+northOpen (i, j) tm = [ xy | (x, y) <- openList tm,
+             let xy = if x == i && y > j then (x, y) else (0,0) ]
+
+southOpen :: Coord -> TileMap -> [Coord]
+southOpen (i, j) tm = [ xy | (x, y) <- openList tm,
+             let xy = if x == i && y > j then (x, y) else (0,0) ]
+
+-- | door facing south
+southHall :: Coord -> TileMap -> [Coord]
+southHall (x, y) tm = let
+  (i, j) = (x, y+1)
+  east = eastOpen (i, j) tm
+  south = southOpen (i, j) tm
+  west = westOpen (i, j) tm
+  in nub $ concat [east, west, south]
+
+-- | door facing north
+northHall :: Coord -> TileMap -> [Coord]
+northHall (x, y) tm = let
+  (i, j) = (x, y-1)
+  north = northOpen (i, j) tm
+  east = eastOpen (i, j) tm
+  west = westOpen (i, j) tm
+  in nub $ concat [north, east, west]
+
+-- | door facing east
+eastHall :: Coord -> TileMap -> [Coord]
+eastHall (x, y) tm = let
+  (i, j) = (x-1, y)
+  north = northOpen (i, j) tm
+  east = eastOpen (i, j) tm
+  south = southOpen (i, j) tm
+  in nub $ concat [north, east, south]
+
+-- | door facing west
+westHall :: Coord -> TileMap -> [Coord]
+westHall (x, y) tm = let
+  (i, j) = (x+1, y)
+  north = northOpen (i, j) tm
+  south = southOpen (i, j) tm
+  west = westOpen (i, j) tm
+  in nub $ concat [north, west, south]
+
 
 -- | insertVault at pos
 -- Game.Vault.showVault $ Game.Vault.insertVault (20,10) l c
@@ -107,6 +130,13 @@ insertVault (startX, startY) vault tm = let
                       Just x -> x
                       Nothing -> TileKind xy v t]
   -- pickHall by door location
+  --south
+  --doors  = tail $ doorList $ Map.fromList updateMap
+  --theDoor = head doors
+  --southPassage = head $ tail $ southHall theDoor $ Map.fromList updateMap
+  --newDoor = (fst theDoor, snd theDoor + 1)
+  --oList = replicate (EAC.chessDist newDoor southPassage) Open
+  --passageMap = add newDoor oList $ Map.fromList updateMap
   in Map.fromList updateMap
 
 -- | Monster lair
@@ -115,7 +145,7 @@ lair = let
   --d = cave 1 10 10
   d = GD.boxDungeon 10 10
   tm = GT.mkTileMap d
-  in add (9,9) [Door] tm
+  in add (9,5) [Door] tm
 
 -- | uniform grid
 mkGrid :: Coord -> Int -> Int -> [Coord]
@@ -131,10 +161,10 @@ showVault tm = do
                 let v = terrainToText t ]
       doors  = tail $ doorList tm
       theDoor = head doors
-      west = westHall theDoor 80 tm
-      north = northHall theDoor 50 tm
-      east = eastHall theDoor 80 tm
-      south = southHall theDoor 50 tm
+      west = westHall theDoor tm
+      north = northHall theDoor tm
+      east = eastHall theDoor tm
+      south = southHall theDoor tm
 
   forM_ txList $ \((i,_), t) -> do
     let vt = if i == 0

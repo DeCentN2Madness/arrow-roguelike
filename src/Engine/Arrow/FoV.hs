@@ -34,6 +34,15 @@ abovePoint self p = relativeSlope self p < 0
 aboveOrCollinearPoint :: SightLine -> (Int, Int) -> Bool
 aboveOrCollinearPoint self p = relativeSlope self p <= 0
 
+-- | add helper, remove and update are inline
+add :: (Integral a) => a -> [b] -> b -> [b]
+add a (b:bs) new
+  | a < 0 = b : bs
+  | a == 0 = new : b : bs
+  | otherwise = b : add (a-1) bs new
+add 0 [] new = [new]
+add _ [] _   = []
+
 -- | addShallowBump
 addShallowBump :: (Int, Int) -> View -> View
 addShallowBump loc@(x, y) view = let
@@ -60,13 +69,12 @@ belowPoint self p = relativeSlope self p > 0
 
 -- | bumpAndCheck checks and returns the new view list in single op
 bumpAndCheck :: ((Int, Int) -> View -> View) -> [View] -> Int -> (Int, Int) -> [View]
-bumpAndCheck bumpf activeViews viewIndex bump = out
-  where
-    view = activeViews !! viewIndex
-    bumpedView = bumpf bump view
-    out = if validView bumpedView
-      then update viewIndex activeViews bumpedView
-      else remove viewIndex activeViews
+bumpAndCheck bumpf activeViews viewIndex bump = let
+  view = activeViews !! viewIndex
+  bumpedView = bumpf bump view
+  in take viewIndex activeViews ++ if validView bumpedView
+  then bumpedView : drop (viewIndex+1) activeViews
+  else drop (viewIndex+1) activeViews
 
 -- | calcViewIndex is a version of `dropWhile`
 calcViewIndex :: [View] -> (Int, Int) -> Int
@@ -167,6 +175,8 @@ visitCoord :: (Int, Int)
   -> Set (Int, Int)
   -> (Set (Int, Int), [View])
 visitCoord (sx, sy) (dx, dy) (qx, qy) activeViews vision visited = let
+  -- inline remove
+  remove i list = take i list ++ drop (i+1) list
   topLeft = (dx, dy+1)
   bottomRight = (dx+1, dy)
   realX = dx * qx
@@ -204,25 +214,3 @@ validView view = not (shallowIsSteep && lineOnExtremity)
     lineOnExtremity = shallowLine' `collinearPoint` (0, 1) || shallowLine' `collinearPoint` (1, 0)
     shallowLine' = getShallowLine view
     steepLine' = getSteepLine view
-
-add :: (Integral a) => a -> [b] -> b -> [b]
-add a (b:bs) new
-  | a < 0 = b : bs
-  | a == 0 = new : b : bs
-  | otherwise = b : add (a-1) bs new
-add 0 [] new = [new]
-add _ [] _   = []
-
-update :: (Integral a) => a -> [b] -> b -> [b]
-update a (b:bs) new
-  | a < 0 = b : bs
-  | a == 0 = new : bs
-  | otherwise = b : update (a-1) bs new
-update _ [] _ = []
-
-remove :: (Integral a) => a -> [b] -> [b]
-remove a (b:bs)
-  | a < 0 = b : bs
-  | a == 0 = bs
-  | otherwise = b : remove (a-1) bs
-remove _ [] = []

@@ -29,12 +29,12 @@ type Coord = (Int, Int)
 -- | add Terrain to TileMap at pos
 add :: Coord -> [Terrain] -> TileMap -> TileMap
 add pos ts tm = let
-  coordList = mkGrid pos (length ts) (length ts)
+  coordList = mkGrid pos (length ts)
   terrainList = zip coordList ts
   ixList = filter (/=(-1)) $ [ i | (ix, TileKind xy _ _) <- Map.toList tm,
              let i = if xy `elem` coordList then ix else (-1) ]
-  terrainMap = Map.fromList $ zip ixList $ [ v | (xy, t) <- terrainList,
-               let v = TileKind xy True t ]
+  terrainMap = Map.fromList $ zip ixList $ [ tk | (xy, t) <- terrainList,
+               let tk = TileKind xy True t ]
   in Map.union terrainMap tm
 
 -- | 1 x 4
@@ -51,17 +51,14 @@ cave seed rows cols = let
 
 -- | TileMap to Text
 drawVault :: TileMap -> [Text]
-drawVault tm = let
-  textList = [ tx | (_, TileKind _ _ t) <- Map.toList tm,
-             let tx = case t of
-                   Door -> "+"
-                   Magma -> "*"
-                   Open -> "."
-                   Rock -> ":"
-                   Rubble -> "%"
-                   Wall -> "#"
-                 ]
-  in textList
+drawVault tm = [ tx | (_, TileKind _ _ t) <- Map.toList tm,
+                 let tx = case t of
+                       Door -> "+"
+                       Magma -> "*"
+                       Open -> "."
+                       Rock -> ":"
+                       Rubble -> "%"
+                       Wall -> "#" ]
 
 -- | insertVault at pos
 -- TODO Open Hallway
@@ -87,11 +84,10 @@ lair = let
   in add (9,9) [Door] tm
 
 -- | uniform grid
-mkGrid :: Coord -> Int -> Int -> [Coord]
-mkGrid pos maxX maxY = let
+mkGrid :: Coord -> Int -> [Coord]
+mkGrid pos amt = let
   (startX, startY) = pos
-  maxXY = if startX+maxX > startY+maxY then startX+maxX else startY+maxY
-  in [(y, x) | x <- [startX..maxXY-1], y <- [startY..maxXY-1]]
+  in [(y, x) | x <- [startX..amt-1], y <- [startY..amt-1]]
 
 -- | IO for visualization
 showVault :: Int -> TileMap -> IO ()

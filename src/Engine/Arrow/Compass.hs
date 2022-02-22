@@ -8,10 +8,9 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
 -}
 module Engine.Arrow.Compass ((|+|)
-                            , (|-|)
                             , abovePoint
-                            , adjacent
                             , aboveOrCollinearPoint
+                            , adjacent
                             , belowOrCollinearPoint
                             , belowPoint
                             , cardinal
@@ -30,10 +29,6 @@ data SightLine = SightLine Int Int Int Int deriving (Eq, Show)
 -- | operator to add 2 coordinates together
 (|+|) :: Coord -> Coord -> Coord
 (|+|) (x1, y1) (x2, y2) = (x1 + x2, y1 + y2)
-
--- | operator to sub 2 coordinates together
-(|-|) :: Coord -> Coord -> Coord
-(|-|) (x1, y1) (x2, y2) = (x1 - x2, y1 - y2)
 
 -- | abovePoint infix
 abovePoint :: SightLine -> Point -> Bool
@@ -60,11 +55,6 @@ belowPoint :: SightLine -> Point -> Bool
 {-# INLINE belowPoint #-}
 belowPoint self p = relativeSlope self p > 0
 
--- | chessDist - Chess distance between two points.
-chessDist :: Point -> Point -> Int
-{-# INLINE chessDist #-}
-chessDist (x1, y1) (x2, y2) = max (abs (x2 - x1)) (abs (y2 - y1))
-
 -- | clamp to grid
 cardinal :: Coord -> [Coord]
 cardinal pos = [ pos |+| dirToCoord North
@@ -75,6 +65,11 @@ cardinal pos = [ pos |+| dirToCoord North
                , pos |+| dirToCoord SouthWest
                , pos |+| dirToCoord West
                , pos |+| dirToCoord NorthWest ]
+
+-- | chessDist - Chess distance between two points.
+chessDist :: Point -> Point -> Int
+{-# INLINE chessDist #-}
+chessDist (x1, y1) (x2, y2) = max (abs (x2 - x1)) (abs (y2 - y1))
 
 -- | clamp to grid
 clamp :: Coord -> Coord -> Coord

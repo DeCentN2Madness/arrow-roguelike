@@ -20,7 +20,6 @@ import qualified Data.Map.Strict as Map
 import Data.Text (Text)
 import qualified Data.Text as T
 import Text.Printf
-import qualified Engine.Arrow.Compass as EAC
 import qualified Game.Dungeon as GD
 import Game.Kind.Tile (Terrain(..), TileKind (..))
 import Game.Tile (TileMap)
@@ -54,6 +53,11 @@ cave seed rows cols = let
   g = mkStdGen (seed*rows*cols)
   (d, _) = GD.rogueDungeon cols rows g
   in GT.mkTileMap d
+
+-- | chessDist - Chess distance between two points.
+chessDist :: Coord -> Coord -> Int
+{-# INLINE chessDist #-}
+chessDist (x1, y1) (x2, y2) = max (abs (x2 - x1)) (abs (y2 - y1))
 
 -- | doorList
 doorList :: TileMap -> [Coord]
@@ -96,7 +100,7 @@ insertVault (startX, startY) vault tm = let
 -- | mkHall
 mkHall :: Coord -> Coord -> CoordMap
 mkHall (x1, y1) (x2, y2) = let
-  dist = EAC.chessDist (x1, y1) (x2, y2)
+  dist = chessDist (x1, y1) (x2, y2)
   ts   = replicate dist Open
   coordList = mkGrid (x1, y1) (x2, y2)
   terrainList = zip coordList ts

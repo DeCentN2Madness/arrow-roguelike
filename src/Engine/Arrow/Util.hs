@@ -131,9 +131,7 @@ actionMonster w = let
   hardT      = [ xy | (_, xy) <- GT.fromHard (gameT w) ]
   entityList = [ (ix, ek) | (e, ix) <- GE.fromEntityAt (entityT w),
                  let ek = if block e -- Movable Entity
-                       then let
-                       move = coordF $ cardinal (coord e)
-                       in e { moveT = move }
+                       then e { moveT = coordF $ cardinal (coord e) }
                        else e ]
   -- newWorld w/ hardT
   newWorld = w { entityT = Map.fromList entityList }

@@ -30,7 +30,7 @@ type TileMap = Map Int TileKind
 fromHard :: TileMap -> [(Terrain, Coord)]
 fromHard tm = let
   terrainList = [ (t, xy) | (_, TileKind xy _ t) <- Map.toList tm ]
-  in filter ((/=Open).fst) terrainList
+  in filter ((/=Door).fst) $ filter ((/=Open).fst) terrainList
 
 -- | fromOpen list of Open surfaces
 fromOpen :: TileMap -> [(Terrain, Coord)]

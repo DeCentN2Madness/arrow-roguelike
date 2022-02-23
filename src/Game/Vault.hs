@@ -39,7 +39,7 @@ add start ts tm = let
   ixList = filter (/=(-1)) $ [ i | (ix, TileKind xy _ _) <- Map.toList tm,
              let i = if xy `elem` coordList then ix else (-1) ]
   terrainMap = Map.fromList $ zip ixList $ [ tk | (xy, t) <- terrainList,
-               let tk = TileKind xy True t ]
+               let tk = TileKind xy False t ]
   in Map.union terrainMap tm
 
 -- | 1 x 4

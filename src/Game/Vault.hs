@@ -145,7 +145,7 @@ town :: TileMap
 town = let
   d = GD.boxDungeon 10 10
   t = GT.mkTileMap d
-  a = add (6,4) board  $ add (5,4) board t
-  b = add (3,4) board  $ add (2,4) board a
+  a = add (6,3) board  $ add (5,3) board t
+  b = add (3,3) board  $ add (2,3) board a
   c = add (9,5) [Door] b
   in c

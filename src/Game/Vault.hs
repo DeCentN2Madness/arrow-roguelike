@@ -6,31 +6,33 @@ Game.Vault.hs
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
 -}
-module Game.Vault (cave
-                  , insertVault
-                  , showVault
-                  , testVault
-                  , town) where
+module Game.Vault where
 
 import Prelude hiding (lookup)
 import Control.Monad (forM_)
 import Control.Monad.Random (mkStdGen)
 import Data.List
+import Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
 import Data.Text (Text)
 import qualified Data.Text as T
 import Text.Printf
+import qualified Engine.Arrow.Compass as EAC
 import qualified Game.Dungeon as GD
 import Game.Kind.Tile (Terrain(..), TileKind (..))
 import Game.Tile (TileMap)
 import qualified Game.Tile as GT
 
 type Coord = (Int, Int)
+type CoordMap = Map Coord TileKind
 
 -- | add Terrain to TileMap at pos
 add :: Coord -> [Terrain] -> TileMap -> TileMap
-add pos ts tm = let
-  coordList = mkGrid pos (length ts) (length ts)
+add start ts tm = let
+  dist = length ts
+  (startX, startY) = start
+  end = (dist + startX, dist + startY)
+  coordList = mkGrid start end
   terrainList = zip coordList ts
   ixList = filter (/=(-1)) $ [ i | (ix, TileKind xy _ _) <- Map.toList tm,
              let i = if xy `elem` coordList then ix else (-1) ]
@@ -56,15 +58,42 @@ doorList tm = nub $ filter (/=(0,0)) $
   [ xy | (_, TileKind pos _ t) <- Map.toList tm,
                 let xy = if t == Door then pos else (0,0) ]
 
-insertHall :: Coord -> Int -> TileMap -> TileMap
-insertHall (x1, y1) dist tm = let
-  ts = replicate dist Open
-  coordList = mkGrid (y1, x1) (length ts) (length ts)
+horizHall :: Coord -> Coord -> CoordMap
+horizHall (x1, y1) (x2, y2) = let
+  dist = EAC.chessDist (x1, y1) (x2, y2)
+  ts   = replicate dist Open
+  coordList = mkGrid (x1, y1) (x2, y2)
   terrainList = zip coordList ts
-  hallMap =  Map.fromList terrainList
+  tm = zip coordList $ [ tk | (xy, t) <- terrainList,
+                     let tk = TileKind xy False t]
+
+  in Map.fromList tm
+
+vertHall :: Coord -> Coord -> CoordMap
+vertHall (x1, y1) (x2, y2) = let
+  dist = EAC.chessDist (x1, y1) (x2, y2)
+  ts   = replicate dist Open
+  coordList = mkGrid (x1, y1) (x2, y2)
+  terrainList = zip coordList ts
+  tm = zip coordList $ [ tk | (xy, t) <- terrainList,
+                     let tk = TileKind xy False t]
+  in Map.fromList tm
+
+insertVtHall :: Coord -> Coord -> TileMap -> TileMap
+insertVtHall src dest tm = let
+  vert  =  vertHall src dest
   finalMap = [ (ix, tk) | (ix, TileKind xy v t) <- Map.toList tm,
-                let tk = case Map.lookup xy hallMap of
-                      Just x -> TileKind xy False x
+                let tk = case Map.lookup xy vert of
+                      Just x -> x
+                      Nothing -> TileKind xy v t]
+  in Map.fromList finalMap
+
+insertHzHall :: Coord -> Coord -> TileMap -> TileMap
+insertHzHall src dest tm = let
+  horiz =  horizHall src dest
+  finalMap = [ (ix, tk) | (ix, TileKind xy v t) <- Map.toList tm,
+                let tk = case Map.lookup xy horiz of
+                      Just x -> x
                       Nothing -> TileKind xy v t]
   in Map.fromList finalMap
 
@@ -83,15 +112,14 @@ insertVault (startX, startY) vault tm = let
                       Just x -> x
                       Nothing -> TileKind xy v t]
   -- TODO find door for hall
-  hallMap = insertHall (6,11) 10 updateMap
-  in hallMap
+  hMap = insertHzHall (11,6) (11,80) updateMap
+  vMap = insertVtHall (11,6) (40, 6) hMap
+  in vMap
 
 -- | uniform grid
-mkGrid :: Coord -> Int -> Int -> [Coord]
-mkGrid pos maxX maxY = let
-  (startX, startY) = pos
-  maxXY = if startX+maxX > startY+maxY then startX+maxX else startY+maxY
-  in [(y, x) | x <- [startX..maxXY-1], y <- [startY..maxXY-1]]
+mkGrid :: Coord -> Coord -> [Coord]
+mkGrid (x1, y1) (x2, y2)= let
+  in [(y, x) | x <- [x1..x2], y <- [y1..y2]]
 
 -- | IO for visualization
 showVault :: TileMap -> IO ()

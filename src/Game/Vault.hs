@@ -97,7 +97,6 @@ insertVault (startX, startY) vault tm = let
   vMap = insertHall (11,6) (21, 6) hMap
   in vMap
 
-
 -- | mkHall
 mkHall :: Coord -> Coord -> CoordMap
 mkHall (x1, y1) (x2, y2) = let
@@ -146,7 +145,7 @@ town :: TileMap
 town = let
   d = GD.boxDungeon 10 10
   t = GT.mkTileMap d
-  a = add (6,3) board  $ add (5,3) board t
+  a = add (7,3) board  $ add (6,3) board t
   b = add (3,3) board  $ add (2,3) board a
   c = add (9,5) [Door] b
   in c

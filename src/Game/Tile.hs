@@ -11,6 +11,7 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 module Game.Tile (fromHard
                , fromOpen
                , fromVisual
+               , fromVisionBlocked
                , getTerrainAt
                , TileMap
                , mkTileMap
@@ -44,6 +45,12 @@ fromVisual tm = let
   terrainList = [ (t, xy) | (_, TileKind pos vis t) <- Map.toList tm,
                  let xy = if vis then pos else (0,0) ]
   in filter ((/=(0,0)).snd) terrainList
+
+-- | fromVisionBlocked returns VisionBlocked
+fromVisionBlocked :: TileMap -> [(Terrain, Coord)]
+fromVisionBlocked tm = let
+  terrainList = [ (t, xy) | (_, TileKind xy _ t) <- Map.toList tm ]
+  in filter ((/=Open).fst) terrainList
 
 -- | getTerrainAt
 getTerrainAt :: Coord -> TileMap -> Terrain

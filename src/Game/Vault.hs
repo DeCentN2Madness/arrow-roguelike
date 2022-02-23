@@ -30,17 +30,18 @@ type CoordMap = Map Coord TileKind
 
 -- | add Terrain to TileMap at pos
 add :: Coord -> [Terrain] -> TileMap -> TileMap
-add start ts tm = let
+add (x1, y1) ts tm = let
   dist = length ts
-  (startX, startY) = start
-  end = (dist + startX, dist + startY)
-  coordList = mkGrid start end
+  end = (dist + x1, dist + y1)
+  coordList = mkGrid (x1, y1) end
   terrainList = zip coordList ts
-  ixList = filter (/=(-1)) $ [ i | (ix, TileKind xy _ _) <- Map.toList tm,
-             let i = if xy `elem` coordList then ix else (-1) ]
-  terrainMap = Map.fromList $ zip ixList $ [ tk | (xy, t) <- terrainList,
-               let tk = TileKind xy False t ]
-  in Map.union terrainMap tm
+  hallMap = Map.fromList $ zip coordList $ [ tk | (xy, t) <- terrainList,
+                     let tk = TileKind xy False t]
+  finalMap = [ (ix, tk) | (ix, TileKind xy v t) <- Map.toList tm,
+                let tk = case Map.lookup xy hallMap of
+                      Just x -> x
+                      Nothing -> TileKind xy v t]
+  in Map.fromList finalMap
 
 -- | 1 x 4
 board :: [Terrain]
@@ -50,7 +51,7 @@ board = replicate 4 Wall
 -- rogueDungeon by reusing seed can regenerate dungeon
 cave :: Int -> Int -> Int -> TileMap
 cave seed rows cols = let
-  g = mkStdGen (seed*rows*cols)
+  g = mkStdGen seed
   (d, _) = GD.rogueDungeon cols rows g
   in GT.mkTileMap d
 

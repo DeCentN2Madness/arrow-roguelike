@@ -6,7 +6,10 @@ Game.Vault.hs
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
 -}
-module Game.Vault where
+module Game.Vault (cave
+                  , insertVault
+                  , showVault
+                  , town) where
 
 import Prelude hiding (lookup)
 import Control.Monad (forM_)
@@ -57,48 +60,19 @@ doorList :: TileMap -> [Coord]
 doorList tm = nub $ filter (/=(0,0)) $
   [ xy | (_, TileKind pos _ t) <- Map.toList tm,
                 let xy = if t == Door then pos else (0,0) ]
-
-horizHall :: Coord -> Coord -> CoordMap
-horizHall (x1, y1) (x2, y2) = let
-  dist = EAC.chessDist (x1, y1) (x2, y2)
-  ts   = replicate dist Open
-  coordList = mkGrid (x1, y1) (x2, y2)
-  terrainList = zip coordList ts
-  tm = zip coordList $ [ tk | (xy, t) <- terrainList,
-                     let tk = TileKind xy False t]
-
-  in Map.fromList tm
-
-vertHall :: Coord -> Coord -> CoordMap
-vertHall (x1, y1) (x2, y2) = let
-  dist = EAC.chessDist (x1, y1) (x2, y2)
-  ts   = replicate dist Open
-  coordList = mkGrid (x1, y1) (x2, y2)
-  terrainList = zip coordList ts
-  tm = zip coordList $ [ tk | (xy, t) <- terrainList,
-                     let tk = TileKind xy False t]
-  in Map.fromList tm
-
-insertVtHall :: Coord -> Coord -> TileMap -> TileMap
-insertVtHall src dest tm = let
-  vert  =  vertHall src dest
+-- | insertHall
+insertHall :: Coord -> Coord -> TileMap -> TileMap
+insertHall src dest tm = let
+  hallMap = mkHall src dest
   finalMap = [ (ix, tk) | (ix, TileKind xy v t) <- Map.toList tm,
-                let tk = case Map.lookup xy vert of
-                      Just x -> x
-                      Nothing -> TileKind xy v t]
-  in Map.fromList finalMap
-
-insertHzHall :: Coord -> Coord -> TileMap -> TileMap
-insertHzHall src dest tm = let
-  horiz =  horizHall src dest
-  finalMap = [ (ix, tk) | (ix, TileKind xy v t) <- Map.toList tm,
-                let tk = case Map.lookup xy horiz of
+                let tk = case Map.lookup xy hallMap of
                       Just x -> x
                       Nothing -> TileKind xy v t]
   in Map.fromList finalMap
 
 -- | insertVault at pos
---   Game.Vault.insertVault (1,1) town dungeon
+-- draw Hall to middle of the Map from the door
+-- Example: Game.Vault.insertVault (1,1) town dungeon
 insertVault :: Coord -> TileMap -> TileMap -> TileMap
 insertVault (startX, startY) vault tm = let
   -- insert Vault
@@ -112,22 +86,38 @@ insertVault (startX, startY) vault tm = let
                       Just x -> x
                       Nothing -> TileKind xy v t]
   -- TODO find door for hall
-  hMap = insertHzHall (11,6) (11,80) updateMap
-  vMap = insertVtHall (11,6) (40, 6) hMap
+  -- TODO calculate dest coords from door
+  -- (y, x) coordinates
+  hMap = insertHall (21,6) (21,41) updateMap
+  vMap = insertHall (11,6) (21, 6) hMap
   in vMap
+
+
+-- | mkHall
+mkHall :: Coord -> Coord -> CoordMap
+mkHall (x1, y1) (x2, y2) = let
+  dist = EAC.chessDist (x1, y1) (x2, y2)
+  ts   = replicate dist Open
+  coordList = mkGrid (x1, y1) (x2, y2)
+  terrainList = zip coordList ts
+  tm = zip coordList $ [ tk | (xy, t) <- terrainList,
+                     let tk = TileKind xy False t]
+  in Map.fromList tm
 
 -- | uniform grid
 mkGrid :: Coord -> Coord -> [Coord]
 mkGrid (x1, y1) (x2, y2)= let
   in [(y, x) | x <- [x1..x2], y <- [y1..y2]]
 
--- | IO for visualization
+-- | showVault for visualization
+-- >>>  let d = cave 1 80 40
+-- >>>      l = town
+-- >>>  showVault $ insertVault (1,1) l d
 showVault :: TileMap -> IO ()
 showVault tm = do
   let txList = [ (xy, v) | (_, TileKind xy _ t) <- Map.toList tm,
                 let v = terrainToText t ]
       doors  = doorList tm
-
   forM_ txList $ \((i,_), t) -> do
     let vt = if i == 0
           then T.append (T.pack "\n") t
@@ -155,9 +145,3 @@ town = let
   b = add (3,4) board  $ add (2,4) board a
   c = add (9,5) [Door] b
   in c
-
-testVault :: IO ()
-testVault = do
-  let d = cave 1 80 40
-      l = town
-  showVault $ insertVault (1,1) l d

@@ -61,7 +61,9 @@ getTerrainAt pos tm = let
 
 -- | mkGrid uniform grid helper function for zip
 mkGrid :: Int -> Int -> [Coord]
-mkGrid maxX maxY = [ (y, x) | x <- [0..maxX-1], y <- [0..maxY-1] ]
+mkGrid maxX maxY = let
+  maxXY = if maxX > maxY then maxX else maxY
+  in [ (y, x) | x <- [0..maxXY-1], y <- [0..maxXY-1] ]
 
 -- | mkTileMap builds the TileMap from Dungeon @d@
 -- (y,x) in Terrain
@@ -70,8 +72,8 @@ mkTileMap :: Dungeon -> TileMap
 mkTileMap d = let
   grid = mkGrid (dungeonWidth d) (dungeonHeight d)
   tileList = V.toList $ dungeonTiles d
-  terrainList = [ tk | (t, xy) <- zip tileList grid,
-               let tk = TileKind xy False t]
+  terrainList = [ tk | (xy, t) <- zip grid tileList,
+               let tk = TileKind xy False t ]
   tm = Map.fromList $ zip [0 :: Int ..] terrainList
   in tm
 

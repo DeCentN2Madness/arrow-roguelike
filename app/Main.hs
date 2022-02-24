@@ -16,7 +16,7 @@ import Engine.Arrow.Save (loadFile, saveFile)
 import Engine.Arrow.Util (applyIntent)
 import Engine.Draw.Util (draw)
 import Engine.Draw.Visual (assetPaths, loadTextures, TextureMap)
-import Engine.SDL.Event (mkIntent)
+import qualified Engine.SDL.Event as E
 import qualified Engine.SDL.Util as U
 
 width, height :: Int
@@ -47,7 +47,8 @@ mainLoop :: IORef World
   -> TextureMap
   -> IO ()
 mainLoop world render ts = do
-  e <- mkIntent <$> SDL.pollEvent
+  events <- SDL.pumpEvents >> SDL.pollEvents
+  let e = E.mkIntents events
   modifyIORef world (applyIntent e)
   q <- readIORef world
   draw render ts q

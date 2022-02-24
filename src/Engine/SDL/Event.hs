@@ -7,7 +7,7 @@ Keyboard Handling
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
 -}
-module Engine.SDL.Event where
+module Engine.SDL.Event (mkIntents) where
 
 import qualified SDL
 import Engine.Arrow.Data (Direction(..), Intent(..))
@@ -48,5 +48,8 @@ getKey (SDL.KeyboardEventData _ SDL.Pressed False keysym) =
     SDL.KeycodeR      -> Action R
     _                 -> Action Help
 
-mkIntent :: Maybe SDL.Event -> Intent
-mkIntent = maybe Idle (actionIntent . extractPayload)
+-- TODO handle multiple events
+-- <https://github.com/haskell-game/sdl2/issues/241>
+mkIntents :: [SDL.Event] -> Intent
+mkIntents [] = Idle
+mkIntents (x:_) = actionIntent . extractPayload $ x

@@ -114,8 +114,7 @@ mkHall (x1, y1) (x2, y2) = let
 
 -- | uniform grid
 mkGrid :: Coord -> Coord -> [Coord]
-mkGrid (x1, y1) (x2, y2)= let
-  in [(y, x) | x <- [x1..x2], y <- [y1..y2]]
+mkGrid (x1, y1) (x2, y2) = [ (y, x) | x <- [x1..x2], y <- [y1..y2] ]
 
 -- | showVault for visualization
 -- >>>  let d = cave 1 80 40

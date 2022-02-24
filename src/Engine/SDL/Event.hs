@@ -50,6 +50,5 @@ getKey (SDL.KeyboardEventData _ SDL.Pressed False keysym) =
 
 -- TODO handle multiple events
 -- <https://github.com/haskell-game/sdl2/issues/241>
-mkIntents :: [SDL.Event] -> Intent
-mkIntents [] = Idle
-mkIntents (x:_) = actionIntent . extractPayload $ x
+mkIntents :: [SDL.Event] -> [Intent]
+mkIntents = foldr (\x -> (:) (actionIntent . extractPayload $ x)) [Idle]

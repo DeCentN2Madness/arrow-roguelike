@@ -9,6 +9,7 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 module Main (main) where
 
 import Data.IORef
+import Control.Monad (forM_)
 import Control.Monad.Extra (unless)
 import qualified SDL
 import Engine.Arrow.Data (World(..))
@@ -19,23 +20,21 @@ import Engine.Draw.Visual (assetPaths, loadTextures, TextureMap)
 import qualified Engine.SDL.Event as E
 import qualified Engine.SDL.Util as U
 
-width, height :: Int
-(width, height) = (1024, 768)
-
 -- | main
 main :: IO ()
 main = do
   saveWorld <- loadFile
   world <- newIORef saveWorld
+  start <- readIORef world
+  let (width, height) = screenXY start
   U.withSDL $ U.withSDLFont $ U.withSDLImage $ do
-    U.setHintQuality
-    U.withWindow "Arrow" (width, height) $ \w ->
+    U.withWindow "Arrow" (floor width, floor height) $ \w ->
       U.withRenderer w $ \r -> do
       ts <- loadTextures r assetPaths
       mainLoop world r ts
       mapM_ (SDL.destroyTexture . fst) ts
-  q <- readIORef world
-  saveFile q
+  end <- readIORef world
+  saveFile end
 
 -- | mainLoop
 -- unless exiting
@@ -47,9 +46,11 @@ mainLoop :: IORef World
   -> TextureMap
   -> IO ()
 mainLoop world render ts = do
-  events <- SDL.pumpEvents >> SDL.pollEvents
-  let e = E.mkIntents events
-  modifyIORef world (applyIntent e)
   q <- readIORef world
-  draw render ts q
+  events <- SDL.pumpEvents >> SDL.pollEvents
+  let intents = E.mkIntents events
+  forM_ intents $ \i -> do
+    modifyIORef world (applyIntent i)
+    d <- readIORef world
+    draw render ts d
   unless (exiting q) $ mainLoop world render ts

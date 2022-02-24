@@ -3,7 +3,18 @@
 # For more information, please see the documentation at:
 #   https://docs.haskellstack.org/en/stable/lock_files
 
-packages: []
+packages:
+- completed:
+    name: sdl2-image
+    version: 2.0.0
+    git: https://github.com/haskell-game/sdl2-image.git
+    pantry-tree:
+      size: 545
+      sha256: 3f8d686c74dd577de885ef34703859efb2a8d543183ba1ccb71b77868cc052f9
+    commit: 382395c763b473032721c71921b5c9241142178f
+  original:
+    git: https://github.com/haskell-game/sdl2-image.git
+    commit: 382395c763b473032721c71921b5c9241142178f
 snapshots:
 - completed:
     size: 587821

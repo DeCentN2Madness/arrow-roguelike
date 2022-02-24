@@ -8,13 +8,12 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 -}
 module Game.Vault (cave
                   , insertVault
-                  , showVault
-                  , town) where
+                  , level
+                  , showVault) where
 
 import Prelude hiding (lookup)
 import Control.Monad (forM_)
 import Control.Monad.Random (mkStdGen)
-import Data.List
 import Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
 import Data.Text (Text)
@@ -29,23 +28,21 @@ type Coord = (Int, Int)
 type CoordMap = Map Coord TileKind
 
 -- | add Terrain to TileMap at pos
+-- (y,x) in [Terrain]
+-- (x,y) in TileMap
 add :: Coord -> [Terrain] -> TileMap -> TileMap
-add (x1, y1) ts tm = let
+add (y1, x1) ts tm = let
   dist = length ts
   end = (dist + x1, dist + y1)
   coordList = mkGrid (x1, y1) end
   terrainList = zip coordList ts
-  hallMap = Map.fromList $ zip coordList $ [ tk | (xy, t) <- terrainList,
-                     let tk = TileKind xy False t]
+  hallMap = Map.fromList $ zip coordList $
+    [ tk | (xy, t) <- terrainList, let tk = TileKind xy False t ]
   finalMap = [ (ix, tk) | (ix, TileKind xy v t) <- Map.toList tm,
                 let tk = case Map.lookup xy hallMap of
                       Just x -> x
                       Nothing -> TileKind xy v t]
   in Map.fromList finalMap
-
--- | 1 x 4
-board :: [Terrain]
-board = replicate 4 Wall
 
 -- | cave
 -- rogueDungeon by reusing seed can regenerate dungeon
@@ -61,22 +58,24 @@ chessDist :: Coord -> Coord -> Int
 chessDist (x1, y1) (x2, y2) = max (abs (x2 - x1)) (abs (y2 - y1))
 
 -- | doorList
-doorList :: TileMap -> [Coord]
-doorList tm = nub $ filter (/=(0,0)) $
+doorList :: CoordMap -> [Coord]
+doorList tm = filter (/=(0,0)) $
   [ xy | (_, TileKind pos _ t) <- Map.toList tm,
                 let xy = if t == Door then pos else (0,0) ]
+
 -- | insertHall
+-- (y,x) in [Terrain]
+-- (x,y) in TileMap
 insertHall :: Coord -> Coord -> TileMap -> TileMap
-insertHall src dest tm = let
-  hallMap = mkHall src dest
+insertHall (y1, x1) (y2, x2) tm = let
+  hallMap = mkHall (x1, y1) (x2, y2)
   finalMap = [ (ix, tk) | (ix, TileKind xy v t) <- Map.toList tm,
                 let tk = case Map.lookup xy hallMap of
                       Just x -> x
-                      Nothing -> TileKind xy v t]
+                      Nothing -> TileKind xy v t ]
   in Map.fromList finalMap
 
 -- | insertVault at pos
--- draw Hall to middle of the Map from the door
 -- Example: Game.Vault.insertVault (1,1) town dungeon
 insertVault :: Coord -> TileMap -> TileMap -> TileMap
 insertVault (startX, startY) vault tm = let
@@ -90,12 +89,17 @@ insertVault (startX, startY) vault tm = let
                 let tk = case Map.lookup xy vaultMap of
                       Just x -> x
                       Nothing -> TileKind xy v t]
-  -- TODO find door for hall
-  -- TODO calculate dest coords from door
-  -- (y, x) coordinates
-  hMap = insertHall (21,6) (21,41) updateMap
-  vMap = insertHall (11,6) (21, 6) hMap
-  in vMap
+  -- TODO calculate facing of door
+  -- TODO handle multiple door and destinations
+  finalMap = case doorList vaultMap of
+    [] -> updateMap
+    (x:_) -> let
+      (doorX, doorY) = x
+      newX = doorX + 10
+      newY = doorY + 10
+      horizontal = insertHall (doorX, newY) (newX, newY) updateMap
+      in insertHall (doorX, doorY+1) (doorX, newY) horizontal
+  in finalMap
 
 -- | mkHall
 mkHall :: Coord -> Coord -> CoordMap
@@ -121,14 +125,12 @@ showVault :: TileMap -> IO ()
 showVault tm = do
   let txList = [ (xy, v) | (_, TileKind xy _ t) <- Map.toList tm,
                 let v = terrainToText t ]
-      doors  = doorList tm
   forM_ txList $ \((i,_), t) -> do
     let vt = if i == 0
           then T.append (T.pack "\n") t
           else t
     printf "%s" vt
   printf "\n"
-  printf "door = %s\n" (show doors)
 
 -- | TileMap to Text
 terrainToText :: Terrain -> Text
@@ -140,12 +142,39 @@ terrainToText t = case t of
   Rubble -> "%"
   Wall -> "#"
 
+-- | 1 x 4
+board :: [Terrain]
+board = replicate 4 Wall
+
+-- | 1 x 2
+spot :: [Terrain]
+spot = replicate 2 Wall
+
+-- | demo rooms
+level :: TileMap -> TileMap
+level tm = let
+  l = lair
+  p = pillar
+  t = town
+  in insertVault (1,1) t $ insertVault (10, 1) p $ insertVault (20,1) l tm
+
+lair :: TileMap
+lair = let
+  t = cave 10 10 10
+  in add (5,9) [Door] t
+
+-- | pillar room
+pillar :: TileMap
+pillar = let
+  t = GT.mkTileMap $ GD.boxDungeon 10 10
+  a = add (4,3) spot $ add (4,1) spot $ add (3,2) board t
+  b = add (4,8) spot $ add (4,6) spot $ add (3,7) board a
+  in add (5,9) [Door] b
+
 -- | nice little town
 town :: TileMap
 town = let
-  d = GD.boxDungeon 10 10
-  t = GT.mkTileMap d
-  a = add (7,3) board  $ add (6,3) board t
-  b = add (3,3) board  $ add (2,3) board a
-  c = add (9,5) [Door] b
-  in c
+  t = GT.mkTileMap $ GD.boxDungeon 10 10
+  a = add (3,7) board  $ add (3,6) board t
+  b = add (3,3) board  $ add (3,2) board a
+  in add (5,9) [Door] b

@@ -13,28 +13,29 @@ import Control.Monad (forM_)
 import Control.Monad.Extra (unless)
 import qualified SDL
 import Engine.Arrow.Data (World(..))
-import Engine.Arrow.Save (loadFile, saveFile)
-import Engine.Arrow.Util (applyIntent)
-import Engine.Draw.Util (draw)
-import Engine.Draw.Visual (assetPaths, loadTextures, TextureMap)
-import qualified Engine.SDL.Event as E
+import qualified Engine.Arrow.Save as EAS
+import qualified Engine.Arrow.Util as EAU
+import qualified Engine.Draw.Util as EDU
+import Engine.Draw.Visual (TextureMap)
+import qualified Engine.Draw.Visual as EDV
+import qualified Engine.SDL.Event as ESE
 import qualified Engine.SDL.Util as U
 
 -- | main
 main :: IO ()
 main = do
-  saveWorld <- loadFile
+  saveWorld <- EAS.loadFile
   world <- newIORef saveWorld
   start <- readIORef world
   let (width, height) = screenXY start
   U.withSDL $ U.withSDLFont $ U.withSDLImage $ do
     U.withWindow "Arrow" (floor width, floor height) $ \w ->
       U.withRenderer w $ \r -> do
-      ts <- loadTextures r assetPaths
+      ts <- EDV.loadTextures r EDV.assetPaths
       mainLoop world r ts
       mapM_ (SDL.destroyTexture . fst) ts
   end <- readIORef world
-  saveFile end
+  EAS.saveFile end
 
 -- | mainLoop
 -- unless exiting
@@ -48,9 +49,9 @@ mainLoop :: IORef World
 mainLoop world render ts = do
   q <- readIORef world
   events <- SDL.pumpEvents >> SDL.pollEvents
-  let intents = E.mkIntents events
+  let intents = ESE.mkIntents events
   forM_ intents $ \i -> do
-    modifyIORef world (applyIntent i)
+    modifyIORef world (EAU.applyIntent i)
     d <- readIORef world
-    draw render ts d
+    EDU.draw render ts d
   unless (exiting q) $ mainLoop world render ts

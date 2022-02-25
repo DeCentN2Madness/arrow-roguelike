@@ -8,14 +8,14 @@ w/ [(Terrain, Coord)]
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
 -}
-module Game.Tile (fromHard
-               , fromOpen
-               , fromVisual
-               , fromVisionBlocked
-               , getTerrainAt
-               , TileMap
-               , mkTileMap
-               , updateTileMap) where
+module Game.Tile (fromOpen
+                 , fromVisual
+                 , fromMoveBlocked
+                 , fromVisionBlocked
+                 , getTerrainAt
+                 , TileMap
+                 , mkTileMap
+                 , updateTileMap) where
 
 import Prelude hiding (lookup)
 import Data.Map (Map)
@@ -27,30 +27,35 @@ import Game.Kind.Tile
 type Coord = (Int, Int)
 type TileMap = Map Int TileKind
 
--- | fromHard list of Hard surfaces
-fromHard :: TileMap -> [(Terrain, Coord)]
-fromHard tm = let
-  terrainList = [ (t, xy) | (_, TileKind xy _ t) <- Map.toList tm ]
-  in filter ((/=Door).fst) $ filter ((/=Open).fst) terrainList
+-- | fromMoveBlocked filters movable coord
+fromMoveBlocked :: [Coord] -> TileMap -> [Coord]
+fromMoveBlocked pos tm = let
+  terrainList = filter ((/=Door).fst) $
+    filter ((/=Open).fst) $
+    [ (t, xy) | (_, TileKind xy _ t) <- Map.toList tm ]
+  in filter (\x -> x `notElem` [ xy | (_, xy) <- terrainList ]) pos
 
 -- | fromOpen list of Open surfaces
 fromOpen :: TileMap -> [(Terrain, Coord)]
 fromOpen tm = let
-  terrainList = [ (t, xy) | (_, TileKind xy _ t) <- Map.toList tm ]
-  in filter ((==Open).fst) terrainList
+  terrainList = filter ((==Open).fst) $
+    [ (t, xy) | (_, TileKind xy _ t) <- Map.toList tm ]
+  in terrainList
 
 -- | fromVisual return visual terrain
 fromVisual :: TileMap -> [(Terrain, Coord)]
 fromVisual tm = let
-  terrainList = [ (t, xy) | (_, TileKind pos vis t) <- Map.toList tm,
-                 let xy = if vis then pos else (0,0) ]
-  in filter ((/=(0,0)).snd) terrainList
+  terrainList = filter ((/=(0,0)).snd) $
+    [ (t, xy) | (_, TileKind pos vis t) <- Map.toList tm,
+      let xy = if vis then pos else (0,0) ]
+  in terrainList
 
 -- | fromVisionBlocked returns VisionBlocked
 fromVisionBlocked :: TileMap -> [(Terrain, Coord)]
 fromVisionBlocked tm = let
-  terrainList = [ (t, xy) | (_, TileKind xy _ t) <- Map.toList tm ]
-  in filter ((/=Open).fst) terrainList
+  terrainList = filter ((/=Open).fst) $
+    [ (t, xy) | (_, TileKind xy _ t) <- Map.toList tm ]
+  in terrainList
 
 -- | getTerrainAt
 getTerrainAt :: Coord -> TileMap -> Terrain

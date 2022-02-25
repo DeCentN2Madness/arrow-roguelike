@@ -126,14 +126,13 @@ actionLook xs = let
 -- 3. pathFinder based on aiAction
 actionMonster :: World -> World
 actionMonster w = let
-  coordF :: [Coord] -> [Coord]
-  coordF = filter (`notElem` hardT)
-  hardT      = [ xy | (_, xy) <- GT.fromHard (gameT w) ]
   entityList = [ (ix, ek) | (e, ix) <- GE.fromEntityAt (entityT w),
                  let ek = if block e -- Movable Entity
-                       then e { moveT = coordF $ cardinal (coord e) }
+                       then let
+                       move = cardinal (coord e)
+                       in e { moveT = move `GT.fromMoveBlocked` gameT w }
                        else e ]
-  -- newWorld w/ hardT
+  -- newWorld w/ fromMoveBlocked
   newWorld = w { entityT = Map.fromList entityList }
   in GAI.pathFinder entityList $ GAI.aiAction entityList newWorld
 

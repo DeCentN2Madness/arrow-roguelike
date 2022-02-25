@@ -5,7 +5,7 @@ Game.Entity.hs
 Game.Entity is the engine for the EntityKind.
 
 Example:
-  getEntityAt uses the EntityMap by index Ix
+  getEntityAt uses the EntityMap by Ix
   getEntityBy uses the EntityMap by Coord
 
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>

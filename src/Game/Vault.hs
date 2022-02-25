@@ -7,7 +7,7 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
 -}
 module Game.Vault (cave
-                  , insertVault
+                  , insertVaultPair
                   , level
                   , showVault) where
 
@@ -75,30 +75,42 @@ insertHall (y1, x1) (y2, x2) tm = let
                       Nothing -> TileKind xy v t ]
   in Map.fromList finalMap
 
--- | insertVault at pos
--- Example: Game.Vault.insertVault (1,1) town dungeon
-insertVault :: Coord -> TileMap -> TileMap -> TileMap
-insertVault (startX, startY) vault tm = let
+-- | insertVaultPair
+-- insert vaults in pairs and link the doors with vertical and
+-- horizontal hallways
+-- Example: insertVaultPair (1,1) townA (70,30) townB
+insertVaultPair :: Coord -> TileMap -> Coord -> TileMap -> TileMap -> TileMap
+insertVaultPair (x1, y1) vault1 (x2, y2) vault2 tm = let
   -- insert Vault
-  vaultMap = Map.fromList $
-    [ (xy,  tk) | (_, TileKind (x, y) v t) <- Map.toList vault,
+  vaultA = Map.fromList $
+    [ (xy,  tk) | (_, TileKind (x, y) v t) <- Map.toList vault1,
                  let tk = TileKind xy v t
-                     xy = (startX + x, startY + y) ]
-  updateMap = Map.fromList $
+                     xy = (x1 + x, y1 + y) ]
+  vaultB = Map.fromList $
+    [ (xy,  tk) | (_, TileKind (x, y) v t) <- Map.toList vault2,
+                 let tk = TileKind xy v t
+                     xy = (x2 + x, y2 + y) ]
+  -- update TileMap
+  updateA = Map.fromList $
     [ (ix, tk) | (ix, TileKind xy v t) <- Map.toList tm,
-                let tk = case Map.lookup xy vaultMap of
+                let tk = case Map.lookup xy vaultA of
                       Just x -> x
                       Nothing -> TileKind xy v t]
-  -- TODO calculate facing of door
-  -- TODO handle multiple door and destinations
-  finalMap = case doorList vaultMap of
-    [] -> updateMap
+  updateB = Map.fromList $
+    [ (ix, tk) | (ix, TileKind xy v t) <- Map.toList updateA,
+                let tk = case Map.lookup xy vaultB of
+                      Just x -> x
+                      Nothing -> TileKind xy v t]
+  -- link doors with vertical and horizontal hall
+  finalMap = case doorList vaultA of
+    [] -> updateB
     (x:_) -> let
       (doorX, doorY) = x
-      newX = doorX + 10
-      newY = doorY + 10
-      horizontal = insertHall (doorX, newY) (newX, newY) updateMap
-      in insertHall (doorX, doorY+1) (doorX, newY) horizontal
+      (newX, newY) = case doorList vaultB of
+        [] -> (doorX, doorY)
+        (y:_) -> y
+      horizontal = insertHall (doorX+1, newY) (newX, newY) updateB
+      in insertHall (doorX+1, doorY) (doorX+1, newY) horizontal
   in finalMap
 
 -- | mkHall
@@ -150,30 +162,58 @@ spot :: [Terrain]
 spot = replicate 2 Wall
 
 -- | demo rooms
+-- A version is door opening East,
+-- B version is door opening West...
 level :: TileMap -> TileMap
 level tm = let
-  l = lair
-  p = pillar
-  t = town
-  in insertVault (1,1) t $ insertVault (10, 1) p $ insertVault (20,1) l tm
+  l0 = lairA
+  l1 = lairB
+  p0 = pillarA
+  p1 = pillarB
+  t0 = townA
+  t1 = townB
+  in insertVaultPair (1,30) t0 (70,1) l1 $
+  insertVaultPair (1,15) p0 (70,15) t1 $
+  insertVaultPair (1,1) l0 (70,30) p1 tm
 
-lair :: TileMap
-lair = let
-  t = cave 10 10 10
-  in add (5,9) [Door] t
+lairA :: TileMap
+lairA = let
+  t = GT.mkTileMap $ GD.boxDungeon 10 10
+  in add (9,5) [Door] t
+
+lairB :: TileMap
+lairB = let
+  t = GT.mkTileMap $ GD.boxDungeon 10 10
+  in add (0,5) [Door] t
 
 -- | pillar room
-pillar :: TileMap
-pillar = let
+pillarA :: TileMap
+pillarA = let
   t = GT.mkTileMap $ GD.boxDungeon 10 10
   a = add (4,3) spot $ add (4,1) spot $ add (3,2) board t
   b = add (4,8) spot $ add (4,6) spot $ add (3,7) board a
-  in add (5,9) [Door] b
+  in add (9,5) [Door] b
+
+-- | pillar room
+pillarB :: TileMap
+pillarB = let
+  t = GT.mkTileMap $ GD.boxDungeon 10 10
+  a = add (4,3) spot $ add (4,1) spot $ add (3,2) board t
+  b = add (4,8) spot $ add (4,6) spot $ add (3,7) board a
+  in add (0,5) [Door] b
 
 -- | nice little town
-town :: TileMap
-town = let
+townA :: TileMap
+townA = let
   t = GT.mkTileMap $ GD.boxDungeon 10 10
   a = add (3,7) board  $ add (3,6) board t
   b = add (3,3) board  $ add (3,2) board a
-  in add (5,9) [Door] b
+  in add (9,5) [Door] b
+
+-- | nice little town
+townB :: TileMap
+townB = let
+  t = GT.mkTileMap $ GD.boxDungeon 10 10
+  a = add (3,7) board  $ add (3,6) board t
+  b = add (3,3) board  $ add (3,2) board a
+  in add (0,5) [Door] b

@@ -25,6 +25,7 @@ module Game.Entity (EntityMap
                , updateEntityPos) where
 
 import Prelude hiding (lookup)
+import Data.List
 import Data.Map (Map)
 import qualified Data.Map.Strict as Map
 import qualified Game.DiceSet as DS
@@ -125,7 +126,13 @@ mkAssetMap ek = let
 -- insert the Hero at 0
 mkEntityMap :: TileMap -> AssetMap -> EntityMap
 mkEntityMap tm am = let
-  openList = tail $ [ pos | (_, pos) <- GT.fromOpen tm ]
+  openList = tail $ sort $ [ pos | (_, pos) <- GT.fromOpen tm ]
+  topRight = filter (/=(0,0)) $
+    [ xy | pos <- openList, let xy = if pos > (20, 1) then pos else (0,0) ]
+  bottomLeft = filter (/=(0,0)) $
+    [ xy | pos <- openList, let xy = if pos > (20, 20) then pos else (0,0) ]
+  bottomRight = filter (/=(0,0)) $
+    [ xy | pos <- openList, let xy = if pos > (40, 20) then pos else (0,0) ]
   unk      = mkEntity Unknown (0, 0)
   assetMap = mkNameMap am
   p0 = Map.findWithDefault unk "Player" assetMap
@@ -134,33 +141,37 @@ mkEntityMap tm am = let
   e2 = Map.findWithDefault unk "Potion" assetMap
   e3 = Map.findWithDefault unk "Coin" assetMap
   e4 = Map.findWithDefault unk "Unknown" assetMap
-  e5 = Map.findWithDefault unk "Mouse" assetMap
-  e6 = Map.findWithDefault unk "Wolf" assetMap
-  e7 = Map.findWithDefault unk "Orc" assetMap
-  -- add powerful monsters later...
-  -- e8 = Map.findWithDefault unk "Spider" assetMap
-  -- e9 = Map.findWithDefault unk "Troll" assetMap
+  mice = Map.findWithDefault unk "Mouse" assetMap
+  -- add powerful monsters deeper to level...
+  wolves  = Map.findWithDefault unk "Wolf" assetMap
+  orcs    = Map.findWithDefault unk "Orc" assetMap
+  trolls  = Map.findWithDefault unk "Spider" assetMap
+  spiders = Map.findWithDefault unk "Troll" assetMap
+  -- fill the dungeon...
   junk = concat [ insertRand e0 1  10 openList
                 , insertRand e1 11 20 openList
                 , insertRand e2 21 30 openList
                 , insertRand e3 31 40 openList
                 , insertRand e4 41 50 openList
-                , insertRand e5 51 60 openList
-                , insertRand e6 61 65 openList
-                , insertRand e7 65 70 openList
+                , insertRand mice 51 60 openList
+                , insertRand wolves 61 70 topRight
+                , insertRand orcs 70 80 bottomLeft
+                , insertRand trolls 80 85 bottomRight
+                , insertRand spiders 85 90 bottomRight
                 ]
   in safeInsertEntity 0 p0 tm (Map.fromList junk)
 
 -- | insert @ into the TileMap
 safeInsertEntity :: Int -> EntityKind -> TileMap -> EntityMap -> EntityMap
 safeInsertEntity ix ek tm em = let
-  openList = [ pos | (_, pos) <- GT.fromOpen tm]
+  -- enter from stairs
+  openList = sort $ [ pos | (_, pos) <- GT.fromOpen tm]
   xy = if coord ek `elem` openList
     then coord ek
     else head openList
-  -- dead Player
+  -- dead @... start in 1st vault
   newEntity = if kind ek == Corpse
-    then mkEntity Actor xy
+    then mkEntity Actor (2,2)
     else ek
   in Map.insert ix (newEntity { coord = xy }) em
 

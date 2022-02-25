@@ -4,7 +4,7 @@
 Game.Player.hs
 
 Game.Player is the engine for the Actor EntityKind. This is used
-as interchangable helper functions for just id=0
+as interchangable helper functions for id=0
 
 Example: getPlayer returns the Player from the EntityMap
 
@@ -46,7 +46,7 @@ characterSheet em = let
   pLvl  = T.pack $ "Level: " ++ show (eLvl pEntity)
   pExp  = T.pack $ "EXP: " ++ show (eXP pEntity)
   pHP   = T.pack $ "HP: " ++ show (eHP pEntity) ++ "/" ++ show (eMaxHP pEntity)
-  in [ "@", pLvl, pExp, " ", pStr, pDex, pCon, pInt, pWis, " ", pHP ]
+  in [ pLvl, pExp, " ", pStr, pDex, pCon, pInt, pWis, " ", pHP ]
 
 -- | @ Inv
 characterInventory :: EntityMap -> [Text]
@@ -57,7 +57,7 @@ characterInventory em = let
   pMush  = T.pack $ "Mushroom: " ++ show (Map.findWithDefault 0 "Mushroom" pInv)
   pPot   = T.pack $ "Potion: "   ++ show (Map.findWithDefault 0 "Potion"   pInv)
   pUnk   = T.pack $ "Unknown: "  ++ show (Map.findWithDefault 0 "Unknown"  pInv)
-  in [ "@", pCoin, pMush, pPot, pUnk ]
+  in [ pCoin, pMush, pPot, pUnk ]
 
 -- | @ lives at 0
 -- get Player
@@ -109,13 +109,13 @@ xpLevel x
   | x > 1000 && x <= 1200 = 9
   | x > 1200 && x <= 1400 = 10
   | x > 1400 && x <= 1600 = 11
-  | x > 1600 && x <= 1800 = 12
-  | x > 1800 && x <= 2200 = 13
-  | x > 2200 && x <= 2600 = 14
-  | x > 2600 && x <= 3000 = 15
-  | x > 3000 && x <= 4000 = 16
-  | x > 4000 && x <= 5000 = 17
-  | x > 5060 && x <= 6000 = 18
-  | x > 6000 && x <= 10000 = 19
+  | x > 1600 && x <= 2000 = 12
+  | x > 2000 && x <= 3000 = 13
+  | x > 3000 && x <= 4600 = 14
+  | x > 4000 && x <= 5000 = 15
+  | x > 5000 && x <= 6000 = 16
+  | x > 6000 && x <= 7000 = 17
+  | x > 7000 && x <= 8000 = 18
+  | x > 8000 && x <= 10000 = 19
   | x > 10000              = 20
   | otherwise = 1

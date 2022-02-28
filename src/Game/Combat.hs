@@ -6,7 +6,7 @@ Game.Combat.hs
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
 -}
-module Game.Combat (mkCombat) where
+module Game.Combat (mkCombat, mkRangeCombat) where
 
 import qualified Data.Map.Strict as Map
 import qualified Data.Text as T
@@ -82,3 +82,7 @@ mkCombat px mx w = if px == mx
       else GE.updateEntityHp mx pAttack (entityT w)
   in w { entityT  = newEntity
        , journalT = GJ.updateJournal [pEntry] (journalT w) }
+
+-- | mkRangeCombat
+mkRangeCombat :: Int -> Int -> World -> World
+mkRangeCombat = mkCombat

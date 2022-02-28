@@ -190,21 +190,36 @@ actionQuaff w = let
 -- | actionThrow
 -- if there is something to throw...
 -- TODO throw at nearest
+-- TODO animate throw
 actionThrow :: World -> World
 actionThrow w = let
   newTick      = tick w + 1
   (pEntity, _) = GP.getPlayer (entityT w)
   pInv         = inventory pEntity
   pUnk         = Map.findWithDefault 0 "Unknown" pInv
-  newPlayer = if pUnk > 0
+  -- pick closest target
+  mTargets = filter (\(_, j) -> j `elem` fovT w) $
+    [ (ix, xy) | (ix, tk) <- Map.toList (entityT w),
+               let xy = if (ix > 0) && block tk
+                     then coord tk
+                     else (0,0) ]
+  mTarget = case mTargets of
+    [] -> 0
+    ((ix, _):_) -> ix
+  newPlayer = if pUnk > 0 && mTarget > 0
     then pEntity { inventory = Map.insert "Unknown" (pUnk-1) pInv }
     else pEntity
-  entry = if pUnk > 0
+  entry = if pUnk > 0 && mTarget > 0
     then T.pack "Throw an Unknown..."
     else T.pack "..."
-  in w { tick = newTick
-       , entityT  = GP.updatePlayer newPlayer (entityT w)
-       , journalT = GJ.updateJournal [entry] (journalT w) }
+  -- throwWorld
+  throwWorld = w { entityT  = GP.updatePlayer newPlayer (entityT w)
+                 , journalT = GJ.updateJournal [entry] (journalT w) }
+  -- Combat event
+  world = if mTarget > 0 && mTarget > 0
+    then GC.mkRangeCombat 0 mTarget throwWorld
+    else throwWorld
+  in world { tick = newTick }
 
 -- | applyIntent
 -- Events applied to the World

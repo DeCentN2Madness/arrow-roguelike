@@ -41,7 +41,7 @@ actionBump pos em = let
 -- 1. clampCoord checks the input vs grid
 -- 2. actionPlayer handles P events in the World
 -- 3. actionMonster handles M events in the World
--- 4. if P moved then update FoV and Camera
+-- 4. update Camera
 actionDirection :: Direction -> World -> World
 actionDirection input w = if starting w
   then EDC.updateCamera w { starting = False }
@@ -75,7 +75,7 @@ actionEat w = let
     else pEntity
   entry = if pMush > 0
     then T.pack "Eat a tasty Mushroom..."
-    else T.pack "..."
+    else T.pack "Nothing to eat..."
   in w { tick = newTick
        , entityT  = GP.updatePlayer newPlayer (entityT w)
        , journalT = GJ.updateJournal [entry] (journalT w) }
@@ -95,7 +95,7 @@ actionGet w = let
     else entityT w
   entry = if length items > 1
     then T.append "Get " (actionLook $ tail items)
-    else T.pack "..."
+    else T.pack "Nothing interesting..."
   in w { tick = newTick
        , entityT  = GP.updatePlayer newPlayer newEntity
        , journalT = GJ.updateJournal [entry] (journalT w) }
@@ -136,12 +136,11 @@ actionMonster w = let
                        in e { moveT = move `GT.fromMoveBlocked` gameT w }
                        else e ]
   -- newWorld w/ fromMoveBlocked
-  newWorld = w { entityT = Map.fromList entityList }
-  in GAI.pathFinder entityList $ GAI.aiAction entityList newWorld
+  world = w { entityT = Map.fromList entityList }
+  in GAI.pathFinder entityList $ GAI.aiAction entityList world
 
 -- | actionPlayer
 -- handle the Player within the World
--- TODO handle statuses
 actionPlayer :: Coord -> World -> World
 actionPlayer pos w = let
   -- Time event
@@ -182,14 +181,13 @@ actionQuaff w = let
     else pEntity
   entry = if pPot > 0
     then T.pack "Drink a delicious Potion..."
-    else T.pack "..."
+    else T.pack "Nothing to drink..."
   in w { tick = newTick
-         , entityT  = GP.updatePlayer newPlayer (entityT w)
-         , journalT = GJ.updateJournal [entry] (journalT w) }
+       , entityT  = GP.updatePlayer newPlayer (entityT w)
+       , journalT = GJ.updateJournal [entry] (journalT w) }
 
 -- | actionThrow
 -- if there is something to throw...
--- TODO throw at nearest
 -- TODO animate throw
 actionThrow :: World -> World
 actionThrow w = let
@@ -210,13 +208,13 @@ actionThrow w = let
     then pEntity { inventory = Map.insert "Unknown" (pUnk-1) pInv }
     else pEntity
   entry = if pUnk > 0 && mTarget > 0
-    then T.pack "Throw an Unknown..."
-    else T.pack "..."
+    then T.pack "Shoots an Arrow..."
+    else T.pack "No Arrows..."
   -- throwWorld
   throwWorld = w { entityT  = GP.updatePlayer newPlayer (entityT w)
                  , journalT = GJ.updateJournal [entry] (journalT w) }
   -- Combat event
-  world = if mTarget > 0 && mTarget > 0
+  world = if pUnk > 0 && mTarget > 0
     then GC.mkRangeCombat 0 mTarget throwWorld
     else throwWorld
   in world { tick = newTick }

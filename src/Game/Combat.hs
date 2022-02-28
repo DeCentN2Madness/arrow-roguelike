@@ -23,7 +23,7 @@ abilityMod n = (n-10) `div` 2
 
 -- | attack string
 attack :: Int -> Int -> String
-attack ar dr = if ar >= dr then " hits the " else " misses the "
+attack ar dr = if ar >= dr then " hits the " else " attack misses the "
 
 -- | clamp crits on > 20
 clamp :: Int -> Int
@@ -54,14 +54,13 @@ mkCombat px mx w = if px == mx
     pMod  = read $ Map.findWithDefault "1" "Proficiency" pProp :: Int
     pAR   = clamp $ DS.d20 pSeed + abilityMod pDex + pMod
     pDam  = clamp $ DS.d4 pSeed  + abilityMod pStr + pMod
-    -- mDR,  mMod
+    -- mDR
     mProp = property mEntity
     mName = Map.findWithDefault "M" "Name" mProp
     mDex  = read $ Map.findWithDefault "1" "dex" mProp :: Int
-    mMod  = read $ Map.findWithDefault "1" "Proficiency" mProp :: Int
     mHP   = eHP mEntity
     mExp  = eXP mEntity
-    mDR   = 10 + abilityMod mDex + mMod
+    mDR   = 10 + abilityMod mDex
     -- p v m
     pAttack = if pAR >= mDR
       then mHP - pDam
@@ -84,5 +83,50 @@ mkCombat px mx w = if px == mx
        , journalT = GJ.updateJournal [pEntry] (journalT w) }
 
 -- | mkRangeCombat
+-- Throw, shoot, cast...
 mkRangeCombat :: Int -> Int -> World -> World
-mkRangeCombat = mkCombat
+mkRangeCombat px mx w = if px == mx
+  then w
+  else let
+    (pEntity, pPos) = GE.getEntityAt px (entityT w)
+    (mEntity, mPos) = GE.getEntityAt mx (entityT w)
+    -- random seed
+    pSeed = tick w + (uncurry (*) mPos * uncurry (*) pPos) :: Int
+    -- pAR, pDam, pMod
+    pProp = property pEntity
+    pName = Map.findWithDefault "P" "Name" pProp
+    pDex  = read $ Map.findWithDefault "1" "dex" pProp :: Int
+    pMod  = read $ Map.findWithDefault "1" "Proficiency" pProp :: Int
+    pAR   = clamp $ DS.d20 pSeed + abilityMod pDex + pMod
+    pDam  = clamp $ DS.d4 pSeed  + pMod
+    -- mDR,  mMod
+    mProp = property mEntity
+    mName = Map.findWithDefault "M" "Name" mProp
+    mDex  = read $ Map.findWithDefault "1" "dex" mProp :: Int
+    mHP   = eHP mEntity
+    mExp  = eXP mEntity
+    mDR   = 10 + abilityMod mDex
+    -- p v m
+    pAttack = if pAR >= mDR
+      then mHP - pDam
+      else mHP -- Miss
+    -- journal
+    mDeath = if pAttack < 1
+      then if mx == 0
+      then "Player died!"
+      else "Dead!" else ""
+    pEntry = T.pack $ pName
+      ++ shoot pAR mDR
+      ++ mName
+      ++ "! " ++ mDeath
+    -- newEntity with damages and deaths
+    -- Exp Award
+    newEntity = if pAttack < 1
+      then GE.insertEntity mx mPos Corpse $ GP.updatePlayerXP mExp (entityT w)
+      else GE.updateEntityHp mx pAttack (entityT w)
+  in w { entityT  = newEntity
+       , journalT = GJ.updateJournal [pEntry] (journalT w) }
+
+-- | shoot string
+shoot :: Int -> Int -> String
+shoot ar dr = if ar >= dr then " shoots the " else " shot misses the "

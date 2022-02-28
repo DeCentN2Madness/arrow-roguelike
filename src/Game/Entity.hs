@@ -34,6 +34,7 @@ import Game.Tile (TileMap)
 import qualified Game.Tile as GT
 
 type Coord = (Int, Int)
+type Depth = Int
 type EntityMap = Map Int EntityKind
 type AssetMap = EntityMap
 type NameMap = Map String EntityKind
@@ -125,8 +126,8 @@ mkAssetMap ek = let
 -- insert many things
 -- insert Monsters
 -- insert the Hero at 0
-mkEntityMap :: TileMap -> AssetMap -> EntityMap
-mkEntityMap tm am = let
+mkEntityMap :: Depth -> TileMap -> AssetMap -> EntityMap
+mkEntityMap depth tm am = let
   openList = tail $ sort $ [ pos | (_, pos) <- GT.fromOpen tm ]
   topRight = filter (/=(0,0)) $
     [ xy | pos <- openList, let xy = if pos > (20, 1) then pos else (0,0) ]
@@ -150,7 +151,21 @@ mkEntityMap tm am = let
   spiders = Map.findWithDefault unk "Troll"  assets
   dragons = Map.findWithDefault unk "Dragon" assets
   -- fill the dungeon...
-  junk = concat [ insertRand shrooms 1  10 openList
+  junk = if depth > 15
+    then concat [ insertRand shrooms 1  10 openList
+                , insertRand corpses 11 20 openList
+                , insertRand potions 21 30 openList
+                , insertRand coins   31 40 openList
+                , insertRand unknown 41 50 openList
+                , insertRand mice    51 60 openList
+                , insertRand wolves  61 70 topRight
+                , insertRand orcs    70 80 topRight
+                , insertRand spiders 80 82 bottomLeft
+                , insertRand trolls  82 85 bottomLeft
+                , insertRand dragons 85 90 bottomRight
+                ]
+    else if depth > 10 && depth <= 15
+    then concat [ insertRand shrooms 1  10 openList
                 , insertRand corpses 11 20 openList
                 , insertRand potions 21 30 openList
                 , insertRand coins   31 40 openList
@@ -158,9 +173,23 @@ mkEntityMap tm am = let
                 , insertRand mice    51 60 openList
                 , insertRand wolves  61 70 topRight
                 , insertRand orcs    70 80 bottomLeft
-                , insertRand trolls  80 82 bottomRight
-                , insertRand spiders 82 85 bottomLeft
-                , insertRand dragons 85 90 bottomLeft
+                , insertRand spiders 80 82 bottomRight
+                ]
+    else if depth > 5 && depth <= 10
+    then concat [ insertRand shrooms 1  10 openList
+                , insertRand corpses 11 20 openList
+                , insertRand potions 21 30 openList
+                , insertRand coins   31 40 openList
+                , insertRand unknown 41 50 openList
+                , insertRand mice    51 60 openList
+                , insertRand wolves  61 70 topRight
+                ]
+   else concat [ insertRand shrooms 1  10 openList
+                , insertRand corpses 11 20 openList
+                , insertRand potions 21 30 openList
+                , insertRand coins   31 40 openList
+                , insertRand unknown 41 50 openList
+                , insertRand mice    51 60 openList
                 ]
   in safeInsertEntity 0 p0 tm (Map.fromList junk)
 

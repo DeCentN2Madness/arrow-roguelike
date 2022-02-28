@@ -51,12 +51,12 @@ actionDirection input w = if starting w
     (heroX, heroY)   = playerCoord |+| dirToCoord input
     clampCoord       = clamp (heroX, heroY) (gridXY w)
     -- newWorld from Monster && Player Events
-    newWorld         = actionMonster $ actionPlayer clampCoord w
-    (_, pPos)        = GP.getPlayer (entityT newWorld)
+    world     = actionMonster $ actionPlayer clampCoord w
+    (_, pPos) = GP.getPlayer (entityT world)
     run = if pPos == clampCoord
-      then EAV.updateView $ newWorld { fovT = EAV.mkView pPos (gameT newWorld)
-                                     , dirty = True }
-      else newWorld { dirty = False }
+      then EAV.updateView $ world { fovT = EAV.mkView pPos (gameT world)
+                                  , dirty = True }
+      else world { dirty = False }
   in EDC.updateCamera run
 
 -- | actionEat
@@ -77,8 +77,8 @@ actionEat w = let
     then T.pack "Eat a tasty Mushroom..."
     else T.pack "..."
   in w { tick = newTick
-         , entityT  = GP.updatePlayer newPlayer (entityT w)
-         , journalT = GJ.updateJournal [entry] (journalT w) }
+       , entityT  = GP.updatePlayer newPlayer (entityT w)
+       , journalT = GJ.updateJournal [entry] (journalT w) }
 
 -- | actionGet
 -- if there is something to get...
@@ -97,8 +97,8 @@ actionGet w = let
     then T.append "Get " (actionLook $ tail items)
     else T.pack "..."
   in w { tick = newTick
-         , entityT  = GP.updatePlayer newPlayer newEntity
-         , journalT = GJ.updateJournal [entry] (journalT w) }
+       , entityT  = GP.updatePlayer newPlayer newEntity
+       , journalT = GJ.updateJournal [entry] (journalT w) }
 
 -- | actionHear
 -- if there is something to hear...
@@ -157,14 +157,14 @@ actionPlayer pos w = let
   look       = actionLook $ GE.getEntityBy newCoord (entityT moveWorld)
   listen     = actionHear (entityT moveWorld) newCoord
   -- Combat event
-  newWorld   = if bump > 0 then GC.mkCombat 0 bump moveWorld else moveWorld
+  world   = if bump > 0 then GC.mkCombat 0 bump moveWorld else moveWorld
   -- XP event
-  (p, _) = GP.getPlayer (entityT newWorld)
+  (p, _) = GP.getPlayer (entityT world)
   learn = if eLvl p > eLvl pEntity
     then T.pack $ "Welcome to Level " ++ show (eLvl p) ++ "..."
     else "..."
-  in newWorld { tick     = newTick,
-                journalT = GJ.updateJournal [look, listen, learn] (journalT newWorld) }
+  in world { tick = newTick
+           , journalT = GJ.updateJournal [look, listen, learn] (journalT world) }
 
 -- | actionQuaff
 -- if there is something to drink...
@@ -187,11 +187,32 @@ actionQuaff w = let
          , entityT  = GP.updatePlayer newPlayer (entityT w)
          , journalT = GJ.updateJournal [entry] (journalT w) }
 
+-- | actionThrow
+-- if there is something to throw...
+-- TODO throw at nearest
+actionThrow :: World -> World
+actionThrow w = let
+  newTick      = tick w + 1
+  (pEntity, _) = GP.getPlayer (entityT w)
+  pInv         = inventory pEntity
+  pUnk         = Map.findWithDefault 0 "Unknown" pInv
+  newPlayer = if pUnk > 0
+    then pEntity { inventory = Map.insert "Unknown" (pUnk-1) pInv }
+    else pEntity
+  entry = if pUnk > 0
+    then T.pack "Throw an Unknown..."
+    else T.pack "..."
+  in w { tick = newTick
+       , entityT  = GP.updatePlayer newPlayer (entityT w)
+       , journalT = GJ.updateJournal [entry] (journalT w) }
+
 -- | applyIntent
 -- Events applied to the World
+-- Currently, Player Turn then Monster Turn...
+-- TODO action stack
 applyIntent :: Intent -> World -> World
 applyIntent intent w = let
-  newWorld = case intent of
+  world = case intent of
     Action North     -> actionDirection North w
     Action NorthEast -> actionDirection NorthEast w
     Action East      -> actionDirection East w
@@ -201,14 +222,15 @@ applyIntent intent w = let
     Action West      -> actionDirection West w
     Action NorthWest -> actionDirection NorthWest w
     Action C -> showCharacter w
-    Action E -> actionEat w
-    Action G -> actionGet w
+    Action E -> actionMonster $ actionEat w
+    Action G -> actionMonster $ actionGet w
     Action I -> showInventory w
+    Action Q -> actionMonster $ actionQuaff w
     Action R -> resetWorld w
-    Action Q -> actionQuaff w
+    Action T -> actionMonster $ actionThrow w
     Quit     -> quitWorld w
     _ -> w
-  in newWorld
+  in world
 
 -- | resetWorld, save the Player, and rebuild the World
 -- TODO depth set by stairs and player level

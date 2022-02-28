@@ -46,9 +46,10 @@ getKey (SDL.KeyboardEventData _ SDL.Pressed False keysym) =
     SDL.KeycodeI      -> Action I
     SDL.KeycodeQ      -> Action Q
     SDL.KeycodeR      -> Action R
+    SDL.KeycodeT      -> Action T
     _                 -> Action Help
 
--- TODO handle multiple events
+-- | mkIntents handles multiple events
 -- <https://github.com/haskell-game/sdl2/issues/241>
 mkIntents :: [SDL.Event] -> [Intent]
 mkIntents = foldr (\x -> (:) (actionIntent . extractPayload $ x)) [Idle]

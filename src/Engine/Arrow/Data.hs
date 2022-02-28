@@ -43,8 +43,9 @@ data Direction
   | K
   | L
   | N
-  | R
   | Q
+  | R
+  | T
   | U
   | Y
   deriving (Eq)

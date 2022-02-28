@@ -14,19 +14,29 @@ Step 8 of the 15 Steps...
 ## Features
 ![Hero.png](images/Hero.png)
 
-1. `Game.AI` for smart Mice
+1. `Game.AI` for smart `Monster`
 1. `Game.Combat` for exciting battles...
-1. `Game.Inventory` for `Mushrooms`, `Potions`, and more...
+1. `Game.Inventory` for `Mushroom`, `Potion`, and more...
 1. `rogueDungeon` for exciting maps...
 
 ## Usage
-&mdash; vi keys or ArrowKey Movement
+&mdash; vi keys or Arrow Key Movement
 
-&mdash; `r` to reset the World
+&mdash; bump `Monster` to attack
+
+&mdash; `c` to `showCharacter`
 
 &mdash; `e` to eat a `Mushroom`
 
+&mdash; `g` to get Treasures
+
+&mdash; `i` to `showInventory`
+
 &mdash; `q` to drink a `Potion`
+
+&mdash; `r` to reset the World
+
+&mdash; `t` to throw an `Unknown`
 
 
 ## Requirements

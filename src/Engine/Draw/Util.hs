@@ -28,8 +28,6 @@ draw :: SDL.Renderer -> TextureMap -> World -> IO ()
 draw r ts w = do
   setColor r Black
   SDL.clear r
-  -- Background
-  renderTexture r (background ts) (0.0, 0.0 :: Double)
   -- Game
   if starting w
     then renderTexture r (arrow ts) (0.0, 0.0 :: Double)

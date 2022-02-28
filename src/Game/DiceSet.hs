@@ -14,6 +14,7 @@ module Game.DiceSet (d4
                     , d12
                     , d20
                     , d100
+                    , d1000
                     , rollList
                     , rollMod) where
 
@@ -42,6 +43,12 @@ d20 s = fromIntegral $ rollMod 1 20 0 s
 
 d100 :: Int -> Int
 d100 s = fromIntegral $ rollMod 1 100 0 s
+
+-- | initial seed roll for the World
+d1000 :: RandomGen g => g -> (Int, g)
+d1000 gen = let
+  (r, g) = randomR (1, 1000) gen
+  in (r, g)
 
 -- | roll w/ seed
 roll :: Int -> Word -> Int -> [Word]

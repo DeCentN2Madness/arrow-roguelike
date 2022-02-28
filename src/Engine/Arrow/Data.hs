@@ -10,19 +10,18 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 -}
 module Engine.Arrow.Data where
 
-import Control.Monad.Random (StdGen)
 import Data.Aeson
 import GHC.Generics
-import Game.Dungeon (rogueDungeon)
 import Game.Entity (EntityMap)
 import qualified Game.Entity as GE
 import Game.Journal (TextMap)
 import qualified Game.Journal as GJ
 import Game.Tile (TileMap)
-import qualified Game.Tile as GT
 import qualified Game.Vault as GV
 
 type Coord = (Int, Int)
+type Seed = Int
+type Depth = Int
 
 data Direction
   = Help
@@ -93,20 +92,19 @@ instance ToJSON World where
     ]
 
 -- | mkWorld build the World
-mkWorld :: StdGen -> Coord -> Int -> Int -> World
-mkWorld gen (width, height) xMax yMax = let
-  (d, _) = rogueDungeon xMax yMax gen
-  am = GE.mkAssetMap []
-  em = GE.mkEntityMap tm am
-  jm = GJ.mkTextMap
-  tm = GV.level $ GT.mkTileMap d
+mkWorld :: Seed -> Coord -> Depth -> Int -> Int -> World
+mkWorld seed (width, height) depth xMax yMax = let
+  assetMap   = GE.mkAssetMap []
+  entityMap  = GE.mkEntityMap gameMap assetMap
+  journalMap = GJ.mkTextMap
+  gameMap    = GV.mkGameMap seed depth xMax yMax
   sx = 32.0 -- scaleXY based on tiles
   sy = 32.0
-  in World { tick     = 1
-           , gameT    = tm
-           , entityT  = em
-           , assetT   = am
-           , journalT = GJ.updateJournal ["Catch the Mice...", "Welcome to Arrow..."] jm
+  in World { tick     = seed
+           , gameT    = gameMap
+           , entityT  = entityMap
+           , assetT   = assetMap
+           , journalT = GJ.updateJournal ["Catch the Mice...", "Welcome to Arrow..."] journalMap
            , fovT     = []
            , gridXY   = (xMax, yMax)
            , cameraXY = (0.0, 0.0)

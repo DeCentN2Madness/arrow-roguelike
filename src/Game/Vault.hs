@@ -3,12 +3,13 @@
 
 Game.Vault.hs
 
+Game.Vault creates the levels for the Dungeon
+
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
 -}
 module Game.Vault (cave
-                  , insertVaultPair
-                  , level
+                  , mkGameMap
                   , showVault) where
 
 import Prelude hiding (lookup)
@@ -26,6 +27,8 @@ import qualified Game.Tile as GT
 
 type Coord = (Int, Int)
 type CoordMap = Map Coord TileKind
+type Depth = Int
+type Seed = Int
 
 -- | add Terrain to TileMap at pos
 -- (y,x) in [Terrain]
@@ -46,10 +49,10 @@ add (y1, x1) ts tm = let
 
 -- | cave
 -- rogueDungeon by reusing seed can regenerate dungeon
-cave :: Int -> Int -> Int -> TileMap
-cave seed rows cols = let
+cave :: Seed -> Int -> Int -> TileMap
+cave seed width height = let
   g = mkStdGen seed
-  (d, _) = GD.rogueDungeon cols rows g
+  (d, _) = GD.rogueDungeon width height g
   in GT.mkTileMap d
 
 -- | chessDist - Chess distance between two points.
@@ -124,6 +127,14 @@ mkHall (x1, y1) (x2, y2) = let
                      let tk = TileKind xy False t]
   in Map.fromList tm
 
+-- | mkGameMap
+-- GameMap influenced by depth
+-- TODO depth, player level, so on...
+mkGameMap :: Seed -> Depth -> Int -> Int -> TileMap
+mkGameMap seed depth width height= let
+  tm = cave seed width height
+  in level depth tm
+
 -- | uniform grid
 mkGrid :: Coord -> Coord -> [Coord]
 mkGrid (x1, y1) (x2, y2) = [ (y, x) | x <- [x1..x2], y <- [y1..y2] ]
@@ -164,17 +175,23 @@ spot = replicate 2 Wall
 -- | demo rooms
 -- A version is door opening East,
 -- B version is door opening West...
-level :: TileMap -> TileMap
-level tm = let
+level :: Depth -> TileMap -> TileMap
+level depth tm = let
   l0 = lairA
   l1 = lairB
   p0 = pillarA
   p1 = pillarB
   t0 = townA
   t1 = townB
-  in insertVaultPair (1,30) t0 (70,1) l1 $
-  insertVaultPair (1,15) p0 (70,15) t1 $
-  insertVaultPair (1,1) l0 (70,30) p1 tm
+  finalMap = if depth > 0
+    then if depth > 10
+    then insertVaultPair (1,30) t0 (70,1) l1 $ -- Hard
+    insertVaultPair (1,15) p0 (70,15) t1 $
+    insertVaultPair (1,1) l0 (70,30) p1 tm
+    else insertVaultPair (1,1) t0 (70,1) t1 $ -- Medium
+    insertVaultPair (1,15) p0 (70,25) p1 tm
+    else insertVaultPair (1,1) t0 (30,1) t1 tm -- Easy
+  in finalMap
 
 lairA :: TileMap
 lairA = let

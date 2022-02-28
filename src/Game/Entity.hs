@@ -133,31 +133,31 @@ mkEntityMap tm am = let
     [ xy | pos <- openList, let xy = if pos > (20, 20) then pos else (0,0) ]
   bottomRight = filter (/=(0,0)) $
     [ xy | pos <- openList, let xy = if pos > (40, 20) then pos else (0,0) ]
-  unk      = mkEntity Unknown (0, 0)
-  assetMap = mkNameMap am
-  p0 = Map.findWithDefault unk "Player" assetMap
-  e0 = Map.findWithDefault unk "Mushroom" assetMap
-  e1 = Map.findWithDefault unk "Corpse" assetMap
-  e2 = Map.findWithDefault unk "Potion" assetMap
-  e3 = Map.findWithDefault unk "Coin" assetMap
-  e4 = Map.findWithDefault unk "Unknown" assetMap
-  mice = Map.findWithDefault unk "Mouse" assetMap
+  unk     = mkEntity Unknown (0, 0)
+  assets  = mkNameMap am
+  p0 = Map.findWithDefault unk "Player" assets
+  shrooms = Map.findWithDefault unk "Mushroom" assets
+  corpses = Map.findWithDefault unk "Corpse"  assets
+  potions = Map.findWithDefault unk "Potion"  assets
+  coins   = Map.findWithDefault unk "Coin"    assets
+  unknown = Map.findWithDefault unk "Unknown" assets
+  mice    = Map.findWithDefault unk "Mouse"   assets
   -- add powerful monsters deeper to level...
-  wolves  = Map.findWithDefault unk "Wolf" assetMap
-  orcs    = Map.findWithDefault unk "Orc" assetMap
-  trolls  = Map.findWithDefault unk "Spider" assetMap
-  spiders = Map.findWithDefault unk "Troll" assetMap
+  wolves  = Map.findWithDefault unk "Wolf"   assets
+  orcs    = Map.findWithDefault unk "Orc"    assets
+  trolls  = Map.findWithDefault unk "Spider" assets
+  spiders = Map.findWithDefault unk "Troll"  assets
   -- fill the dungeon...
-  junk = concat [ insertRand e0 1  10 openList
-                , insertRand e1 11 20 openList
-                , insertRand e2 21 30 openList
-                , insertRand e3 31 40 openList
-                , insertRand e4 41 50 openList
-                , insertRand mice 51 60 openList
-                , insertRand wolves 61 70 topRight
-                , insertRand orcs 70 80 bottomLeft
-                , insertRand trolls 80 85 bottomRight
-                , insertRand spiders 85 90 bottomRight
+  junk = concat [ insertRand shrooms 1  10 openList
+                , insertRand corpses 11 20 openList
+                , insertRand potions 21 30 openList
+                , insertRand coins   31 40 openList
+                , insertRand unknown 41 50 openList
+                , insertRand mice    51 60 openList
+                , insertRand wolves  61 70 topRight
+                , insertRand orcs    70 80 bottomLeft
+                , insertRand trolls  80 82 bottomRight
+                , insertRand spiders 82 85 bottomRight
                 ]
   in safeInsertEntity 0 p0 tm (Map.fromList junk)
 

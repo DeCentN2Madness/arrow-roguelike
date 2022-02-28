@@ -17,6 +17,7 @@ import qualified Data.ByteString.Lazy.Char8 as C8
 import System.Directory
 import Engine.Arrow.Data (World(..))
 import qualified Engine.Arrow.Data as EAD
+import qualified Game.DiceSet as GDS
 import Game.Entity (EntityMap)
 import qualified Game.Entity as GE
 import Game.Kind.Entity (EntityKind)
@@ -31,6 +32,7 @@ width, height :: Int
 loadFile :: IO World
 loadFile = do
   gen <- getStdGen
+  let (seed, _) = GDS.d1000 gen
   homeDir <- getHomeDirectory
   createDirectoryIfMissing False (homeDir ++ "/Documents/Arrow")
   -- copyFile (homeDir ++ sourceAsset) (homeDir ++ saveAsset)
@@ -46,7 +48,7 @@ loadFile = do
         in pEntity
         else head p
       world = if null w
-        then EAD.mkWorld gen (width, height) 80 40
+        then EAD.mkWorld seed (width, height) 0 80 40
         else head w
   return world { assetT  = asset
                , entityT = GE.safeInsertEntity 0 player (gameT world) (entityT world) }

@@ -14,7 +14,6 @@ import Prelude hiding (lookup)
 import qualified Data.Map.Strict as Map
 import Data.Text (Text)
 import qualified Data.Text as T
-import System.Random (mkStdGen)
 import Engine.Arrow.Compass
 import Engine.Arrow.Data
 import qualified Engine.Arrow.View as EAV
@@ -64,6 +63,7 @@ actionDirection input w = if starting w
 -- if there is something to eat...
 actionEat :: World -> World
 actionEat w = let
+  newTick      = tick w + 1
   (pEntity, _) = GP.getPlayer (entityT w)
   pInv         = inventory pEntity
   pMush        = Map.findWithDefault 0 "Mushroom" pInv
@@ -76,13 +76,15 @@ actionEat w = let
   entry = if pMush > 0
     then T.pack "Eat a tasty Mushroom..."
     else T.pack "..."
-  in w { entityT  = GP.updatePlayer newPlayer (entityT w)
-       , journalT = GJ.updateJournal [entry] (journalT w) }
+  in w { tick = newTick
+         , entityT  = GP.updatePlayer newPlayer (entityT w)
+         , journalT = GJ.updateJournal [entry] (journalT w) }
 
 -- | actionGet
 -- if there is something to get...
 actionGet :: World -> World
 actionGet w = let
+  newTick         = tick w + 1
   (pEntity, pPos) = GP.getPlayer (entityT w)
   items           = GE.getEntityBy pPos (entityT w)
   newPlayer = if not (null items)
@@ -94,8 +96,9 @@ actionGet w = let
   entry = if length items > 1
     then T.append "Get " (actionLook $ tail items)
     else T.pack "..."
-  in w { entityT  = GP.updatePlayer newPlayer newEntity
-       , journalT = GJ.updateJournal [entry] (journalT w) }
+  in w { tick = newTick
+         , entityT  = GP.updatePlayer newPlayer newEntity
+         , journalT = GJ.updateJournal [entry] (journalT w) }
 
 -- | actionHear
 -- if there is something to hear...
@@ -167,6 +170,7 @@ actionPlayer pos w = let
 -- if there is something to drink...
 actionQuaff :: World -> World
 actionQuaff w = let
+  newTick      = tick w + 1
   (pEntity, _) = GP.getPlayer (entityT w)
   pInv         = inventory pEntity
   pPot         = Map.findWithDefault 0 "Potion" pInv
@@ -179,8 +183,9 @@ actionQuaff w = let
   entry = if pPot > 0
     then T.pack "Drink a delicious Potion..."
     else T.pack "..."
-  in w { entityT  = GP.updatePlayer newPlayer (entityT w)
-       , journalT = GJ.updateJournal [entry] (journalT w) }
+  in w { tick = newTick
+         , entityT  = GP.updatePlayer newPlayer (entityT w)
+         , journalT = GJ.updateJournal [entry] (journalT w) }
 
 -- | applyIntent
 -- Events applied to the World
@@ -206,13 +211,13 @@ applyIntent intent w = let
   in newWorld
 
 -- | resetWorld, save the Player, and rebuild the World
+-- TODO depth set by stairs and player level
 resetWorld :: World -> World
 resetWorld w = let
-  g = mkStdGen (tick w)
-  (width, height) = screenXY w
-  (row, col) = gridXY w
-  (p, _) = GP.getPlayer (entityT w)
-  world = mkWorld g (floor width, floor height) row col
+  (maxX, maxY) = screenXY w
+  (row, col)   = gridXY w
+  (p, _)       = GP.getPlayer (entityT w)
+  world        = mkWorld (tick w) (floor maxX, floor maxY) (eLvl p) row col
   in world { entityT = GE.safeInsertEntity 0 p (gameT world) (entityT world) }
 
 -- | showCharacter

@@ -196,8 +196,9 @@ mkVisualMap ts w = do
 identify :: EntityKind -> TextureMap -> Visual
 identify ek ts = let
   eProp = property ek
-  v = Map.findWithDefault "~" "Name" eProp
+  v = Map.findWithDefault "0" "Name" eProp
   vt = case v of
+    "Dragon" -> VDragon
     "Mouse"  -> VMouse
     "Orc"    -> VOrc
     "Spider" -> VSpider

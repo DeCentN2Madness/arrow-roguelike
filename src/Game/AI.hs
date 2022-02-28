@@ -9,6 +9,7 @@ module Game.AI (aiAction
                , pathFinder) where
 
 import Data.List
+import qualified Data.Map as Map
 import Engine.Arrow.Data (World(..))
 import qualified Engine.Arrow.Compass as EAC
 import qualified Game.Combat as GC
@@ -55,11 +56,19 @@ pathFinder ((mx, mEntity):xs) w = if mx == 0 || not (block mEntity)
   coordF = filter (`notElem` blockT)
   blockT = [ xy | (_, xy) <- GE.fromBlock (entityT w) ]
   (_, pPos) = GP.getPlayer (entityT w)
-  mPos      = coord mEntity
-  distList  = [ (d, xy) | xy <- moveT mEntity,
-                let d = EAC.chessDist pPos xy ]
-  moveList  = coordF $ [ xy | (d, pos) <- sort distList,
-                        let xy = if EAC.adjacent mPos pPos || d > 5
+  -- monster properties
+  mPos  = coord mEntity
+  mProp = property mEntity
+  spawn = read $ Map.findWithDefault (show pPos) "spawn" mProp :: (Int, Int)
+  -- flee goal if low eHP
+  goal = if eHP mEntity < 5
+    then spawn
+    else pPos
+  -- distance based on goal
+  distList = [ (d, xy) | xy <- moveT mEntity,
+                let d = EAC.chessDist goal xy ]
+  moveList = coordF $ [ xy | (d, pos) <- sort distList,
+                        let xy = if EAC.adjacent mPos goal || d > 5
                               then mPos
                               else pos ]
   move = if null moveList

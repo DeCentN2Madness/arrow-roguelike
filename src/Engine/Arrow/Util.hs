@@ -197,10 +197,8 @@ actionThrow w = let
   pUnk         = Map.findWithDefault 0 "Unknown" pInv
   -- pick closest target
   mTargets = filter (\(_, j) -> j `elem` fovT w) $
-    [ (ix, xy) | (ix, tk) <- Map.toList (entityT w),
-               let xy = if (ix > 0) && block tk
-                     then coord tk
-                     else (0,0) ]
+    [ (ix, xy) | (ix, pos) <- GE.fromBlock (entityT w),
+      let xy = if ix > 0 then pos else (0,0) ]
   mTarget = case mTargets of
     [] -> 0
     ((ix, _):_) -> ix

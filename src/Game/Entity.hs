@@ -116,6 +116,7 @@ mkAssetMap ek = let
          , mkMonster "Spider" "Large beast (S)" spawn
          , mkMonster "Troll"  "Large giant (T)" spawn
          , mkMonster "Wolf"   "Medium beast (c)" spawn
+         , mkMonster "Dragon" "Medium dragon (d)" spawn
          ]
     else ek
   in Map.fromList $ zip [0..] em
@@ -147,6 +148,7 @@ mkEntityMap tm am = let
   orcs    = Map.findWithDefault unk "Orc"    assets
   trolls  = Map.findWithDefault unk "Spider" assets
   spiders = Map.findWithDefault unk "Troll"  assets
+  dragons = Map.findWithDefault unk "Dragon" assets
   -- fill the dungeon...
   junk = concat [ insertRand shrooms 1  10 openList
                 , insertRand corpses 11 20 openList
@@ -157,7 +159,8 @@ mkEntityMap tm am = let
                 , insertRand wolves  61 70 topRight
                 , insertRand orcs    70 80 bottomLeft
                 , insertRand trolls  80 82 bottomRight
-                , insertRand spiders 82 85 bottomRight
+                , insertRand spiders 82 85 bottomLeft
+                , insertRand dragons 85 90 bottomLeft
                 ]
   in safeInsertEntity 0 p0 tm (Map.fromList junk)
 

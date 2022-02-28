@@ -9,6 +9,7 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 module Game.Combat (mkCombat, mkRangeCombat) where
 
 import qualified Data.Map.Strict as Map
+import Data.Text (Text)
 import qualified Data.Text as T
 import Engine.Arrow.Data (World (..))
 import qualified Game.DiceSet as DS
@@ -22,8 +23,10 @@ abilityMod :: Int -> Int
 abilityMod n = (n-10) `div` 2
 
 -- | attack string
-attack :: Int -> Int -> String
-attack ar dr = if ar >= dr then " hits the " else " attack misses the "
+attack :: Int -> Int -> Text
+attack ar dr = if ar >= dr
+  then T.pack " hits the "
+  else " attack misses the "
 
 -- | clamp crits on > 20
 clamp :: Int -> Int
@@ -31,6 +34,12 @@ clamp n
   | n < 1 = 1
   | n > 20 = 2*n
   | otherwise = n
+
+condition :: Int -> Text
+condition hp = let
+  dead  = if hp < 1 then "Dead!" else ""
+  brave = if hp >= 1 && hp <= 5 then "Critical... " else ""
+  in T.append brave dead
 
 -- | mkCombat
 -- p v m
@@ -66,14 +75,11 @@ mkCombat px mx w = if px == mx
       then mHP - pDam
       else mHP -- Miss
     -- journal
-    mDeath = if pAttack < 1
-      then if mx == 0
-      then "Player died!"
-      else "Dead!" else ""
-    pEntry = T.pack $ pName
-      ++ attack pAR mDR
-      ++ mName
-      ++ "! " ++ mDeath
+    pEntry = T.concat [ T.pack pName
+                    , attack pAR mDR
+                    , T.pack mName
+                    , T.pack "! "
+                    , condition pAttack ]
     -- newEntity with damages and deaths
     -- Exp Award
     newEntity = if pAttack < 1
@@ -111,14 +117,11 @@ mkRangeCombat px mx w = if px == mx
       then mHP - pDam
       else mHP -- Miss
     -- journal
-    mDeath = if pAttack < 1
-      then if mx == 0
-      then "Player died!"
-      else "Dead!" else ""
-    pEntry = T.pack $ pName
-      ++ shoot pAR mDR
-      ++ mName
-      ++ "! " ++ mDeath
+    pEntry = T.concat [ T.pack pName
+                    , shoot pAR mDR
+                    , T.pack mName
+                    , T.pack "! "
+                    , condition pAttack ]
     -- newEntity with damages and deaths
     -- Exp Award
     newEntity = if pAttack < 1
@@ -128,5 +131,7 @@ mkRangeCombat px mx w = if px == mx
        , journalT = GJ.updateJournal [pEntry] (journalT w) }
 
 -- | shoot string
-shoot :: Int -> Int -> String
-shoot ar dr = if ar >= dr then " shoots the " else " shot misses the "
+shoot :: Int -> Int -> Text
+shoot ar dr = if ar >= dr
+  then T.pack " shoots the "
+  else " shot misses the "

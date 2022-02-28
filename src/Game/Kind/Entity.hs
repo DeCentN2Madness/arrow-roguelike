@@ -118,6 +118,22 @@ mdBeast p = let
           ] ++ mProp
   in Map.fromList stats
 
+-- | Dragon Wyrmling
+mdDragon :: Properties -> Properties
+mdDragon p = let
+  mProp = Map.toList p
+  stats = [ ("str", "15")
+          , ("dex", "14")
+          , ("con", "13")
+          , ("int", "10")
+          , ("wis", "11")
+          , ("HP", "33")
+          , ("XP", "450")
+          , ("Weapon", "1d10")
+          , ("Proficiency", "2")
+          ] ++ mProp
+  in Map.fromList stats
+
 -- | Spider
 lgBeast :: Properties -> Properties
 lgBeast p = let
@@ -170,19 +186,20 @@ gtHumanoid p = let
 mkMonster :: String -> String -> Coord -> EntityKind
 mkMonster name desc xy = let
   e = defaultEK xy name desc
-  p = case name of
+  monster = case name of
     "Mouse"  -> smBeast (property e)
-    "Spider" -> lgBeast (property e)
     "Wolf"   -> mdBeast (property e)
+    "Spider" -> lgBeast (property e)
+    "Dragon" -> mdDragon (property e)
+    "Player" -> fighterProp (property e)
     "Orc"    -> mdHumanoid (property e)
     "Troll"  -> gtHumanoid (property e)
-    "Player" -> fighterProp (property e)
     _        -> fighterProp (property e)
-  mHP = read $ Map.findWithDefault "1" "HP" p :: Int
-  mXP = read $ Map.findWithDefault "1" "XP" p :: Int
+  mHP = read $ Map.findWithDefault "1" "HP" monster :: Int
+  mXP = read $ Map.findWithDefault "1" "XP" monster :: Int
   in e { block=True
        , kind=Monster
-       , property=p
+       , property=monster
        , eHP=mHP
        , eMaxHP=mHP
        , eXP=mXP

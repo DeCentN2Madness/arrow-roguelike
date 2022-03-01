@@ -8,11 +8,10 @@ w/ [(Terrain, Coord)]
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
 -}
-module Game.Tile (fromOpen
+module Game.Tile (fromMoveBlocked
+                 , fromOpen
                  , fromVisual
-                 , fromMoveBlocked
                  , fromVisionBlocked
-                 , getTerrainAt
                  , TileMap
                  , mkTileMap
                  , updateTileMap) where
@@ -57,13 +56,6 @@ fromVisionBlocked tm = let
     [ (t, xy) | (_, TileKind xy _ t) <- Map.toList tm ]
   in terrainList
 
--- | getTerrainAt
-getTerrainAt :: Coord -> TileMap -> Terrain
-getTerrainAt pos tm = let
-  terrainList = [ (xy, t) | (_, tk) <- Map.toList tm,
-                  let TileKind xy _ t = tk ]
-  in snd $ head $ filter ((==pos).fst) terrainList
-
 -- | mkGrid uniform grid helper function for zip
 mkGrid :: Int -> Int -> [Coord]
 mkGrid maxX maxY = let
@@ -79,8 +71,7 @@ mkTileMap d = let
   tileList = V.toList $ dungeonTiles d
   terrainList = [ tk | (xy, t) <- zip grid tileList,
                let tk = TileKind xy False t ]
-  tm = Map.fromList $ zip [0 :: Int ..] terrainList
-  in tm
+  in Map.fromList $ zip [0 :: Int ..] terrainList
 
 -- | updateTileMap
 updateTileMap :: [Coord] -> TileMap -> TileMap

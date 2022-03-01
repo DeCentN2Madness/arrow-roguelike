@@ -24,7 +24,7 @@ import qualified Game.Player as GP
 -- Show the Character
 drawText :: SDL.Renderer -> World -> IO ()
 drawText r w = do
-  let logs  = GJ.fromJournal [0..5] (journalT w)
+  let logs  = GJ.fromJournal [0..9] (journalT w)
       sheet = zip [0..] $ GP.characterSheet (entityT w)
       -- Color
       color x

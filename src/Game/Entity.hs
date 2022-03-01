@@ -112,12 +112,17 @@ mkAssetMap ek = let
          , mkEntity StairUp spawn
          , mkEntity Trap spawn
          , mkEntity Unknown spawn
-         , mkMonster "Mouse"  "Small beast (r)" spawn
-         , mkMonster "Orc"    "Medium humanoid (o)" spawn
-         , mkMonster "Spider" "Large beast (S)" spawn
-         , mkMonster "Troll"  "Large giant (T)" spawn
-         , mkMonster "Wolf"   "Medium beast (c)" spawn
-         , mkMonster "Dragon" "Medium dragon (d)" spawn
+         , mkMonster "Cleric"  "Medium human (h)" spawn
+         , mkMonster "Fighter" "Medium human (h)" spawn
+         , mkMonster "Ranger"  "Medium human (h)" spawn
+         , mkMonster "Rogue"   "Medium human (h)" spawn
+         , mkMonster "Wizard"  "Medium human (h)" spawn
+         , mkMonster "Mouse"   "Small beast (r)" spawn
+         , mkMonster "Orc"     "Medium humanoid (o)" spawn
+         , mkMonster "Spider"  "Large beast (S)" spawn
+         , mkMonster "Troll"   "Large giant (T)" spawn
+         , mkMonster "Wolf"    "Medium beast (c)" spawn
+         , mkMonster "Dragon"  "Medium dragon (d)" spawn
          ]
     else ek
   in Map.fromList $ zip [0..] em

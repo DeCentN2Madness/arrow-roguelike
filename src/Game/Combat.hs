@@ -37,8 +37,8 @@ clamp n
 
 condition :: Int -> Text
 condition hp = let
-  dead  = if hp < 1 then "Dead!" else ""
-  brave = if hp >= 1 && hp <= 5 then "Critical... " else ""
+  dead  = if hp < 1 then "Dead!" else "..."
+  brave = if hp >= 1 && hp <= 5 then "*Critical* " else ""
   in T.append brave dead
 
 -- | mkCombat
@@ -78,7 +78,7 @@ mkCombat px mx w = if px == mx
     pEntry = T.concat [ T.pack pName
                     , attack pAR mDR
                     , T.pack mName
-                    , T.pack "! "
+                    , T.pack ", "
                     , condition pAttack ]
     -- newEntity with damages and deaths
     -- Exp Award
@@ -120,7 +120,7 @@ mkRangeCombat px mx w = if px == mx
     pEntry = T.concat [ T.pack pName
                     , shoot pAR mDR
                     , T.pack mName
-                    , T.pack "! "
+                    , T.pack ", "
                     , condition pAttack ]
     -- newEntity with damages and deaths
     -- Exp Award

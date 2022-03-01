@@ -70,9 +70,26 @@ defaultEK xy name desc = EntityKind {
   , eXP       = 0
   }
 
--- | fighterProp
-fighterProp :: Properties -> Properties
-fighterProp p = let
+-- | cleric
+cleric :: Properties -> Properties
+cleric p = let
+  mProp = Map.toList p
+  stats = [ ("str", "10")
+          , ("dex", "12")
+          , ("con", "13")
+          , ("int", "14")
+          , ("wis", "15")
+          , ("HP", "8")
+          , ("XP", "0")
+          , ("Weapon", "1d4")
+          , ("Proficiency", "2")
+          , ("Challenge", "1")
+          ] ++ mProp
+  in Map.fromList stats
+
+-- | fighter
+fighter :: Properties -> Properties
+fighter p = let
   mProp = Map.toList p
   stats = [ ("str", "15")
           , ("dex", "14")
@@ -81,8 +98,61 @@ fighterProp p = let
           , ("wis", "10")
           , ("HP", "10")
           , ("XP", "0")
-          , ("Weapon", "1d6")
+          , ("Weapon", "1d4")
           , ("Proficiency", "2")
+          , ("Challenge", "1")
+          ] ++ mProp
+  in Map.fromList stats
+
+
+-- | ranger
+ranger :: Properties -> Properties
+ranger p = let
+  mProp = Map.toList p
+  stats = [ ("str", "12")
+          , ("dex", "15")
+          , ("con", "13")
+          , ("int", "10")
+          , ("wis", "14")
+          , ("HP", "10")
+          , ("XP", "0")
+          , ("Weapon", "1d4")
+          , ("Proficiency", "2")
+          , ("Challenge", "1")
+          ] ++ mProp
+  in Map.fromList stats
+
+-- | rogue
+rogue :: Properties -> Properties
+rogue p = let
+  mProp = Map.toList p
+  stats = [ ("str", "10")
+          , ("dex", "15")
+          , ("con", "13")
+          , ("int", "14")
+          , ("wis", "12")
+          , ("HP", "8")
+          , ("XP", "0")
+          , ("Weapon", "1d4")
+          , ("Proficiency", "2")
+          , ("Challenge", "1")
+          ] ++ mProp
+  in Map.fromList stats
+
+-- | wizard
+wizard :: Properties -> Properties
+wizard p = let
+  mProp = Map.toList p
+  stats = [ ("str", "10")
+          , ("dex", "12")
+          , ("con", "13")
+          , ("int", "15")
+          , ("wis", "14")
+          , ("HP", "6")
+          , ("XP", "0")
+          , ("Weapon", "1d4")
+          , ("Proficiency", "2")
+          , ("Challenge", "1")
           ] ++ mProp
   in Map.fromList stats
 
@@ -99,6 +169,7 @@ smBeast p = let
           , ("XP", "25")
           , ("Weapon", "1d4")
           , ("Proficiency", "2")
+          , ("Challenge", "1")
           ] ++ mProp
   in Map.fromList stats
 
@@ -115,6 +186,7 @@ mdBeast p = let
           , ("XP", "50")
           , ("Weapon", "2d4")
           , ("Proficiency", "2")
+          , ("Challenge", "1")
           ] ++ mProp
   in Map.fromList stats
 
@@ -130,7 +202,8 @@ mdDragon p = let
           , ("HP", "33")
           , ("XP", "450")
           , ("Weapon", "1d10")
-          , ("Proficiency", "2")
+          , ("Proficiency", "4")
+          , ("Challenge", "4")
           ] ++ mProp
   in Map.fromList stats
 
@@ -147,6 +220,7 @@ lgBeast p = let
           , ("XP", "200")
           , ("Weapon", "1d8")
           , ("Proficiency", "3")
+          , ("Challenge", "3")
           ] ++ mProp
   in Map.fromList stats
 
@@ -163,6 +237,7 @@ mdHumanoid p = let
           , ("XP", "100")
           , ("Weapon", "1d12")
           , ("Proficiency", "2")
+          , ("Challenge", "2")
           ] ++ mProp
   in Map.fromList stats
 
@@ -179,6 +254,7 @@ gtHumanoid p = let
           , ("XP", "1800")
           , ("Weapon", "2d6")
           , ("Proficiency", "3")
+          , ("Challenge", "5")
           ] ++ mProp
   in Map.fromList stats
 
@@ -187,23 +263,29 @@ mkMonster :: String -> String -> Coord -> EntityKind
 mkMonster name desc xy = let
   e = defaultEK xy name desc
   monster = case name of
-    "Mouse"  -> smBeast (property e)
-    "Wolf"   -> mdBeast (property e)
-    "Spider" -> lgBeast (property e)
-    "Dragon" -> mdDragon (property e)
-    "Player" -> fighterProp (property e)
-    "Orc"    -> mdHumanoid (property e)
-    "Troll"  -> gtHumanoid (property e)
-    _        -> fighterProp (property e)
-  mHP = read $ Map.findWithDefault "1" "HP" monster :: Int
-  mXP = read $ Map.findWithDefault "1" "XP" monster :: Int
+    "Cleric"  -> cleric (property e)
+    "Fighter" -> fighter (property e)
+    "Mouse"   -> smBeast (property e)
+    "Wolf"    -> mdBeast (property e)
+    "Spider"  -> lgBeast (property e)
+    "Dragon"  -> mdDragon (property e)
+    "Player"  -> fighter (property e)
+    "Orc"     -> mdHumanoid (property e)
+    "Ranger"  -> ranger (property e)
+    "Rogue"   -> rogue (property e)
+    "Troll"   -> gtHumanoid (property e)
+    "Wizard"  -> wizard (property e)
+    _         -> fighter (property e)
+  mHP  = read $ Map.findWithDefault "1" "HP" monster :: Int
+  mXP  = read $ Map.findWithDefault "1" "XP" monster :: Int
+  mLvl = read $ Map.findWithDefault "1" "Challenge" monster :: Int
   in e { block=True
        , kind=Monster
        , property=monster
        , eHP=mHP
        , eMaxHP=mHP
        , eXP=mXP
-       , eLvl=1
+       , eLvl=mLvl
        }
 
 -- | mkProp

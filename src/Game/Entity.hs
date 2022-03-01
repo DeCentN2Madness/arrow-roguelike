@@ -147,9 +147,9 @@ mkEntityMap depth tm am = let
   -- add powerful monsters deeper to level...
   wolves  = Map.findWithDefault unk "Wolf"    assets
   orcs    = Map.findWithDefault unk "Orc"     assets
-  trolls  = Map.findWithDefault unk "Spider"  assets
-  spiders = Map.findWithDefault unk "Troll"   assets
   dragons = Map.findWithDefault unk "Dragon"  assets
+  spiders = Map.findWithDefault unk "Spider"  assets
+  trolls  = Map.findWithDefault unk "Troll"   assets
   -- fill the dungeon...
   junk
     | depth >= 15 =
@@ -162,8 +162,8 @@ mkEntityMap depth tm am = let
              , insertRand wolves  61 70 topRight
              , insertRand orcs    70 80 topRight
              , insertRand spiders 80 85 bottomLeft
-             , insertRand trolls  85 90 bottomLeft
-             , insertRand dragons 90 95 bottomRight
+             , insertRand dragons 85 90 bottomLeft
+             , insertRand trolls  90 95 bottomRight
                 ]
     | depth >= 10 && depth < 15 =
       concat [ insertRand shrooms 1  10 openList
@@ -174,7 +174,7 @@ mkEntityMap depth tm am = let
              , insertRand mice    51 60 openList
              , insertRand wolves  61 70 topRight
              , insertRand orcs    70 80 bottomLeft
-             , insertRand spiders 80 82 bottomRight
+             , insertRand spiders 80 85 bottomRight
              ]
     | depth >= 5 && depth < 10 =
       concat [ insertRand shrooms 1  10 openList

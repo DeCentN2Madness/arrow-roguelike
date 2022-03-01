@@ -20,17 +20,18 @@ import qualified Game.Journal as GJ
 import qualified Game.Player as GP
 
 -- | drawText
--- Show the last 5 Journal entries
+-- Show the Journal
 -- Show the Character
 drawText :: SDL.Renderer -> World -> IO ()
 drawText r w = do
-  let logs  = GJ.fromJournal [0..4] (journalT w)
+  let logs  = GJ.fromJournal [0..5] (journalT w)
       sheet = zip [0..] $ GP.characterSheet (entityT w)
       -- Color
       color x
         | T.any (=='!') x = red
         | T.any (==':') x = green
         | T.any (=='@') x = blue
+        | T.any (=='*') x = purple
         | otherwise = white
   fn <- SDL.Font.load "./assets/fonts/Hack-Regular.ttf" 16
   -- Journal
@@ -69,17 +70,21 @@ renderText r t (tw, th) (x, y) = let
   rectB = U.mkRect (floor x) (floor y) (fromIntegral tw) (fromIntegral th)
   in SDL.copy r t Nothing (Just  rectB)
 
-red :: SDL.Font.Color
-red = SDL.V4 255 0 0 255
-
-green :: SDL.Font.Color
-green = SDL.V4 0 255 0 255
+-- | colors
+black :: SDL.Font.Color
+black = SDL.V4 0 0 0 255
 
 blue :: SDL.Font.Color
 blue = SDL.V4 0 0 255 255
 
-black :: SDL.Font.Color
-black = SDL.V4 0 0 0 255
+green :: SDL.Font.Color
+green = SDL.V4 0 255 0 255
+
+purple :: SDL.Font.Color
+purple = SDL.V4 128 0 128 255
+
+red :: SDL.Font.Color
+red = SDL.V4 255 0 0 255
 
 white :: SDL.Font.Color
 white = SDL.V4 255 255 255 255

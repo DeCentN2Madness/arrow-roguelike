@@ -137,61 +137,63 @@ mkEntityMap depth tm am = let
     [ xy | pos <- openList, let xy = if pos > (40, 20) then pos else (0,0) ]
   unk     = mkEntity Unknown (0, 0)
   assets  = mkNameMap am
-  p0 = Map.findWithDefault unk "Player" assets
+  player  = Map.findWithDefault unk "Player"   assets
   shrooms = Map.findWithDefault unk "Mushroom" assets
-  corpses = Map.findWithDefault unk "Corpse"  assets
-  potions = Map.findWithDefault unk "Potion"  assets
-  coins   = Map.findWithDefault unk "Coin"    assets
-  unknown = Map.findWithDefault unk "Unknown" assets
-  mice    = Map.findWithDefault unk "Mouse"   assets
+  corpses = Map.findWithDefault unk "Corpse"   assets
+  potions = Map.findWithDefault unk "Potion"   assets
+  coins   = Map.findWithDefault unk "Coin"     assets
+  unknown = Map.findWithDefault unk "Unknown"  assets
+  mice    = Map.findWithDefault unk "Mouse"    assets
   -- add powerful monsters deeper to level...
-  wolves  = Map.findWithDefault unk "Wolf"   assets
-  orcs    = Map.findWithDefault unk "Orc"    assets
-  trolls  = Map.findWithDefault unk "Spider" assets
-  spiders = Map.findWithDefault unk "Troll"  assets
-  dragons = Map.findWithDefault unk "Dragon" assets
+  wolves  = Map.findWithDefault unk "Wolf"    assets
+  orcs    = Map.findWithDefault unk "Orc"     assets
+  trolls  = Map.findWithDefault unk "Spider"  assets
+  spiders = Map.findWithDefault unk "Troll"   assets
+  dragons = Map.findWithDefault unk "Dragon"  assets
   -- fill the dungeon...
-  junk = if depth > 15
-    then concat [ insertRand shrooms 1  10 openList
-                , insertRand corpses 11 20 openList
-                , insertRand potions 21 30 openList
-                , insertRand coins   31 40 openList
-                , insertRand unknown 41 50 openList
-                , insertRand mice    51 60 openList
-                , insertRand wolves  61 70 topRight
-                , insertRand orcs    70 80 topRight
-                , insertRand spiders 80 82 bottomLeft
-                , insertRand trolls  82 85 bottomLeft
-                , insertRand dragons 85 90 bottomRight
+  junk
+    | depth >= 15 =
+      concat [ insertRand shrooms 1  10 openList
+             , insertRand corpses 11 20 openList
+             , insertRand potions 21 30 openList
+             , insertRand coins   31 40 openList
+             , insertRand unknown 41 50 openList
+             , insertRand mice    51 60 openList
+             , insertRand wolves  61 70 topRight
+             , insertRand orcs    70 80 topRight
+             , insertRand spiders 80 85 bottomLeft
+             , insertRand trolls  85 90 bottomLeft
+             , insertRand dragons 90 95 bottomRight
                 ]
-    else if depth > 10 && depth <= 15
-    then concat [ insertRand shrooms 1  10 openList
-                , insertRand corpses 11 20 openList
-                , insertRand potions 21 30 openList
-                , insertRand coins   31 40 openList
-                , insertRand unknown 41 50 openList
-                , insertRand mice    51 60 openList
-                , insertRand wolves  61 70 topRight
-                , insertRand orcs    70 80 bottomLeft
-                , insertRand spiders 80 82 bottomRight
-                ]
-    else if depth > 5 && depth <= 10
-    then concat [ insertRand shrooms 1  10 openList
-                , insertRand corpses 11 20 openList
-                , insertRand potions 21 30 openList
-                , insertRand coins   31 40 openList
-                , insertRand unknown 41 50 openList
-                , insertRand mice    51 60 openList
-                , insertRand wolves  61 70 topRight
-                ]
-   else concat [ insertRand shrooms 1  10 openList
-                , insertRand corpses 11 20 openList
-                , insertRand potions 21 30 openList
-                , insertRand coins   31 40 openList
-                , insertRand unknown 41 50 openList
-                , insertRand mice    51 60 openList
-                ]
-  in safeInsertEntity 0 p0 tm (Map.fromList junk)
+    | depth >= 10 && depth < 15 =
+      concat [ insertRand shrooms 1  10 openList
+             , insertRand corpses 11 20 openList
+             , insertRand potions 21 30 openList
+             , insertRand coins   31 40 openList
+             , insertRand unknown 41 50 openList
+             , insertRand mice    51 60 openList
+             , insertRand wolves  61 70 topRight
+             , insertRand orcs    70 80 bottomLeft
+             , insertRand spiders 80 82 bottomRight
+             ]
+    | depth >= 5 && depth < 10 =
+      concat [ insertRand shrooms 1  10 openList
+             , insertRand corpses 11 20 openList
+             , insertRand potions 21 30 openList
+             , insertRand coins   31 40 openList
+             , insertRand unknown 41 50 openList
+             , insertRand mice    51 60 openList
+             , insertRand wolves  61 70 topRight
+             ]
+   | otherwise =
+     concat [ insertRand shrooms 1  10 openList
+            , insertRand corpses 11 20 openList
+            , insertRand potions 21 30 openList
+            , insertRand coins   31 40 openList
+            , insertRand unknown 41 50 openList
+            , insertRand mice    51 60 openList
+            ]
+  in safeInsertEntity 0 player tm (Map.fromList junk)
 
 -- | insert @ into the TileMap
 safeInsertEntity :: Int -> EntityKind -> TileMap -> EntityMap -> EntityMap
@@ -220,7 +222,6 @@ updateEntityPos ix pos em = let
   in Map.insert ix (ek { coord = pos }) em
 
 -- | updateEntitySpawn
--- TODO eLvl, eHP, eMaxHP, eXP, and so on
 updateEntitySpawn :: EntityKind -> Coord -> EntityKind
 updateEntitySpawn ek pos = let
   eProp = property ek

@@ -88,10 +88,15 @@ saveFile w = do
   encodeFile (homeDir ++ saveWorld) w
   encodeFile (homeDir ++ savePlayer) pEntity
   encodeFile (homeDir ++ saveAsset) (assetT w)
+  encodeFile (homeDir ++ saveEntity) (entityT w)
 
 -- | saveAsset
 saveAsset :: FilePath
 saveAsset = "/Documents/Arrow/asset.json"
+
+-- | saveAsset
+saveEntity :: FilePath
+saveEntity = "/Documents/Arrow/entity.json"
 
 -- | savePlayer
 savePlayer :: FilePath
@@ -100,10 +105,6 @@ savePlayer = "/Documents/Arrow/player.json"
 -- | saveGame
 saveWorld :: FilePath
 saveWorld = "/Documents/Arrow/world.json"
-
--- | sourceAsset from git
--- sourceAssset :: FilePath
--- sourceAssset = "/arrow/data/asset.json"
 
 -- | touch file in case doesn't exist
 touch :: FilePath -> IO ()

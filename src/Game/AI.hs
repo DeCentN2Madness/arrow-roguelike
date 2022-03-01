@@ -58,7 +58,10 @@ monsterHeal (mx, mEntity) w = let
 -- | pathFinder
 -- 0. Don't move the Player at 0
 -- 1. Distance from goal
+--   a. 5 or less is *critical*
 -- 2. Decide by distance
+--    a. 4 is Vision
+--    b. 7 is Hear
 -- 3. Check blockList
 -- 4. Update move
 pathFinder :: [(Int, EntityKind)] -> World -> World
@@ -74,13 +77,12 @@ pathFinder ((mx, mEntity):xs) w = if mx == 0 || not (block mEntity)
   mPos  = coord mEntity
   mProp = property mEntity
   spawn = read $ Map.findWithDefault (show pPos) "spawn" mProp :: (Int, Int)
-  -- flee goal if low eHP
-  goal = if eHP mEntity < 5 then spawn else pPos
+  -- flee goal if *critical* eHP
+  goal = if eHP mEntity <= 5 then spawn else pPos
   -- distance based on goal
   distList = [ (d, xy) | xy <- moveT mEntity, let d = EAC.chessDist goal xy ]
-  moveList = coordF $ [ xy | (d, pos) <- sort distList,
-                        let xy = if EAC.adjacent mPos goal || d > 5
-                              then mPos
-                              else pos ]
+  moveList = coordF $
+    [ xy | (d, pos) <- sort distList,
+      let xy = if EAC.adjacent mPos goal || d >= 7 then mPos else pos ]
   move = if null moveList then mPos else head moveList
   in pathFinder xs w { entityT = GE.updateEntityPos mx move (entityT w) }

@@ -105,7 +105,7 @@ actionGet w = let
 actionHear :: EntityMap -> Coord -> Text
 actionHear em listen = let
   hearList = [ t | (ek, _) <- GE.fromEntityAt em,
-               let t = if block ek && (d > 4 && d < 7) then 1 else 0
+               let t = if block ek && (d >= 4 && d <= 7) then 1 else 0
                    d = distance (coord ek) listen ]
   total = sum hearList :: Int
   hear x
@@ -119,8 +119,9 @@ actionHear em listen = let
 actionLook :: [(EntityKind, Coord)] -> Text
 actionLook xs = let
   look = T.concat [ t | (ek, _) <- xs,
-                    let t = if not (block ek) then
-                          T.pack $ show (kind ek) ++ ", " else "" ]
+                    let t = if not (block ek)
+                          then T.pack $ show (kind ek) ++ ", "
+                          else "" ]
   in T.append look "..."
 
 -- | actionMonster
@@ -156,7 +157,7 @@ actionPlayer pos w = let
   look       = actionLook $ GE.getEntityBy newCoord (entityT moveWorld)
   listen     = actionHear (entityT moveWorld) newCoord
   -- Combat event
-  world   = if bump > 0 then GC.mkCombat 0 bump moveWorld else moveWorld
+  world  = if bump > 0 then GC.mkCombat 0 bump moveWorld else moveWorld
   -- XP event
   (p, _) = GP.getPlayer (entityT world)
   learn = if eLvl p > eLvl pEntity

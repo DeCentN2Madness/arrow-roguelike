@@ -31,10 +31,11 @@ library
                     , Game.AI
                     , Game.Combat
                     , Game.DiceSet
-                    , Game.Dungeon
                     , Game.Entity
                     , Game.Inventory
                     , Game.Journal
+                    , Game.Kind.Cave
+                    , Game.Kind.Dungeon
                     , Game.Kind.Entity
                     , Game.Kind.Tile
                     , Game.Player
@@ -73,10 +74,11 @@ executable Arrow
                     , Game.AI
                     , Game.Combat
                     , Game.DiceSet
-                    , Game.Dungeon
                     , Game.Entity
                     , Game.Inventory
                     , Game.Journal
+                    , Game.Kind.Cave
+                    , Game.Kind.Dungeon
                     , Game.Kind.Entity
                     , Game.Kind.Tile
                     , Game.Player

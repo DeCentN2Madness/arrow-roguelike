@@ -2,8 +2,7 @@
 
 Game.Tile.hs
 
-Game.Tile is the engine for the Tile Kind and returns from the Map
-w/ [(Terrain, Coord)]
+Game.Tile is the engine for the TileKind.
 
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
@@ -20,11 +19,17 @@ import Prelude hiding (lookup)
 import Data.Map (Map)
 import qualified Data.Map.Strict as Map
 import qualified Data.Vector as V
-import Game.Dungeon (Dungeon(..))
 import Game.Kind.Tile
 
 type Coord = (Int, Int)
 type TileMap = Map Int TileKind
+
+-- | dungeonGrid uniform grid helper function for zip
+-- Note: Dungeon is Vector (width*height)
+dungeonGrid :: Int -> Int -> [Coord]
+dungeonGrid maxX maxY = let
+  maxXY = if maxX > maxY then maxX else maxY
+  in [ (y, x) | x <- [0..maxXY-1], y <- [0..maxXY-1] ]
 
 -- | fromMoveBlocked filters movable coord
 fromMoveBlocked :: [Coord] -> TileMap -> [Coord]
@@ -56,18 +61,12 @@ fromVisionBlocked tm = let
     [ (t, xy) | (_, TileKind xy _ t) <- Map.toList tm ]
   in terrainList
 
--- | mkGrid uniform grid helper function for zip
-mkGrid :: Int -> Int -> [Coord]
-mkGrid maxX maxY = let
-  maxXY = if maxX > maxY then maxX else maxY
-  in [ (y, x) | x <- [0..maxXY-1], y <- [0..maxXY-1] ]
-
 -- | mkTileMap builds the TileMap from Dungeon @d@
 -- (y,x) in Terrain
 -- (x,y) in TileMap
 mkTileMap :: Dungeon -> TileMap
 mkTileMap d = let
-  grid = mkGrid (dungeonWidth d) (dungeonHeight d)
+  grid = dungeonGrid (dungeonWidth d) (dungeonHeight d)
   tileList = V.toList $ dungeonTiles d
   terrainList = [ tk | (xy, t) <- zip grid tileList,
                let tk = TileKind xy False t ]

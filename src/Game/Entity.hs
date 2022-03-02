@@ -4,6 +4,10 @@ Game.Entity.hs
 
 Game.Entity is the engine for the EntityKind.
 
+Usage:
+  mkAssetMap is all the Entity in the World
+  mkEntityMap is all the Entity within a World Level
+
 Example:
   getEntityAt uses the EntityMap by Ix
   getEntityBy uses the EntityMap by Coord

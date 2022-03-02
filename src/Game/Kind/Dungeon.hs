@@ -2,12 +2,14 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-
 
-Game.Dungeon.hs
+Game.Kind.Dungeon.hs
+
+Game.Kind.Dungeon is a Dungeon generator which uses Vector
 
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
 -}
-module Game.Dungeon (boxDungeon
+module Game.Kind.Dungeon (boxDungeon
                , Dungeon(..)
                , getTerrainAt
                , rogueDungeon

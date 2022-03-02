@@ -75,7 +75,7 @@ actionEat w = let
     else pEntity
   entry = if pMush > 0
     then T.pack "Eat a tasty Mushroom..."
-    else T.pack "Nothing to eat..."
+    else T.pack "No Mushrooms..."
   in w { tick = newTick
        , entityT  = GP.updatePlayer newPlayer (entityT w)
        , journalT = GJ.updateJournal [entry] (journalT w) }
@@ -182,7 +182,7 @@ actionQuaff w = let
     else pEntity
   entry = if pPot > 0
     then T.pack "Drink a delicious Potion..."
-    else T.pack "Nothing to drink..."
+    else T.pack "No Potions..."
   in w { tick = newTick
        , entityT  = GP.updatePlayer newPlayer (entityT w)
        , journalT = GJ.updateJournal [entry] (journalT w) }
@@ -245,14 +245,16 @@ applyIntent intent w = let
   in world
 
 -- | resetWorld, save the Player, and rebuild the World
--- TODO depth set by stairs and player level
+-- TODO depth set by stairs...
 resetWorld :: World -> World
 resetWorld w = let
   (maxX, maxY) = screenXY w
   (row, col)   = gridXY w
   (p, _)       = GP.getPlayer (entityT w)
   world        = mkWorld (tick w) (floor maxX, floor maxY) (eLvl p) row col
-  in world { entityT = GE.safeInsertEntity 0 p (gameT world) (entityT world) }
+  entry        = T.pack $ "Depth " ++ show (50 * eLvl p) ++ "'..."
+  in world { entityT  = GE.safeInsertEntity 0 p (gameT world) (entityT world)
+           , journalT = GJ.updateJournal [entry] (journalT w) }
 
 -- | showCharacter
 showCharacter :: World -> World

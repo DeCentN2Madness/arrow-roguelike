@@ -11,6 +11,7 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 module Engine.Arrow.Data where
 
 import Data.Aeson
+import Data.Text (Text)
 import GHC.Generics
 import Game.Entity (EntityMap)
 import qualified Game.Entity as GE
@@ -105,7 +106,7 @@ mkWorld seed (width, height) depth xMax yMax = let
            , gameT    = gameMap
            , entityT  = entityMap
            , assetT   = assetMap
-           , journalT = GJ.updateJournal ["Catch the Mice...", "Welcome to Arrow..."] journalMap
+           , journalT = GJ.updateJournal startJournal journalMap
            , fovT     = []
            , gridXY   = (xMax, yMax)
            , cameraXY = (0.0, 0.0)
@@ -115,3 +116,8 @@ mkWorld seed (width, height) depth xMax yMax = let
            , starting = True
            , exiting  = False
            }
+
+startJournal :: [Text]
+startJournal = [ "Beware of Trolls..."
+               , "Catch the Mice..."
+               , "Welcome to Arrow...." ]

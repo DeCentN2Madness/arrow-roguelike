@@ -124,16 +124,14 @@ pickHallways r1@(Room _ r1yl _ r1yh) r2@(Room _ r2yl _ r2yh)
 -- | randDebris
 randDebris :: (MonadRandom m) => Int -> Int -> m (Room, Orientation, Terrain)
 randDebris width height = do
-  t <- getRandomR (0, 6)
+  t <- getRandomR (0, 4)
   r <- randRoom 1 (width-1) 1 (height-1)
   pure $ case (t :: Int) of
     0 -> (r, Horizontal, Rubble)
     1 -> (r, Vertical,   Rubble)
     2 -> (r, Horizontal, Magma)
     3 -> (r, Vertical,   Magma)
-    4 -> (r, Horizontal, Rock)
-    5 -> (r, Vertical,   Rock)
-    _ -> (r, Horizontal, Wall)
+    _ -> (r, Horizontal, Rubble)
 
 -- | randRoom
 randRoom :: (MonadRandom m) => Int -> Int -> Int -> Int -> m Room
@@ -147,7 +145,7 @@ randRoom xlow xhigh ylow yhigh = do
 -- | rogueDungeon build the Dungeon
 --
 -- 0. Fill w/ Wall
--- 1. Add 10% Rubble
+-- 1. Add 5% Rubble
 -- 2. Divide Dungeon into 9 sections
 --    1 - 2 - 3
 --    4 - 5 - 6
@@ -158,10 +156,10 @@ randRoom xlow xhigh ylow yhigh = do
 -- 6. Explore the Dungeon
 rogueDungeon :: RandomGen g => Int -> Int -> g -> (Dungeon, g)
 rogueDungeon width height g = let
-  tileCount = width*height
-  debrisCount = tileCount `div` 10
-  secWidth = width `div` 3
-  secHeight = height `div` 3
+  tileCount   = width*height
+  debrisCount = tileCount `div` 20
+  secWidth    = width `div` 3
+  secHeight   = height `div` 3
   (tileVector, gFinal) = runST $ flip runRandT g $ do
     vec <- VM.replicate tileCount Wall
     -- add Debris

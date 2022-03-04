@@ -11,15 +11,11 @@ Usage:
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
 -}
-module Game.Vault (mkGameMap, showVault) where
+module Game.Vault (cave, mkGameMap) where
 
 import Prelude hiding (lookup)
-import Control.Monad (forM_)
 import Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
-import Data.Text (Text)
-import qualified Data.Text as T
-import Text.Printf
 import Game.Kind.Cave
 import Game.Kind.Tile
 import Game.Tile (TileMap)
@@ -107,31 +103,6 @@ mkGameMap :: Seed -> Depth -> Int -> Int -> TileMap
 mkGameMap seed depth width height= let
   tm = cave seed width height
   in level depth tm
-
--- | showVault for visualization
--- >>>  let d = cave 1 80 40
--- >>>      l = town
--- >>>  showVault $ insertVault (1,1) l d
-showVault :: TileMap -> IO ()
-showVault tm = do
-  let txList = [ (xy, v) | (_, TileKind xy _ t) <- Map.toList tm,
-                let v = terrainToText t ]
-  forM_ txList $ \((i,_), t) -> do
-    let vt = if i == 0
-          then T.append (T.pack "\n") t
-          else t
-    printf "%s" vt
-  printf "\n"
-
--- | TileMap to Text
-terrainToText :: Terrain -> Text
-terrainToText t = case t of
-  Door -> "+"
-  Magma -> "*"
-  Open -> "."
-  Rock -> ":"
-  Rubble -> "%"
-  Wall -> "#"
 
 -- | demo vaults
 -- A version is door opening East,

@@ -41,6 +41,7 @@ getKey (SDL.KeyboardEventData _ SDL.Pressed False keysym) =
     SDL.KeycodeL      -> Action West
     SDL.KeycodeU      -> Action NorthWest
     SDL.KeycodeC      -> Action C
+    SDL.KeycodeD      -> Action D
     SDL.KeycodeE      -> Action E
     SDL.KeycodeG      -> Action G
     SDL.KeycodeI      -> Action I

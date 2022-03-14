@@ -16,17 +16,17 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
 -}
 module Game.Entity (EntityMap
-               , fromBlock
-               , fromEntityAt
-               , fromEntityBy
-               , getEntityAt
-               , getEntityBy
-               , insertEntity
-               , mkAssetMap
-               , mkEntityMap
-               , safeInsertEntity
-               , updateEntityHp
-               , updateEntityPos) where
+                   , fromBlock
+                   , fromEntityAt
+                   , fromEntityBy
+                   , getEntityAt
+                   , getEntityBy
+                   , insertEntity
+                   , mkAssetMap
+                   , mkEntityMap
+                   , safeInsertEntity
+                   , updateEntityHp
+                   , updateEntityPos) where
 
 import Prelude hiding (lookup)
 import Data.List

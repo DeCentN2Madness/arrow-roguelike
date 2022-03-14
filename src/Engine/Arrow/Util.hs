@@ -11,6 +11,8 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 module Engine.Arrow.Util (applyIntent) where
 
 import Prelude hiding (lookup)
+import Data.Function (on)
+import Data.List (sortBy)
 import qualified Data.Map.Strict as Map
 import Data.Text (Text)
 import qualified Data.Text as T
@@ -59,6 +61,29 @@ actionDirection input w = if starting w
       else world { dirty = False }
   in EDC.updateCamera run
 
+-- | actionDrop
+-- if there is something to drop...
+-- TODO change from Coin to Unknown to pick of items to drop
+actionDrop :: World -> World
+actionDrop w = let
+  newTick      = tick w + 1
+  (pEntity, pPos) = GP.getPlayer (entityT w)
+  pInv         = inventory pEntity
+  pDrop        = Map.findWithDefault 0 "Coin" pInv
+  item         = GI.mkItem "Unknown" pPos (assetT w)
+  newPlayer = if pDrop > 0
+    then pEntity { inventory = Map.insert "Coin" (pDrop-1) pInv }
+    else pEntity
+  newEntity = if pDrop > 0
+    then GI.putDown item (entityT w)
+    else entityT w
+  entry = if pDrop > 0
+    then T.append "Drop " (actionLook [(item, pPos)])
+    else T.pack "No Drop..."
+  in w { tick = newTick
+       , entityT  = GP.updatePlayer newPlayer newEntity
+       , journalT = GJ.updateJournal [entry] (journalT w) }
+
 -- | actionEat
 -- if there is something to eat...
 actionEat :: World -> World
@@ -75,7 +100,7 @@ actionEat w = let
     else pEntity
   entry = if pMush > 0
     then T.pack "Eat a tasty Mushroom..."
-    else T.pack "No Mushrooms..."
+    else T.pack "No Eat..."
   in w { tick = newTick
        , entityT  = GP.updatePlayer newPlayer (entityT w)
        , journalT = GJ.updateJournal [entry] (journalT w) }
@@ -88,14 +113,14 @@ actionGet w = let
   (pEntity, pPos) = GP.getPlayer (entityT w)
   items           = GE.getEntityBy pPos (entityT w)
   newPlayer = if not (null items)
-    then GI.pickup items pEntity
+    then GI.pickUp items pEntity
     else pEntity
   newEntity = if not (null items)
     then GI.emptyBy pPos items (entityT w)
     else entityT w
   entry = if length items > 1
     then T.append "Get " (actionLook $ tail items)
-    else T.pack "Nothing interesting..."
+    else T.pack "No Get..."
   in w { tick = newTick
        , entityT  = GP.updatePlayer newPlayer newEntity
        , journalT = GJ.updateJournal [entry] (journalT w) }
@@ -182,7 +207,7 @@ actionQuaff w = let
     else pEntity
   entry = if pPot > 0
     then T.pack "Drink a delicious Potion..."
-    else T.pack "No Potions..."
+    else T.pack "No Drink..."
   in w { tick = newTick
        , entityT  = GP.updatePlayer newPlayer (entityT w)
        , journalT = GJ.updateJournal [entry] (journalT w) }
@@ -193,22 +218,25 @@ actionQuaff w = let
 actionThrow :: World -> World
 actionThrow w = let
   newTick      = tick w + 1
-  (pEntity, _) = GP.getPlayer (entityT w)
+  (pEntity, pPos) = GP.getPlayer (entityT w)
   pInv         = inventory pEntity
   pUnk         = Map.findWithDefault 0 "Unknown" pInv
+  mySort       = sortBy (compare `on` snd)
   -- pick closest target
+    --((ix, _):_) -> ix
   mTargets = filter (\(_, j) -> j `elem` fovT w) $
     [ (ix, xy) | (ix, pos) <- GE.fromBlock (entityT w),
       let xy = if ix > 0 then pos else (0,0) ]
   mTarget = case mTargets of
     [] -> 0
-    ((ix, _):_) -> ix
+    xs -> fst $ head $ mySort [ (ix, d) | (ix, xy) <- xs,
+                                let d = distance xy pPos ]
   newPlayer = if pUnk > 0 && mTarget > 0
     then pEntity { inventory = Map.insert "Unknown" (pUnk-1) pInv }
     else pEntity
   entry = if pUnk > 0 && mTarget > 0
     then T.pack "Shoots an Arrow..."
-    else T.pack "No Arrows..."
+    else T.pack "No Shoot..."
   -- throwWorld
   throwWorld = w { entityT  = GP.updatePlayer newPlayer (entityT w)
                  , journalT = GJ.updateJournal [entry] (journalT w) }
@@ -234,6 +262,7 @@ applyIntent intent w = let
     Action West      -> actionDirection West w
     Action NorthWest -> actionDirection NorthWest w
     Action C -> showCharacter w
+    Action D -> actionMonster $ actionDrop w
     Action E -> actionMonster $ actionEat w
     Action G -> actionMonster $ actionGet w
     Action I -> showInventory w

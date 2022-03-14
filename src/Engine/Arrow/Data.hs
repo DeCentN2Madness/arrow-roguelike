@@ -36,6 +36,7 @@ data Direction
   | NorthWest
   | B
   | C
+  | D
   | E
   | G
   | H

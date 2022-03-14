@@ -13,10 +13,14 @@ import Data.Text (Text)
 import qualified Data.Text as T
 import Engine.Arrow.Data (World (..))
 import qualified Game.DiceSet as DS
+import Game.Entity (EntityMap)
 import qualified Game.Entity as GE
+import qualified Game.Inventory as GI
 import qualified Game.Journal as GJ
 import Game.Kind.Entity (Entity(..), EntityKind(..))
 import qualified Game.Player as GP
+
+type AssetMap = EntityMap
 
 -- | abilityMod
 abilityMod :: Int -> Int
@@ -41,6 +45,18 @@ condition hp = let
   brave = if hp >= 1 && hp <= 5 then "*Critical* " else ""
   in T.append brave dead
 
+-- | Arrows that miss the mark
+misFire :: EntityKind -> AssetMap -> EntityMap -> EntityMap
+misFire mEntity am em = let
+  mPos = coord mEntity
+  seed = 1 + uncurry (*) mPos
+  missList = moveT mEntity
+  sz = length missList - 1
+  missRoll = head $ DS.rollList 1 (fromIntegral sz) seed
+  location = missList !! missRoll
+  item = GI.mkItem "Unknown" location am
+  in GI.putDown item em
+
 -- | mkCombat
 -- p v m
 -- 1. if pAR >= mDR then pDam
@@ -62,7 +78,7 @@ mkCombat px mx w = if px == mx
     pDex  = read $ Map.findWithDefault "1" "dex" pProp :: Int
     pMod  = read $ Map.findWithDefault "1" "Proficiency" pProp :: Int
     pAR   = clamp $ DS.d20 pSeed + abilityMod pDex + pMod
-    pDam  = clamp $ DS.d4 pSeed  + abilityMod pStr + pMod
+    pDam  = clamp $ DS.d6  pSeed + abilityMod pStr + pMod
     -- mDR
     mProp = property mEntity
     mName = Map.findWithDefault "M" "Name" mProp
@@ -104,7 +120,7 @@ mkRangeCombat px mx w = if px == mx
     pDex  = read $ Map.findWithDefault "1" "dex" pProp :: Int
     pMod  = read $ Map.findWithDefault "1" "Proficiency" pProp :: Int
     pAR   = clamp $ DS.d20 pSeed + abilityMod pDex + pMod
-    pDam  = clamp $ DS.d4 pSeed  + pMod
+    pDam  = clamp $ DS.d4  pSeed + abilityMod pDex + pMod
     -- mDR,  mMod
     mProp = property mEntity
     mName = Map.findWithDefault "M" "Name" mProp
@@ -116,6 +132,10 @@ mkRangeCombat px mx w = if px == mx
     pAttack = if pAR >= mDR
       then mHP - pDam
       else mHP -- Miss
+    -- misfire
+    shotEntity = if pAR < mDR
+      then misFire mEntity (assetT w) (entityT w)
+      else entityT w
     -- journal
     pEntry = T.concat [ T.pack pName
                     , shoot pAR mDR
@@ -125,8 +145,8 @@ mkRangeCombat px mx w = if px == mx
     -- newEntity with damages and deaths
     -- Exp Award
     newEntity = if pAttack < 1
-      then GE.insertEntity mx mPos Corpse $ GP.updatePlayerXP mExp (entityT w)
-      else GE.updateEntityHp mx pAttack (entityT w)
+      then GE.insertEntity mx mPos Corpse $ GP.updatePlayerXP mExp shotEntity
+      else GE.updateEntityHp mx pAttack shotEntity
   in w { entityT  = newEntity
        , journalT = GJ.updateJournal [pEntry] (journalT w) }
 

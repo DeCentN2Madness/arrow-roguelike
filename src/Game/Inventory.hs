@@ -55,8 +55,8 @@ mkNameMap am = let
 mkItem :: String -> Coord -> AssetMap -> EntityKind
 mkItem name pos am = let
   assets = mkNameMap am
-  unk    = mkEntity Unknown pos
-  item   = Map.findWithDefault unk name assets
+  arr    = mkEntity Arrow pos
+  item   = Map.findWithDefault arr name assets
   in item { coord = pos }
 
 -- | noPickup
@@ -70,7 +70,7 @@ pickList items = filter (`notElem` noPickup) $ [ kind e | (e, _) <- items ]
 -- | pickUp
 pickUp :: [(EntityKind, Coord)] -> EntityKind -> EntityKind
 pickUp items ek = let
-  invT = groupEK $ map show (pickList items)
+  invT  = groupEK $ map show (pickList items)
   picks = Map.unionWith (+) (inventory ek) (Map.fromList invT)
   in ek { inventory = picks }
 

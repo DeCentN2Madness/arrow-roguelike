@@ -4,7 +4,7 @@
 
 Engine.Draw.Visual.hs
 
-This module keeps the visual Map
+This module makes the visual Map
 
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
@@ -58,7 +58,7 @@ data VisualKind
   | VStairDn
   | VStairUp
   | VTrap
-  | VUnknown
+  | VArrow
   | VWall
   | VLWall
   | VLOpen
@@ -115,7 +115,7 @@ mkVisual VStairUp  ts = Visual (320, 0) (style ts) width height
 mkVisual VTrap     ts = Visual (352, 0) (style ts) width height
 mkVisual VCoin     ts = Visual (384, 0) (style ts) width height
 mkVisual VItem     ts = Visual (416, 0) (style ts) width height
-mkVisual VUnknown  ts = Visual (448, 0) (style ts) width height
+mkVisual VArrow    ts = Visual (448, 0) (style ts) width height
 mkVisual VLWall    ts = Visual (480, 0) (style ts) width height
 mkVisual VLOpen    ts = Visual (512, 0) (style ts) width height
 mkVisual VLRock    ts = Visual (0,   height) (style ts) width height
@@ -178,6 +178,7 @@ mkVisualMap ts w = do
                       else mkVisual VCorpse ts
                       else case kind ek of
                       Actor     -> mkVisual VActor    ts
+                      Arrow     -> mkVisual VArrow    ts
                       Coin      -> mkVisual VCoin     ts
                       Corpse    -> mkVisual VCorpse   ts
                       Item      -> mkVisual VItem     ts
@@ -186,16 +187,15 @@ mkVisualMap ts w = do
                       Potion    -> mkVisual VPotion   ts
                       StairDown -> mkVisual VStairDn  ts
                       StairUp   -> mkVisual VStairUp  ts
-                      Trap      -> mkVisual VTrap     ts
-                      Unknown   -> mkVisual VUnknown  ts ]
+                      Trap      -> mkVisual VTrap     ts ]
    in Map.fromList $ concat [hardT, litT, seenT]
 
 -- | identify Item, Monster, ... by Name
 identify :: EntityKind -> TextureMap -> Visual
 identify ek ts = let
   eProp = property ek
-  v = Map.findWithDefault "0" "Name" eProp
-  vt = case v of
+  name = Map.findWithDefault "M" "Name" eProp
+  vt = case name of
     "Dragon" -> VDragon
     "Mouse"  -> VMouse
     "Orc"    -> VOrc

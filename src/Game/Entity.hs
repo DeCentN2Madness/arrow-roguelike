@@ -115,7 +115,7 @@ mkAssetMap ek = let
          , mkEntity StairDown spawn
          , mkEntity StairUp spawn
          , mkEntity Trap spawn
-         , mkEntity Unknown spawn
+         , mkEntity Arrow spawn
          , mkMonster "Cleric"  "Medium human (h)" spawn
          , mkMonster "Fighter" "Medium human (h)" spawn
          , mkMonster "Ranger"  "Medium human (h)" spawn
@@ -144,21 +144,21 @@ mkEntityMap depth tm am = let
     [ xy | pos <- openList, let xy = if pos > (20, 20) then pos else (0,0) ]
   bottomRight = filter (/=(0,0)) $
     [ xy | pos <- openList, let xy = if pos > (40, 20) then pos else (0,0) ]
-  unk     = mkEntity Unknown (0, 0)
+  arr     = mkEntity Arrow (0, 0)
   assets  = mkNameMap am
-  player  = Map.findWithDefault unk "Player"   assets
-  shrooms = Map.findWithDefault unk "Mushroom" assets
-  corpses = Map.findWithDefault unk "Corpse"   assets
-  potions = Map.findWithDefault unk "Potion"   assets
-  coins   = Map.findWithDefault unk "Coin"     assets
-  unknown = Map.findWithDefault unk "Unknown"  assets
-  mice    = Map.findWithDefault unk "Mouse"    assets
+  player  = Map.findWithDefault arr "Player"   assets
+  shrooms = Map.findWithDefault arr "Mushroom" assets
+  corpses = Map.findWithDefault arr "Corpse"   assets
+  potions = Map.findWithDefault arr "Potion"   assets
+  coins   = Map.findWithDefault arr "Coin"     assets
+  arrows  = Map.findWithDefault arr "Arrow"    assets
+  mice    = Map.findWithDefault arr "Mouse"    assets
   -- add powerful monsters deeper to level...
-  wolves  = Map.findWithDefault unk "Wolf"    assets
-  orcs    = Map.findWithDefault unk "Orc"     assets
-  dragons = Map.findWithDefault unk "Dragon"  assets
-  spiders = Map.findWithDefault unk "Spider"  assets
-  trolls  = Map.findWithDefault unk "Troll"   assets
+  wolves  = Map.findWithDefault arr "Wolf"    assets
+  orcs    = Map.findWithDefault arr "Orc"     assets
+  dragons = Map.findWithDefault arr "Dragon"  assets
+  spiders = Map.findWithDefault arr "Spider"  assets
+  trolls  = Map.findWithDefault arr "Troll"   assets
   -- fill the dungeon...
   junk
     | depth >= 15 =
@@ -166,7 +166,7 @@ mkEntityMap depth tm am = let
              , insertRand corpses 11 20 openList
              , insertRand potions 21 30 openList
              , insertRand coins   31 40 openList
-             , insertRand unknown 41 50 openList
+             , insertRand arrows  41 50 openList
              , insertRand mice    51 60 openList
              , insertRand wolves  61 70 topRight
              , insertRand orcs    70 80 topRight
@@ -179,7 +179,7 @@ mkEntityMap depth tm am = let
              , insertRand corpses 11 20 openList
              , insertRand potions 21 30 openList
              , insertRand coins   31 40 openList
-             , insertRand unknown 41 50 openList
+             , insertRand arrows  41 50 openList
              , insertRand mice    51 60 openList
              , insertRand wolves  61 70 topRight
              , insertRand orcs    70 80 bottomLeft
@@ -190,7 +190,7 @@ mkEntityMap depth tm am = let
              , insertRand corpses 11 20 openList
              , insertRand potions 21 30 openList
              , insertRand coins   31 40 openList
-             , insertRand unknown 41 50 openList
+             , insertRand arrows  41 50 openList
              , insertRand mice    51 60 openList
              , insertRand wolves  61 70 topRight
              ]
@@ -199,7 +199,7 @@ mkEntityMap depth tm am = let
             , insertRand corpses 11 20 openList
             , insertRand potions 21 30 openList
             , insertRand coins   31 40 openList
-            , insertRand unknown 41 50 openList
+            , insertRand arrows  41 50 openList
             , insertRand mice    51 60 openList
             ]
   in safeInsertEntity 0 player tm (Map.fromList junk)

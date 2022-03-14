@@ -38,11 +38,11 @@ characterSheet :: EntityMap -> [Text]
 characterSheet em = let
   (pEntity, _) = getPlayer em
   pProp = property pEntity
-  pStr  = T.pack $ "STR: " ++ Map.findWithDefault "1" "str" pProp
-  pDex  = T.pack $ "DEX: " ++ Map.findWithDefault "1" "dex" pProp
-  pCon  = T.pack $ "CON: " ++ Map.findWithDefault "1" "con" pProp
-  pInt  = T.pack $ "INT: " ++ Map.findWithDefault "1" "int" pProp
-  pWis  = T.pack $ "WIS: " ++ Map.findWithDefault "1" "wis" pProp
+  pStr  = T.pack $ "Str: " ++ Map.findWithDefault "1" "str" pProp
+  pDex  = T.pack $ "Dex: " ++ Map.findWithDefault "1" "dex" pProp
+  pCon  = T.pack $ "Con: " ++ Map.findWithDefault "1" "con" pProp
+  pInt  = T.pack $ "Int: " ++ Map.findWithDefault "1" "int" pProp
+  pWis  = T.pack $ "Wis: " ++ Map.findWithDefault "1" "wis" pProp
   pLvl  = T.pack $ "Level: " ++ show (eLvl pEntity)
   pExp  = T.pack $ "EXP: " ++ show (eXP pEntity)
   pHP   = T.pack $ "HP: " ++ show (eHP pEntity) ++ "/" ++ show (eMaxHP pEntity)
@@ -56,8 +56,8 @@ characterInventory em = let
   pCoin  = T.pack $ "Coin: "     ++ show (Map.findWithDefault 0 "Coin"     pInv)
   pMush  = T.pack $ "Mushroom: " ++ show (Map.findWithDefault 0 "Mushroom" pInv)
   pPot   = T.pack $ "Potion: "   ++ show (Map.findWithDefault 0 "Potion"   pInv)
-  pUnk   = T.pack $ "Unknown: "  ++ show (Map.findWithDefault 0 "Unknown"  pInv)
-  in [ pCoin, pMush, pPot, pUnk ]
+  pArrow = T.pack $ "Arrow: "    ++ show (Map.findWithDefault 0 "Arrow"  pInv)
+  in [ pCoin, pMush, pPot, pArrow ]
 
 -- | @ lives at 0
 -- get Player

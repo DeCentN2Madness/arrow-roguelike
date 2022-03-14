@@ -63,14 +63,14 @@ actionDirection input w = if starting w
 
 -- | actionDrop
 -- if there is something to drop...
--- TODO change from Coin to Unknown to pick of items to drop
+-- TODO change from Coin to Arrow to pick of items to drop
 actionDrop :: World -> World
 actionDrop w = let
   newTick      = tick w + 1
   (pEntity, pPos) = GP.getPlayer (entityT w)
   pInv         = inventory pEntity
   pDrop        = Map.findWithDefault 0 "Coin" pInv
-  item         = GI.mkItem "Unknown" pPos (assetT w)
+  item         = GI.mkItem "Arrow" pPos (assetT w)
   newPlayer = if pDrop > 0
     then pEntity { inventory = Map.insert "Coin" (pDrop-1) pInv }
     else pEntity
@@ -220,7 +220,7 @@ actionThrow w = let
   newTick      = tick w + 1
   (pEntity, pPos) = GP.getPlayer (entityT w)
   pInv         = inventory pEntity
-  pUnk         = Map.findWithDefault 0 "Unknown" pInv
+  pArrow         = Map.findWithDefault 0 "Arrow" pInv
   mySort       = sortBy (compare `on` snd)
   -- pick closest target
   mTargets = filter (\(_, j) -> j `elem` fovT w) $
@@ -230,17 +230,17 @@ actionThrow w = let
     [] -> 0
     xs -> fst $ head $ mySort [ (ix, d) | (ix, xy) <- xs,
                                 let d = distance xy pPos ]
-  newPlayer = if pUnk > 0 && mTarget > 0
-    then pEntity { inventory = Map.insert "Unknown" (pUnk-1) pInv }
+  newPlayer = if pArrow > 0 && mTarget > 0
+    then pEntity { inventory = Map.insert "Arrow" (pArrow-1) pInv }
     else pEntity
-  entry = if pUnk > 0 && mTarget > 0
+  entry = if pArrow > 0 && mTarget > 0
     then T.pack "Shoots an Arrow..."
     else T.pack "No Shoot..."
   -- throwWorld
   throwWorld = w { entityT  = GP.updatePlayer newPlayer (entityT w)
                  , journalT = GJ.updateJournal [entry] (journalT w) }
   -- Combat event
-  world = if pUnk > 0 && mTarget > 0
+  world = if pArrow > 0 && mTarget > 0
     then GC.mkRangeCombat 0 mTarget throwWorld
     else throwWorld
   in world { tick = newTick }

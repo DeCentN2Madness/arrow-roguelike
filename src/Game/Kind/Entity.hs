@@ -25,6 +25,7 @@ type Inventories = Map String Int
 
 data Entity
   = Actor
+  | Arrow
   | Coin
   | Corpse
   | Item
@@ -34,7 +35,6 @@ data Entity
   | StairDown
   | StairUp
   | Trap
-  | Unknown
   deriving (Show, Eq, Generic)
 
 instance FromJSON Entity
@@ -60,7 +60,7 @@ defaultEK :: (Int, Int) -> String -> String -> EntityKind
 defaultEK xy name desc = EntityKind {
   coord = xy
   , block     = False
-  , kind      = Unknown
+  , kind      = Arrow
   , moveT     = []
   , property  = mkProp name desc xy
   , inventory = Map.empty
@@ -299,6 +299,9 @@ mkEntity :: Entity -> Coord -> EntityKind
 mkEntity Actor xy = let
   e = mkMonster "Player" "@" xy
   in e { kind=Actor }
+mkEntity Arrow xy = let
+  e = defaultEK xy "Arrow" "~"
+  in e { kind=Arrow }
 mkEntity Coin xy = let
   e = defaultEK xy "Coin" "$"
   in e { kind=Coin }
@@ -324,6 +327,3 @@ mkEntity StairUp xy = let
 mkEntity Trap xy = let
   e = defaultEK xy "Trap" "^"
   in e { kind=Trap }
-mkEntity Unknown xy = let
-  e = defaultEK xy "Unknown" "~"
-  in e { kind=Unknown }

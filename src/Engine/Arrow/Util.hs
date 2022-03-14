@@ -223,7 +223,6 @@ actionThrow w = let
   pUnk         = Map.findWithDefault 0 "Unknown" pInv
   mySort       = sortBy (compare `on` snd)
   -- pick closest target
-    --((ix, _):_) -> ix
   mTargets = filter (\(_, j) -> j `elem` fovT w) $
     [ (ix, xy) | (ix, pos) <- GE.fromBlock (entityT w),
       let xy = if ix > 0 then pos else (0,0) ]

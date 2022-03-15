@@ -38,6 +38,7 @@ library
                     , Game.Kind.Cave
                     , Game.Kind.Dungeon
                     , Game.Kind.Entity
+                    , Game.Kind.Monster
                     , Game.Kind.Tile
                     , Game.Player
                     , Game.Tile
@@ -82,6 +83,7 @@ executable Arrow
                     , Game.Kind.Cave
                     , Game.Kind.Dungeon
                     , Game.Kind.Entity
+                    , Game.Kind.Monster
                     , Game.Kind.Tile
                     , Game.Player
                     , Game.Tile

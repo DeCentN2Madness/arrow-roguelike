@@ -19,8 +19,8 @@ import qualified Data.Map.Strict as Map
 import Game.Entity (EntityMap)
 import Game.Kind.Entity
 
-type Coord = (Int, Int)
 type AssetMap = EntityMap
+type Coord = (Int, Int)
 type NameMap = Map String EntityKind
 
 -- | emptyBy

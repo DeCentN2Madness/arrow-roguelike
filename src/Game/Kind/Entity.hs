@@ -81,7 +81,6 @@ cleric p = let
           , ("wis", "15")
           , ("HP", "8")
           , ("XP", "0")
-          , ("Weapon", "1d4")
           , ("Proficiency", "2")
           , ("Challenge", "1")
           ] ++ mProp
@@ -98,7 +97,6 @@ fighter p = let
           , ("wis", "10")
           , ("HP", "10")
           , ("XP", "0")
-          , ("Weapon", "1d4")
           , ("Proficiency", "2")
           , ("Challenge", "1")
           ] ++ mProp
@@ -116,7 +114,6 @@ ranger p = let
           , ("wis", "14")
           , ("HP", "10")
           , ("XP", "0")
-          , ("Weapon", "1d4")
           , ("Proficiency", "2")
           , ("Challenge", "1")
           ] ++ mProp
@@ -133,7 +130,6 @@ rogue p = let
           , ("wis", "12")
           , ("HP", "8")
           , ("XP", "0")
-          , ("Weapon", "1d4")
           , ("Proficiency", "2")
           , ("Challenge", "1")
           ] ++ mProp
@@ -150,7 +146,6 @@ wizard p = let
           , ("wis", "14")
           , ("HP", "6")
           , ("XP", "0")
-          , ("Weapon", "1d4")
           , ("Proficiency", "2")
           , ("Challenge", "1")
           ] ++ mProp
@@ -167,7 +162,6 @@ smBeast p = let
           , ("wis", "10")
           , ("HP", "7")
           , ("XP", "25")
-          , ("Weapon", "1d4")
           , ("Proficiency", "2")
           , ("Challenge", "1")
           ] ++ mProp
@@ -184,7 +178,6 @@ mdBeast p = let
           , ("wis", "12")
           , ("HP", "11")
           , ("XP", "50")
-          , ("Weapon", "2d4")
           , ("Proficiency", "2")
           , ("Challenge", "1")
           ] ++ mProp
@@ -201,7 +194,6 @@ mdDragon p = let
           , ("wis", "11")
           , ("HP", "33")
           , ("XP", "450")
-          , ("Weapon", "1d10")
           , ("Proficiency", "4")
           , ("Challenge", "4")
           ] ++ mProp
@@ -218,7 +210,6 @@ lgBeast p = let
           , ("wis", "11")
           , ("HP", "26")
           , ("XP", "200")
-          , ("Weapon", "1d8")
           , ("Proficiency", "3")
           , ("Challenge", "3")
           ] ++ mProp
@@ -235,7 +226,6 @@ mdHumanoid p = let
           , ("wis", "11")
           , ("HP", "15")
           , ("XP", "100")
-          , ("Weapon", "1d12")
           , ("Proficiency", "2")
           , ("Challenge", "2")
           ] ++ mProp
@@ -252,7 +242,6 @@ gtHumanoid p = let
           , ("wis", "9")
           , ("HP", "84")
           , ("XP", "1800")
-          , ("Weapon", "2d6")
           , ("Proficiency", "3")
           , ("Challenge", "5")
           ] ++ mProp
@@ -297,7 +286,7 @@ mkProp name desc xy = Map.fromList [ ("Name", name)
 -- | mkEntity
 mkEntity :: Entity -> Coord -> EntityKind
 mkEntity Actor xy = let
-  e = mkMonster "Player" "@" xy
+  e = mkMonster "Player" "The Hero '@'" xy
   in e { kind=Actor }
 mkEntity Arrow xy = let
   e = defaultEK xy "Arrow" "~"

@@ -2,7 +2,7 @@
 
 Arrow is a tiny roguelike implemented in Haskell with SDL2. This
 project was inspired by RogueLike Tutorials. Arrow is currently a
-Step 8 of the 15 Steps...
+Step 9 of the 15 Steps...
 
 &mdash; [RogueBasin.com](http://www.roguebasin.com/index.php/How_to_Write_a_Roguelike_in_15_Steps)
 

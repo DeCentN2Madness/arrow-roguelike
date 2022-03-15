@@ -28,15 +28,15 @@ Step 8 of the 15 Steps...
 
 &mdash; `e` to eat a `Mushroom`
 
-&mdash; `g` to get Treasures
+&mdash; `g` to get `Coin`
 
 &mdash; `i` to `showInventory`
 
 &mdash; `q` to drink a `Potion`
 
-&mdash; `r` to reset the World
+&mdash; `r` to reset the `World`
 
-&mdash; `t` to throw an `Unknown`
+&mdash; `t` to throw an `Arrow`
 
 
 ## Requirements
@@ -44,7 +44,7 @@ Step 8 of the 15 Steps...
 
 &mdash; [SDL2](https://libsdl.org/)
 
-&mdash; savegames live in ```$HOME/Documents/Arrow```
+&mdash; save games live in ```$HOME/Documents/Arrow```
 
 
 ## Author

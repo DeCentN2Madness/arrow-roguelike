@@ -77,5 +77,5 @@ pickUp items ek = let
 -- | putDown
 putDown :: EntityKind -> EntityMap -> EntityMap
 putDown item em = let
-  ix = 1 + length (Map.keys em)
+  ix = 1 + maximum (Map.keys em)
   in Map.insert ix item em

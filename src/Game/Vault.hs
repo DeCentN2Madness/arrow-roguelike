@@ -107,21 +107,11 @@ mkGameMap seed depth width height= let
 -- | demo vaults
 -- A version is door opening East,
 -- B version is door opening West...
--- TODO use seed...
 level :: Depth -> TileMap -> TileMap
-level depth tm = let
-  l0 = lairA
-  l1 = lairB
-  p0 = pillarA
-  p1 = pillarB
-  t0 = townA
-  t1 = townB
-  finalMap = if depth > 0
-    then if depth > 10
-    then insertVaultPair (1,30) t0 (70,1) l1 $ -- Hard
-    insertVaultPair (1,15) p0 (70,15) t1 $
-    insertVaultPair (1,1) l0 (70,30) p1 tm
-    else insertVaultPair (1,1) t0 (70,1) t1 $ -- Medium
-    insertVaultPair (1,15) p0 (70,25) p1 tm
-    else insertVaultPair (1,1) t0 (30,1) t1 tm -- Easy
-  in finalMap
+level depth tm
+  | depth > 10 = insertVaultPair (1,30) townA (70,1) townB $
+    insertVaultPair (1,15) crossA (70,15) crossB $
+    insertVaultPair (1,1) pillarA (70,30) pillarB tm
+  | depth > 5 && depth <= 10 = insertVaultPair (1,1) crossA (70,1) crossB $
+    insertVaultPair (1,15) townA (70,25) townB tm
+  | otherwise = insertVaultPair (1,1) townA (30,1) townB tm  -- Easy

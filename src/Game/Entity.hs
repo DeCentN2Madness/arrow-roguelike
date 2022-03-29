@@ -25,6 +25,7 @@ module Game.Entity (EntityMap
                    , mkAssetMap
                    , mkEntityMap
                    , safeInsertEntity
+                   , updateEntity
                    , updateEntityHp
                    , updateEntityPos) where
 
@@ -118,7 +119,7 @@ mkAssetMap ek = let
 mkEntityMap :: Depth -> TileMap -> AssetMap -> EntityMap
 mkEntityMap depth tm am = let
   player   = mkEntity Actor (2,2)
-  monsters = mkMonsterMap depth tm am 
+  monsters = mkMonsterMap depth tm am
   in safeInsertEntity 0 player tm monsters
 
 -- | insert @ into the TileMap
@@ -134,6 +135,10 @@ safeInsertEntity ix ek tm em = let
     then mkEntity Actor (2,2)
     else ek
   in Map.insert ix (newEntity { coord = xy }) em
+
+-- | updateEntity
+updateEntity :: Int -> EntityKind -> EntityMap -> EntityMap
+updateEntity = Map.insert
 
 -- | updateEntity at ix
 updateEntityHp :: Int -> Int -> EntityMap -> EntityMap

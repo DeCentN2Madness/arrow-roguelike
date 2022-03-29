@@ -45,7 +45,25 @@ condition hp = let
   brave = if hp >= 1 && hp <= 5 then "*Critical* " else ""
   in T.append brave dead
 
+-- | death
+-- TODO drop inventory...
+death :: Int -> EntityKind -> AssetMap -> EntityMap -> EntityMap
+death mx mEntity am em = let
+  mPos   = coord mEntity
+  mInv   = inventory mEntity
+  mCoin  = Map.findWithDefault 0 "Coin"     mInv
+  mMush  = Map.findWithDefault 0 "Mushroom" mInv
+  mPot   = Map.findWithDefault 0 "Potion"   mInv
+  item
+    | mCoin   > 0 = GI.mkItem "Coin"     mPos am
+    | mMush   > 0 = GI.mkItem "Mushroom" mPos am
+    | mPot    > 0 = GI.mkItem "Potion"   mPos am
+    | otherwise   = GI.mkItem "Coin"     mPos am
+  newCorpse = GE.insertEntity mx mPos Corpse em
+  in GI.putDown item newCorpse
+
 -- | Arrows that miss the mark
+-- misFire randomly around target...
 misFire :: EntityKind -> AssetMap -> EntityMap -> EntityMap
 misFire mEntity am em = let
   mPos = coord mEntity
@@ -54,7 +72,7 @@ misFire mEntity am em = let
   sz = length missList - 1
   missRoll = head $ DS.rollList 1 (fromIntegral sz) seed
   location = missList !! missRoll
-  item = GI.mkItem "Unknown" location am
+  item = GI.mkItem "Arrow" location am
   in GI.putDown item em
 
 -- | mkCombat
@@ -99,7 +117,7 @@ mkCombat px mx w = if px == mx
     -- newEntity with damages and deaths
     -- Exp Award
     newEntity = if pAttack < 1
-      then GE.insertEntity mx mPos Corpse $ GP.updatePlayerXP mExp (entityT w)
+      then death mx mEntity (assetT w) $ GP.updatePlayerXP mExp (entityT w)
       else GE.updateEntityHp mx pAttack (entityT w)
   in w { entityT  = newEntity
        , journalT = GJ.updateJournal [pEntry] (journalT w) }
@@ -145,7 +163,7 @@ mkRangeCombat px mx w = if px == mx
     -- newEntity with damages and deaths
     -- Exp Award
     newEntity = if pAttack < 1
-      then GE.insertEntity mx mPos Corpse $ GP.updatePlayerXP mExp shotEntity
+      then death mx mEntity (assetT w) $ GP.updatePlayerXP mExp (entityT w)
       else GE.updateEntityHp mx pAttack shotEntity
   in w { entityT  = newEntity
        , journalT = GJ.updateJournal [pEntry] (journalT w) }

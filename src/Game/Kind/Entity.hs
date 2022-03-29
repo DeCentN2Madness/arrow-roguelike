@@ -247,6 +247,11 @@ gtHumanoid p = let
           ] ++ mProp
   in Map.fromList stats
 
+-- | mkInventory
+-- One lucky Mushroom
+mkInventory :: [(String, Int)]
+mkInventory = [("Arrow", 0), ("Potion", 0), ("Mushroom", 1), ("Coin", 0)]
+
 -- | mkMonster
 mkMonster :: String -> String -> Coord -> EntityKind
 mkMonster name desc xy = let
@@ -271,6 +276,7 @@ mkMonster name desc xy = let
   in e { block=True
        , kind=Monster
        , property=monster
+       , inventory=Map.fromList mkInventory
        , eHP=mHP
        , eMaxHP=mHP
        , eXP=mXP

@@ -43,7 +43,7 @@ aiAction ((mx, mEntity):xs) w = if mx == 0 || not (block mEntity)
   action
     | EAC.adjacent pPos   mPos = Attack
     | EAC.adjacent mSpawn mPos = Heal
-    | not (null mItems)        = PickUp
+    | length mItems > 1        = PickUp
     | otherwise = Wait
   world = case action of
     Attack -> GC.mkCombat mx 0 w
@@ -114,4 +114,4 @@ pathFinder ((mx, mEntity):xs) w = if mx == 0 || not (block mEntity)
   -- newMonster
   newMonster = mEntity { coord = move
                        , property = Map.insert "Action" "0" mProp }
-  in pathFinder xs w { entityT = Map.insert mx newMonster (entityT w) }
+  in pathFinder xs w { entityT = GE.updateEntity mx newMonster (entityT w) }

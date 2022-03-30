@@ -11,16 +11,19 @@ module Game.AI (aiAction) where
 import Data.List
 import qualified Data.Map.Strict as Map
 import qualified Data.Text as T
+import Data.Text (Text)
 import Engine.Arrow.Data (World(..))
 import qualified Engine.Arrow.Compass as EAC
 import qualified Game.Combat as GC
 import qualified Game.Entity as GE
+import qualified Game.Inventory as GI
 import qualified Game.Journal as GJ
-import Game.Kind.Entity (EntityKind(..))
+import Game.Kind.Entity (EntityKind(..), Entity(..))
 import qualified Game.Player as GP
 
 data AI
   = Attack
+  | Get
   | Eat
   | Drink
   | Move
@@ -44,20 +47,24 @@ aiAction ((mx, mEntity):xs) w = if mx == 0 || not (block mEntity)
   mArrow = Map.findWithDefault 0 "Arrow" mInv
   mMush  = Map.findWithDefault 0 "Mushroom" mInv
   mPot   = Map.findWithDefault 0 "Potion" mInv
+  mItems = GE.getEntityBy mPos (entityT w)
   mPos   = coord mEntity
   mProp  = property mEntity
+  mInt   = read $ Map.findWithDefault "1" "int" mProp :: Int
   mSpawn = read $ Map.findWithDefault (show mPos) "spawn" mProp :: (Int, Int)
   -- action
   action
     | EAC.adjacent pPos mPos = Attack
-    | (mHp <= 5)   && EAC.adjacent mSpawn mPos = Rest
+    | (mHp <= 5) && EAC.adjacent mSpawn mPos = Rest
     | (mArrow > 0) && (EAC.chessDist mPos pPos <= 4) = Throw
-    | (mMush  > 0) && (mMaxHp `div` mHp > 2) = Eat
-    | (mPot  > 0)  && (mMaxHp `div` mHp > 3) = Drink
+    | (mMush > 0) && (mMaxHp `div` mHp > 2) = Eat
+    | (mPot > 0) && (mMaxHp `div` mHp > 3) = Drink
+    | (mInt >= 7) && any (\(i, _) -> kind i == Coin) mItems = Get
     | otherwise = Move
   world = case action of
     Attack -> GC.mkCombat  mx 0 w
     Eat    -> monsterEat   mx mEntity w
+    Get    -> monsterGet   mx mEntity w
     Drink  -> monsterDrink mx mEntity w
     Move   -> pathFinder   mx mEntity w
     Rest   -> monsterHeal  mx mEntity w
@@ -80,7 +87,7 @@ monsterDrink mx mEntity w = let
   entry = if mPot > 0
     then T.pack "Monster is Thirsty..."
     else T.pack "..."
-  in w { entityT = GE.updateEntity mx newMonster (entityT w)
+  in w { entityT  = GE.updateEntity mx newMonster (entityT w)
        , journalT = GJ.updateJournal [entry] (journalT w) }
 
 -- | monsterEat
@@ -98,7 +105,25 @@ monsterEat mx mEntity w = let
   entry = if mMush > 0
     then T.pack "Monster is Hungry..."
     else T.pack "..."
-  in w { entityT = GE.updateEntity mx newMonster (entityT w)
+  in w { entityT  = GE.updateEntity mx newMonster (entityT w)
+       , journalT = GJ.updateJournal [entry] (journalT w) }
+
+-- | monsterGet
+-- M loves Coin...
+monsterGet :: Int -> EntityKind -> World -> World
+monsterGet mx mEntity w = let
+  mPos  = coord mEntity
+  items = GE.getEntityBy mPos (entityT w)
+  newMonster = if not (null items)
+    then GI.pickUp items mEntity
+    else mEntity
+  newEntity = if not (null items)
+    then GI.emptyBy mPos items (entityT w)
+    else entityT w
+  entry = if length items > 1
+    then T.append "Monster Get " (monsterLook $ tail items)
+    else T.pack "..."
+  in w { entityT  = GE.updateEntity mx newMonster newEntity
        , journalT = GJ.updateJournal [entry] (journalT w) }
 
 -- | monsterHeal
@@ -111,8 +136,18 @@ monsterHeal mx mEntity w = let
   entry = if mMaxHp `div` mHp > 3
     then T.pack "Monster is *Hurting*..."
     else T.pack "..."
-  in w { entityT = GE.updateEntityHp mx mHp (entityT w)
+  in w { entityT  = GE.updateEntityHp mx mHp (entityT w)
        , journalT = GJ.updateJournal [entry] (journalT w) }
+
+-- | monsterLook
+-- if there is something to see...
+monsterLook :: [(EntityKind, a)] -> Text
+monsterLook xs = let
+  look = T.concat [ t | (ek, _) <- xs,
+                    let t = if not (block ek)
+                          then T.pack $ show (kind ek) ++ ", "
+                          else "" ]
+  in T.append look "..."
 
 -- | monsterThrow
 -- M shoots...

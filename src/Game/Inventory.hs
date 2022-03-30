@@ -48,7 +48,7 @@ mkNameMap :: AssetMap -> NameMap
 mkNameMap am = let
   assetList = [ (name, ek) | (_, ek) <- Map.toList am,
                 let eProp = property ek
-                    name  = Map.findWithDefault "0" "Name" eProp ]
+                    name  = Map.findWithDefault "M" "Name" eProp ]
   in Map.fromList assetList
 
 -- | mkItem
@@ -70,7 +70,7 @@ pickList items = filter (`notElem` noPickup) $ [ kind e | (e, _) <- items ]
 -- | pickUp
 pickUp :: [(EntityKind, Coord)] -> EntityKind -> EntityKind
 pickUp items ek = let
-  invT = groupEK $ map show (pickList items)
+  invT  = groupEK $ map show (pickList items)
   picks = Map.unionWith (+) (inventory ek) (Map.fromList invT)
   in ek { inventory = picks }
 

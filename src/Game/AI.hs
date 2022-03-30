@@ -96,11 +96,11 @@ pathFinder mx mEntity w = if mx == 0 || not (block mEntity)
   blockT = [ xy | (_, xy) <- GE.fromBlock (entityT w) ]
   (_, pPos) = GP.getPlayer (entityT w)
   -- M properties
-  mPos    = coord mEntity
-  mProp   = property mEntity
-  mSpawn  = read $ Map.findWithDefault (show pPos) "spawn" mProp :: (Int, Int)
+  mPos   = coord mEntity
+  mProp  = property mEntity
+  mSpawn = read $ Map.findWithDefault (show pPos) "spawn" mProp :: (Int, Int)
   -- flee goal if *critical* eHP
-  mGoal   = if eHP mEntity <= 5 then mSpawn else pPos
+  mGoal  = if eHP mEntity <= 5 then mSpawn else pPos
   -- M move based on goal
   distList = [ (d, xy) | xy <- moveT mEntity, let d = EAC.chessDist mGoal xy ]
   moveList = coordF $

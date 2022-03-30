@@ -215,11 +215,11 @@ actionQuaff w = let
 -- TODO animate throw
 actionThrow :: World -> World
 actionThrow w = let
-  newTick      = tick w + 1
+  newTick         = tick w + 1
   (pEntity, pPos) = GP.getPlayer (entityT w)
-  pInv         = inventory pEntity
-  pArrow         = Map.findWithDefault 0 "Arrow" pInv
-  mySort       = sortBy (compare `on` snd)
+  pInv            = inventory pEntity
+  pArrow          = Map.findWithDefault 0 "Arrow" pInv
+  mySort          = sortBy (compare `on` snd)
   -- pick closest target
   mTargets = filter (\(_, j) -> j `elem` fovT w) $
     [ (ix, xy) | (ix, pos) <- GE.fromBlock (entityT w),

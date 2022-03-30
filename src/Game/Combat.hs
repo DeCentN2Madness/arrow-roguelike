@@ -51,14 +51,23 @@ death :: Int -> EntityKind -> AssetMap -> EntityMap -> EntityMap
 death mx mEntity am em = let
   mPos   = coord mEntity
   mInv   = inventory mEntity
+  mArrow = Map.findWithDefault 0 "Arrow"     mInv
   mCoin  = Map.findWithDefault 0 "Coin"     mInv
   mMush  = Map.findWithDefault 0 "Mushroom" mInv
   mPot   = Map.findWithDefault 0 "Potion"   mInv
+  -- random around the corpse
+  seed = 1 + uncurry (*) mPos
+  missList = moveT mEntity
+  sz = length missList - 1
+  missRoll = head $ DS.rollList 1 (fromIntegral sz) seed
+  location = missList !! missRoll
+  -- item mostly Coin
   item
-    | mCoin   > 0 = GI.mkItem "Coin"     mPos am
-    | mMush   > 0 = GI.mkItem "Mushroom" mPos am
-    | mPot    > 0 = GI.mkItem "Potion"   mPos am
-    | otherwise   = GI.mkItem "Coin"     mPos am
+    | mArrow  > 0 = GI.mkItem "Arrow"    location am
+    | mCoin   > 0 = GI.mkItem "Coin"     location am
+    | mMush   > 0 = GI.mkItem "Mushroom" location am
+    | mPot    > 0 = GI.mkItem "Potion"   location am
+    | otherwise   = GI.mkItem "Coin"     location am
   newCorpse = GE.insertEntity mx mPos Corpse em
   in GI.putDown item newCorpse
 

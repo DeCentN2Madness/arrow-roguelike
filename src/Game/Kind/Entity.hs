@@ -249,8 +249,19 @@ gtHumanoid p = let
 
 -- | mkInventory
 -- One lucky Mushroom
-mkInventory :: [(String, Int)]
-mkInventory = [("Arrow", 0), ("Potion", 0), ("Mushroom", 1), ("Coin", 0)]
+mkInventory :: String -> [(String, Int)]
+mkInventory n
+  | n == "Cleric" = [("Arrow", 0), ("Potion", 1), ("Mushroom", 1), ("Coin", 1)]
+  | n == "Dragon" = [("Arrow", 1), ("Potion", 1), ("Mushroom", 1), ("Coin", 1)]
+  | n == "Fighter"= [("Arrow", 0), ("Potion", 0), ("Mushroom", 1), ("Coin", 0)]
+  | n == "Player" = [("Arrow", 1), ("Potion", 0), ("Mushroom", 0), ("Coin", 0)]
+  | n == "Orc"    = [("Arrow", 1), ("Potion", 0), ("Mushroom", 1), ("Coin", 0)]
+  | n == "Ranger" = [("Arrow", 1), ("Potion", 0), ("Mushroom", 1), ("Coin", 0)]
+  | n == "Rogue"  = [("Arrow", 0), ("Potion", 0), ("Mushroom", 1), ("Coin", 0)]
+  | n == "Spider" = [("Arrow", 0), ("Potion", 1), ("Mushroom", 1), ("Coin", 0)]
+  | n == "Troll"  = [("Arrow", 0), ("Potion", 1), ("Mushroom", 1), ("Coin", 0)]
+  | n == "Wizard" = [("Arrow", 1), ("Potion", 1), ("Mushroom", 1), ("Coin", 1)]
+  | otherwise     = [("Arrow", 0), ("Potion", 0), ("Mushroom", 0), ("Coin", 0)]
 
 -- | mkMonster
 mkMonster :: String -> String -> Coord -> EntityKind
@@ -273,10 +284,11 @@ mkMonster name desc xy = let
   mHP  = read $ Map.findWithDefault "1" "HP" monster :: Int
   mXP  = read $ Map.findWithDefault "1" "XP" monster :: Int
   mLvl = read $ Map.findWithDefault "1" "Challenge" monster :: Int
+  mInv = mkInventory name
   in e { block=True
        , kind=Monster
        , property=monster
-       , inventory=Map.fromList mkInventory
+       , inventory=Map.fromList mInv
        , eHP=mHP
        , eMaxHP=mHP
        , eXP=mXP

@@ -29,6 +29,7 @@ data AI
   | Move
   | Rest
   | Throw
+  | Wait
   deriving (Show, Eq)
 
 -- | aiAction
@@ -59,8 +60,9 @@ aiAction ((mx, mEntity):xs) w = if mx == 0 || not (block mEntity)
     | (mArrow > 0) && (EAC.chessDist mPos pPos <= 4) = Throw
     | (mMush > 0) && (mMaxHp `div` mHp > 2) = Eat
     | (mPot > 0) && (mMaxHp `div` mHp > 3) = Drink
-    | (mInt >= 7) && any (\(i, _) -> kind i == Coin) mItems = Get
-    | otherwise = Move
+    | (mInt > 6) && any (\(i, _) -> kind i == Coin) mItems = Get
+    | (mHp > 0) = Move
+    | otherwise = Wait
   world = case action of
     Attack -> GC.mkCombat  mx 0 w
     Eat    -> monsterEat   mx mEntity w
@@ -69,6 +71,7 @@ aiAction ((mx, mEntity):xs) w = if mx == 0 || not (block mEntity)
     Move   -> pathFinder   mx mEntity w
     Rest   -> monsterHeal  mx mEntity w
     Throw  -> monsterThrow mx mEntity w
+    Wait   -> w
   -- newWorld w/ action
   in aiAction xs world
 
@@ -76,11 +79,13 @@ aiAction ((mx, mEntity):xs) w = if mx == 0 || not (block mEntity)
 -- M drinks...
 monsterDrink :: Int -> EntityKind -> World -> World
 monsterDrink mx mEntity w = let
-  heal   = eHP mEntity + 5
   mInv   = inventory mEntity
   mPot   = Map.findWithDefault 0 "Potion" mInv
+  heal   = eHP mEntity + mCon
   mHp    = if heal > mMaxHp then mMaxHp else heal
   mMaxHp = eMaxHP mEntity
+  mProp  = property mEntity
+  mCon   = read $ Map.findWithDefault "1" "con" mProp :: Int
   newMonster = if mPot > 0
     then mEntity { inventory = Map.insert "Potion" (mPot-1) mInv, eHP = mHp }
     else mEntity
@@ -133,7 +138,7 @@ monsterHeal mx mEntity w = let
   heal   = eHP mEntity + 1
   mHp    = if heal > mMaxHp then mMaxHp else heal
   mMaxHp = eMaxHP mEntity
-  entry = if mMaxHp `div` mHp > 3
+  entry = if mHp <= 5
     then T.pack "Monster is *Hurting*..."
     else T.pack "..."
   in w { entityT  = GE.updateEntityHp mx mHp (entityT w)

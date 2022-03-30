@@ -90,13 +90,14 @@ actionEat :: World -> World
 actionEat w = let
   newTick      = tick w + 1
   (pEntity, _) = GP.getPlayer (entityT w)
+  -- Mushroom
   pInv         = inventory pEntity
   pMush        = Map.findWithDefault 0 "Mushroom" pInv
+  heal         = eHP pEntity + 5
+  pHp          = if heal > pMaxHp then pMaxHp else heal
+  pMaxHp       = eMaxHP pEntity
   newPlayer = if pMush > 0
-    then let
-    heal = eHP pEntity + 5
-    in pEntity { inventory = Map.insert "Mushroom" (pMush-1) pInv
-               , eHP = if heal > eMaxHP pEntity then eMaxHP pEntity else heal }
+    then pEntity { inventory = Map.insert "Mushroom" (pMush-1) pInv, eHP = pHp }
     else pEntity
   entry = if pMush > 0
     then T.pack "Eat a tasty Mushroom..."
@@ -195,13 +196,16 @@ actionQuaff :: World -> World
 actionQuaff w = let
   newTick      = tick w + 1
   (pEntity, _) = GP.getPlayer (entityT w)
+  -- Potion
   pInv         = inventory pEntity
   pPot         = Map.findWithDefault 0 "Potion" pInv
+  heal         = eHP pEntity + pCon
+  pHp          = if heal > pMaxHp then pMaxHp else heal
+  pMaxHp       = eMaxHP pEntity
+  pProp        = property pEntity
+  pCon         = read $ Map.findWithDefault "1" "con" pProp :: Int
   newPlayer = if pPot > 0
-    then let
-    heal = eHP pEntity + 7
-    in pEntity { inventory = Map.insert "Potion" (pPot-1) pInv
-               , eHP = if heal > eMaxHP pEntity then eMaxHP pEntity else heal }
+    then pEntity { inventory = Map.insert "Potion" (pPot-1) pInv, eHP = pHp }
     else pEntity
   entry = if pPot > 0
     then T.pack "Drink a delicious Potion..."

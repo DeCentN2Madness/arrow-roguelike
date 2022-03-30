@@ -69,16 +69,16 @@ aiAction ((mx, mEntity):xs) w = if mx == 0 || not (block mEntity)
 -- M drinks...
 monsterDrink :: Int -> EntityKind -> World -> World
 monsterDrink mx mEntity w = let
-  mInv       = inventory mEntity
-  mPot      = Map.findWithDefault 0 "Potion" mInv
+  heal   = eHP mEntity + 5
+  mInv   = inventory mEntity
+  mPot   = Map.findWithDefault 0 "Potion" mInv
+  mHp    = if heal > mMaxHp then mMaxHp else heal
+  mMaxHp = eMaxHP mEntity
   newMonster = if mPot > 0
-    then let
-    heal = eHP mEntity + 5
-    in mEntity { inventory = Map.insert "Potion" (mPot-1) mInv
-               , eHP = if heal > eMaxHP mEntity then eMaxHP mEntity else heal }
+    then mEntity { inventory = Map.insert "Potion" (mPot-1) mInv, eHP = mHp }
     else mEntity
   entry = if mPot > 0
-    then T.pack "Something is Thirsty..."
+    then T.pack "Monster is Thirsty..."
     else T.pack "..."
   in w { entityT = GE.updateEntity mx newMonster (entityT w)
        , journalT = GJ.updateJournal [entry] (journalT w) }
@@ -87,16 +87,16 @@ monsterDrink mx mEntity w = let
 -- M eats...
 monsterEat :: Int -> EntityKind -> World -> World
 monsterEat mx mEntity w = let
-  mInv       = inventory mEntity
-  mMush      = Map.findWithDefault 0 "Mushroom" mInv
+  heal   = eHP mEntity + 5
+  mInv   = inventory mEntity
+  mMush  = Map.findWithDefault 0 "Mushroom" mInv
+  mHp    = if heal > mMaxHp then mMaxHp else heal
+  mMaxHp = eMaxHP mEntity
   newMonster = if mMush > 0
-    then let
-    heal = eHP mEntity + 5
-    in mEntity { inventory = Map.insert "Mushroom" (mMush-1) mInv
-               , eHP = if heal > eMaxHP mEntity then eMaxHP mEntity else heal }
+    then mEntity { inventory = Map.insert "Mushroom" (mMush-1) mInv, eHP = mHp }
     else mEntity
   entry = if mMush > 0
-    then T.pack "Something is Hungry..."
+    then T.pack "Monster is Hungry..."
     else T.pack "..."
   in w { entityT = GE.updateEntity mx newMonster (entityT w)
        , journalT = GJ.updateJournal [entry] (journalT w) }
@@ -105,17 +105,22 @@ monsterEat mx mEntity w = let
 -- M heals slowly...
 monsterHeal :: Int -> EntityKind -> World -> World
 monsterHeal mx mEntity w = let
-  heal = eHP mEntity + 1
-  mHP = if heal > eMaxHP mEntity then eMaxHP mEntity else heal
-  in w { entityT = GE.updateEntityHp mx mHP (entityT w) }
+  heal   = eHP mEntity + 1
+  mHp    = if heal > mMaxHp then mMaxHp else heal
+  mMaxHp = eMaxHP mEntity
+  entry = if mMaxHp `div` mHp > 3
+    then T.pack "Monster is *Hurting*..."
+    else T.pack "..."
+  in w { entityT = GE.updateEntityHp mx mHp (entityT w)
+       , journalT = GJ.updateJournal [entry] (journalT w) }
 
 -- | monsterThrow
 -- M shoots...
 monsterThrow :: Int -> EntityKind -> World -> World
 monsterThrow mx mEntity w = let
-  mArrow = Map.findWithDefault 0 "Arrow" mInv
-  mInv   = inventory mEntity
-  mPos   = coord mEntity
+  mInv    = inventory mEntity
+  mArrow  = Map.findWithDefault 0 "Arrow" mInv
+  mPos    = coord mEntity
   mTarget = mPos `elem` fovT w
   entry = if mArrow > 0 && mTarget
     then T.pack "Monster shoots..."

@@ -39,6 +39,7 @@ clamp n
   | n > 20 = 2*n
   | otherwise = n
 
+-- | condition of Monster
 condition :: Int -> Text
 condition hp = let
   dead  = if hp < 1 then "Dead!" else "..."
@@ -60,13 +61,13 @@ death mx mEntity am em = let
   missList = moveT mEntity
   sz = length missList - 1
   missRoll = head $ DS.rollList 1 (fromIntegral sz) seed
-  location = missList !! missRoll
+  location = nth missRoll missList
   -- item mostly Coin
   item
-    | mArrow  > 0 = GI.mkItem "Arrow"    location am
-    | mCoin   > 0 = GI.mkItem "Coin"     location am
-    | mMush   > 0 = GI.mkItem "Mushroom" location am
     | mPot    > 0 = GI.mkItem "Potion"   location am
+    | mMush   > 0 = GI.mkItem "Mushroom" location am
+    | mCoin   > 0 = GI.mkItem "Coin"     location am
+    | mArrow  > 0 = GI.mkItem "Arrow"    location am
     | otherwise   = GI.mkItem "Coin"     location am
   newCorpse = GE.insertEntity mx mPos Corpse em
   in GI.putDown item newCorpse
@@ -80,7 +81,7 @@ misFire mEntity am em = let
   missList = moveT mEntity
   sz = length missList - 1
   missRoll = head $ DS.rollList 1 (fromIntegral sz) seed
-  location = missList !! missRoll
+  location = nth missRoll missList
   item = GI.mkItem "Arrow" location am
   in GI.putDown item em
 
@@ -176,6 +177,12 @@ mkRangeCombat px mx w = if px == mx
       else GE.updateEntityHp mx pAttack shotEntity
   in w { entityT  = newEntity
        , journalT = GJ.updateJournal [pEntry] (journalT w) }
+
+-- | nth safe chooser
+nth :: Int -> [(Int, Int)] -> (Int, Int)
+nth _ []     = (0, 0)
+nth 1 (x:_)  = x
+nth n (_:xs) = nth (n-1) xs
 
 -- | shoot string
 shoot :: Int -> Int -> Text

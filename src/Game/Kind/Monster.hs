@@ -29,7 +29,7 @@ insertRand :: EntityKind -> Int -> Int -> [Coord] -> [(Int, EntityKind)]
 insertRand ek start end openList = let
   sz = length openList - 1
   randList = DS.rollList (end-start) (fromIntegral sz) (end*sz)
-  ePos i = openList!!i
+  ePos i = nth i openList
   entityList = [ e | ix <- randList, let e = updateEntitySpawn ek (ePos ix) ]
   in zip [start..end] entityList
 
@@ -109,8 +109,14 @@ mkNameMap :: AssetMap -> NameMap
 mkNameMap am = let
   assetList = [ (name, ek) | (_, ek) <- Map.toList am,
                 let eProp = property ek
-                    name  = Map.findWithDefault "0" "Name" eProp ]
+                    name  = Map.findWithDefault "M" "Name" eProp ]
   in Map.fromList assetList
+
+-- | nth safe chooser
+nth :: Int -> [(Int, Int)] -> (Int, Int)
+nth _ []     = (0, 0)
+nth 1 (x:_)  = x
+nth n (_:xs) = nth (n-1) xs
 
 -- | updateEntitySpawn
 updateEntitySpawn :: EntityKind -> Coord -> EntityKind

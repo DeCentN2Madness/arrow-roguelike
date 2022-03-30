@@ -11,8 +11,9 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 module Engine.Arrow.Util (applyIntent) where
 
 import Prelude hiding (lookup)
+import Control.Arrow ((&&&))
 import Data.Function (on)
-import Data.List (sortBy)
+import Data.List
 import qualified Data.Map.Strict as Map
 import Data.Text (Text)
 import qualified Data.Text as T
@@ -120,7 +121,7 @@ actionGet w = let
     then GI.emptyBy pPos items (entityT w)
     else entityT w
   entry = if length items > 1
-    then T.append "Get " (actionLook $ tail items)
+    then T.append "Get " (actionLook items)
     else T.pack "No Get..."
   in w { tick = newTick
        , entityT  = GP.updatePlayer newPlayer newEntity
@@ -135,7 +136,7 @@ actionHear em listen = let
                    d = distance (coord ek) listen ]
   total = sum hearList :: Int
   hear x
-    | x > 1  = T.pack $ "Something moved " ++ "<x" ++ show x ++ ">, "
+    | x > 1  = T.pack $ "Something moved " ++ " <" ++ show x ++ ">, "
     | x == 1 = T.pack "Something moved, "
     | otherwise = ""
   in T.append (hear total) "..."
@@ -144,10 +145,14 @@ actionHear em listen = let
 -- if there is something to see...
 actionLook :: [(EntityKind, Coord)] -> Text
 actionLook xs = let
-  look = T.concat [ t | (ek, _) <- xs,
-                    let t = if not (block ek)
-                          then T.pack $ show (kind ek) ++ ", "
-                          else "" ]
+  groupF :: [String] -> [(String, Int)]
+  groupF = map (head &&& length) . group . sort
+  -- items
+  items = groupF $ filter (/="Actor") $ [ show (kind ek) | (ek, _) <- xs ]
+  look = T.concat $ [ e | (i, j) <- items,
+                      let e = if j > 1
+                            then T.pack $ i ++ " <" ++ show j ++ ">, "
+                            else T.pack $ i ++ ", " ]
   in T.append look "..."
 
 -- | actionMonster

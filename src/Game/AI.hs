@@ -11,7 +11,6 @@ module Game.AI (aiAction) where
 import Data.List
 import qualified Data.Map.Strict as Map
 import qualified Data.Text as T
-import Data.Text (Text)
 import Engine.Arrow.Data (World(..))
 import qualified Engine.Arrow.Compass as EAC
 import qualified Game.Combat as GC
@@ -56,11 +55,11 @@ aiAction ((mx, mEntity):xs) w = if mx == 0 || not (block mEntity)
   -- action
   action
     | EAC.adjacent pPos mPos = Attack
-    | (mHp <= 5) && EAC.adjacent mSpawn mPos = Rest
+    | (mHp <= 5)   && EAC.adjacent mSpawn mPos = Rest
     | (mArrow > 0) && (EAC.chessDist mPos pPos <= 4) = Throw
-    | (mMush > 0) && (mMaxHp `div` mHp > 2) = Eat
-    | (mPot > 0) && (mMaxHp `div` mHp > 3) = Drink
-    | (mInt > 6) && any (\(i, _) -> kind i == Coin) mItems = Get
+    | (mMush > 0)  && (mMaxHp `div` mHp > 2) = Eat
+    | (mPot > 0)   && (mMaxHp `div` mHp > 3) = Drink
+    | (mInt >= 7)  && any (\(i, _) -> kind i == Coin) mItems = Get
     | (mHp > 0) = Move
     | otherwise = Wait
   world = case action of
@@ -126,7 +125,7 @@ monsterGet mx mEntity w = let
     then GI.emptyBy mPos items (entityT w)
     else entityT w
   entry = if length items > 1
-    then T.append "Monster Get " (monsterLook $ tail items)
+    then T.pack "Monster Get Coin!"
     else T.pack "..."
   in w { entityT  = GE.updateEntity mx newMonster newEntity
        , journalT = GJ.updateJournal [entry] (journalT w) }
@@ -143,16 +142,6 @@ monsterHeal mx mEntity w = let
     else T.pack "..."
   in w { entityT  = GE.updateEntityHp mx mHp (entityT w)
        , journalT = GJ.updateJournal [entry] (journalT w) }
-
--- | monsterLook
--- if there is something to see...
-monsterLook :: [(EntityKind, a)] -> Text
-monsterLook xs = let
-  look = T.concat [ t | (ek, _) <- xs,
-                    let t = if not (block ek)
-                          then T.pack $ show (kind ek) ++ ", "
-                          else "" ]
-  in T.append look "..."
 
 -- | monsterThrow
 -- M shoots...

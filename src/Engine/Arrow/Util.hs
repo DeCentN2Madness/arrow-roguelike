@@ -161,9 +161,7 @@ actionMonster w = let
                        move = cardinal (coord e)
                        in e { moveT = move `GT.fromMoveBlocked` gameT w }
                        else e ]
-  -- newWorld w/ fromMoveBlocked
-  world = w { entityT = Map.fromList entityList }
-  in GAI.aiAction entityList world
+  in GAI.aiAction entityList w { entityT = Map.fromList entityList }
 
 -- | actionPlayer
 -- handle the Player within the World

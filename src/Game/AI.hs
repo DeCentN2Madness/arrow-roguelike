@@ -6,7 +6,7 @@ Game.AI.hs
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
 -}
-module Game.AI (aiAction, pathFinder) where
+module Game.AI (aiAction) where
 
 import Data.List
 import qualified Data.Map.Strict as Map
@@ -20,9 +20,9 @@ import qualified Game.Player as GP
 
 data AI
   = Attack
+  | Get
   | Heal
   | Move
-  | PickUp
   deriving (Show, Eq)
 
 -- | aiAction
@@ -42,14 +42,14 @@ aiAction ((mx, mEntity):xs) w = if mx == 0 || not (block mEntity)
   mItems = GE.getEntityBy mPos (entityT w)
   -- action
   action
-    | EAC.adjacent pPos   mPos = Attack
+    | EAC.adjacent pPos mPos = Attack
+    | length mItems > 1 = Get
     | mHp <= 5 && EAC.adjacent mSpawn mPos = Heal
-    | length mItems > 1        = PickUp
     | otherwise = Move
   world = case action of
     Attack -> GC.mkCombat mx 0 w
     Heal   -> monsterHeal mx mEntity w
-    PickUp -> monsterGet mx mEntity w
+    Get    -> monsterGet mx mEntity w
     Move   -> pathFinder mx mEntity w
   -- newWorld w/ action
   in aiAction xs world
@@ -95,14 +95,13 @@ pathFinder mx mEntity w = if mx == 0 || not (block mEntity)
   coordF = filter (`notElem` blockT)
   blockT = [ xy | (_, xy) <- GE.fromBlock (entityT w) ]
   (_, pPos) = GP.getPlayer (entityT w)
-  -- monster properties
+  -- M properties
   mPos    = coord mEntity
   mProp   = property mEntity
   mSpawn  = read $ Map.findWithDefault (show pPos) "spawn" mProp :: (Int, Int)
   -- flee goal if *critical* eHP
   mGoal   = if eHP mEntity <= 5 then mSpawn else pPos
-  -- M movement
-  -- distance based on goal
+  -- M move based on goal
   distList = [ (d, xy) | xy <- moveT mEntity, let d = EAC.chessDist mGoal xy ]
   moveList = coordF $
     [ xy | (d, pos) <- sort distList,

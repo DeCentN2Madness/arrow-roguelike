@@ -163,7 +163,7 @@ actionMonster w = let
                        else e ]
   -- newWorld w/ fromMoveBlocked
   world = w { entityT = Map.fromList entityList }
-  in GAI.pathFinder entityList $ GAI.aiAction entityList world
+  in GAI.aiAction entityList world
 
 -- | actionPlayer
 -- handle the Player within the World

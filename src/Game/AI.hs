@@ -21,8 +21,8 @@ import qualified Game.Player as GP
 data AI
   = Attack
   | Heal
+  | Move
   | PickUp
-  | Wait
   deriving (Show, Eq)
 
 -- | aiAction
@@ -37,19 +37,20 @@ aiAction ((mx, mEntity):xs) w = if mx == 0 || not (block mEntity)
   -- monster properties
   mPos  = coord mEntity
   mProp = property mEntity
+  mHp    = eHP mEntity
   mSpawn = read $ Map.findWithDefault (show mPos) "spawn" mProp :: (Int, Int)
   mItems = GE.getEntityBy mPos (entityT w)
   -- action
   action
     | EAC.adjacent pPos   mPos = Attack
-    | EAC.adjacent mSpawn mPos = Heal
+    | mHp <= 5 && EAC.adjacent mSpawn mPos = Heal
     | length mItems > 1        = PickUp
-    | otherwise = Wait
+    | otherwise = Move
   world = case action of
     Attack -> GC.mkCombat mx 0 w
     Heal   -> monsterHeal mx mEntity w
     PickUp -> monsterGet mx mEntity w
-    Wait   -> w
+    Move   -> pathFinder mx mEntity w
   -- newWorld w/ action
   in aiAction xs world
 
@@ -86,10 +87,9 @@ monsterHeal mx mEntity w = let
 --    b. 7 is Hear
 -- 3. Check blockList
 -- 4. Update move
-pathFinder :: [(Int, EntityKind)] -> World -> World
-pathFinder [] w = w
-pathFinder ((mx, mEntity):xs) w = if mx == 0 || not (block mEntity)
-  then pathFinder xs w
+pathFinder :: Int -> EntityKind -> World -> World
+pathFinder mx mEntity w = if mx == 0 || not (block mEntity)
+  then w
   else let
   coordF :: [(Int, Int)] -> [(Int, Int)]
   coordF = filter (`notElem` blockT)
@@ -98,20 +98,14 @@ pathFinder ((mx, mEntity):xs) w = if mx == 0 || not (block mEntity)
   -- monster properties
   mPos    = coord mEntity
   mProp   = property mEntity
-  mAction = read $ Map.findWithDefault "0" "Action" mProp :: Int
   mSpawn  = read $ Map.findWithDefault (show pPos) "spawn" mProp :: (Int, Int)
   -- flee goal if *critical* eHP
   mGoal   = if eHP mEntity <= 5 then mSpawn else pPos
-  -- M already took a turn
-  move = if mAction > 0
-    then mPos
-    else let
-    -- distance based on goal
-    distList = [ (d, xy) | xy <- moveT mEntity, let d = EAC.chessDist mGoal xy ]
-    moveList = coordF $ [ xy | (d, pos) <- sort distList,
-        let xy = if EAC.adjacent mPos mGoal || d >= 7 then mPos else pos ]
-    in if null moveList then mPos else head moveList
-  -- newMonster
-  newMonster = mEntity { coord = move
-                       , property = Map.insert "Action" "0" mProp }
-  in pathFinder xs w { entityT = GE.updateEntity mx newMonster (entityT w) }
+  -- M movement
+  -- distance based on goal
+  distList = [ (d, xy) | xy <- moveT mEntity, let d = EAC.chessDist mGoal xy ]
+  moveList = coordF $
+    [ xy | (d, pos) <- sort distList,
+      let xy = if EAC.adjacent mPos mGoal || d >= 7 then mPos else pos ]
+  move = if null moveList then mPos else head moveList
+  in w { entityT = GE.updateEntityPos mx move (entityT w) }

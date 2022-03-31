@@ -26,7 +26,7 @@ type AssetMap = EntityMap
 abilityMod :: Int -> Int
 abilityMod n = (n-10) `div` 2
 
--- | attack string
+-- | attack verb
 attack :: Int -> Int -> Text
 attack ar dr = if ar >= dr
   then T.pack " hits the "
@@ -47,42 +47,34 @@ condition hp = let
   in T.append brave dead
 
 -- | death
--- TODO drop inventory...
+-- drop inventory around the corpse...
 death :: Int -> EntityKind -> AssetMap -> EntityMap -> EntityMap
 death mx mEntity am em = let
   mPos   = coord mEntity
   mInv   = inventory mEntity
-  mArrow = Map.findWithDefault 0 "Arrow"     mInv
+  mArrow = Map.findWithDefault 0 "Arrow"    mInv
   mCoin  = Map.findWithDefault 0 "Coin"     mInv
+  mItem  = Map.findWithDefault 0 "Item"     mInv
   mMush  = Map.findWithDefault 0 "Mushroom" mInv
   mPot   = Map.findWithDefault 0 "Potion"   mInv
-  -- random around the corpse
-  seed = 1 + uncurry (*) mPos
-  missList = moveT mEntity
-  sz = length missList - 1
-  missRoll = head $ DS.rollList 1 (fromIntegral sz) seed
-  location = nth missRoll missList
+  loc    = scatter mEntity
   -- item mostly Coin
   item
-    | mPot    > 0 = GI.mkItem "Potion"   location am
-    | mMush   > 0 = GI.mkItem "Mushroom" location am
-    | mCoin   > 0 = GI.mkItem "Coin"     location am
-    | mArrow  > 0 = GI.mkItem "Arrow"    location am
-    | otherwise   = GI.mkItem "Coin"     location am
+    | mItem   > 0 = GI.mkItem "Item"     loc am
+    | mPot    > 0 = GI.mkItem "Potion"   loc am
+    | mMush   > 0 = GI.mkItem "Mushroom" loc am
+    | mArrow  > 0 = GI.mkItem "Arrow"    loc am
+    | mCoin   > 0 = GI.mkItem "Coin"     loc am
+    | otherwise   = GI.mkItem "Coin"     loc am
   newCorpse = GE.insertEntity mx mPos Corpse em
   in GI.putDown item newCorpse
 
--- | Arrows that miss the mark
--- misFire randomly around target...
+-- | misFire
+-- Arrows that miss the mark
 misFire :: EntityKind -> AssetMap -> EntityMap -> EntityMap
 misFire mEntity am em = let
-  mPos = coord mEntity
-  seed = 1 + uncurry (*) mPos
-  missList = moveT mEntity
-  sz = length missList - 1
-  missRoll = head $ DS.rollList 1 (fromIntegral sz) seed
-  location = nth missRoll missList
-  item = GI.mkItem "Arrow" location am
+  loc = scatter mEntity
+  item = GI.mkItem "Arrow" loc am
   in GI.putDown item em
 
 -- | mkCombat
@@ -115,17 +107,14 @@ mkCombat px mx w = if px == mx
     mExp  = eXP mEntity
     mDR   = 10 + abilityMod mDex
     -- p v m
-    pAttack = if pAR >= mDR
-      then mHP - pDam
-      else mHP -- Miss
+    pAttack = if pAR >= mDR then mHP - pDam else mHP -- Miss
     -- journal
     pEntry = T.concat [ T.pack pName
                     , attack pAR mDR
                     , T.pack mName
                     , T.pack ", "
                     , condition pAttack ]
-    -- newEntity with damages and deaths
-    -- Exp Award
+    -- newEntity with damages and deaths and Exp awards
     newEntity = if pAttack < 1
       then death mx mEntity (assetT w) $ GP.updatePlayerXP mExp (entityT w)
       else GE.updateEntityHp mx pAttack (entityT w)
@@ -133,7 +122,7 @@ mkCombat px mx w = if px == mx
        , journalT = GJ.updateJournal [pEntry] (journalT w) }
 
 -- | mkRangeCombat
--- Throw, shoot, cast...
+-- Throw, shoot, cast, chant...
 mkRangeCombat :: Int -> Int -> World -> World
 mkRangeCombat px mx w = if px == mx
   then w
@@ -157,9 +146,7 @@ mkRangeCombat px mx w = if px == mx
     mExp  = eXP mEntity
     mDR   = 10 + abilityMod mDex
     -- p v m
-    pAttack = if pAR >= mDR
-      then mHP - pDam
-      else mHP -- Miss
+    pAttack = if pAR >= mDR then mHP - pDam else mHP -- Miss
     -- misfire
     shotEntity = if pAR < mDR
       then misFire mEntity (assetT w) (entityT w)
@@ -170,8 +157,7 @@ mkRangeCombat px mx w = if px == mx
                     , T.pack mName
                     , T.pack ", "
                     , condition pAttack ]
-    -- newEntity with damages and deaths
-    -- Exp Award
+    -- newEntity with damages and deaths and Exp awards
     newEntity = if pAttack < 1
       then death mx mEntity (assetT w) $ GP.updatePlayerXP mExp (entityT w)
       else GE.updateEntityHp mx pAttack shotEntity
@@ -184,7 +170,18 @@ nth _ []     = (0, 0)
 nth 1 (x:_)  = x
 nth n (_:xs) = nth (n-1) xs
 
--- | shoot string
+-- | scatter
+scatter :: EntityKind -> (Int, Int)
+scatter mEntity = let
+  mPos = coord mEntity
+  -- random around the target
+  seed = 1 + uncurry (*) mPos
+  missList = moveT mEntity ++ [mPos]
+  sz = length missList - 1
+  missRoll = head $ DS.rollList 1 (fromIntegral sz) seed
+  in nth missRoll missList
+
+-- | shoot verb
 shoot :: Int -> Int -> Text
 shoot ar dr = if ar >= dr
   then T.pack " shoots the "

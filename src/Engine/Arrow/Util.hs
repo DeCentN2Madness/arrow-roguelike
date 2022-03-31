@@ -94,9 +94,11 @@ actionEat w = let
   -- Mushroom
   pInv         = inventory pEntity
   pMush        = Map.findWithDefault 0 "Mushroom" pInv
-  heal         = eHP pEntity + 5
+  heal         = eHP pEntity + (pCon `div` 2)
   pHp          = if heal > pMaxHp then pMaxHp else heal
   pMaxHp       = eMaxHP pEntity
+  pProp  = property pEntity
+  pCon   = read $ Map.findWithDefault "1" "con" pProp :: Int
   newPlayer = if pMush > 0
     then pEntity { inventory = Map.insert "Mushroom" (pMush-1) pInv, eHP = pHp }
     else pEntity

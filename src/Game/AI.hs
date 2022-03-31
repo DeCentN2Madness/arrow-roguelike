@@ -54,8 +54,8 @@ aiAction ((mx, mEntity):xs) w = if mx == 0 || not (block mEntity)
   mSpawn = read $ Map.findWithDefault (show mPos) "spawn" mProp :: (Int, Int)
   -- action
   action
-    | EAC.adjacent pPos mPos = Attack
-    | (mHp <= 5)   && EAC.adjacent mSpawn mPos = Rest
+    | EAC.adjacent mPos pPos = Attack
+    | (mHp <= 5)   && EAC.adjacent mPos mSpawn = Rest
     | (mArrow > 0) && (EAC.chessDist mPos pPos <= 4) = Throw
     | (mMush > 0)  && (mMaxHp `div` mHp > 2) = Eat
     | (mPot > 0)   && (mMaxHp `div` mHp > 3) = Drink
@@ -85,11 +85,12 @@ monsterDrink mx mEntity w = let
   mMaxHp = eMaxHP mEntity
   mProp  = property mEntity
   mCon   = read $ Map.findWithDefault "1" "con" mProp :: Int
+  mName  = Map.findWithDefault "M" "Name" mProp
   newMonster = if mPot > 0
     then mEntity { inventory = Map.insert "Potion" (mPot-1) mInv, eHP = mHp }
     else mEntity
   entry = if mPot > 0
-    then T.pack "Monster is Thirsty..."
+    then T.pack $ mName ++ " is Thirsty..."
     else T.pack "..."
   in w { entityT  = GE.updateEntity mx newMonster (entityT w)
        , journalT = GJ.updateJournal [entry] (journalT w) }
@@ -98,16 +99,19 @@ monsterDrink mx mEntity w = let
 -- M eats...
 monsterEat :: Int -> EntityKind -> World -> World
 monsterEat mx mEntity w = let
-  heal   = eHP mEntity + 5
+  heal   = eHP mEntity + (mCon `div` 2)
   mInv   = inventory mEntity
   mMush  = Map.findWithDefault 0 "Mushroom" mInv
   mHp    = if heal > mMaxHp then mMaxHp else heal
   mMaxHp = eMaxHP mEntity
+  mProp  = property mEntity
+  mCon   = read $ Map.findWithDefault "1" "con" mProp :: Int
+  mName  = Map.findWithDefault "M" "Name" mProp
   newMonster = if mMush > 0
     then mEntity { inventory = Map.insert "Mushroom" (mMush-1) mInv, eHP = mHp }
     else mEntity
   entry = if mMush > 0
-    then T.pack "Monster is Hungry..."
+    then T.pack $ mName ++ " is Hungry..."
     else T.pack "..."
   in w { entityT  = GE.updateEntity mx newMonster (entityT w)
        , journalT = GJ.updateJournal [entry] (journalT w) }
@@ -118,6 +122,8 @@ monsterGet :: Int -> EntityKind -> World -> World
 monsterGet mx mEntity w = let
   mPos  = coord mEntity
   items = GE.getEntityBy mPos (entityT w)
+  mProp  = property mEntity
+  mName  = Map.findWithDefault "M" "Name" mProp
   newMonster = if not (null items)
     then GI.pickUp items mEntity
     else mEntity
@@ -125,7 +131,7 @@ monsterGet mx mEntity w = let
     then GI.emptyBy mPos items (entityT w)
     else entityT w
   entry = if length items > 1
-    then T.pack "Monster Get Coin!"
+    then T.pack $ mName ++ " Get Coin!"
     else T.pack "..."
   in w { entityT  = GE.updateEntity mx newMonster newEntity
        , journalT = GJ.updateJournal [entry] (journalT w) }
@@ -137,8 +143,10 @@ monsterHeal mx mEntity w = let
   heal   = eHP mEntity + 1
   mHp    = if heal > mMaxHp then mMaxHp else heal
   mMaxHp = eMaxHP mEntity
+  mProp  = property mEntity
+  mName  = Map.findWithDefault "M" "Name" mProp
   entry = if mHp <= 5
-    then T.pack "Monster is *Hurting*..."
+    then T.pack $ mName ++ " is *Hurting*..."
     else T.pack "..."
   in w { entityT  = GE.updateEntityHp mx mHp (entityT w)
        , journalT = GJ.updateJournal [entry] (journalT w) }
@@ -147,15 +155,22 @@ monsterHeal mx mEntity w = let
 -- M shoots...
 monsterThrow :: Int -> EntityKind -> World -> World
 monsterThrow mx mEntity w = let
-  mInv    = inventory mEntity
-  mArrow  = Map.findWithDefault 0 "Arrow" mInv
-  mPos    = coord mEntity
+  mInv   = inventory mEntity
+  mArrow = Map.findWithDefault 0 "Arrow" mInv
+  mPos   = coord mEntity
+  mProp  = property mEntity
+  mName  = Map.findWithDefault "M" "Name" mProp
+  mVerb  = Map.findWithDefault "shoots..." "Throw" mProp
   mTarget = mPos `elem` fovT w
+  newMonster = if mArrow > 0 && mTarget
+    then mEntity { inventory = Map.insert "Arrow" (mArrow-1) mInv }
+    else mEntity
   entry = if mArrow > 0 && mTarget
-    then T.pack "Monster shoots..."
+    then T.pack $ mName ++ " " ++ mVerb
     else T.pack "..."
   -- throwWorld
-  throwWorld = w { journalT = GJ.updateJournal [entry] (journalT w) }
+  throwWorld = w { entityT  = GE.updateEntity mx newMonster (entityT w)
+                 , journalT = GJ.updateJournal [entry] (journalT w) }
   -- FoV check
   world = if mArrow > 0 && mTarget
     then GC.mkRangeCombat mx 0 throwWorld

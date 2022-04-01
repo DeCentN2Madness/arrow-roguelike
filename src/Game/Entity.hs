@@ -18,7 +18,7 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 module Game.Entity (EntityMap
                    , fromBlock
                    , fromEntityAt
-                   , fromEntityBy
+                   , fromEntityStack
                    , getEntityAt
                    , getEntityBy
                    , insertEntity
@@ -33,6 +33,7 @@ import Prelude hiding (lookup)
 import Data.List
 import Data.Map (Map)
 import qualified Data.Map.Strict as Map
+import Data.Ord (comparing)
 import Game.Kind.Entity
 import Game.Kind.Monster
 import Game.Tile (TileMap)
@@ -45,23 +46,27 @@ type EntityMap = Map Int EntityKind
 
 -- | fromBlock
 fromBlock :: EntityMap -> [(Int, Coord)]
-fromBlock em = let
-  entityList = [ (ix, xy) | (ek, ix) <- filter (\(i, _) -> block i) $
-                 fromEntityAt em,
-                 let xy = coord ek ]
-  in entityList
+fromBlock em = [ (ix, xy) | (ek, ix) <- filter (\(i, _) -> block i) $
+                 fromEntityAt em, let xy = coord ek ]
 
 -- | fromEntityAt ix
 fromEntityAt :: EntityMap -> [(EntityKind, Int)]
-fromEntityAt em = let
-  entityList = [ (ek, ix) | (ix, ek) <- Map.toList em ]
+fromEntityAt em = [ (ek, ix) | (ix, ek) <- Map.toList em ]
+
+-- | fromEntityStack
+-- single entity per Coord for Engine.Draw.Visual
+fromEntityStack :: EntityMap -> [(EntityKind, Coord)]
+fromEntityStack em = let
+  entityT = listToMap $ [ (ek, xy) | (_, ek) <- Map.toList em,
+                          let xy = coord ek ]
+  entityList = [ (ek, xy) | (xy, e) <- Map.toList entityT,
+                 let ek = minimumBy (comparing kind) e ]
   in entityList
 
--- | fromEntityBy Coord
-fromEntityBy :: EntityMap -> [(EntityKind, Coord)]
-fromEntityBy em = let
-  entityList = [ (ek, xy) | (_, ek) <- Map.toList em, let xy = coord ek ]
-  in entityList
+-- | listToMap
+listToMap :: [(EntityKind, Coord)] -> Map Coord [EntityKind]
+listToMap []         = Map.empty
+listToMap ((v,k):xs) = Map.insertWith (++) k [v] (listToMap xs)
 
 -- | getEntityAt ix
 getEntityAt :: Int -> EntityMap -> (EntityKind, Coord)

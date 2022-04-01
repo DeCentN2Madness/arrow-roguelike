@@ -122,8 +122,8 @@ monsterGet :: Int -> EntityKind -> World -> World
 monsterGet mx mEntity w = let
   mPos  = coord mEntity
   items = GE.getEntityBy mPos (entityT w)
-  mProp  = property mEntity
-  mName  = Map.findWithDefault "M" "Name" mProp
+  mProp = property mEntity
+  mName = Map.findWithDefault "M" "Name" mProp
   newMonster = if not (null items)
     then GI.pickUp items mEntity
     else mEntity
@@ -131,7 +131,7 @@ monsterGet mx mEntity w = let
     then GI.emptyBy mPos items (entityT w)
     else entityT w
   entry = if length items > 1
-    then T.pack $ mName ++ " Get Coin!"
+    then T.pack $ mName ++ " found Coin!"
     else T.pack "..."
   in w { entityT  = GE.updateEntity mx newMonster newEntity
        , journalT = GJ.updateJournal [entry] (journalT w) }

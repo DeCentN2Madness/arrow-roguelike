@@ -25,17 +25,17 @@ type Inventories = Map String Int
 
 data Entity
   = Actor
-  | Arrow
-  | Coin
-  | Corpse
-  | Item
   | Monster
-  | Mushroom
-  | Potion
   | StairDown
   | StairUp
+  | Coin
+  | Item
+  | Potion
+  | Mushroom
+  | Corpse
+  | Arrow
   | Trap
-  deriving (Show, Eq, Generic)
+  deriving (Ord, Show, Eq, Generic)
 
 instance FromJSON Entity
 instance ToJSON Entity

@@ -28,7 +28,6 @@ import qualified Engine.SDL.Util as U
 import qualified Game.Entity as GE
 import Game.Kind.Entity (Entity(..), EntityKind(..))
 import Game.Kind.Tile (Terrain(..))
-import qualified Game.Player as GP
 import qualified Game.Tile as GT
 
 data AssetMap a = AssetMap
@@ -143,19 +142,17 @@ mkVisual V2        ts = Visual (512, height) (style ts) width height
 -- 2. Lit Terrain with Lamp effect in FoV
 -- 3. Entities in FoV
 --    a. Identify by Name...
--- 4. Preserve @
---     a. for stacking Monsters are near end of list...
+--    b. fromEntityStack preserves Actor and Monster...
 mkVisualMap :: TextureMap -> World -> VisualMap
 mkVisualMap ts w = do
-  let entity  = GE.fromEntityBy (entityT w)
+  let entity = GE.fromEntityStack (entityT w)
       walls  = GT.fromVisual (gameT w)
       lit    = filter (\(_, j) -> j `elem` fovT w) walls
       seen   = filter (\(_, j) -> j `elem` fovT w) entity
-      (pEntity, pPos) = GP.getPlayer (entityT w)
       -- draw Terrain if visible
       hardT = [ (xy, t) | (tk, xy) <- walls,
                 let t = case tk of
-                      Door   -> mkVisual VDoor  ts
+                      Door   -> mkVisual VDoor   ts
                       Magma  -> mkVisual VMagma  ts
                       Open   -> mkVisual VOpen   ts
                       Rock   -> mkVisual VRock   ts
@@ -172,11 +169,7 @@ mkVisualMap ts w = do
                       Wall   -> mkVisual VLWall   ts ]
       -- draw Entities if in fovT
       seenT = [ (xy, t) | (ek, xy) <- seen,
-                let t = if xy == pPos
-                      then if eHP pEntity > 0 -- player status
-                      then mkVisual VActor ts
-                      else mkVisual VCorpse ts
-                      else case kind ek of
+                let t = case kind ek of
                       Actor     -> mkVisual VActor    ts
                       Arrow     -> mkVisual VArrow    ts
                       Coin      -> mkVisual VCoin     ts

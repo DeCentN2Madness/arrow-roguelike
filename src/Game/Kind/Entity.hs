@@ -23,6 +23,7 @@ type Coord = (Int, Int)
 type Properties = Map String String
 type Inventories = Map String Int
 
+-- | Entity sort based on game value
 data Entity
   = Actor
   | Monster
@@ -30,10 +31,10 @@ data Entity
   | StairUp
   | Coin
   | Item
-  | Potion
-  | Mushroom
   | Corpse
   | Arrow
+  | Mushroom
+  | Potion
   | Trap
   deriving (Ord, Show, Eq, Generic)
 

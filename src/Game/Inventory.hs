@@ -26,6 +26,17 @@ type AssetMap = EntityMap
 type Coord = (Int, Int)
 type NameMap = Map Text EntityKind
 
+-- | encumberance
+-- Except Coin, 20 is the limit
+-- TODO utilize Str, Weight, ...
+encumberance :: Map Text Int -> Map Text Int
+encumberance inv = let
+  invT = [ (k, v) | (k, j) <- Map.toList inv,
+           let v = case k of
+                 "Coin" -> j
+                 _ -> if j > 20 then 20 else j ]
+  in Map.fromList invT
+
 -- | emptyBy
 -- Get the list of picked items...
 emptyBy :: Coord -> [(EntityKind, Coord)] -> EntityMap -> EntityMap
@@ -76,7 +87,7 @@ pickUp items ek = let
   invT  = groupEK $ map show (pickList items)
   invM  = Map.fromList $ [ (T.pack k, v) | (k, v) <- invT ]
   picks = Map.unionWith (+) (inventory ek) invM
-  in ek { inventory = picks }
+  in ek { inventory = encumberance picks }
 
 -- | putDown
 putDown :: EntityKind -> EntityMap -> EntityMap

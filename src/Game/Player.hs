@@ -13,7 +13,10 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 -}
 module Game.Player (characterSheet
                    , characterInventory
+                   , getArrow
                    , getHealth
+                   , getMushroom
+                   , getPotion
                    , getPlayer
                    , updatePlayerBy
                    , updatePlayer
@@ -57,22 +60,50 @@ characterInventory em = let
   pCoin  = T.pack $ "Coin: "     ++ show (Map.findWithDefault 0 "Coin"     pInv)
   pMush  = T.pack $ "Mushroom: " ++ show (Map.findWithDefault 0 "Mushroom" pInv)
   pPot   = T.pack $ "Potion: "   ++ show (Map.findWithDefault 0 "Potion"   pInv)
-  in [ pArrow, pCoin, pMush, pPot ]
+  in [ pCoin, pArrow, pMush, pPot ]
+
+-- | @ lives at 0
+-- renderHpBar for Player
+getArrow :: EntityMap -> Double
+getArrow em = let
+  (pEntity, _) = getPlayer em
+  pInv   = inventory pEntity
+  pArrow = fromIntegral $ Map.findWithDefault 0 "Arrow" pInv
+  in pArrow / 20.0
 
 -- | @ lives at 0
 -- renderHpBar for Player
 getHealth :: EntityMap -> Double
 getHealth em = let
-  (pEntity, _ ) = getPlayer em
+  (pEntity, _) = getPlayer em
   hp    = fromIntegral $ eHP pEntity
   maxHp = fromIntegral $ eMaxHP pEntity
   in hp / maxHp
+
+-- | @ lives at 0
+-- renderHpBar for Player
+getMushroom :: EntityMap -> Double
+getMushroom em = let
+  (pEntity, _) = getPlayer em
+  pInv  = inventory pEntity
+  pMush = fromIntegral $ Map.findWithDefault 0 "Mushroom" pInv
+  in pMush / 20.0
 
 -- | @ lives at 0
 -- getPlayer
 getPlayer :: EntityMap -> (Player, Coord)
 getPlayer = GE.getEntityAt 0
 
+-- | @ lives at 0
+-- renderHpBar for Player
+getPotion :: EntityMap -> Double
+getPotion em = let
+  (pEntity, _) = getPlayer em
+  pInv = inventory pEntity
+  pPot = fromIntegral $ Map.findWithDefault 0 "Potion" pInv
+  in pPot / 20.0
+
+-- | @ gets better with level
 proficiency :: Int -> Int
 proficiency lvl
   | lvl >= 1  && lvl <= 4 = 2

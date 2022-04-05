@@ -22,7 +22,7 @@ import qualified Engine.Draw.Textual as EDT
 import qualified Engine.SDL.Util as U
 import qualified Game.Player as GP
 
-data Colour = Red | Green | Blue | White | Black | Yellow
+data Colour = Red | Green | Blue | White | Black | Yellow | Brown | Purple
 
 -- | draw
 -- main drawing loop
@@ -39,8 +39,14 @@ draw r ts w = do
      -- HUD Text
      EDT.drawText r w
      -- Hp Bar
-     let hp = GP.getHealth (entityT w)
-     renderHpBar r (5, 176) 100.0 16.0 hp
+     let hp     = GP.getHealth (entityT w)
+         pArrow = GP.getArrow (entityT w)
+         pMush  = GP.getMushroom (entityT w)
+         pPot   = GP.getPotion (entityT w)
+     renderHpBar r (0, 176) 100.0 12.0 Green hp
+     renderHpBar r (0, 188) 100.0 12.0 Yellow pArrow
+     renderHpBar r (0, 200) 100.0 12.0 Brown pMush
+     renderHpBar r (0, 212) 100.0 12.0 Purple pPot
   -- Screen
   SDL.present r
 
@@ -74,9 +80,10 @@ renderHpBar :: (MonadIO m)
   -> (Double, Double)
   -> Double
   -> Double
+  -> Colour
   -> Double
   -> m ()
-renderHpBar r (x, y) w h p = do
+renderHpBar r (x, y) w h colour p = do
   let percent
         | p > 1.0 = p
         | p < 0.0 = 0.0
@@ -87,7 +94,7 @@ renderHpBar r (x, y) w h p = do
       px     = x + (w - pw)
   setColor r Red
   SDL.fillRect r (Just bgRect)
-  setColor r Green
+  setColor r colour
   SDL.fillRect r (Just fgRect)
 
 -- | renderTexture
@@ -117,9 +124,11 @@ renderVisual r (Visual (xi, yi) (t, _) tw th) (x, y) = let
 
 -- | setColor
 setColor :: (MonadIO m) => SDL.Renderer -> Colour -> m ()
-setColor r Red    = SDL.rendererDrawColor r $= SDL.V4 maxBound 0 0 maxBound
-setColor r Green  = SDL.rendererDrawColor r $= SDL.V4 0 maxBound 0 maxBound
-setColor r Blue   = SDL.rendererDrawColor r $= SDL.V4 0 0 maxBound maxBound
-setColor r White  = SDL.rendererDrawColor r $= SDL.V4 maxBound maxBound maxBound maxBound
+setColor r Red    = SDL.rendererDrawColor r $= SDL.V4 255 0 0 255
+setColor r Green  = SDL.rendererDrawColor r $= SDL.V4 0 255 0 255
+setColor r Blue   = SDL.rendererDrawColor r $= SDL.V4 0 0 255 255
+setColor r White  = SDL.rendererDrawColor r $= SDL.V4 255 255 255 255
 setColor r Black  = SDL.rendererDrawColor r $= SDL.V4 0 0 0 0
-setColor r Yellow = SDL.rendererDrawColor r $= SDL.V4 maxBound maxBound 0 maxBound
+setColor r Yellow = SDL.rendererDrawColor r $= SDL.V4 255 255 0 255
+setColor r Brown = SDL.rendererDrawColor r  $= SDL.V4 165 42 42 255
+setColor r Purple = SDL.rendererDrawColor r $= SDL.V4 128 0 128 255

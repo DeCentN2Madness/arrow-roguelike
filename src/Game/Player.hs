@@ -38,14 +38,14 @@ characterSheet :: EntityMap -> [Text]
 characterSheet em = let
   (pEntity, _) = getPlayer em
   pProp = property pEntity
-  pStr  = T.pack $ "Str: " ++ Map.findWithDefault "1" "str" pProp
-  pDex  = T.pack $ "Dex: " ++ Map.findWithDefault "1" "dex" pProp
-  pCon  = T.pack $ "Con: " ++ Map.findWithDefault "1" "con" pProp
-  pInt  = T.pack $ "Int: " ++ Map.findWithDefault "1" "int" pProp
-  pWis  = T.pack $ "Wis: " ++ Map.findWithDefault "1" "wis" pProp
+  pStr  = T.append "Str: " (Map.findWithDefault "1" "str" pProp)
+  pDex  = T.append "Dex: " (Map.findWithDefault "1" "dex" pProp)
+  pCon  = T.append "Con: " (Map.findWithDefault "1" "con" pProp)
+  pInt  = T.append "Int: " (Map.findWithDefault "1" "int" pProp)
+  pWis  = T.append "Wis: " (Map.findWithDefault "1" "wis" pProp)
   pLvl  = T.pack $ "Level: " ++ show (eLvl pEntity)
   pExp  = T.pack $ "EXP: " ++ show (eXP pEntity)
-  pHP   = T.pack $ "HP: " ++ show (eHP pEntity) ++ "/" ++ show (eMaxHP pEntity)
+  pHP   = T.pack $ "HP: " ++ show(eHP pEntity) ++ "/" ++ show (eMaxHP pEntity)
   in [ pLvl, pExp, " ", pStr, pDex, pCon, pInt, pWis, " ", pHP ]
 
 -- | @ Inv
@@ -85,14 +85,18 @@ updatePlayerBy = GE.updateEntityPos 0
 updatePlayerXP :: Int -> EntityMap -> EntityMap
 updatePlayerXP xp em = let
   (pEntity, _ ) = getPlayer em
-  pProp = property pEntity
-  pCon  = read $ Map.findWithDefault "1" "con" pProp :: Int
-  pTot = eXP pEntity + xp
-  pLvl = xpLevel pTot
-  pHP = if pLvl > eLvl pEntity then pMaxHP else eHP pEntity
-  pMaxHP = pLvl * (10 + abilityMod pCon)
-  newProp = Map.insert "Proficiency" (show $ proficiency pLvl) pProp
-  newPlayer = pEntity { property=newProp, eLvl=pLvl, eHP=pHP, eMaxHP=pMaxHP, eXP=pTot }
+  pProp     = property pEntity
+  pCon      = read $ T.unpack $ Map.findWithDefault "1" "con" pProp
+  pTot      = eXP pEntity + xp
+  pLvl      = xpLevel pTot
+  pHP       = if pLvl > eLvl pEntity then pMaxHP else eHP pEntity
+  pMaxHP    = pLvl * (10 + abilityMod pCon)
+  newProp   = Map.insert "Proficiency" (T.pack $ show $ proficiency pLvl) pProp
+  newPlayer = pEntity { property=newProp
+                      , eLvl=pLvl
+                      , eHP=pHP
+                      , eMaxHP=pMaxHP
+                      , eXP=pTot }
   in updatePlayer newPlayer em
 
 -- | xpLevel simple

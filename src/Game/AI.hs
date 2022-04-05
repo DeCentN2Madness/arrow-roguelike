@@ -50,8 +50,8 @@ aiAction ((mx, mEntity):xs) w = if mx == 0 || not (block mEntity)
   mItems = GE.getEntityBy mPos (entityT w)
   mPos   = coord mEntity
   mProp  = property mEntity
-  mInt   = read $ Map.findWithDefault "1" "int" mProp :: Int
-  mSpawn = read $ Map.findWithDefault (show mPos) "spawn" mProp :: (Int, Int)
+  mInt   = read $ T.unpack $ Map.findWithDefault "1" "int" mProp :: Int
+  mSpawn = spawn mEntity
   -- action
   action
     | EAC.adjacent mPos pPos = Attack
@@ -84,13 +84,13 @@ monsterDrink mx mEntity w = let
   mHp    = if heal > mMaxHp then mMaxHp else heal
   mMaxHp = eMaxHP mEntity
   mProp  = property mEntity
-  mCon   = read $ Map.findWithDefault "1" "con" mProp :: Int
+  mCon   = read $ T.unpack $ Map.findWithDefault "1" "con" mProp
   mName  = Map.findWithDefault "M" "Name" mProp
   newMonster = if mPot > 0
     then mEntity { inventory = Map.insert "Potion" (mPot-1) mInv, eHP = mHp }
     else mEntity
   entry = if mPot > 0
-    then T.pack $ mName ++ " is Thirsty..."
+    then T.append mName " is Thirsty..."
     else T.pack "..."
   in w { entityT  = GE.updateEntity mx newMonster (entityT w)
        , journalT = GJ.updateJournal [entry] (journalT w) }
@@ -105,13 +105,13 @@ monsterEat mx mEntity w = let
   mHp    = if heal > mMaxHp then mMaxHp else heal
   mMaxHp = eMaxHP mEntity
   mProp  = property mEntity
-  mCon   = read $ Map.findWithDefault "1" "con" mProp :: Int
+  mCon   = read $ T.unpack $ Map.findWithDefault "1" "con" mProp
   mName  = Map.findWithDefault "M" "Name" mProp
   newMonster = if mMush > 0
     then mEntity { inventory = Map.insert "Mushroom" (mMush-1) mInv, eHP = mHp }
     else mEntity
   entry = if mMush > 0
-    then T.pack $ mName ++ " is Hungry..."
+    then T.append mName " is Hungry..."
     else T.pack "..."
   in w { entityT  = GE.updateEntity mx newMonster (entityT w)
        , journalT = GJ.updateJournal [entry] (journalT w) }
@@ -131,7 +131,7 @@ monsterGet mx mEntity w = let
     then GI.emptyBy mPos items (entityT w)
     else entityT w
   entry = if length items > 1
-    then T.pack $ mName ++ " found Coin!"
+    then T.append mName " found Coin!"
     else T.pack "..."
   in w { entityT  = GE.updateEntity mx newMonster newEntity
        , journalT = GJ.updateJournal [entry] (journalT w) }
@@ -146,7 +146,7 @@ monsterHeal mx mEntity w = let
   mProp  = property mEntity
   mName  = Map.findWithDefault "M" "Name" mProp
   entry = if mHp <= 5
-    then T.pack $ mName ++ " is *Hurting*..."
+    then T.append mName " is *Hurting*..."
     else T.pack "..."
   in w { entityT  = GE.updateEntityHp mx mHp (entityT w)
        , journalT = GJ.updateJournal [entry] (journalT w) }
@@ -166,7 +166,7 @@ monsterThrow mx mEntity w = let
     then mEntity { inventory = Map.insert "Arrow" (mArrow-1) mInv }
     else mEntity
   entry = if mArrow > 0 && mTarget
-    then T.pack $ mName ++ " " ++ mVerb
+    then T.append mName $ T.append " " mVerb
     else T.pack "..."
   -- throwWorld
   throwWorld = w { entityT  = GE.updateEntity mx newMonster (entityT w)
@@ -197,8 +197,7 @@ pathFinder mx mEntity w = if mx == 0 || not (block mEntity)
   -- flee goal if *critical* eHP
   mGoal  = if eHP mEntity <= 5 then mSpawn else pPos
   mPos   = coord mEntity
-  mProp  = property mEntity
-  mSpawn = read $ Map.findWithDefault (show pPos) "spawn" mProp :: (Int, Int)
+  mSpawn = spawn mEntity
   -- M move based on goal
   distList = [ (d, xy) | xy <- moveT mEntity, let d = EAC.chessDist mGoal xy ]
   moveList = coordF $

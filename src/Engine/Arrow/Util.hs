@@ -98,7 +98,7 @@ actionEat w = let
   pHp          = if heal > pMaxHp then pMaxHp else heal
   pMaxHp       = eMaxHP pEntity
   pProp  = property pEntity
-  pCon   = read $ Map.findWithDefault "1" "con" pProp :: Int
+  pCon   = read $ T.unpack $ Map.findWithDefault "1" "con" pProp
   newPlayer = if pMush > 0
     then pEntity { inventory = Map.insert "Mushroom" (pMush-1) pInv, eHP = pHp }
     else pEntity
@@ -210,7 +210,7 @@ actionQuaff w = let
   pHp          = if heal > pMaxHp then pMaxHp else heal
   pMaxHp       = eMaxHP pEntity
   pProp        = property pEntity
-  pCon         = read $ Map.findWithDefault "1" "con" pProp :: Int
+  pCon         = read $ T.unpack $ Map.findWithDefault "1" "con" pProp
   newPlayer = if pPot > 0
     then pEntity { inventory = Map.insert "Potion" (pPot-1) pInv, eHP = pHp }
     else pEntity

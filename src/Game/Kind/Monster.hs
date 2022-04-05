@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedStrings #-}
 {-
 
 Game.Kind.Monster.hs
@@ -12,6 +13,7 @@ module Game.Kind.Monster (mkMonsterMap, updateEntitySpawn) where
 import Prelude hiding (lookup)
 import Data.List
 import Data.Map (Map)
+import Data.Text (Text)
 import qualified Data.Map.Strict as Map
 import qualified Game.DiceSet as DS
 import Game.Kind.Entity
@@ -22,7 +24,7 @@ type AssetMap = EntityMap
 type Coord = (Int, Int)
 type Depth = Int
 type EntityMap = Map Int EntityKind
-type NameMap = Map String EntityKind
+type NameMap = Map Text EntityKind
 
 -- | insertRand all over the TileMap
 insertRand :: EntityKind -> Int -> Int -> [Coord] -> [(Int, EntityKind)]
@@ -120,7 +122,4 @@ nth n (_:xs) = nth (n-1) xs
 
 -- | updateEntitySpawn
 updateEntitySpawn :: EntityKind -> Coord -> EntityKind
-updateEntitySpawn ek pos = let
-  eProp = property ek
-  newProp = Map.insert "spawn" (show pos) eProp
-  in ek { coord = pos, property = newProp }
+updateEntitySpawn ek pos = ek { coord = pos, spawn = pos }

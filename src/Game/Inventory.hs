@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedStrings #-}
 {-
 
 Game.Inventory.hs
@@ -16,12 +17,14 @@ import Control.Arrow ((&&&))
 import Data.List
 import Data.Map (Map)
 import qualified Data.Map.Strict as Map
+import Data.Text (Text)
+import qualified Data.Text as T
 import Game.Entity (EntityMap)
 import Game.Kind.Entity
 
 type AssetMap = EntityMap
 type Coord = (Int, Int)
-type NameMap = Map String EntityKind
+type NameMap = Map Text EntityKind
 
 -- | emptyBy
 -- Get the list of picked items...
@@ -52,7 +55,7 @@ mkNameMap am = let
   in Map.fromList assetList
 
 -- | mkItem
-mkItem :: String -> Coord -> AssetMap -> EntityKind
+mkItem :: Text -> Coord -> AssetMap -> EntityKind
 mkItem name pos am = let
   assets = mkNameMap am
   arr    = mkEntity Arrow pos
@@ -71,7 +74,8 @@ pickList items = filter (`notElem` noPickup) $ [ kind e | (e, _) <- items ]
 pickUp :: [(EntityKind, Coord)] -> EntityKind -> EntityKind
 pickUp items ek = let
   invT  = groupEK $ map show (pickList items)
-  picks = Map.unionWith (+) (inventory ek) (Map.fromList invT)
+  invM  = Map.fromList $ [ (T.pack k, v) | (k, v) <- invT ]
+  picks = Map.unionWith (+) (inventory ek) invM
   in ek { inventory = picks }
 
 -- | putDown

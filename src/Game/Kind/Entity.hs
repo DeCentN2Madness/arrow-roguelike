@@ -16,12 +16,14 @@ module Game.Kind.Entity (Entity(..)
 import Prelude hiding (lookup)
 import Data.Aeson
 import Data.Map (Map)
+import Data.Text (Text)
+import qualified Data.Text as T
 import GHC.Generics
 import qualified Data.Map.Strict as Map
 
 type Coord = (Int, Int)
-type Properties = Map String String
-type Inventories = Map String Int
+type Properties = Map Text Text
+type Inventories = Map Text Int
 
 -- | Entity sort based on game value
 data Entity
@@ -41,11 +43,24 @@ data Entity
 instance FromJSON Entity
 instance ToJSON Entity
 
+-- | EntityKind
+-- coord     = Entity Position
+-- block     = Movable Entity
+-- kind      = Kind of Entity
+-- moveT     = Where can the Entity move?
+-- spawn     = Where can the Entity spawn?
+-- property  = Textual descriptions of the entity
+-- inventory = Items
+-- eLvl      = Level of the entity
+-- eHP       = HitPoints
+-- eMaxHP    = Max HP
+-- eXP       = Experience
 data EntityKind = EntityKind
   { coord      :: Coord
   , block      :: Bool
   , kind       :: Entity
-  , moveT      :: [Coord] -- where can the Entity move?
+  , moveT      :: [Coord]
+  , spawn      :: Coord
   , property   :: Properties
   , inventory  :: Inventories
   , eLvl       :: Int
@@ -57,13 +72,14 @@ data EntityKind = EntityKind
 instance FromJSON EntityKind
 instance ToJSON EntityKind
 
-defaultEK :: (Int, Int) -> String -> String -> EntityKind
+defaultEK :: Coord -> Text -> Text -> EntityKind
 defaultEK xy name desc = EntityKind {
   coord = xy
   , block     = False
   , kind      = Arrow
   , moveT     = []
-  , property  = mkProp name desc xy
+  , spawn     = xy
+  , property  = mkProp name desc
   , inventory = Map.empty
   , eLvl      = 0
   , eHP       = 0
@@ -253,7 +269,7 @@ gtHumanoid p = let
 
 -- | mkInventory
 -- One lucky Mushroom
-mkInventory :: String -> [(String, Int)]
+mkInventory :: Text -> [(Text, Int)]
 mkInventory n
   | n == "Cleric" = [("Arrow", 2), ("Potion", 1), ("Mushroom", 1), ("Coin", 1)]
   | n == "Dragon" = [("Arrow", 2), ("Potion", 1), ("Mushroom", 1), ("Coin", 1)]
@@ -268,7 +284,7 @@ mkInventory n
   | otherwise     = [("Arrow", 0), ("Potion", 0), ("Mushroom", 0), ("Coin", 0)]
 
 -- | mkMonster
-mkMonster :: String -> String -> Coord -> EntityKind
+mkMonster :: Text -> Text -> Coord -> EntityKind
 mkMonster name desc xy = let
   e = defaultEK xy name desc
   monster = case name of
@@ -285,9 +301,9 @@ mkMonster name desc xy = let
     "Troll"   -> gtHumanoid (property e)
     "Wizard"  -> wizard (property e)
     _         -> fighter (property e)
-  mHP  = read $ Map.findWithDefault "1" "HP" monster :: Int
-  mXP  = read $ Map.findWithDefault "1" "XP" monster :: Int
-  mLvl = read $ Map.findWithDefault "1" "Challenge" monster :: Int
+  mHP  = read $ T.unpack $ Map.findWithDefault "1" "HP" monster
+  mXP  = read $ T.unpack $ Map.findWithDefault "1" "XP" monster
+  mLvl = read $ T.unpack $ Map.findWithDefault "1" "Challenge" monster
   mInv = mkInventory name
   in e { block=True
        , kind=Monster
@@ -300,10 +316,8 @@ mkMonster name desc xy = let
        }
 
 -- | mkProp
-mkProp :: String -> String -> Coord -> Properties
-mkProp name desc xy = Map.fromList [ ("Name", name)
-                                   , ("Description", desc)
-                                   , ("spawn", show xy) ]
+mkProp :: Text -> Text -> Properties
+mkProp name desc = Map.fromList [ ("Name", name), ("Description", desc) ]
 
 -- | mkEntity
 mkEntity :: Entity -> Coord -> EntityKind

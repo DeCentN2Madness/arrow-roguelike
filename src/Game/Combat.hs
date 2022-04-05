@@ -73,7 +73,7 @@ death mx mEntity am em = let
 -- Arrows that miss the mark
 misFire :: EntityKind -> AssetMap -> EntityMap -> EntityMap
 misFire mEntity am em = let
-  loc = scatter mEntity
+  loc  = scatter mEntity
   item = GI.mkItem "Arrow" loc am
   in GI.putDown item em
 
@@ -94,24 +94,24 @@ mkCombat px mx w = if px == mx
     -- pAR, pDam, pMod
     pProp = property pEntity
     pName = Map.findWithDefault "P" "Name" pProp
-    pStr  = read $ Map.findWithDefault "1" "str" pProp :: Int
-    pDex  = read $ Map.findWithDefault "1" "dex" pProp :: Int
-    pMod  = read $ Map.findWithDefault "1" "Proficiency" pProp :: Int
+    pStr  = read $ T.unpack $ Map.findWithDefault "1" "str" pProp
+    pDex  = read $ T.unpack $ Map.findWithDefault "1" "dex" pProp
+    pMod  = read $ T.unpack $ Map.findWithDefault "1" "Proficiency" pProp
     pAR   = clamp $ DS.d20 pSeed + abilityMod pDex + pMod
     pDam  = clamp $ DS.d6  pSeed + abilityMod pStr + pMod
     -- mDR
     mProp = property mEntity
     mName = Map.findWithDefault "M" "Name" mProp
-    mDex  = read $ Map.findWithDefault "1" "dex" mProp :: Int
+    mDex  = read $ T.unpack $ Map.findWithDefault "1" "dex" mProp
     mHP   = eHP mEntity
     mExp  = eXP mEntity
     mDR   = 10 + abilityMod mDex
     -- p v m
     pAttack = if pAR >= mDR then mHP - pDam else mHP -- Miss
     -- journal
-    pEntry = T.concat [ T.pack pName
+    pEntry = T.concat [ pName
                     , attack pAR mDR
-                    , T.pack mName
+                    , mName
                     , T.pack ", "
                     , condition pAttack ]
     -- newEntity with damages and deaths and Exp awards
@@ -134,14 +134,14 @@ mkRangeCombat px mx w = if px == mx
     -- pAR, pDam, pMod
     pProp = property pEntity
     pName = Map.findWithDefault "P" "Name" pProp
-    pDex  = read $ Map.findWithDefault "1" "dex" pProp :: Int
-    pMod  = read $ Map.findWithDefault "1" "Proficiency" pProp :: Int
+    pDex  = read $ T.unpack $ Map.findWithDefault "1" "dex" pProp
+    pMod  = read $ T.unpack $ Map.findWithDefault "1" "Proficiency" pProp
     pAR   = clamp $ DS.d20 pSeed + abilityMod pDex + pMod
     pDam  = clamp $ DS.d4  pSeed + abilityMod pDex + pMod
     -- mDR,  mMod
     mProp = property mEntity
     mName = Map.findWithDefault "M" "Name" mProp
-    mDex  = read $ Map.findWithDefault "1" "dex" mProp :: Int
+    mDex  = read $ T.unpack $ Map.findWithDefault "1" "dex" mProp
     mHP   = eHP mEntity
     mExp  = eXP mEntity
     mDR   = 10 + abilityMod mDex
@@ -152,9 +152,9 @@ mkRangeCombat px mx w = if px == mx
       then misFire mEntity (assetT w) (entityT w)
       else entityT w
     -- journal
-    pEntry = T.concat [ T.pack pName
+    pEntry = T.concat [ pName
                     , shoot pAR mDR
-                    , T.pack mName
+                    , mName
                     , T.pack ", "
                     , condition pAttack ]
     -- newEntity with damages and deaths and Exp awards
@@ -173,11 +173,11 @@ nth n (_:xs) = nth (n-1) xs
 -- | scatter
 scatter :: EntityKind -> (Int, Int)
 scatter mEntity = let
-  mPos = coord mEntity
+  mPos     = coord mEntity
   -- random around the target
   seed = 1 + uncurry (*) mPos
   missList = moveT mEntity ++ [mPos]
-  sz = length missList - 1
+  sz       = length missList - 1
   missRoll = head $ DS.rollList 1 (fromIntegral sz) seed
   in nth missRoll missList
 

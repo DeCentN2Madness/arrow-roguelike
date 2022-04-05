@@ -92,29 +92,29 @@ insertEntity ix xy ek em = let
 -- All the assets within the World
 mkAssetMap :: [EntityKind] -> AssetMap
 mkAssetMap ek = let
-  spawn = (0, 0)
+  pos = (0, 0)
   em = if null ek
-    then [ mkEntity Actor spawn
-         , mkEntity Coin spawn
-         , mkEntity Corpse spawn
-         , mkEntity Item spawn
-         , mkEntity Mushroom spawn
-         , mkEntity Potion spawn
-         , mkEntity StairDown spawn
-         , mkEntity StairUp spawn
-         , mkEntity Trap spawn
-         , mkEntity Arrow spawn
-         , mkMonster "Cleric"  "Medium human (h)" spawn
-         , mkMonster "Fighter" "Medium human (h)" spawn
-         , mkMonster "Ranger"  "Medium human (h)" spawn
-         , mkMonster "Rogue"   "Medium human (h)" spawn
-         , mkMonster "Wizard"  "Medium human (h)" spawn
-         , mkMonster "Mouse"   "Small beast (r)" spawn
-         , mkMonster "Orc"     "Medium humanoid (o)" spawn
-         , mkMonster "Spider"  "Large beast (S)" spawn
-         , mkMonster "Troll"   "Large giant (T)" spawn
-         , mkMonster "Wolf"    "Medium beast (c)" spawn
-         , mkMonster "Dragon"  "Medium dragon (d)" spawn
+    then [ mkEntity Actor pos
+         , mkEntity Coin pos
+         , mkEntity Corpse pos
+         , mkEntity Item pos
+         , mkEntity Mushroom pos
+         , mkEntity Potion pos
+         , mkEntity StairDown pos
+         , mkEntity StairUp pos
+         , mkEntity Trap pos
+         , mkEntity Arrow pos
+         , mkMonster "Cleric"  "Medium human (h)" pos
+         , mkMonster "Fighter" "Medium human (h)" pos
+         , mkMonster "Ranger"  "Medium human (h)" pos
+         , mkMonster "Rogue"   "Medium human (h)" pos
+         , mkMonster "Wizard"  "Medium human (h)" pos
+         , mkMonster "Mouse"   "Small beast (r)" pos
+         , mkMonster "Orc"     "Medium humanoid (o)" pos
+         , mkMonster "Spider"  "Large beast (S)" pos
+         , mkMonster "Troll"   "Large giant (T)" pos
+         , mkMonster "Wolf"    "Medium beast (c)" pos
+         , mkMonster "Dragon"  "Medium dragon (d)" pos
          ]
     else ek
   in Map.fromList $ zip [0..] em

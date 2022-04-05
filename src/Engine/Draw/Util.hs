@@ -20,10 +20,12 @@ import Engine.Draw.Visual (AssetMap(..), TextureMap, Visual(..))
 import qualified Engine.Draw.Visual as EDV
 import qualified Engine.Draw.Textual as EDT
 import qualified Engine.SDL.Util as U
+import qualified Game.Player as GP
 
 data Colour = Red | Green | Blue | White | Black | Yellow
 
--- | draw main drawing loop
+-- | draw
+-- main drawing loop
 draw :: SDL.Renderer -> TextureMap -> World -> IO ()
 draw r ts w = do
   setColor r Black
@@ -36,6 +38,9 @@ draw r ts w = do
      drawMap r ts w
      -- HUD Text
      EDT.drawText r w
+     -- Hp Bar
+     let hp = GP.getHealth (entityT w)
+     renderHpBar r (5, 176) 100.0 16.0 hp
   -- Screen
   SDL.present r
 
@@ -48,22 +53,42 @@ drawCamera :: (Int, Int)
   -> World
   -> IO ()
 drawCamera (x, y) r vis w = do
+  let (camX, camY)     = cameraXY w
+      (scaleX, scaleY) = scaleXY w
+      xPos             = scaleX * fromIntegral x
+      yPos             = scaleY * fromIntegral y
+      newX             = xPos - camX
+      newY             = yPos - camY
   renderVisual r vis (newX, newY)
-  where
-    (camX, camY) = cameraXY w
-    (scaleX, scaleY) = scaleXY w
-    xPos = scaleX * fromIntegral x
-    yPos = scaleY * fromIntegral y
-    newX = xPos - camX
-    newY = yPos - camY
 
 -- | drawMap
 drawMap :: SDL.Renderer -> TextureMap -> World -> IO ()
 drawMap r ts w = do
-  let visual = EDV.mkVisualMap ts w
-      visualT = [(k, v) | k <- Map.keys visual,
-                 let (Just v) = Map.lookup k visual]
-  forM_ visualT $ \(i, j) -> drawCamera i r j w
+  let visual = Map.toList $ EDV.mkVisualMap ts w
+  forM_ visual $ \(i, j) -> drawCamera i r j w
+
+-- | renderHpBar
+-- draw '@' HP
+renderHpBar :: (MonadIO m)
+  => SDL.Renderer
+  -> (Double, Double)
+  -> Double
+  -> Double
+  -> Double
+  -> m ()
+renderHpBar r (x, y) w h p = do
+  let percent
+        | p > 1.0 = p
+        | p < 0.0 = 0.0
+        | otherwise = p
+      bgRect = U.mkRect (floor x) (floor y) (floor w) (floor h)
+      fgRect = U.mkRect (floor px) (floor y) (floor pw) (floor h)
+      pw     = w * percent
+      px     = x + (w - pw)
+  setColor r Red
+  SDL.fillRect r (Just bgRect)
+  setColor r Green
+  SDL.fillRect r (Just fgRect)
 
 -- | renderTexture
 -- draw entire texture image

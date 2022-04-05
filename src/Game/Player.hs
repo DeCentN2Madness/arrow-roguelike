@@ -13,6 +13,7 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 -}
 module Game.Player (characterSheet
                    , characterInventory
+                   , getHealth
                    , getPlayer
                    , updatePlayerBy
                    , updatePlayer
@@ -45,8 +46,7 @@ characterSheet em = let
   pWis  = T.append "Wis: " (Map.findWithDefault "1" "wis" pProp)
   pLvl  = T.pack $ "Level: " ++ show (eLvl pEntity)
   pExp  = T.pack $ "EXP: " ++ show (eXP pEntity)
-  pHP   = T.pack $ "HP: " ++ show(eHP pEntity) ++ "/" ++ show (eMaxHP pEntity)
-  in [ pLvl, pExp, " ", pStr, pDex, pCon, pInt, pWis, " ", pHP ]
+  in [ pLvl, pExp, " ", pStr, pDex, pCon, pInt, pWis ]
 
 -- | @ Inv
 characterInventory :: EntityMap -> [Text]
@@ -57,10 +57,19 @@ characterInventory em = let
   pCoin  = T.pack $ "Coin: "     ++ show (Map.findWithDefault 0 "Coin"     pInv)
   pMush  = T.pack $ "Mushroom: " ++ show (Map.findWithDefault 0 "Mushroom" pInv)
   pPot   = T.pack $ "Potion: "   ++ show (Map.findWithDefault 0 "Potion"   pInv)
-  in [ pCoin, pMush, pPot, pArrow ]
+  in [ pArrow, pCoin, pMush, pPot ]
 
 -- | @ lives at 0
--- get Player
+-- renderHpBar for Player
+getHealth :: EntityMap -> Double
+getHealth em = let
+  (pEntity, _ ) = getPlayer em
+  hp    = fromIntegral $ eHP pEntity
+  maxHp = fromIntegral $ eMaxHP pEntity
+  in hp / maxHp
+
+-- | @ lives at 0
+-- getPlayer
 getPlayer :: EntityMap -> (Player, Coord)
 getPlayer = GE.getEntityAt 0
 

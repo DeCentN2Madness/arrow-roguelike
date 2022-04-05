@@ -43,10 +43,10 @@ draw r ts w = do
          pArrow = GP.getArrow (entityT w)
          pMush  = GP.getMushroom (entityT w)
          pPot   = GP.getPotion (entityT w)
-     renderHpBar r (0, 176) 100.0 12.0 Green hp
-     renderHpBar r (0, 188) 100.0 12.0 Yellow pArrow
-     renderHpBar r (0, 200) 100.0 12.0 Brown pMush
-     renderHpBar r (0, 212) 100.0 12.0 Purple pPot
+     renderHpBar r (0, 176) 100.0 10.0 Green hp
+     renderHpBar r (0, 186) 100.0 10.0 Yellow pArrow
+     renderHpBar r (0, 196) 100.0 10.0 Brown pMush
+     renderHpBar r (0, 206) 100.0 10.0 Purple pPot
   -- Screen
   SDL.present r
 

@@ -6,7 +6,8 @@ Game.Inventory.hs
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
 -}
-module Game.Inventory (emptyBy
+module Game.Inventory (checkPickUp
+                      , emptyBy
                       , mkItem
                       , pickUp
                       , pickList
@@ -26,6 +27,13 @@ type AssetMap = EntityMap
 type Coord = (Int, Int)
 type Inventory = Map Text Int
 type NameMap = Map Text EntityKind
+
+-- | checkPickUp
+-- Did '@' actually PickUp?
+checkPickUp :: Inventory -> Inventory -> Inventory
+checkPickUp invA invB = let
+  pickItems v1 v2 = if v1 /= v2 then Just v1 else Nothing
+  in Map.differenceWith pickItems invA invB
 
 -- | encumberance
 -- Twenty is the limit, except Coin...

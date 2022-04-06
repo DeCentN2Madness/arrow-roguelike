@@ -54,8 +54,8 @@ actionDirection input w = if starting w
     (heroX, heroY)   = playerCoord |+| dirToCoord input
     clampCoord       = clamp (heroX, heroY) (gridXY w)
     -- newWorld from Monster && Player Events
-    world     = actionMonster $ actionPlayer clampCoord w
-    (_, pPos) = GP.getPlayer (entityT world)
+    world            = actionMonster $ actionPlayer clampCoord w
+    (_, pPos)        = GP.getPlayer (entityT world)
     run = if pPos == clampCoord
       then EAV.updateView $ world { fovT = EAV.mkView pPos (gameT world)
                                   , dirty = True }
@@ -67,18 +67,18 @@ actionDirection input w = if starting w
 -- TODO change from Coin to Arrow to pick of items to drop
 actionDrop :: World -> World
 actionDrop w = let
-  newTick      = tick w + 1
+  newTick         = tick w + 1
   (pEntity, pPos) = GP.getPlayer (entityT w)
-  pInv         = inventory pEntity
-  pDrop        = Map.findWithDefault 0 "Coin" pInv
-  item         = GI.mkItem "Arrow" pPos (assetT w)
-  newPlayer = if pDrop > 0
-    then pEntity { inventory = Map.insert "Coin" (pDrop-1) pInv }
+  pInv            = inventory pEntity
+  pCoin           = Map.findWithDefault 0 "Coin" pInv
+  item            = GI.mkItem "Arrow" pPos (assetT w)
+  newPlayer = if pCoin > 0
+    then pEntity { inventory = Map.insert "Coin" (pCoin-1) pInv }
     else pEntity
-  newEntity = if pDrop > 0
+  newEntity = if pCoin > 0
     then GI.putDown item (entityT w)
     else entityT w
-  entry = if pDrop > 0
+  entry = if pCoin > 0
     then T.append "Drop " (actionLook [(item, pPos)])
     else T.pack "No Drop..."
   in w { tick = newTick
@@ -97,8 +97,8 @@ actionEat w = let
   heal         = eHP pEntity + (pCon `div` 2)
   pHp          = if heal > pMaxHp then pMaxHp else heal
   pMaxHp       = eMaxHP pEntity
-  pProp  = property pEntity
-  pCon   = read $ T.unpack $ Map.findWithDefault "1" "con" pProp
+  pProp        = property pEntity
+  pCon         = read $ T.unpack $ Map.findWithDefault "1" "con" pProp
   newPlayer = if pMush > 0
     then pEntity { inventory = Map.insert "Mushroom" (pMush-1) pInv, eHP = pHp }
     else pEntity
@@ -116,13 +116,14 @@ actionGet w = let
   newTick         = tick w + 1
   (pEntity, pPos) = GP.getPlayer (entityT w)
   items           = GE.getEntityBy pPos (entityT w)
+  pickedItems     = GI.checkPickUp (inventory newPlayer) (inventory pEntity)
   newPlayer = if not (null items)
     then GI.pickUp items pEntity
     else pEntity
-  newEntity = if not (null items)
+  newEntity = if pickedItems /= Map.empty
     then GI.emptyBy pPos items (entityT w)
     else entityT w
-  entry = if length items > 1
+  entry = if pickedItems /= Map.empty
     then T.append "Get " (actionLook items)
     else T.pack "No Get..."
   in w { tick = newTick
@@ -137,9 +138,9 @@ actionHear em listen = let
                let t = if block ek && (d >= 4 && d <= 7) then 1 else 0
                    d = distance (coord ek) listen ]
   total = sum hearList :: Int
-  hear x
-    | x > 1  = T.pack $ "Something moved " ++ " <" ++ show x ++ ">, "
-    | x == 1 = T.pack "Something moved, "
+  hear n
+    | n > 1  = T.pack $ "Something moved " ++ " <" ++ show n ++ ">, "
+    | n == 1 = T.pack "Something moved, "
     | otherwise = ""
   in T.append (hear total) "..."
 
@@ -179,18 +180,18 @@ actionPlayer pos w = let
   newTick         = tick w + 1
   (pEntity, pPos) = GP.getPlayer (entityT w)
   -- Bump event
-  bump       = actionBump pos (entityT w)
-  bumpCoord  = if bump < 1 then pos else pPos
+  bump            = actionBump pos (entityT w)
+  bumpCoord       = if bump < 1 then pos else pPos
   -- Move event
-  newCoord   = if bumpCoord `elem` moveT pEntity then bumpCoord else pPos
-  moveWorld  = w { entityT = GP.updatePlayerBy newCoord (entityT w) }
+  newCoord        = if bumpCoord `elem` moveT pEntity then bumpCoord else pPos
+  moveWorld       = w { entityT = GP.updatePlayerBy newCoord (entityT w) }
   -- Look && Listen event
-  look       = actionLook $ GE.getEntityBy newCoord (entityT moveWorld)
-  listen     = actionHear (entityT moveWorld) newCoord
+  look            = actionLook $ GE.getEntityBy newCoord (entityT moveWorld)
+  listen          = actionHear (entityT moveWorld) newCoord
   -- Combat event
-  world  = if bump > 0 then GC.mkCombat 0 bump moveWorld else moveWorld
+  world           = if bump > 0 then GC.mkCombat 0 bump moveWorld else moveWorld
   -- XP event
-  (p, _) = GP.getPlayer (entityT world)
+  (p, _)           = GP.getPlayer (entityT world)
   learn = if eLvl p > eLvl pEntity
     then T.pack $ "Welcome to Level " ++ show (eLvl p) ++ "..."
     else "..."

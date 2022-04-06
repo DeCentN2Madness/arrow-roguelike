@@ -120,18 +120,18 @@ monsterEat mx mEntity w = let
 -- M loves Coin...
 monsterGet :: Int -> EntityKind -> World -> World
 monsterGet mx mEntity w = let
-  mPos  = coord mEntity
-  items = GE.getEntityBy mPos (entityT w)
-  mProp = property mEntity
-  mName = Map.findWithDefault "M" "Name" mProp
+  mPos        = coord mEntity
+  items       = GE.getEntityBy mPos (entityT w)
+  mName       = Map.findWithDefault "M" "Name" (property mEntity)
+  pickedItems = GI.checkPickUp (inventory newMonster) (inventory mEntity)
   newMonster = if not (null items)
     then GI.pickUp items mEntity
     else mEntity
-  newEntity = if not (null items)
+  newEntity = if pickedItems /= Map.empty
     then GI.emptyBy mPos items (entityT w)
     else entityT w
-  entry = if length items > 1
-    then T.append mName " found Coin!"
+  entry = if pickedItems /= Map.empty
+    then T.append mName " Get Coin!"
     else T.pack "..."
   in w { entityT  = GE.updateEntity mx newMonster newEntity
        , journalT = GJ.updateJournal [entry] (journalT w) }
@@ -143,8 +143,7 @@ monsterHeal mx mEntity w = let
   heal   = eHP mEntity + 1
   mHp    = if heal > mMaxHp then mMaxHp else heal
   mMaxHp = eMaxHP mEntity
-  mProp  = property mEntity
-  mName  = Map.findWithDefault "M" "Name" mProp
+  mName  = Map.findWithDefault "M" "Name" (property mEntity)
   entry = if mHp <= 5
     then T.append mName " is *Hurting*..."
     else T.pack "..."

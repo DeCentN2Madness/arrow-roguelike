@@ -33,7 +33,7 @@ drawText r w = do
         | T.any (=='@') x = blue
         | T.any (=='*') x = purple
         | otherwise = white
-  fn <- SDL.Font.load "./assets/fonts/Hack-Regular.ttf" 16
+  fn <- SDL.Font.load "./assets/fonts/Hack-Regular.ttf" 14
   -- Journal
   forM_ logs $ \(i, j) -> do
     -- Text
@@ -41,7 +41,7 @@ drawText r w = do
     sz <- SDL.Font.size fn j
     rt <- SDL.createTextureFromSurface r tx
     -- HUD
-    let hudT = snd (screenXY w) - fromIntegral (snd sz  + (i * snd sz))
+    let hudT = snd (screenXY w) - fromIntegral (snd sz + (i * snd sz))
     renderText r rt sz (5, hudT)
     -- Cleanup
     SDL.freeSurface tx

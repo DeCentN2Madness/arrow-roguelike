@@ -15,6 +15,7 @@ module Game.Player (characterSheet
                    , characterInventory
                    , getArrow
                    , getHealth
+                   , getMana
                    , getMushroom
                    , getPotion
                    , getPlayer
@@ -41,6 +42,8 @@ abilityMod n = (n-10) `div` 2
 characterSheet :: EntityMap -> [Text]
 characterSheet em = let
   (pEntity, _) = getPlayer em
+  pInv  = inventory pEntity
+  pCoin = T.append "AU: " (T.pack $ show $ Map.findWithDefault 0 "Coin" pInv)
   pProp = property pEntity
   pStr  = T.append "Str: " (Map.findWithDefault "1" "str" pProp)
   pDex  = T.append "Dex: " (Map.findWithDefault "1" "dex" pProp)
@@ -49,7 +52,7 @@ characterSheet em = let
   pWis  = T.append "Wis: " (Map.findWithDefault "1" "wis" pProp)
   pLvl  = T.pack $ "Level: " ++ show (eLvl pEntity)
   pExp  = T.pack $ "EXP: " ++ show (eXP pEntity)
-  in [ pLvl, pExp, " ", pStr, pDex, pCon, pInt, pWis ]
+  in [ pLvl, pExp, pCoin, " ", pStr, pDex, pCon, pInt, pWis ]
 
 -- | @ Inv
 characterInventory :: EntityMap -> [Text]
@@ -63,7 +66,7 @@ characterInventory em = let
   in [ pCoin, pArrow, pMush, pPot ]
 
 -- | @ lives at 0
--- renderHpBar for Player
+-- Arrow for Player
 getArrow :: EntityMap -> Double
 getArrow em = let
   (pEntity, _) = getPlayer em
@@ -72,7 +75,7 @@ getArrow em = let
   in pArrow / 20.0
 
 -- | @ lives at 0
--- renderHpBar for Player
+-- Health for Player
 getHealth :: EntityMap -> Double
 getHealth em = let
   (pEntity, _) = getPlayer em
@@ -81,7 +84,7 @@ getHealth em = let
   in hp / maxHp
 
 -- | @ lives at 0
--- renderHpBar for Player
+-- Mushroom for Player
 getMushroom :: EntityMap -> Double
 getMushroom em = let
   (pEntity, _) = getPlayer em
@@ -90,12 +93,21 @@ getMushroom em = let
   in pMush / 20.0
 
 -- | @ lives at 0
+-- Mana for Player
+getMana :: EntityMap -> Double
+getMana em = let
+  (pEntity, _) = getPlayer em
+  mp    = fromIntegral $ eMP pEntity
+  maxMp = fromIntegral $ eMaxMP pEntity
+  in mp / maxMp
+
+-- | @ lives at 0
 -- getPlayer
 getPlayer :: EntityMap -> (Player, Coord)
 getPlayer = GE.getEntityAt 0
 
 -- | @ lives at 0
--- renderHpBar for Player
+-- Potion for Player
 getPotion :: EntityMap -> Double
 getPotion em = let
   (pEntity, _) = getPlayer em
@@ -122,20 +134,26 @@ updatePlayerBy :: Coord -> EntityMap -> EntityMap
 updatePlayerBy = GE.updateEntityPos 0
 
 -- | updateEntityXP at ix
+-- TODO HP, MP based on class
 updatePlayerXP :: Int -> EntityMap -> EntityMap
 updatePlayerXP xp em = let
   (pEntity, _ ) = getPlayer em
   pProp     = property pEntity
   pCon      = read $ T.unpack $ Map.findWithDefault "1" "con" pProp
+  pWis      = read $ T.unpack $ Map.findWithDefault "1" "wis" pProp
   pTot      = eXP pEntity + xp
   pLvl      = xpLevel pTot
   pHP       = if pLvl > eLvl pEntity then pMaxHP else eHP pEntity
   pMaxHP    = pLvl * (10 + abilityMod pCon)
+  pMP       = if pLvl > eLvl pEntity then pMaxMP else eMP pEntity
+  pMaxMP    = pLvl * (10 + abilityMod pWis)
   newProp   = Map.insert "Proficiency" (T.pack $ show $ proficiency pLvl) pProp
   newPlayer = pEntity { property=newProp
                       , eLvl=pLvl
                       , eHP=pHP
                       , eMaxHP=pMaxHP
+                      , eMP=pMP
+                      , eMaxMP=pMaxMP
                       , eXP=pTot }
   in updatePlayer newPlayer em
 

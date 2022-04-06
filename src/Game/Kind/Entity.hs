@@ -22,8 +22,9 @@ import GHC.Generics
 import qualified Data.Map.Strict as Map
 
 type Coord = (Int, Int)
+type Prop = [(Text, Text)]
 type Properties = Map Text Text
-type Inventories = Map Text Int
+type Inventory = Map Text Int
 
 -- | Entity sort based on game value
 data Entity
@@ -52,8 +53,10 @@ instance ToJSON Entity
 -- property  = Textual descriptions of the entity
 -- inventory = Items
 -- eLvl      = Level of the entity
--- eHP       = HitPoints
+-- eHP       = HitPoint
 -- eMaxHP    = Max HP
+-- eMP       = ManaPoint
+-- eMaxMP    = Max MP
 -- eXP       = Experience
 data EntityKind = EntityKind
   { coord      :: Coord
@@ -62,53 +65,52 @@ data EntityKind = EntityKind
   , moveT      :: [Coord]
   , spawn      :: Coord
   , property   :: Properties
-  , inventory  :: Inventories
+  , inventory  :: Inventory
   , eLvl       :: Int
   , eHP        :: Int
   , eMaxHP     :: Int
+  , eMP        :: Int
+  , eMaxMP     :: Int
   , eXP        :: Int
   } deriving (Show, Generic)
 
 instance FromJSON EntityKind
 instance ToJSON EntityKind
 
-defaultEK :: Coord -> Text -> Text -> EntityKind
-defaultEK xy name desc = EntityKind {
-  coord = xy
-  , block     = False
-  , kind      = Arrow
-  , moveT     = []
-  , spawn     = xy
-  , property  = mkProp name desc
-  , inventory = Map.empty
-  , eLvl      = 0
-  , eHP       = 0
-  , eMaxHP    = 0
-  , eXP       = 0
-  }
+defaultEK :: Text -> Text -> Coord -> EntityKind
+defaultEK name desc xy =
+  EntityKind { coord = xy
+             , block     = False
+             , kind      = Arrow
+             , moveT     = []
+             , spawn     = xy
+             , property  = mkProp name desc []
+             , inventory = Map.empty
+             , eLvl      = 0
+             , eHP       = 0
+             , eMaxHP    = 0
+             , eMP       = 0
+             , eMaxMP    = 0
+             , eXP       = 0
+             }
 
 -- | cleric
-cleric :: Properties -> Properties
-cleric p = let
-  mProp = Map.toList p
-  stats = [ ("str", "10")
-          , ("dex", "12")
-          , ("con", "13")
-          , ("int", "14")
-          , ("wis", "15")
-          , ("HP", "8")
-          , ("XP", "0")
-          , ("Proficiency", "2")
-          , ("Challenge", "1")
-          , ("Throw", "chants!")
-          ] ++ mProp
-  in Map.fromList stats
+cleric :: Prop
+cleric = [ ("str", "10")
+         , ("dex", "12")
+         , ("con", "13")
+         , ("int", "14")
+         , ("wis", "15")
+         , ("HP", "8")
+         , ("XP", "0")
+         , ("Proficiency", "2")
+         , ("Challenge", "1")
+         , ("Throw", "chants!")
+         ]
 
 -- | fighter
-fighter :: Properties -> Properties
-fighter p = let
-  mProp = Map.toList p
-  stats = [ ("str", "15")
+fighter :: Prop
+fighter = [ ("str", "15")
           , ("dex", "14")
           , ("con", "13")
           , ("int", "12")
@@ -117,64 +119,51 @@ fighter p = let
           , ("XP", "0")
           , ("Proficiency", "2")
           , ("Challenge", "1")
-          ] ++ mProp
-  in Map.fromList stats
+          ]
 
+-- | mage
+mage :: Prop
+mage = [ ("str", "10")
+       , ("dex", "12")
+       , ("con", "13")
+       , ("int", "15")
+       , ("wis", "14")
+       , ("HP", "6")
+       , ("XP", "0")
+       , ("Proficiency", "2")
+       , ("Challenge", "1")
+       , ("Throw", "casts!")
+       ]
 
 -- | ranger
-ranger :: Properties -> Properties
-ranger p = let
-  mProp = Map.toList p
-  stats = [ ("str", "12")
-          , ("dex", "15")
-          , ("con", "13")
-          , ("int", "10")
-          , ("wis", "14")
-          , ("HP", "10")
-          , ("XP", "0")
-          , ("Proficiency", "2")
-          , ("Challenge", "1")
-          ] ++ mProp
-  in Map.fromList stats
+ranger :: Prop
+ranger = [ ("str", "12")
+         , ("dex", "15")
+         , ("con", "13")
+         , ("int", "10")
+         , ("wis", "14")
+         , ("HP", "10")
+         , ("XP", "0")
+         , ("Proficiency", "2")
+         , ("Challenge", "1")
+         ]
 
 -- | rogue
-rogue :: Properties -> Properties
-rogue p = let
-  mProp = Map.toList p
-  stats = [ ("str", "10")
-          , ("dex", "15")
-          , ("con", "13")
-          , ("int", "14")
-          , ("wis", "12")
-          , ("HP", "8")
-          , ("XP", "0")
-          , ("Proficiency", "2")
-          , ("Challenge", "1")
-          ] ++ mProp
-  in Map.fromList stats
-
--- | wizard
-wizard :: Properties -> Properties
-wizard p = let
-  mProp = Map.toList p
-  stats = [ ("str", "10")
-          , ("dex", "12")
-          , ("con", "13")
-          , ("int", "15")
-          , ("wis", "14")
-          , ("HP", "6")
-          , ("XP", "0")
-          , ("Proficiency", "2")
-          , ("Challenge", "1")
-          , ("Throw", "casts!")
-          ] ++ mProp
-  in Map.fromList stats
+rogue :: Prop
+rogue = [ ("str", "10")
+        , ("dex", "15")
+        , ("con", "13")
+        , ("int", "14")
+        , ("wis", "12")
+        , ("HP", "8")
+        , ("XP", "0")
+        , ("Proficiency", "2")
+        , ("Challenge", "1")
+        ]
 
 -- | Mouse
-smBeast :: Properties -> Properties
-smBeast p = let
-  mProp = Map.toList p
-  stats = [ ("str", "7")
+smBeast :: Prop
+smBeast = [ ("str", "7")
           , ("dex", "15")
           , ("con", "11")
           , ("int", "2")
@@ -183,14 +172,11 @@ smBeast p = let
           , ("XP", "25")
           , ("Proficiency", "2")
           , ("Challenge", "1")
-          ] ++ mProp
-  in Map.fromList stats
+          ]
 
 -- | Wolf
-mdBeast :: Properties -> Properties
-mdBeast p = let
-  mProp = Map.toList p
-  stats = [ ("str", "12")
+mdBeast :: Prop
+mdBeast = [ ("str", "12")
           , ("dex", "15")
           , ("con", "12")
           , ("int", "3")
@@ -199,31 +185,25 @@ mdBeast p = let
           , ("XP", "50")
           , ("Proficiency", "2")
           , ("Challenge", "1")
-          ] ++ mProp
-  in Map.fromList stats
+          ]
 
 -- | Dragon Wyrmling
-mdDragon :: Properties -> Properties
-mdDragon p = let
-  mProp = Map.toList p
-  stats = [ ("str", "15")
-          , ("dex", "14")
-          , ("con", "13")
-          , ("int", "10")
-          , ("wis", "11")
-          , ("HP", "33")
-          , ("XP", "450")
-          , ("Proficiency", "4")
-          , ("Challenge", "4")
-          , ("Throw", "breathes!")
-          ] ++ mProp
-  in Map.fromList stats
+mdDragon :: Prop
+mdDragon = [ ("str", "15")
+           , ("dex", "14")
+           , ("con", "13")
+           , ("int", "10")
+           , ("wis", "11")
+           , ("HP", "33")
+           , ("XP", "450")
+           , ("Proficiency", "4")
+           , ("Challenge", "4")
+           , ("Throw", "breathes!")
+           ]
 
 -- | Spider
-lgBeast :: Properties -> Properties
-lgBeast p = let
-  mProp = Map.toList p
-  stats = [ ("str", "14")
+lgBeast :: Prop
+lgBeast = [ ("str", "14")
           , ("dex", "16")
           , ("con", "12")
           , ("int", "2")
@@ -232,40 +212,33 @@ lgBeast p = let
           , ("XP", "200")
           , ("Proficiency", "3")
           , ("Challenge", "3")
-          ] ++ mProp
-  in Map.fromList stats
+          ]
 
 -- | Orc
-mdHumanoid :: Properties -> Properties
-mdHumanoid p = let
-  mProp = Map.toList p
-  stats = [ ("str", "16")
-          , ("dex", "12")
-          , ("con", "16")
-          , ("int", "7")
-          , ("wis", "11")
-          , ("HP", "15")
-          , ("XP", "100")
-          , ("Proficiency", "2")
-          , ("Challenge", "2")
-          ] ++ mProp
-  in Map.fromList stats
+mdHumanoid :: Prop
+mdHumanoid = [ ("str", "16")
+             , ("dex", "12")
+             , ("con", "16")
+             , ("int", "7")
+             , ("wis", "11")
+             , ("HP", "15")
+             , ("XP", "100")
+             , ("Proficiency", "2")
+             , ("Challenge", "2")
+             ]
 
 -- | Troll
-gtHumanoid :: Properties -> Properties
-gtHumanoid p = let
-  mProp = Map.toList p
-  stats = [ ("str", "18")
-          , ("dex", "13")
-          , ("con", "20")
-          , ("int", "7")
-          , ("wis", "9")
-          , ("HP", "84")
-          , ("XP", "1800")
-          , ("Proficiency", "3")
-          , ("Challenge", "5")
-          ] ++ mProp
-  in Map.fromList stats
+gtHumanoid :: Prop
+gtHumanoid = [ ("str", "18")
+             , ("dex", "13")
+             , ("con", "20")
+             , ("int", "7")
+             , ("wis", "9")
+             , ("HP", "84")
+             , ("XP", "1800")
+             , ("Proficiency", "3")
+             , ("Challenge", "5")
+             ]
 
 -- | mkInventory
 -- One lucky Mushroom
@@ -281,43 +254,46 @@ mkInventory n
   | n == "Spider" = [("Arrow", 0), ("Potion", 1), ("Mushroom", 1), ("Coin", 0)]
   | n == "Troll"  = [("Arrow", 0), ("Potion", 1), ("Mushroom", 1), ("Coin", 0)]
   | n == "Wizard" = [("Arrow", 2), ("Potion", 1), ("Mushroom", 1), ("Coin", 1)]
-  | otherwise     = [("Arrow", 0), ("Potion", 0), ("Mushroom", 0), ("Coin", 0)]
+  | otherwise     = [("Arrow", 0), ("Potion", 0), ("Mushroom", 1), ("Coin", 0)]
 
 -- | mkMonster
 mkMonster :: Text -> Text -> Coord -> EntityKind
 mkMonster name desc xy = let
-  e = defaultEK xy name desc
+  e = defaultEK name desc xy
   monster = case name of
-    "Cleric"  -> cleric (property e)
-    "Fighter" -> fighter (property e)
-    "Mouse"   -> smBeast (property e)
-    "Wolf"    -> mdBeast (property e)
-    "Spider"  -> lgBeast (property e)
-    "Dragon"  -> mdDragon (property e)
-    "Player"  -> fighter (property e)
-    "Orc"     -> mdHumanoid (property e)
-    "Ranger"  -> ranger (property e)
-    "Rogue"   -> rogue (property e)
-    "Troll"   -> gtHumanoid (property e)
-    "Wizard"  -> wizard (property e)
-    _         -> fighter (property e)
-  mHP  = read $ T.unpack $ Map.findWithDefault "1" "HP" monster
-  mXP  = read $ T.unpack $ Map.findWithDefault "1" "XP" monster
-  mLvl = read $ T.unpack $ Map.findWithDefault "1" "Challenge" monster
-  mInv = mkInventory name
+    "Cleric"  -> cleric
+    "Dragon"  -> mdDragon
+    "Fighter" -> fighter
+    "Mage"    -> mage
+    "Mouse"   -> smBeast
+    "Orc"     -> mdHumanoid
+    "Player"  -> fighter
+    "Ranger"  -> ranger
+    "Rogue"   -> rogue
+    "Spider"  -> lgBeast
+    "Troll"   -> gtHumanoid
+    "Wolf"    -> mdBeast
+    _         -> fighter
+  mProp = mkProp name desc monster
+  mHP  = read $ T.unpack $ Map.findWithDefault "1" "HP" mProp
+  mXP  = read $ T.unpack $ Map.findWithDefault "1" "XP" mProp
+  mLvl = read $ T.unpack $ Map.findWithDefault "1" "Challenge" mProp
+  mInv = Map.fromList $ mkInventory name
   in e { block=True
        , kind=Monster
-       , property=monster
-       , inventory=Map.fromList mInv
+       , property=mProp
+       , inventory=mInv
+       , eLvl=mLvl
        , eHP=mHP
        , eMaxHP=mHP
        , eXP=mXP
-       , eLvl=mLvl
        }
 
 -- | mkProp
-mkProp :: Text -> Text -> Properties
-mkProp name desc = Map.fromList [ ("Name", name), ("Description", desc) ]
+mkProp :: Text -> Text -> Prop -> Properties
+mkProp name desc p = Map.fromList $ [ ("Name", name)
+                                  , ("Description", desc)
+                                  ] ++ p
 
 -- | mkEntity
 mkEntity :: Entity -> Coord -> EntityKind
@@ -325,30 +301,30 @@ mkEntity Actor xy = let
   e = mkMonster "Player" "The Hero '@'" xy
   in e { kind=Actor }
 mkEntity Arrow xy = let
-  e = defaultEK xy "Arrow" "~"
+  e = defaultEK "Arrow" "~" xy
   in e { kind=Arrow }
 mkEntity Coin xy = let
-  e = defaultEK xy "Coin" "$"
+  e = defaultEK "Coin" "$" xy
   in e { kind=Coin }
 mkEntity Corpse xy = let
-  e = defaultEK xy "Corpse" "%"
+  e = defaultEK "Corpse" "%" xy
   in e { kind=Corpse }
 mkEntity Item xy = let
-  e = defaultEK xy "Item" "["
+  e = defaultEK "Item" "[" xy
   in e { kind=Item }
 mkEntity Monster xy = mkMonster "Orc" "Medium humanoid (o)" xy
 mkEntity Mushroom xy = let
-  e = defaultEK xy "Mushroom" ","
+  e = defaultEK "Mushroom" "," xy
   in e { kind=Mushroom }
 mkEntity Potion xy = let
-  e = defaultEK xy "Potion" "!"
+  e = defaultEK "Potion" "!" xy
   in e { kind=Potion }
 mkEntity StairDown xy = let
-  e = defaultEK xy "StairDown" ">"
+  e = defaultEK "StairDown" ">" xy
   in e { kind=StairDown }
 mkEntity StairUp xy = let
-  e = defaultEK xy "StairUp" "<"
+  e = defaultEK "StairUp" "<" xy
   in e { kind=StairUp }
 mkEntity Trap xy = let
-  e = defaultEK xy "Trap" "^"
+  e = defaultEK "Trap" "^" xy
   in e { kind=Trap }

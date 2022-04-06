@@ -24,26 +24,27 @@ import Game.Kind.Entity
 
 type AssetMap = EntityMap
 type Coord = (Int, Int)
+type Inventory = Map Text Int
 type NameMap = Map Text EntityKind
 
 -- | encumberance
--- Except Coin, 20 is the limit
--- TODO utilize Str, Weight, ...
-encumberance :: Map Text Int -> Map Text Int
+-- Twenty is the limit, except Coin...
+encumberance :: Inventory -> Inventory
 encumberance inv = let
   invT = [ (k, v) | (k, j) <- Map.toList inv,
            let v = case k of
                  "Coin" -> j
-                 _ -> if j > 20 then 20 else j ]
+                 _      -> if j > 20 then 20 else j ]
   in Map.fromList invT
 
 -- | emptyBy
--- Get the list of picked items...
+-- Remove the picked items from the map...
 emptyBy :: Coord -> [(EntityKind, Coord)] -> EntityMap -> EntityMap
 emptyBy pos items em = let
   entityIX = [ (xy, ix, e) | (ix, e) <- Map.toList em, let xy = coord e ]
   deleteList = [ d | (xy, i, e) <- entityIX,
-                 let d = if xy == pos && kind e `elem` pickList items
+                 let d = if xy == pos &&
+                       kind e `elem` pickList items
                        then i else (-1) ]
   newEntity = filter ((/=(-1)).fst) $
     [ (ix, ek) | (i, ek) <- Map.toList em,
@@ -61,25 +62,24 @@ groupEK = map (head &&& length) . group . sort
 mkNameMap :: AssetMap -> NameMap
 mkNameMap am = let
   assetList = [ (name, ek) | (_, ek) <- Map.toList am,
-                let eProp = property ek
-                    name  = Map.findWithDefault "M" "Name" eProp ]
+                let name = Map.findWithDefault "M" "Name" (property ek) ]
   in Map.fromList assetList
 
 -- | mkItem
 mkItem :: Text -> Coord -> AssetMap -> EntityKind
 mkItem name pos am = let
   assets = mkNameMap am
-  arr    = mkEntity Arrow pos
-  item   = Map.findWithDefault arr name assets
-  in item { coord = pos }
+  coin   = mkEntity Coin pos
+  item   = Map.findWithDefault coin name assets
+  in item { coord = pos, spawn = pos }
 
 -- | noPickup
 noPickup :: [Entity]
 noPickup = [Actor, Corpse, Monster, StairDown, StairUp, Trap]
 
--- | P pickList
-pickList :: [(EntityKind, (Int, Int))] -> [Entity]
-pickList items = filter (`notElem` noPickup) $ [ kind e | (e, _) <- items ]
+-- | pickList
+pickList :: [(EntityKind, Coord)] -> [Entity]
+pickList items = filter (`notElem` noPickup) $ [ kind k | (k, _) <- items ]
 
 -- | pickUp
 pickUp :: [(EntityKind, Coord)] -> EntityKind -> EntityKind

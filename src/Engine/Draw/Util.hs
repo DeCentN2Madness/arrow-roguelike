@@ -48,16 +48,16 @@ draw r ts w = do
      -- HUD Text
      EDT.drawText r w
      -- Vitals Bar
-     let pHp    = GP.getHealth (entityT w)
-         pMp    = GP.getMana (entityT w)
-         pArrow = GP.getArrow (entityT w)
+     let pHp    = GP.getHealth   (entityT w)
+         pMp    = GP.getMana     (entityT w)
+         pArrow = GP.getArrow    (entityT w)
          pMush  = GP.getMushroom (entityT w)
-         pPot   = GP.getPotion (entityT w)
-     renderHpBar r (5, 180) 100.0 10.0 Red   Green  pHp
-     renderHpBar r (5, 190) 100.0 10.0 White Blue   pMp
-     renderHpBar r (5, 200) 100.0 10.0 Gray  Yellow pArrow
-     renderHpBar r (5, 210) 100.0 10.0 Gray  Brown  pMush
-     renderHpBar r (5, 220) 100.0 10.0 Gray  Purple pPot
+         pPot   = GP.getPotion   (entityT w)
+     renderHpBar r (5, 170) 100.0 10.0 Red   Green  pHp
+     renderHpBar r (5, 180) 100.0 10.0 White Blue   pMp
+     renderHpBar r (5, 190) 100.0 10.0 Gray  Yellow pArrow
+     renderHpBar r (5, 200) 100.0 10.0 Gray  Brown  pMush
+     renderHpBar r (5, 210) 100.0 10.0 Gray  Purple pPot
   -- Screen
   SDL.present r
 

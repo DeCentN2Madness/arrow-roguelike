@@ -244,17 +244,21 @@ gtHumanoid = [ ("str", "18")
 -- One lucky Mushroom
 mkInventory :: Text -> [(Text, Int)]
 mkInventory n
-  | n == "Cleric" = [("Arrow", 2), ("Potion", 1), ("Mushroom", 1), ("Coin", 1)]
-  | n == "Dragon" = [("Arrow", 2), ("Potion", 1), ("Mushroom", 1), ("Coin", 1)]
-  | n == "Fighter"= [("Arrow", 0), ("Potion", 0), ("Mushroom", 1), ("Coin", 1)]
-  | n == "Player" = [("Arrow", 0), ("Potion", 0), ("Mushroom", 1), ("Coin", 0)]
-  | n == "Orc"    = [("Arrow", 1), ("Potion", 0), ("Mushroom", 1), ("Coin", 0)]
-  | n == "Ranger" = [("Arrow", 1), ("Potion", 0), ("Mushroom", 1), ("Coin", 0)]
-  | n == "Rogue"  = [("Arrow", 0), ("Potion", 1), ("Mushroom", 1), ("Coin", 0)]
-  | n == "Spider" = [("Arrow", 0), ("Potion", 1), ("Mushroom", 1), ("Coin", 0)]
-  | n == "Troll"  = [("Arrow", 0), ("Potion", 1), ("Mushroom", 1), ("Coin", 0)]
-  | n == "Wizard" = [("Arrow", 2), ("Potion", 1), ("Mushroom", 1), ("Coin", 1)]
-  | otherwise     = [("Arrow", 0), ("Potion", 0), ("Mushroom", 0), ("Coin", 0)]
+  | n == "Cleric"  = [("Arrow",1),("Potion",1),("Mushroom",1),("Coin",1)]
+  | n == "Fighter" = [("Arrow",0),("Potion",0),("Mushroom",1),("Coin",1)]
+  | n == "Mage"    = [("Arrow",1),("Potion",1),("Mushroom",1),("Coin",1)]
+  | n == "Player"  = [("Arrow",0),("Potion",0),("Mushroom",1),("Coin",0)]
+  | n == "Ranger"  = [("Arrow",1),("Potion",0),("Mushroom",1),("Coin",1)]
+  | n == "Rogue"   = [("Arrow",0),("Potion",1),("Mushroom",1),("Coin",1)]
+  | n == "Dragon"     = [("Arrow",1),("Potion",1),("Mushroom",1),("Coin",1)]
+  | n == "Orc"        = [("Arrow",0),("Potion",0),("Mushroom",5),("Coin",1)]
+  | n == "Orc Archer" = [("Arrow",5),("Potion",0),("Mushroom",0),("Coin",1)]
+  | n == "Orc Shaman" = [("Arrow",0),("Potion",5),("Mushroom",0),("Coin",1)]
+  | n == "Spider"     = [("Arrow",0),("Potion",1),("Mushroom",1),("Coin",1)]
+  | n == "Troll"        = [("Arrow",0),("Potion",0),("Mushroom",5),("Coin",1)]
+  | n == "Troll Archer" = [("Arrow",5),("Potion",0),("Mushroom",0),("Coin",1)]
+  | n == "Troll Shaman" = [("Arrow",0),("Potion",5),("Mushroom",0),("Coin",1)]
+  | otherwise     = [("Arrow",0),("Potion",0),("Mushroom",0),("Coin",0)]
 
 -- | mkMonster
 mkMonster :: Text -> Text -> Coord -> EntityKind
@@ -267,11 +271,15 @@ mkMonster name desc xy = let
     "Mage"    -> mage
     "Mouse"   -> smBeast
     "Orc"     -> mdHumanoid
+    "Orc Archer" -> mdHumanoid
+    "Orc Shaman" -> mdHumanoid
     "Player"  -> fighter
     "Ranger"  -> ranger
     "Rogue"   -> rogue
     "Spider"  -> lgBeast
     "Troll"   -> gtHumanoid
+    "Troll Archer" -> gtHumanoid
+    "Troll Shaman" -> gtHumanoid
     "Wolf"    -> mdBeast
     _         -> fighter
   mProp = mkProp name desc monster

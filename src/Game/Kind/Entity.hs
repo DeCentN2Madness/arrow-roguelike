@@ -255,9 +255,9 @@ mkInventory n
   | n == "Orc Archer" = [("Arrow",5),("Potion",0),("Mushroom",0),("Coin",1)]
   | n == "Orc Shaman" = [("Arrow",0),("Potion",5),("Mushroom",0),("Coin",1)]
   | n == "Spider"     = [("Arrow",0),("Potion",1),("Mushroom",1),("Coin",1)]
-  | n == "Troll"        = [("Arrow",0),("Potion",0),("Mushroom",5),("Coin",1)]
-  | n == "Troll Archer" = [("Arrow",5),("Potion",0),("Mushroom",0),("Coin",1)]
-  | n == "Troll Shaman" = [("Arrow",0),("Potion",5),("Mushroom",0),("Coin",1)]
+  | n == "Troll"        = [("Arrow",0),("Potion",0),("Mushroom",1),("Coin",1)]
+  | n == "Troll Archer" = [("Arrow",1),("Potion",0),("Mushroom",0),("Coin",1)]
+  | n == "Troll Shaman" = [("Arrow",0),("Potion",1),("Mushroom",0),("Coin",1)]
   | otherwise     = [("Arrow",0),("Potion",0),("Mushroom",0),("Coin",0)]
 
 -- | mkMonster

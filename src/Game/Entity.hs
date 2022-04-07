@@ -108,9 +108,11 @@ mkAssetMap ek = let
          , mkMonster "Fighter" "Medium human (h)" pos
          , mkMonster "Ranger"  "Medium human (h)" pos
          , mkMonster "Rogue"   "Medium human (h)" pos
-         , mkMonster "Wizard"  "Medium human (h)" pos
+         , mkMonster "Mage"    "Medium human (h)" pos
          , mkMonster "Mouse"   "Small beast (r)" pos
-         , mkMonster "Orc"     "Medium humanoid (o)" pos
+         , mkMonster "Orc"         "Medium humanoid (o)" pos
+         , mkMonster "Orc Shaman"  "Medium humanoid (o)" pos
+         , mkMonster "Orc Archer"  "Medium humanoid (o)" pos
          , mkMonster "Spider"  "Large beast (S)" pos
          , mkMonster "Troll"   "Large giant (T)" pos
          , mkMonster "Wolf"    "Medium beast (c)" pos

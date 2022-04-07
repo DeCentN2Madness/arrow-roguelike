@@ -55,11 +55,13 @@ mkMonsterMap depth tm am = let
   arrows  = Map.findWithDefault arr "Arrow"    assets
   mice    = Map.findWithDefault arr "Mouse"    assets
   -- add powerful monsters deeper to level...
-  wolves  = Map.findWithDefault arr "Wolf"    assets
-  orcs    = Map.findWithDefault arr "Orc"     assets
-  dragons = Map.findWithDefault arr "Dragon"  assets
-  spiders = Map.findWithDefault arr "Spider"  assets
-  trolls  = Map.findWithDefault arr "Troll"   assets
+  wolves     = Map.findWithDefault arr "Wolf"       assets
+  orc        = Map.findWithDefault arr "Orc"        assets
+  orcArcher  = Map.findWithDefault arr "Orc Archer" assets
+  orcShaman  = Map.findWithDefault arr "Orc Shaman" assets
+  dragons    = Map.findWithDefault arr "Dragon"     assets
+  spiders    = Map.findWithDefault arr "Spider"     assets
+  trolls     = Map.findWithDefault arr "Troll"      assets
   -- fill the dungeon...
   monsters
     | depth >= 15 =
@@ -68,12 +70,13 @@ mkMonsterMap depth tm am = let
              , insertRand potions 21 30 openList
              , insertRand coins   31 40 openList
              , insertRand arrows  41 50 openList
-             , insertRand mice    51 60 openList
-             , insertRand wolves  61 70 topRight
-             , insertRand orcs    70 80 topRight
-             , insertRand spiders 80 85 bottomLeft
-             , insertRand dragons 85 90 bottomLeft
-             , insertRand trolls  90 95 bottomRight
+             , insertRand wolves  61 65 openList
+             , insertRand orc     66 70 openList
+             , insertRand orcArcher 71 80 openList
+             , insertRand orcShaman 81 90 topRight
+             , insertRand spiders 91 100 topRight
+             , insertRand dragons 101 105 bottomLeft
+             , insertRand trolls  106 110 bottomRight
                 ]
     | depth >= 10 && depth < 15 =
       concat [ insertRand shrooms 1  10 openList
@@ -81,10 +84,11 @@ mkMonsterMap depth tm am = let
              , insertRand potions 21 30 openList
              , insertRand coins   31 40 openList
              , insertRand arrows  41 50 openList
-             , insertRand mice    51 60 openList
-             , insertRand wolves  61 70 topRight
-             , insertRand orcs    70 80 bottomLeft
-             , insertRand spiders 80 85 bottomRight
+             , insertRand wolves  51 60 openList
+             , insertRand orc       61 70 topRight
+             , insertRand orcArcher 71 80 bottomLeft
+             , insertRand orcShaman 81 90 bottomRight
+             , insertRand spiders   91 95 bottomRight
              ]
     | depth >= 5 && depth < 10 =
       concat [ insertRand shrooms 1  10 openList
@@ -101,7 +105,7 @@ mkMonsterMap depth tm am = let
             , insertRand potions 21 30 openList
             , insertRand coins   31 40 openList
             , insertRand arrows  41 50 openList
-            , insertRand mice    51 60 openList
+            , insertRand mice    51 70 openList
             ]
   in Map.fromList monsters
 

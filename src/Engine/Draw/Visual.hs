@@ -21,6 +21,7 @@ import Prelude hiding (lookup)
 import Control.Monad.IO.Class (MonadIO)
 import Data.Map (Map)
 import qualified Data.Map.Strict as Map
+import qualified Data.Text as T
 import Foreign.C.Types (CInt)
 import qualified SDL
 import Engine.Arrow.Data (World(..))
@@ -176,7 +177,7 @@ mkVisualMap ts w = do
                       Corpse    -> mkVisual VCorpse   ts
                       Item      -> mkVisual VItem     ts
                       Mushroom  -> mkVisual VMushroom ts
-                      Monster   -> identify ek ts
+                      Monster   -> visualId ek ts
                       Potion    -> mkVisual VPotion   ts
                       StairDown -> mkVisual VStairDn  ts
                       StairUp   -> mkVisual VStairUp  ts
@@ -184,16 +185,15 @@ mkVisualMap ts w = do
    in Map.fromList $ concat [hardT, litT, seenT]
 
 -- | identify Item, Monster, ... by Name
-identify :: EntityKind -> TextureMap -> Visual
-identify ek ts = let
-  eProp = property ek
-  name = Map.findWithDefault "M" "Name" eProp
-  vt = case name of
-    "Dragon" -> VDragon
-    "Mouse"  -> VMouse
-    "Orc"    -> VOrc
-    "Spider" -> VSpider
-    "Troll"  -> VTroll
-    "Wolf"   -> VWolf
-    _        -> VMouse
-  in mkVisual vt ts
+visualId :: EntityKind -> TextureMap -> Visual
+visualId ek ts = let
+  name = Map.findWithDefault "M" "Name" (property ek)
+  count x xs = length $ filter (==T.pack x) (T.words xs)
+  visual n
+    | count "Dragon" n > 0 = VDragon
+    | count "Orc"    n > 0 = VOrc
+    | count "Spider" n > 0 = VSpider
+    | count "Troll"  n > 0 = VTroll
+    | count "Wolf"   n > 0 = VWolf
+    | otherwise            = VMouse
+  in mkVisual (visual name) ts

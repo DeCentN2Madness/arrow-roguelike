@@ -1,14 +1,23 @@
 # Arrow
 
-Arrow is a tiny roguelike implemented in Haskell with SDL2. This
-project was inspired by RogueLike Tutorials. Arrow is currently a
-Step 9 of the 15 Steps...
+Tiny roguelike in Haskell. Explore the Dungeon!
+
+## Table of Contents
+- [Abstract](#Abstract)
+- [Features](#Features)
+- [Usage](#Usage)
+- [Requirements](#Requirements)
+- [Author](#Author)
+
+
+## Abstract
+Arrow is a tiny roguelike developed in Haskell with SDL2. This
+project was inspired by RogueBasin Tutorials. Arrow is currently a
+Step 9 of the 15 Steps... The goal is to have fun!
 
 &mdash; [RogueBasin.com](http://www.roguebasin.com/index.php/How_to_Write_a_Roguelike_in_15_Steps)
 
-&mdash; [RoguelikeTutorial.com](https://rogueliketutorials.com/tutorials/tcod/v2/)
-
-## Screenshot
+### Screenshot
 ![Screenshot.png](images/Screenshot.png)
 
 ## Features
@@ -38,7 +47,6 @@ Step 9 of the 15 Steps...
 &mdash; `r` to reset the `World`
 
 &mdash; `t` to throw an `Arrow`
-
 
 ## Requirements
 &mdash; [stack](https://haskellstack.org/)

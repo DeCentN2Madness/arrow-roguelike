@@ -103,7 +103,7 @@ mkVisual V2        ts = Visual (512, height) (style ts) width height
 -- 1. Terrain
 -- 2. Lit Terrain with Lamp effect in FoV
 -- 3. Entities in FoV
---    a. fromEntityStack preserves Actor and Monster...
+--    a. fromEntityStack preserves Actor, Monster, Coin...
 mkVisualMap :: TextureMap -> World -> VisualMap
 mkVisualMap ts w = let
   entity = GE.fromEntityStack (entityT w)

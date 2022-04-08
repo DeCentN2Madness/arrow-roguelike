@@ -8,7 +8,7 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 -}
 module Game.Inventory (checkPickUp
                       , emptyBy
-                      , mkItem
+                      , mkDropItem
                       , pickUp
                       , pickList
                       , putDown) where
@@ -73,12 +73,12 @@ mkNameMap am = let
                 let name = Map.findWithDefault "M" "Name" (property ek) ]
   in Map.fromList assetList
 
--- | mkItem
-mkItem :: Text -> Coord -> AssetMap -> EntityKind
-mkItem name pos am = let
+-- | mkDropItem
+mkDropItem :: Text -> Coord -> AssetMap -> EntityKind
+mkDropItem name pos am = let
   assets = mkNameMap am
-  coin   = mkEntity Coin pos
-  item   = Map.findWithDefault coin name assets
+  coin = mkItem "Coin" "$" pos
+  item = Map.findWithDefault coin name assets
   in item { coord = pos, spawn = pos }
 
 -- | noPickup

@@ -9,7 +9,7 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 -}
 module Game.Kind.Entity (Entity(..)
                         , EntityKind(..)
-                        , mkEntity
+                        , mkItem
                         , mkMonster
                         , Properties) where
 
@@ -108,53 +108,79 @@ mkInventory n
   | n == "Player"  = [("Arrow",0),("Potion",0),("Mushroom",1),("Coin",0)]
   | n == "Ranger"  = [("Arrow",1),("Potion",0),("Mushroom",1),("Coin",1)]
   | n == "Rogue"   = [("Arrow",0),("Potion",1),("Mushroom",1),("Coin",1)]
-  | n == "Dragon"     = [("Arrow",1),("Potion",1),("Mushroom",1),("Coin",1)]
-  | n == "Orc"        = [("Arrow",0),("Potion",0),("Mushroom",5),("Coin",1)]
-  | n == "Orc Archer" = [("Arrow",5),("Potion",0),("Mushroom",0),("Coin",1)]
-  | n == "Orc Shaman" = [("Arrow",0),("Potion",5),("Mushroom",0),("Coin",1)]
-  | n == "Spider"     = [("Arrow",0),("Potion",1),("Mushroom",1),("Coin",1)]
+  | n == "Dragon"       = [("Arrow",1),("Potion",1),("Mushroom",1),("Coin",1)]
+  | n == "Red Dragon"   = [("Arrow",1),("Potion",1),("Mushroom",1),("Coin",1)]
+  | n == "Green Dragon" = [("Arrow",1),("Potion",1),("Mushroom",1),("Coin",1)]
+  | n == "Blue Dragon"  = [("Arrow",1),("Potion",1),("Mushroom",1),("Coin",1)]
+  | n == "Black Dragon" = [("Arrow",1),("Potion",1),("Mushroom",1),("Coin",1)]
+  | n == "White Dragon" = [("Arrow",1),("Potion",1),("Mushroom",1),("Coin",1)]
+  | n == "Orc"          = [("Arrow",0),("Potion",0),("Mushroom",5),("Coin",1)]
+  | n == "Orc Archer"   = [("Arrow",5),("Potion",0),("Mushroom",0),("Coin",1)]
+  | n == "Orc Shaman"   = [("Arrow",0),("Potion",5),("Mushroom",0),("Coin",1)]
+  | n == "Spider"       = [("Arrow",0),("Potion",1),("Mushroom",1),("Coin",1)]
   | n == "Troll"        = [("Arrow",0),("Potion",0),("Mushroom",1),("Coin",1)]
   | n == "Troll Archer" = [("Arrow",1),("Potion",0),("Mushroom",0),("Coin",1)]
   | n == "Troll Shaman" = [("Arrow",0),("Potion",1),("Mushroom",0),("Coin",1)]
-  | otherwise     = [("Arrow",0),("Potion",0),("Mushroom",0),("Coin",0)]
+  | otherwise = [("Arrow",0),("Potion",0),("Mushroom",0),("Coin",0)]
+
+-- | mkItem
+mkItem :: Text -> Text -> Coord -> EntityKind
+mkItem name desc xy = let
+  item n
+    | n == "Arrow"     = mkEntity Arrow name desc xy
+    | n == "Coin"      = mkEntity Coin name desc xy
+    | n == "Corpse"    = mkEntity Corpse name desc xy
+    | n == "Item"      = mkEntity Item name desc xy
+    | n == "Mushroom"  = mkEntity Mushroom name desc xy
+    | n == "Potion"    = mkEntity Potion name desc xy
+    | n == "StairDown" = mkEntity StairDown name desc xy
+    | n == "StairUp"   = mkEntity StairUp name desc xy
+    | n == "Trap"      = mkEntity Trap name desc xy
+    | otherwise        = mkEntity Arrow name desc xy
+  in item name
 
 -- | mkMonster
 mkMonster :: Text -> Text -> Coord -> EntityKind
 mkMonster name desc xy = let
-  e = defaultEK name desc xy
-  monster = case name of
-    "Cleric"  -> cleric
-    "Dragon"  -> mdDragon
-    "Fighter" -> fighter
-    "Mage"    -> mage
-    "Mouse"   -> smBeast
-    "Orc"     -> mdHumanoid
-    "Orc Archer" -> mdHumanoid
-    "Orc Shaman" -> mdHumanoid
-    "Player"  -> fighter
-    "Ranger"  -> ranger
-    "Rogue"   -> rogue
-    "Spider"  -> lgBeast
-    "Troll"   -> gtHumanoid
-    "Troll Archer" -> gtHumanoid
-    "Troll Shaman" -> gtHumanoid
-    "Wolf"    -> mdBeast
-    _         -> fighter
-  mProp = mkProp name desc monster
+  monster n
+    | n == "Cleric"  = cleric
+    | n == "Fighter" = fighter
+    | n == "Mage"    = mage
+    | n == "Player"  = fighter
+    | n == "Ranger"  = ranger
+    | n == "Rogue"   = rogue
+    | n == "Dragon"       = mdDragon
+    | n == "Red Dragon"   = mdDragon
+    | n == "Green Dragon" = mdDragon
+    | n == "Blue Dragon"  = mdDragon
+    | n == "Black Dragon" = mdDragon
+    | n == "White Dragon" = mdDragon
+    | n == "Mouse" = smBeast
+    | n == "Orc"        = mdHumanoid
+    | n == "Orc Archer" = mdHumanoid
+    | n == "Orc Shaman" = mdHumanoid
+    | n == "Spider" = lgBeast
+    | n == "Troll"        = gtHumanoid
+    | n == "Troll Archer" = gtHumanoid
+    | n == "Troll Shaman" = gtHumanoid
+    | n == "Wolf" = mdBeast
+    | otherwise = mdHumanoid
+  mProp = mkProp name desc (monster name)
   mHP  = read $ T.unpack $ Map.findWithDefault "1" "HP" mProp
   mXP  = read $ T.unpack $ Map.findWithDefault "1" "XP" mProp
   mLvl = read $ T.unpack $ Map.findWithDefault "1" "Challenge" mProp
   mInv = Map.fromList $ mkInventory name
-  in e { block=True
-       , kind=Monster
-       , glyph=visualId name
-       , property=mProp
-       , inventory=mInv
-       , eLvl=mLvl
-       , eHP=mHP
-       , eMaxHP=mHP
-       , eXP=mXP
-       }
+  ek = defaultEK name desc xy
+  in ek { block=True
+        , kind=if name == "Player" then Actor else Monster
+        , glyph=visualId name
+        , property=mProp
+        , inventory=mInv
+        , eLvl=mLvl
+        , eHP=mHP
+        , eMaxHP=mHP
+        , eXP=mXP
+        }
 
 -- | mkProp
 mkProp :: Text -> Text -> Prop -> Properties
@@ -162,37 +188,35 @@ mkProp name desc p = Map.fromList $
   [ ("Name", name), ("Description", desc)] ++ p
 
 -- | mkEntity
-mkEntity :: Entity -> Coord -> EntityKind
-mkEntity Actor xy = let
-  e = mkMonster "Player" "The Hero '@'" xy
-  in e { kind=Actor, glyph=VActor }
-mkEntity Arrow xy = let
-  e = defaultEK "Arrow" "~" xy
+mkEntity :: Entity -> Text -> Text -> Coord -> EntityKind
+mkEntity Actor   name desc xy = mkMonster name desc xy
+mkEntity Monster name desc xy = mkMonster name desc xy
+mkEntity Arrow name desc xy = let
+  e = defaultEK name desc xy
   in e { kind=Arrow, glyph=VArrow }
-mkEntity Coin xy = let
-  e = defaultEK "Coin" "$" xy
+mkEntity Coin name desc xy = let
+  e = defaultEK name desc xy
   in e { kind=Coin, glyph=VCoin }
-mkEntity Corpse xy = let
-  e = defaultEK "Corpse" "%" xy
+mkEntity Corpse name desc xy = let
+  e = defaultEK name desc xy
   in e { kind=Corpse, glyph=VCorpse }
-mkEntity Item xy = let
-  e = defaultEK "Item" "[" xy
+mkEntity Item name desc xy = let
+  e = defaultEK name desc xy
   in e { kind=Item, glyph=VItem }
-mkEntity Monster xy = mkMonster "Orc" "Medium humanoid (o)" xy
-mkEntity Mushroom xy = let
-  e = defaultEK "Mushroom" "," xy
+mkEntity Mushroom name desc xy = let
+  e = defaultEK name desc xy
   in e { kind=Mushroom, glyph=VMushroom }
-mkEntity Potion xy = let
-  e = defaultEK "Potion" "!" xy
+mkEntity Potion name desc xy = let
+  e = defaultEK name desc xy
   in e { kind=Potion, glyph=VPotion }
-mkEntity StairDown xy = let
-  e = defaultEK "StairDown" ">" xy
+mkEntity StairDown name desc xy = let
+  e = defaultEK name desc xy
   in e { kind=StairDown, glyph=VStairDn }
-mkEntity StairUp xy = let
-  e = defaultEK "StairUp" "<" xy
+mkEntity StairUp name desc xy = let
+  e = defaultEK name desc xy
   in e { kind=StairUp, glyph=VStairUp }
-mkEntity Trap xy = let
-  e = defaultEK "Trap" "^" xy
+mkEntity Trap name desc xy = let
+  e = defaultEK name desc xy
   in e { kind=Trap, glyph=VTrap }
 
 -- | identify Item, Monster, ... by Name
@@ -200,7 +224,10 @@ visualId :: Text -> VisualKind
 visualId name = let
   count x xs = length $ filter (==T.pack x) (T.words xs)
   visual n
+    | count "Actor"  n > 0 = VActor
+    | count "Player" n > 0 = VActor
     | count "Dragon" n > 0 = VDragon
+    | count "Mouse"  n > 0 = VMouse
     | count "Orc"    n > 0 = VOrc
     | count "Spider" n > 0 = VSpider
     | count "Troll"  n > 0 = VTroll

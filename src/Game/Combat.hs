@@ -17,7 +17,7 @@ import Game.Entity (EntityMap)
 import qualified Game.Entity as GE
 import qualified Game.Inventory as GI
 import qualified Game.Journal as GJ
-import Game.Kind.Entity (Entity(..), EntityKind(..))
+import Game.Kind.Entity (EntityKind(..))
 import qualified Game.Player as GP
 
 type AssetMap = EntityMap
@@ -47,7 +47,7 @@ condition hp = let
   in T.append brave dead
 
 -- | death
--- drop inventory around the corpse...
+-- drop inventory around the Corpse...
 death :: Int -> EntityKind -> AssetMap -> EntityMap -> EntityMap
 death mx mEntity am em = let
   mPos   = coord mEntity
@@ -60,13 +60,14 @@ death mx mEntity am em = let
   loc    = scatter mEntity
   -- item mostly Coin
   item
-    | mItem   > 0 = GI.mkItem "Item"     loc am
-    | mPot    > 0 = GI.mkItem "Potion"   loc am
-    | mMush   > 0 = GI.mkItem "Mushroom" loc am
-    | mArrow  > 0 = GI.mkItem "Arrow"    loc am
-    | mCoin   > 0 = GI.mkItem "Coin"     loc am
-    | otherwise   = GI.mkItem "Coin"     loc am
-  newCorpse = GE.insertEntity mx mPos Corpse em
+    | mItem   > 0 = GI.mkDropItem "Item"     loc am
+    | mPot    > 0 = GI.mkDropItem "Potion"   loc am
+    | mMush   > 0 = GI.mkDropItem "Mushroom" loc am
+    | mArrow  > 0 = GI.mkDropItem "Arrow"    loc am
+    | mCoin   > 0 = GI.mkDropItem "Coin"     loc am
+    | otherwise   = GI.mkDropItem "Coin"     loc am
+  corpse = GI.mkDropItem "Corpse" mPos am
+  newCorpse = GE.updateEntity mx corpse em
   in GI.putDown item newCorpse
 
 -- | misFire
@@ -74,7 +75,7 @@ death mx mEntity am em = let
 misFire :: EntityKind -> AssetMap -> EntityMap -> EntityMap
 misFire mEntity am em = let
   loc  = scatter mEntity
-  item = GI.mkItem "Arrow" loc am
+  item = GI.mkDropItem "Arrow" loc am
   in GI.putDown item em
 
 -- | mkCombat

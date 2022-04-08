@@ -71,7 +71,7 @@ actionDrop w = let
   (pEntity, pPos) = GP.getPlayer (entityT w)
   pInv            = inventory pEntity
   pCoin           = Map.findWithDefault 0 "Coin" pInv
-  item            = GI.mkItem "Arrow" pPos (assetT w)
+  item            = GI.mkDropItem "Arrow" pPos (assetT w)
   newPlayer = if pCoin > 0
     then pEntity { inventory = Map.insert "Coin" (pCoin-1) pInv }
     else pEntity

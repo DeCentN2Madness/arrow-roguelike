@@ -22,7 +22,6 @@ module Game.Entity (EntityMap
                    , fromEntityStack
                    , getEntityAt
                    , getEntityBy
-                   , insertEntity
                    , mkAssetMap
                    , mkEntityMap
                    , safeInsertEntity
@@ -82,43 +81,42 @@ getEntityBy pos em = let
   in [ e | (ix, _) <- filter ((==pos).snd) entityList,
        let e = getEntityAt ix em ]
 
--- | insertEntity
-insertEntity :: Int -> Coord -> Entity -> EntityMap -> EntityMap
-insertEntity ix xy ek em = let
-  e = mkEntity ek xy
-  in Map.insert ix e em
-
 -- | mkAssetMap
--- All the assets within the World
-mkAssetMap :: [EntityKind] -> AssetMap
-mkAssetMap ek = let
+-- All the assets within the World by Ix
+mkAssetMap :: AssetMap
+mkAssetMap = let
   pos = (0, 0)
-  em = if null ek
-    then [ mkEntity Actor pos
-         , mkEntity Coin pos
-         , mkEntity Corpse pos
-         , mkEntity Item pos
-         , mkEntity Mushroom pos
-         , mkEntity Potion pos
-         , mkEntity StairDown pos
-         , mkEntity StairUp pos
-         , mkEntity Trap pos
-         , mkEntity Arrow pos
-         , mkMonster "Cleric"  "Medium human (h)" pos
-         , mkMonster "Fighter" "Medium human (h)" pos
-         , mkMonster "Ranger"  "Medium human (h)" pos
-         , mkMonster "Rogue"   "Medium human (h)" pos
-         , mkMonster "Mage"    "Medium human (h)" pos
-         , mkMonster "Mouse"   "Small beast (r)" pos
-         , mkMonster "Orc"         "Medium humanoid (o)" pos
-         , mkMonster "Orc Shaman"  "Medium humanoid (o)" pos
-         , mkMonster "Orc Archer"  "Medium humanoid (o)" pos
-         , mkMonster "Spider"  "Large beast (S)" pos
-         , mkMonster "Troll"   "Large giant (T)" pos
-         , mkMonster "Wolf"    "Medium beast (c)" pos
-         , mkMonster "Dragon"  "Medium dragon (d)" pos
-         ]
-    else ek
+  em = [ mkMonster "Player" "The Hero (@)" pos
+       , mkItem "Arrow" "~" pos
+       , mkItem "Coin" "$" pos
+       , mkItem "Corpse" "%" pos
+       , mkItem "Item" "[" pos
+       , mkItem "Mushroom" "," pos
+       , mkItem "Potion" "!" pos
+       , mkItem "StairDown" ">" pos
+       , mkItem "StairUp" "<" pos
+       , mkItem "Trap" "^" pos
+       , mkMonster "Cleric"  "Medium human (h)" pos
+       , mkMonster "Fighter" "Medium human (h)" pos
+       , mkMonster "Ranger"  "Medium human (h)" pos
+       , mkMonster "Rogue"   "Medium human (h)" pos
+       , mkMonster "Mage"    "Medium human (h)" pos
+       , mkMonster "Mouse"   "Small beast (r)" pos
+       , mkMonster "Orc"         "Medium humanoid (o)" pos
+       , mkMonster "Orc Archer"  "Medium humanoid (o)" pos
+       , mkMonster "Orc Shaman"  "Medium humanoid (o)" pos
+       , mkMonster "Spider" "Large beast (S)" pos
+       , mkMonster "Troll"        "Large giant (T)" pos
+       , mkMonster "Troll Archer" "Large giant (T)" pos
+       , mkMonster "Troll Shaman" "Large giant (T)" pos
+       , mkMonster "Wolf" "Medium beast (c)" pos
+       , mkMonster "Dragon"       "Medium dragon (d)" pos
+       , mkMonster "Red Dragon"   "Medium dragon (d)" pos
+       , mkMonster "Green Dragon" "Medium dragon (d)" pos
+       , mkMonster "Blue Dragon"  "Medium dragon (d)" pos
+       , mkMonster "Black Dragon" "Medium dragon (d)" pos
+       , mkMonster "White Dragon" "Medium dragon (d)" pos
+       ]
   in Map.fromList $ zip [0..] em
 
 -- | mkEntityMap will do more
@@ -126,7 +124,7 @@ mkAssetMap ek = let
 -- insert the Hero at 0
 mkEntityMap :: Depth -> TileMap -> AssetMap -> EntityMap
 mkEntityMap depth tm am = let
-  player   = mkEntity Actor (2,2)
+  player   = mkMonster "Player" "The Hero (@)" (2,2)
   monsters = mkMonsterMap depth tm am
   in safeInsertEntity 0 player tm monsters
 
@@ -140,7 +138,7 @@ safeInsertEntity ix ek tm em = let
     else head openList
   -- dead @... start in 1st vault
   newEntity = if kind ek == Corpse
-    then mkEntity Actor (2,2)
+    then mkMonster "Player" "The Hero (@)" (2,2)
     else ek
   in Map.insert ix (newEntity { coord = xy }) em
 

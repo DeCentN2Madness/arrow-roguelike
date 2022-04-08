@@ -97,7 +97,7 @@ instance ToJSON World where
 -- | mkWorld build the World
 mkWorld :: Seed -> Coord -> Depth -> Int -> Int -> World
 mkWorld seed (width, height) depth xMax yMax = let
-  assetMap   = GE.mkAssetMap []
+  assetMap   = GE.mkAssetMap
   entityMap  = GE.mkEntityMap depth gameMap assetMap
   journalMap = GJ.mkTextMap
   gameMap    = GV.mkGameMap seed depth xMax yMax

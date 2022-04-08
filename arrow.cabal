@@ -1,5 +1,5 @@
 name:          arrow
-version:       0.2.10.0
+version:       0.2.11.0
 license:       MIT
 synopsis:      Haskell
 description:   tiny roguelike for the Hero '@'
@@ -40,6 +40,7 @@ library
                     , Game.Kind.Entity
                     , Game.Kind.Monster
                     , Game.Kind.Tile
+                    , Game.Kind.Visual
                     , Game.Player
                     , Game.Tile
                     , Game.Vault
@@ -85,6 +86,7 @@ executable Arrow
                     , Game.Kind.Entity
                     , Game.Kind.Monster
                     , Game.Kind.Tile
+                    , Game.Kind.Visual
                     , Game.Player
                     , Game.Tile
                     , Game.Vault

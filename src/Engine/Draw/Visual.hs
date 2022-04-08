@@ -1,4 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE DeriveTraversable #-}
 {-
 
@@ -21,14 +20,14 @@ import Prelude hiding (lookup)
 import Control.Monad.IO.Class (MonadIO)
 import Data.Map (Map)
 import qualified Data.Map.Strict as Map
-import qualified Data.Text as T
 import Foreign.C.Types (CInt)
 import qualified SDL
 import Engine.Arrow.Data (World(..))
 import qualified Engine.SDL.Util as U
 import qualified Game.Entity as GE
-import Game.Kind.Entity (Entity(..), EntityKind(..))
+import Game.Kind.Entity (EntityKind(..))
 import Game.Kind.Tile (Terrain(..))
+import Game.Kind.Visual (VisualKind(..))
 import qualified Game.Tile as GT
 
 data AssetMap a = AssetMap
@@ -42,44 +41,6 @@ type VisualMap = Map (Int, Int) Visual
 
 -- Visual matches Foreign.C.Types for SDL.copy
 data Visual = Visual !(CInt, CInt) !(SDL.Texture, SDL.TextureInfo) !CInt !CInt
-
-data VisualKind
-  = VActor
-  | VCoin
-  | VCorpse
-  | VItem
-  | VMagma
-  | VMouse
-  | VMushroom
-  | VOpen
-  | VPotion
-  | VRubble
-  | VRock
-  | VStairDn
-  | VStairUp
-  | VTrap
-  | VArrow
-  | VWall
-  | VLWall
-  | VLOpen
-  | VLRock
-  | VLMagma
-  | VLRubble
-  | VSpider
-  | VPerson
-  | VPoison
-  | VFire
-  | VCold
-  | VDragon
-  | VWolf
-  | VSkeleton
-  | VOrc
-  | VTroll
-  | VHuman
-  | VDoor
-  | V1
-  | V2
-  deriving (Show, Eq, Ord)
 
 assetPaths :: PathMap
 assetPaths = AssetMap
@@ -142,58 +103,31 @@ mkVisual V2        ts = Visual (512, height) (style ts) width height
 -- 1. Terrain
 -- 2. Lit Terrain with Lamp effect in FoV
 -- 3. Entities in FoV
---    a. Identify by Name...
---    b. fromEntityStack preserves Actor and Monster...
+--    a. fromEntityStack preserves Actor and Monster...
 mkVisualMap :: TextureMap -> World -> VisualMap
-mkVisualMap ts w = do
-  let entity = GE.fromEntityStack (entityT w)
-      walls  = GT.fromVisual (gameT w)
-      lit    = filter (\(_, j) -> j `elem` fovT w) walls
-      seen   = filter (\(_, j) -> j `elem` fovT w) entity
-      -- draw Terrain if visible
-      hardT = [ (xy, t) | (tk, xy) <- walls,
-                let t = case tk of
-                      Door   -> mkVisual VDoor   ts
-                      Magma  -> mkVisual VMagma  ts
-                      Open   -> mkVisual VOpen   ts
-                      Rock   -> mkVisual VRock   ts
-                      Rubble -> mkVisual VRubble ts
-                      Wall   -> mkVisual VWall   ts ]
-      -- draw Terrain if lit
-      litT =  [ (xy, t) | (tk, xy) <- lit,
-                let t = case tk of
-                      Door   -> mkVisual VDoor    ts
-                      Magma  -> mkVisual VLMagma  ts
-                      Open   -> mkVisual VLOpen   ts
-                      Rock   -> mkVisual VRock    ts
-                      Rubble -> mkVisual VLRubble ts
-                      Wall   -> mkVisual VLWall   ts ]
-      -- draw Entities if in fovT
-      seenT = [ (xy, t) | (ek, xy) <- seen,
-                let t = case kind ek of
-                      Actor     -> mkVisual VActor    ts
-                      Arrow     -> mkVisual VArrow    ts
-                      Coin      -> mkVisual VCoin     ts
-                      Corpse    -> mkVisual VCorpse   ts
-                      Item      -> mkVisual VItem     ts
-                      Mushroom  -> mkVisual VMushroom ts
-                      Monster   -> visualId ek ts
-                      Potion    -> mkVisual VPotion   ts
-                      StairDown -> mkVisual VStairDn  ts
-                      StairUp   -> mkVisual VStairUp  ts
-                      Trap      -> mkVisual VTrap     ts ]
-   in Map.fromList $ concat [hardT, litT, seenT]
-
--- | identify Item, Monster, ... by Name
-visualId :: EntityKind -> TextureMap -> Visual
-visualId ek ts = let
-  name = Map.findWithDefault "M" "Name" (property ek)
-  count x xs = length $ filter (==T.pack x) (T.words xs)
-  visual n
-    | count "Dragon" n > 0 = VDragon
-    | count "Orc"    n > 0 = VOrc
-    | count "Spider" n > 0 = VSpider
-    | count "Troll"  n > 0 = VTroll
-    | count "Wolf"   n > 0 = VWolf
-    | otherwise            = VMouse
-  in mkVisual (visual name) ts
+mkVisualMap ts w = let
+  entity = GE.fromEntityStack (entityT w)
+  walls  = GT.fromVisual (gameT w)
+  lit    = filter (\(_, j) -> j `elem` fovT w) walls
+  seen   = filter (\(_, j) -> j `elem` fovT w) entity
+  -- draw Terrain if visible
+  hardT = [ (xy, t) | (tk, xy) <- walls,
+            let t = case tk of
+                  Door   -> mkVisual VDoor   ts
+                  Magma  -> mkVisual VMagma  ts
+                  Open   -> mkVisual VOpen   ts
+                  Rock   -> mkVisual VRock   ts
+                  Rubble -> mkVisual VRubble ts
+                  Wall   -> mkVisual VWall   ts ]
+  -- draw Terrain if lit
+  litT =  [ (xy, t) | (tk, xy) <- lit,
+            let t = case tk of
+                  Door   -> mkVisual VDoor    ts
+                  Magma  -> mkVisual VLMagma  ts
+                  Open   -> mkVisual VLOpen   ts
+                  Rock   -> mkVisual VRock    ts
+                  Rubble -> mkVisual VLRubble ts
+                  Wall   -> mkVisual VLWall   ts ]
+  -- draw Entities if in fovT
+  seenT = [ (xy, t) | (ek, xy) <- seen, let t = mkVisual (glyph ek) ts ]
+  in Map.fromList $ concat [hardT, litT, seenT]

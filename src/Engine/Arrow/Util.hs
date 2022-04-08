@@ -195,7 +195,10 @@ actionPlayer pos w = let
   learn = if eLvl newPlayer > eLvl pEntity
     then T.pack $ "Welcome to Level " ++ show (eLvl newPlayer) ++ "..."
     else "..."
-  entry = [look, listen, learn]
+  alive = if eHP newPlayer < 1
+    then "Player is Dead! Press r to Restart..."
+    else "..."
+  entry = [look, listen, learn, alive]
   in world { tick     = newTick
            , exiting  = eHP newPlayer < 1 -- alive?
            , journalT = GJ.updateJournal entry (journalT world) }

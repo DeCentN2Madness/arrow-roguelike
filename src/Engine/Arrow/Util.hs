@@ -180,23 +180,25 @@ actionPlayer pos w = let
   newTick         = tick w + 1
   (pEntity, pPos) = GP.getPlayer (entityT w)
   -- Bump event
-  bump            = actionBump pos (entityT w)
-  bumpCoord       = if bump < 1 then pos else pPos
+  bump      = actionBump pos (entityT w)
+  bumpCoord = if bump < 1 then pos else pPos
   -- Move event
-  newCoord        = if bumpCoord `elem` moveT pEntity then bumpCoord else pPos
-  moveWorld       = w { entityT = GP.updatePlayerBy newCoord (entityT w) }
+  newCoord  = if bumpCoord `elem` moveT pEntity then bumpCoord else pPos
+  moveWorld = w { entityT = GP.updatePlayerBy newCoord (entityT w) }
   -- Look && Listen event
-  look            = actionLook $ GE.getEntityBy newCoord (entityT moveWorld)
-  listen          = actionHear (entityT moveWorld) newCoord
+  look      = actionLook $ GE.getEntityBy newCoord (entityT moveWorld)
+  listen    = actionHear (entityT moveWorld) newCoord
   -- Combat event
-  world           = if bump > 0 then GC.mkCombat 0 bump moveWorld else moveWorld
+  world     = if bump > 0 then GC.mkCombat 0 bump moveWorld else moveWorld
   -- XP event
-  (p, _)           = GP.getPlayer (entityT world)
-  learn = if eLvl p > eLvl pEntity
-    then T.pack $ "Welcome to Level " ++ show (eLvl p) ++ "..."
+  (newPlayer, _) = GP.getPlayer (entityT world)
+  learn = if eLvl newPlayer > eLvl pEntity
+    then T.pack $ "Welcome to Level " ++ show (eLvl newPlayer) ++ "..."
     else "..."
-  in world { tick = newTick
-           , journalT = GJ.updateJournal [look, listen, learn] (journalT world) }
+  entry = [look, listen, learn]
+  in world { tick     = newTick
+           , exiting  = eHP newPlayer < 1 -- alive?
+           , journalT = GJ.updateJournal entry (journalT world) }
 
 -- | actionQuaff
 -- if there is something to drink...

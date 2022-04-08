@@ -58,12 +58,9 @@ characterSheet em = let
 characterInventory :: EntityMap -> [Text]
 characterInventory em = let
   (pEntity, _) = getPlayer em
-  pInv   = inventory pEntity
-  pArrow = T.pack $ "Arrow: "    ++ show (Map.findWithDefault 0 "Arrow"    pInv)
-  pCoin  = T.pack $ "Coin: "     ++ show (Map.findWithDefault 0 "Coin"     pInv)
-  pMush  = T.pack $ "Mushroom: " ++ show (Map.findWithDefault 0 "Mushroom" pInv)
-  pPot   = T.pack $ "Potion: "   ++ show (Map.findWithDefault 0 "Potion"   pInv)
-  in [ pCoin, pArrow, pMush, pPot ]
+  pInv = [ i | (k, v) <- Map.toList (inventory pEntity),
+           let i = T.append k (T.pack $ ":" ++ show v) ]
+  in pInv
 
 -- | @ lives at 0
 -- Arrow for Player

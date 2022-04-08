@@ -148,14 +148,16 @@ actionHear em listen = let
 -- if there is something to see...
 actionLook :: [(EntityKind, Coord)] -> Text
 actionLook xs = let
-  groupF :: [String] -> [(String, Int)]
+  groupF :: [Text] -> [(Text, Int)]
   groupF = map (head &&& length) . group . sort
   -- items
-  items = groupF $ filter (/="Actor") $ [ show (kind ek) | (ek, _) <- xs ]
+  items = groupF $ filter (/="Player") $
+    [ name | (ek, _) <- xs,
+      let name = Map.findWithDefault "Player" "Name" (property ek) ]
   look = T.concat $ [ e | (i, j) <- items,
                       let e = if j > 1
-                            then T.pack $ i ++ " <" ++ show j ++ ">, "
-                            else T.pack $ i ++ ", " ]
+                            then T.append i $ T.pack $ " <" ++ show j ++ ">, "
+                            else T.append i $ T.pack ", " ]
   in T.append look "..."
 
 -- | actionMonster

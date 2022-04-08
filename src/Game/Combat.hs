@@ -48,23 +48,22 @@ condition hp = let
 
 -- | death
 -- drop inventory around the Corpse...
+-- TODO random Item drop
 death :: Int -> EntityKind -> AssetMap -> EntityMap -> EntityMap
 death mx mEntity am em = let
   mPos   = coord mEntity
   mInv   = inventory mEntity
   mArrow = Map.findWithDefault 0 "Arrow"    mInv
-  mCoin  = Map.findWithDefault 0 "Coin"     mInv
   mItem  = Map.findWithDefault 0 "Item"     mInv
   mMush  = Map.findWithDefault 0 "Mushroom" mInv
   mPot   = Map.findWithDefault 0 "Potion"   mInv
   loc    = scatter mEntity
   -- item mostly Coin
   item
-    | mItem   > 0 = GI.mkDropItem "Item"     loc am
+    | mItem   > 0 = GI.mkRandItem loc am
     | mPot    > 0 = GI.mkDropItem "Potion"   loc am
     | mMush   > 0 = GI.mkDropItem "Mushroom" loc am
     | mArrow  > 0 = GI.mkDropItem "Arrow"    loc am
-    | mCoin   > 0 = GI.mkDropItem "Coin"     loc am
     | otherwise   = GI.mkDropItem "Coin"     loc am
   corpse = GI.mkDropItem "Corpse" mPos am
   newCorpse = GE.updateEntity mx corpse em

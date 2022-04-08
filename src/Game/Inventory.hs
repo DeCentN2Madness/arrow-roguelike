@@ -9,6 +9,7 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 module Game.Inventory (checkPickUp
                       , emptyBy
                       , mkDropItem
+                      , mkRandItem
                       , pickUp
                       , pickList
                       , putDown) where
@@ -19,7 +20,7 @@ import Data.List
 import Data.Map (Map)
 import qualified Data.Map.Strict as Map
 import Data.Text (Text)
-import qualified Data.Text as T
+import qualified Game.DiceSet as DS
 import Game.Entity (EntityMap)
 import Game.Kind.Entity
 
@@ -62,7 +63,7 @@ emptyBy pos items em = let
   else em
 
 -- | groupEK builds counts from a list
-groupEK :: [String] -> [(String, Int)]
+groupEK :: [Text] -> [(Text, Int)]
 groupEK = map (head &&& length) . group . sort
 
 -- | mkNameMap
@@ -70,7 +71,7 @@ groupEK = map (head &&& length) . group . sort
 mkNameMap :: AssetMap -> NameMap
 mkNameMap am = let
   assetList = [ (name, ek) | (_, ek) <- Map.toList am,
-                let name = Map.findWithDefault "M" "Name" (property ek) ]
+                let name = Map.findWithDefault "I" "Name" (property ek) ]
   in Map.fromList assetList
 
 -- | mkDropItem
@@ -79,6 +80,18 @@ mkDropItem name pos am = let
   assets = mkNameMap am
   coin = mkItem "Coin" "$" pos
   item = Map.findWithDefault coin name assets
+  in item { coord = pos, spawn = pos }
+
+-- | random Item
+-- TODO Item quality
+mkRandItem :: Coord -> AssetMap -> EntityKind
+mkRandItem pos am = let
+  itemList = filter ((/=(-1)).fst) $ [ (ix, v) | (k, v) <- Map.toList am,
+               let ix = if kind v == Item then k else (-1) ]
+  seed = 1 + uncurry (*) pos
+  sz = length itemList - 1
+  itemRoll = head $ DS.rollList 1 (fromIntegral sz) seed
+  item = snd (itemList!!itemRoll)
   in item { coord = pos, spawn = pos }
 
 -- | noPickup
@@ -90,11 +103,14 @@ pickList :: [(EntityKind, Coord)] -> [Entity]
 pickList items = filter (`notElem` noPickup) $ [ kind k | (k, _) <- items ]
 
 -- | pickUp
+-- Items are "Text" keys in AssetMap
 pickUp :: [(EntityKind, Coord)] -> EntityKind -> EntityKind
 pickUp items ek = let
-  invT  = groupEK $ map show (pickList items)
-  invM  = Map.fromList $ [ (T.pack k, v) | (k, v) <- invT ]
-  picks = Map.unionWith (+) (inventory ek) invM
+  invT = groupEK $ filter (/="I") $
+    [ name | (e, _) <- items,
+      let name = if kind e `elem` pickList items
+            then Map.findWithDefault "I" "Name" (property e) else "I" ]
+  picks = Map.unionWith (+) (inventory ek) (Map.fromList invT)
   in ek { inventory = encumberance picks }
 
 -- | putDown

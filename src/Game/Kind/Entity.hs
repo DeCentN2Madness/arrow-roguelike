@@ -114,9 +114,9 @@ mkInventory n
   | n == "Blue Dragon"  = [("Arrow",1),("Potion",1),("Mushroom",1),("Coin",1)]
   | n == "Black Dragon" = [("Arrow",1),("Potion",1),("Mushroom",1),("Coin",1)]
   | n == "White Dragon" = [("Arrow",1),("Potion",1),("Mushroom",1),("Coin",1)]
-  | n == "Orc"          = [("Arrow",0),("Potion",0),("Mushroom",5),("Coin",1)]
-  | n == "Orc Archer"   = [("Arrow",5),("Potion",0),("Mushroom",0),("Coin",1)]
-  | n == "Orc Shaman"   = [("Arrow",0),("Potion",5),("Mushroom",0),("Coin",1)]
+  | n == "Orc"          = [("Arrow",0),("Potion",0),("Mushroom",5),("Item",1)]
+  | n == "Orc Archer"   = [("Arrow",5),("Potion",0),("Mushroom",0),("Item",1)]
+  | n == "Orc Shaman"   = [("Arrow",0),("Potion",5),("Mushroom",0),("Item",1)]
   | n == "Spider"       = [("Arrow",0),("Potion",1),("Mushroom",1),("Coin",1)]
   | n == "Troll"        = [("Arrow",0),("Potion",0),("Mushroom",1),("Coin",1)]
   | n == "Troll Archer" = [("Arrow",1),("Potion",0),("Mushroom",0),("Coin",1)]
@@ -130,12 +130,21 @@ mkItem name desc xy = let
     | n == "Arrow"     = mkEntity Arrow name desc xy
     | n == "Coin"      = mkEntity Coin name desc xy
     | n == "Corpse"    = mkEntity Corpse name desc xy
-    | n == "Item"      = mkEntity Item name desc xy
     | n == "Mushroom"  = mkEntity Mushroom name desc xy
     | n == "Potion"    = mkEntity Potion name desc xy
     | n == "StairDown" = mkEntity StairDown name desc xy
     | n == "StairUp"   = mkEntity StairUp name desc xy
     | n == "Trap"      = mkEntity Trap name desc xy
+    | n == "Dagger"    = mkEntity Item name desc xy
+    | n == "Bow"       = mkEntity Item name desc xy
+    | n == "Ring"      = mkEntity Item name desc xy
+    | n == "Amulet"    = mkEntity Item name desc xy
+    | n == "Armor"     = mkEntity Item name desc xy
+    | n == "Cloak"     = mkEntity Item name desc xy
+    | n == "Shield"    = mkEntity Item name desc xy
+    | n == "Helmet"    = mkEntity Item name desc xy
+    | n == "Gloves"    = mkEntity Item name desc xy
+    | n == "Boots"     = mkEntity Item name desc xy
     | otherwise        = mkEntity Arrow name desc xy
   in item name
 

@@ -87,15 +87,27 @@ mkAssetMap :: AssetMap
 mkAssetMap = let
   pos = (0, 0)
   em = [ mkMonster "Player" "The Hero (@)" pos
+       -- Generics
        , mkItem "Arrow" "~" pos
        , mkItem "Coin" "$" pos
        , mkItem "Corpse" "%" pos
-       , mkItem "Item" "[" pos
        , mkItem "Mushroom" "," pos
        , mkItem "Potion" "!" pos
        , mkItem "StairDown" ">" pos
        , mkItem "StairUp" "<" pos
        , mkItem "Trap" "^" pos
+       --- Items
+       , mkItem "Dagger" "|" pos
+       , mkItem "Bow" "}" pos
+       , mkItem "Ring" "=" pos
+       , mkItem "Amulet" "\"" pos
+       , mkItem "Armor" "[" pos
+       , mkItem "Cloak" "(" pos
+       , mkItem "Shield" ")" pos
+       , mkItem "Helmet" "]" pos
+       , mkItem "Gloves" "]" pos
+       , mkItem "Boots" "]" pos
+       -- Monsters
        , mkMonster "Cleric"  "Medium human (h)" pos
        , mkMonster "Fighter" "Medium human (h)" pos
        , mkMonster "Ranger"  "Medium human (h)" pos

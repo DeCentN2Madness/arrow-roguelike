@@ -44,6 +44,18 @@ characterSheet em = let
   (pEntity, _) = getPlayer em
   pInv  = inventory pEntity
   pCoin = T.append "AU: " (T.pack $ show $ Map.findWithDefault 0 "Coin" pInv)
+  pEquipment = T.concat [ "."
+    , equip "|"  (Map.findWithDefault 0 "Dagger" pInv)
+    , equip "{"  (Map.findWithDefault 0 "Bow" pInv)
+    , equip "="  (Map.findWithDefault 0 "Ring" pInv)
+    , equip "\"" (Map.findWithDefault 0 "Amulet" pInv)
+    , equip "["  (Map.findWithDefault 0 "Armor" pInv)
+    , equip "("  (Map.findWithDefault 0 "Cloak" pInv)
+    , equip ")"  (Map.findWithDefault 0 "Shield" pInv)
+    , equip "]"  (Map.findWithDefault 0 "Helmet" pInv)
+    , equip "]"  (Map.findWithDefault 0 "Gloves" pInv)
+    , equip "]"  (Map.findWithDefault 0 "Boots" pInv)
+    ]
   pProp = property pEntity
   pStr  = T.append "Str: " (Map.findWithDefault "1" "str" pProp)
   pDex  = T.append "Dex: " (Map.findWithDefault "1" "dex" pProp)
@@ -52,7 +64,7 @@ characterSheet em = let
   pWis  = T.append "Wis: " (Map.findWithDefault "1" "wis" pProp)
   pLvl  = T.pack $ "Level: " ++ show (eLvl pEntity)
   pExp  = T.pack $ "EXP: " ++ show (eXP pEntity)
-  in [ pLvl, pExp, pCoin, " ", pStr, pDex, pCon, pInt, pWis ]
+  in [ pLvl, pExp, pCoin, pEquipment, pStr, pDex, pCon, pInt, pWis ]
 
 -- | @ Inv
 characterInventory :: EntityMap -> [Text]
@@ -61,6 +73,10 @@ characterInventory em = let
   pInv = [ i | (k, v) <- Map.toList (inventory pEntity),
            let i = T.append k (T.pack $ ":" ++ show v) ]
   in pInv
+
+-- | @ equipment
+equip :: Text -> Int -> Text
+equip k v = if v > 0 then k else "."
 
 -- | @ lives at 0
 -- Arrow for Player

@@ -62,7 +62,7 @@ aiAction ((mx, mEntity):xs) w = if mx == 0 || not (block mEntity)
     | (mMp > 0)    && (EAC.chessDist mPos pPos <= 4) = Cast
     | (mMush > 0)  && (mMaxHp `div` mHp > 2) = Eat
     | (mPot > 0)   && (mMaxHp `div` mHp > 3) = Drink
-    | (mInt >= 7)  && any (\(i, _) -> kind i == Coin) mItems = Get
+    | (mInt > 6)  && any (\(i, _) -> kind i == Coin) mItems = Get
     | (mHp > 0) = Move
     | otherwise = Wait
   world = case action of

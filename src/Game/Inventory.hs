@@ -42,8 +42,18 @@ encumberance :: Inventory -> Inventory
 encumberance inv = let
   invT = [ (k, v) | (k, j) <- Map.toList inv,
            let v = case k of
-                 "Coin" -> j
-                 _      -> if j > 20 then 20 else j ]
+                 "Dagger" -> 1
+                 "Bow"    -> 1
+                 "Ring"   -> 1
+                 "Amulet" -> 1
+                 "Armor"  -> 1
+                 "Cloak"  -> 1
+                 "Shield" -> 1
+                 "Helmet" -> 1
+                 "Gloves" -> 1
+                 "Boots"  -> 1
+                 "Coin"   -> j
+                 _        -> if j > 20 then 20 else j ]
   in Map.fromList invT
 
 -- | emptyBy
@@ -83,7 +93,6 @@ mkDropItem name pos am = let
   in item { coord = pos, spawn = pos }
 
 -- | random Item
--- TODO Item quality
 mkRandItem :: Coord -> AssetMap -> EntityKind
 mkRandItem pos am = let
   itemList = filter ((/=(-1)).fst) $ [ (ix, v) | (k, v) <- Map.toList am,
@@ -91,8 +100,14 @@ mkRandItem pos am = let
   seed = 1 + uncurry (*) pos
   sz = length itemList - 1
   itemRoll = head $ DS.rollList 1 (fromIntegral sz) seed
-  item = snd (itemList!!itemRoll)
+  item = nth itemRoll itemList
   in item { coord = pos, spawn = pos }
+
+-- | nth safe chooser
+nth :: Int -> [(Int, EntityKind)] -> EntityKind
+nth _ []     = mkItem "Arrow" "~" (0, 0)
+nth 1 (x:_)  = snd x
+nth n (_:xs) = nth (n-1) xs
 
 -- | noPickup
 noPickup :: [Entity]

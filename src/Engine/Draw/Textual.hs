@@ -29,9 +29,10 @@ drawText r w = do
       -- Color
       color x
         | T.any (=='!') x = red
-        | T.any (==':') x = green
-        | T.any (=='@') x = blue
         | T.any (=='*') x = purple
+        | T.any (=='-') x = blue
+        | T.any (=='~') x = yellow
+        | T.any (==':') x = green
         | otherwise = white
   fn <- SDL.Font.load "./assets/fonts/Hack-Regular.ttf" 14
   -- Journal
@@ -71,20 +72,23 @@ renderText r t (tw, th) (x, y) = let
   in SDL.copy r t Nothing (Just  rectB)
 
 -- | colors
-black :: SDL.Font.Color
-black = SDL.V4 0 0 0 255
-
-blue :: SDL.Font.Color
-blue = SDL.V4 0 0 255 255
+red :: SDL.Font.Color
+red = SDL.V4 255 0 0 255
 
 green :: SDL.Font.Color
 green = SDL.V4 0 255 0 255
 
+blue :: SDL.Font.Color
+blue = SDL.V4 0 0 255 255
+
 purple :: SDL.Font.Color
 purple = SDL.V4 128 0 128 255
 
-red :: SDL.Font.Color
-red = SDL.V4 255 0 0 255
+yellow :: SDL.Font.Color
+yellow = SDL.V4 255 255 0 255
+
+black :: SDL.Font.Color
+black = SDL.V4 0 0 0 255
 
 white :: SDL.Font.Color
 white = SDL.V4 255 255 255 255

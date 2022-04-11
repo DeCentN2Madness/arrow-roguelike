@@ -6,7 +6,9 @@ Game.Combat.hs
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
 -}
-module Game.Combat (mkCombat, mkRangeCombat) where
+module Game.Combat (mkCombat
+                   , mkMagicCombat
+                   , mkRangeCombat) where
 
 import qualified Data.Map.Strict as Map
 import Data.Text (Text)
@@ -121,8 +123,47 @@ mkCombat px mx w = if px == mx
   in w { entityT  = newEntity
        , journalT = GJ.updateJournal [pEntry] (journalT w) }
 
+-- | mkMagicCombat
+-- TODO Magic Skill, Effects...
+mkMagicCombat :: Int -> Int -> World -> World
+mkMagicCombat px mx w = if px == mx
+  then w
+  else let
+    (pEntity, pPos) = GE.getEntityAt px (entityT w)
+    (mEntity, mPos) = GE.getEntityAt mx (entityT w)
+    -- random seed
+    pSeed = tick w + (uncurry (*) mPos * uncurry (*) pPos) :: Int
+    -- pAR, pDam, pMod
+    pProp = property pEntity
+    pName = Map.findWithDefault "P" "Name" pProp
+    pInt  = read $ T.unpack $ Map.findWithDefault "1" "int" pProp
+    pMod  = read $ T.unpack $ Map.findWithDefault "1" "Proficiency" pProp
+    pAR   = clamp $ DS.d20 pSeed + abilityMod pInt + pMod
+    pDam  = clamp $ DS.d4  pSeed + abilityMod pInt + pMod
+    -- mDR,  mMod
+    mProp = property mEntity
+    mName = Map.findWithDefault "M" "Name" mProp
+    mDex  = read $ T.unpack $ Map.findWithDefault "1" "dex" mProp
+    mHP   = eHP mEntity
+    mExp  = eXP mEntity
+    mDR   = 10 + abilityMod mDex
+    -- p v m
+    pAttack = if pAR >= mDR then mHP - pDam else mHP -- Miss
+    -- journal
+    pEntry = T.concat [ pName
+                    , shootM pAR mDR
+                    , mName
+                    , T.pack ", "
+                    , condition pAttack ]
+    -- newEntity with damages and deaths and Exp awards
+    newEntity = if pAttack < 1
+      then death mx mEntity (assetT w) $ GP.updatePlayerXP mExp (entityT w)
+      else GE.updateEntityHp mx pAttack (entityT w)
+  in w { entityT  = newEntity
+       , journalT = GJ.updateJournal [pEntry] (journalT w) }
+
 -- | mkRangeCombat
--- Throw, shoot, cast, chant...
+-- Throw, shoot...
 mkRangeCombat :: Int -> Int -> World -> World
 mkRangeCombat px mx w = if px == mx
   then w
@@ -184,5 +225,11 @@ scatter mEntity = let
 -- | shoot verb
 shoot :: Int -> Int -> Text
 shoot ar dr = if ar >= dr
-  then T.pack " shoots the "
-  else " shot misses the "
+  then T.pack " shoots ~Arrow~ at "
+  else " ~Arrow~ misses the "
+
+-- | shoot verb
+shootM :: Int -> Int -> Text
+shootM ar dr = if ar >= dr
+  then T.pack " casts -Spell- at "
+  else " -Spell- misses the "

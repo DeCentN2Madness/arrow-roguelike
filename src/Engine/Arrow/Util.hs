@@ -40,6 +40,38 @@ actionBump pos em = let
     then 0
     else fst $ head blockList
 
+-- | actionCast
+-- if there is something to cast...
+-- TODO animate magic
+actionCast :: World -> World
+actionCast w = let
+  newTick         = tick w + 1
+  (pEntity, pPos) = GP.getPlayer (entityT w)
+  pMana           = eMP pEntity
+  mySort          = sortBy (compare `on` snd)
+  -- pick closest target
+  mTargets = filter (\(_, j) -> j `elem` fovT w) $
+    [ (ix, xy) | (ix, pos) <- GE.fromBlock (entityT w),
+      let xy = if ix > 0 then pos else (0,0) ]
+  mTarget = case mTargets of
+    [] -> 0
+    xs -> fst $ head $ mySort [ (ix, d) | (ix, xy) <- xs,
+                                let d = distance xy pPos ]
+  newPlayer = if pMana > 0 && mTarget > 0
+    then pEntity { eMP = if pMana - 1 > 0 then 0 else pMana - 1}
+    else pEntity
+  entry = if pMana > 0 && mTarget > 0
+    then T.pack "Casts a Spell..."
+    else T.pack "No Cast..."
+  -- throwWorld
+  throwWorld = w { entityT  = GP.updatePlayer newPlayer (entityT w)
+                 , journalT = GJ.updateJournal [entry] (journalT w) }
+  -- Combat event
+  world = if pMana > 0 && mTarget > 0
+    then GC.mkMagicCombat 0 mTarget throwWorld
+    else throwWorld
+  in world { tick = newTick }
+
 -- | actionDirection the world will change with @input@
 -- 1. clampCoord checks the input vs grid
 -- 2. actionPlayer handles P events in the World
@@ -103,7 +135,7 @@ actionEat w = let
     then pEntity { inventory = Map.insert "Mushroom" (pMush-1) pInv, eHP = pHp }
     else pEntity
   entry = if pMush > 0
-    then T.pack "Eat a tasty Mushroom..."
+    then T.pack "Eat a tasty :Mushroom:..."
     else T.pack "No Eat..."
   in w { tick = newTick
        , entityT  = GP.updatePlayer newPlayer (entityT w)
@@ -214,15 +246,21 @@ actionQuaff w = let
   pInv         = inventory pEntity
   pPot         = Map.findWithDefault 0 "Potion" pInv
   heal         = eHP pEntity + pCon
+  mana         = eMP pEntity + pWis
   pHp          = if heal > pMaxHp then pMaxHp else heal
+  pMp          = if mana > pMaxMp then pMaxMp else mana
   pMaxHp       = eMaxHP pEntity
+  pMaxMp       = eMaxMP pEntity
   pProp        = property pEntity
   pCon         = read $ T.unpack $ Map.findWithDefault "1" "con" pProp
+  pWis         = read $ T.unpack $ Map.findWithDefault "1" "wis" pProp
   newPlayer = if pPot > 0
-    then pEntity { inventory = Map.insert "Potion" (pPot-1) pInv, eHP = pHp }
+    then pEntity { inventory = Map.insert "Potion" (pPot-1) pInv
+                 , eHP = pHp
+                 , eMP = pMp }
     else pEntity
   entry = if pPot > 0
-    then T.pack "Drink a delicious Potion..."
+    then T.pack "Drink a delicious :Potion:..."
     else T.pack "No Drink..."
   in w { tick = newTick
        , entityT  = GP.updatePlayer newPlayer (entityT w)
@@ -276,7 +314,7 @@ applyIntent intent w = let
     Action SouthWest -> actionDirection SouthWest w
     Action West      -> actionDirection West w
     Action NorthWest -> actionDirection NorthWest w
-    Action C -> showCharacter w
+    Action C -> actionMonster $ actionCast w
     Action D -> actionMonster $ actionDrop w
     Action E -> actionMonster $ actionEat w
     Action G -> actionMonster $ actionGet w
@@ -301,10 +339,10 @@ resetWorld w = let
            , journalT = GJ.updateJournal [entry] (journalT w) }
 
 -- | showCharacter
-showCharacter :: World -> World
-showCharacter w = let
-  entry = T.intercalate ", " $ filter (/=" ") $ GP.characterSheet (entityT w)
-  in w { journalT = GJ.updateJournal [entry] (journalT w) }
+-- showCharacter :: World -> World
+-- showCharacter w = let
+-- entry = T.intercalate ", " $ filter (/=" ") $ GP.characterSheet (entityT w)
+-- in w { journalT = GJ.updateJournal [entry] (journalT w) }
 
 -- | showInventory
 showInventory :: World -> World

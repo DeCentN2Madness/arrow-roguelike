@@ -22,9 +22,10 @@ import qualified Game.Player as GP
 
 data AI
   = Attack
-  | Get
-  | Eat
+  | Cast
   | Drink
+  | Eat
+  | Get
   | Move
   | Rest
   | Throw
@@ -43,6 +44,7 @@ aiAction ((mx, mEntity):xs) w = if mx == 0 || not (block mEntity)
   -- monster properties
   mHp    = eHP mEntity
   mMaxHp = eMaxHP mEntity
+  mMp    = eMP mEntity
   mInv   = inventory mEntity
   mArrow = Map.findWithDefault 0 "Arrow" mInv
   mMush  = Map.findWithDefault 0 "Mushroom" mInv
@@ -57,6 +59,7 @@ aiAction ((mx, mEntity):xs) w = if mx == 0 || not (block mEntity)
     | EAC.adjacent mPos pPos = Attack
     | (mHp <= 5)   && EAC.adjacent mPos mSpawn = Rest
     | (mArrow > 0) && (EAC.chessDist mPos pPos <= 4) = Throw
+    | (mMp > 0)    && (EAC.chessDist mPos pPos <= 4) = Cast
     | (mMush > 0)  && (mMaxHp `div` mHp > 2) = Eat
     | (mPot > 0)   && (mMaxHp `div` mHp > 3) = Drink
     | (mInt >= 7)  && any (\(i, _) -> kind i == Coin) mItems = Get
@@ -64,15 +67,40 @@ aiAction ((mx, mEntity):xs) w = if mx == 0 || not (block mEntity)
     | otherwise = Wait
   world = case action of
     Attack -> GC.mkCombat  mx 0 w
+    Cast   -> monsterCast mx mEntity w
+    Drink  -> monsterDrink mx mEntity w
     Eat    -> monsterEat   mx mEntity w
     Get    -> monsterGet   mx mEntity w
-    Drink  -> monsterDrink mx mEntity w
     Move   -> pathFinder   mx mEntity w
     Rest   -> monsterHeal  mx mEntity w
     Throw  -> monsterThrow mx mEntity w
     Wait   -> w
   -- newWorld w/ action
   in aiAction xs world
+
+-- | monsterCast
+-- M cast...
+monsterCast :: Int -> EntityKind -> World -> World
+monsterCast mx mEntity w = let
+  mPos   = coord mEntity
+  mMana  = eMP mEntity
+  mProp  = property mEntity
+  mName  = Map.findWithDefault "M" "Name" mProp
+  mTarget = mPos `elem` fovT w
+  newMonster = if mMana > 0 && mTarget
+    then mEntity { eMP = if mMana - 1 > 0 then 0 else mMana - 1 }
+    else mEntity
+  entry = if mMana > 0 && mTarget
+    then T.append mName " Casts a Spell.."
+    else T.pack "..."
+  -- throwWorld
+  throwWorld = w { entityT  = GE.updateEntity mx newMonster (entityT w)
+                 , journalT = GJ.updateJournal [entry] (journalT w) }
+  -- FoV check
+  world = if mMana > 0 && mTarget
+    then GC.mkMagicCombat mx 0 throwWorld
+    else w
+  in world
 
 -- | monsterDrink
 -- M drinks...
@@ -81,16 +109,22 @@ monsterDrink mx mEntity w = let
   mInv   = inventory mEntity
   mPot   = Map.findWithDefault 0 "Potion" mInv
   heal   = eHP mEntity + mCon
+  mana   = eMP mEntity + mWis
   mHp    = if heal > mMaxHp then mMaxHp else heal
+  mMp    = if mana > mMaxMp then mMaxMp else mana
   mMaxHp = eMaxHP mEntity
+  mMaxMp = eMaxMP mEntity
   mProp  = property mEntity
   mCon   = read $ T.unpack $ Map.findWithDefault "1" "con" mProp
+  mWis   = read $ T.unpack $ Map.findWithDefault "1" "wis" mProp
   mName  = Map.findWithDefault "M" "Name" mProp
   newMonster = if mPot > 0
-    then mEntity { inventory = Map.insert "Potion" (mPot-1) mInv, eHP = mHp }
+    then mEntity { inventory = Map.insert "Potion" (mPot-1) mInv
+                 , eHP = mHp
+                 , eMP = mMp }
     else mEntity
   entry = if mPot > 0
-    then T.append mName " is Thirsty..."
+    then T.append mName " is :Thirsty:..."
     else T.pack "..."
   in w { entityT  = GE.updateEntity mx newMonster (entityT w)
        , journalT = GJ.updateJournal [entry] (journalT w) }
@@ -111,7 +145,7 @@ monsterEat mx mEntity w = let
     then mEntity { inventory = Map.insert "Mushroom" (mMush-1) mInv, eHP = mHp }
     else mEntity
   entry = if mMush > 0
-    then T.append mName " is Hungry..."
+    then T.append mName " is :Hungry:..."
     else T.pack "..."
   in w { entityT  = GE.updateEntity mx newMonster (entityT w)
        , journalT = GJ.updateJournal [entry] (journalT w) }

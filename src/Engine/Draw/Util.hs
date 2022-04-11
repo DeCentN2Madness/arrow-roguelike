@@ -15,7 +15,7 @@ import Control.Monad.IO.Class (MonadIO)
 import qualified Data.Map.Strict as Map
 import qualified SDL
 import SDL (($=))
-import Engine.Arrow.Data (World(..))
+import Engine.Arrow.Data (GameState(..), World(..))
 import Engine.Draw.Visual (AssetMap(..), TextureMap, Visual(..))
 import qualified Engine.Draw.Visual as EDV
 import qualified Engine.Draw.Textual as EDT
@@ -40,7 +40,7 @@ draw r ts w = do
   setColor r Black
   SDL.clear r
   -- Game
-  if starting w
+  if gameState w /= GameRun
     then renderTexture r (arrow ts) (0.0, 0.0 :: Double)
     else do
      -- Draw Visual Map

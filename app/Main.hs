@@ -12,7 +12,7 @@ import Data.IORef
 import Control.Monad (forM_)
 import Control.Monad.Extra (unless)
 import qualified SDL
-import Engine.Arrow.Data (World(..))
+import Engine.Arrow.Data (GameState(..), World(..))
 import qualified Engine.Arrow.Save as EAS
 import qualified Engine.Arrow.Util as EAU
 import qualified Engine.Draw.Util as EDU
@@ -54,4 +54,4 @@ mainLoop world render ts = do
     modifyIORef world (EAU.applyIntent i)
     d <- readIORef world
     EDU.draw render ts d
-  unless (exiting q) $ mainLoop world render ts
+  unless (gameState q == GameStop) $ mainLoop world render ts

@@ -131,19 +131,20 @@ updatePlayerBy :: Coord -> EntityMap -> EntityMap
 updatePlayerBy = GE.updateEntityPos 0
 
 -- | updateEntityXP at ix
--- TODO HP, MP based on class
 updatePlayerXP :: Int -> EntityMap -> EntityMap
 updatePlayerXP xp em = let
   (pEntity, _ ) = getPlayer em
   pProp     = property pEntity
   pCon      = read $ T.unpack $ Map.findWithDefault "1" "con" pProp
   pWis      = read $ T.unpack $ Map.findWithDefault "1" "wis" pProp
+  cHP       = read $ T.unpack $ Map.findWithDefault "1" "HP" pProp
+  cMP       = read $ T.unpack $ Map.findWithDefault "1" "MP" pProp
   pTot      = eXP pEntity + xp
   pLvl      = xpLevel pTot
   pHP       = if pLvl > eLvl pEntity then pMaxHP else eHP pEntity
-  pMaxHP    = pLvl * (10 + abilityMod pCon)
+  pMaxHP    = pLvl * (cHP + abilityMod pCon)
   pMP       = if pLvl > eLvl pEntity then pMaxMP else eMP pEntity
-  pMaxMP    = pLvl * (10 + abilityMod pWis)
+  pMaxMP    = pLvl * (cMP + abilityMod pWis)
   newProp   = Map.insert "Proficiency" (T.pack $ show $ proficiency pLvl) pProp
   newPlayer = pEntity { property=newProp
                       , eLvl=pLvl

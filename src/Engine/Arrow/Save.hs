@@ -20,7 +20,7 @@ import qualified Engine.Arrow.Data as EAD
 import qualified Game.DiceSet as GDS
 import Game.Entity (EntityMap)
 import qualified Game.Entity as GE
-import Game.Kind.Entity (EntityKind)
+import Game.Kind.Entity (EntityKind(..))
 import Game.Kind.Tile ()
 import qualified Game.Player as GP
 
@@ -43,15 +43,16 @@ loadFile = do
         then assetT world
         else head e
       player = if null p
-        then let
-        (pEntity, _) = GP.getPlayer (entityT world)
-        in pEntity
+        then fst $ GP.getPlayer (entityT world)
         else head p
       world = if null w
         then EAD.mkWorld seed (width, height) 0 80 40
         else head w
+      alive = if eHP player > 1
+        then player
+        else fst $ GP.getPlayer (entityT world)
   return world { assetT  = asset
-               , entityT = GE.safeInsertEntity 0 player (gameT world) (entityT world) }
+               , entityT = GE.safeInsertEntity 0 alive (gameT world) (entityT world) }
 
 -- | loadAsset -- all the stuff
 loadAsset :: FilePath -> IO [EntityMap]

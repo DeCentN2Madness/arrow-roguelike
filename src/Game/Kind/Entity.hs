@@ -102,9 +102,9 @@ defaultEK name desc xy =
 -- One lucky Mushroom
 mkInventory :: Text -> [(Text, Int)]
 mkInventory n
-  | n == "Cleric"  = [("Arrow",1),("Potion",1),("Mushroom",1),("Coin",1)]
+  | n == "Cleric"  = [("Arrow",0),("Potion",1),("Mushroom",1),("Coin",1)]
   | n == "Fighter" = [("Arrow",0),("Potion",0),("Mushroom",1),("Coin",1)]
-  | n == "Mage"    = [("Arrow",1),("Potion",1),("Mushroom",1),("Coin",1)]
+  | n == "Mage"    = [("Arrow",0),("Potion",1),("Mushroom",1),("Coin",1)]
   | n == "Player"  = [("Arrow",0),("Potion",0),("Mushroom",1),("Coin",0)]
   | n == "Ranger"  = [("Arrow",1),("Potion",0),("Mushroom",1),("Coin",1)]
   | n == "Rogue"   = [("Arrow",0),("Potion",1),("Mushroom",1),("Coin",1)]
@@ -114,9 +114,9 @@ mkInventory n
   | n == "Blue Dragon"  = [("Arrow",1),("Potion",1),("Mushroom",1),("Coin",1)]
   | n == "Black Dragon" = [("Arrow",1),("Potion",1),("Mushroom",1),("Coin",1)]
   | n == "White Dragon" = [("Arrow",1),("Potion",1),("Mushroom",1),("Coin",1)]
-  | n == "Orc"          = [("Arrow",0),("Potion",0),("Mushroom",5),("Item",1)]
+  | n == "Orc"          = [("Arrow",0),("Potion",0),("Mushroom",1),("Item",1)]
   | n == "Orc Archer"   = [("Arrow",5),("Potion",0),("Mushroom",0),("Item",1)]
-  | n == "Orc Shaman"   = [("Arrow",0),("Potion",5),("Mushroom",0),("Item",1)]
+  | n == "Orc Shaman"   = [("Arrow",0),("Potion",1),("Mushroom",0),("Item",1)]
   | n == "Spider"       = [("Arrow",0),("Potion",1),("Mushroom",1),("Coin",1)]
   | n == "Troll"        = [("Arrow",0),("Potion",0),("Mushroom",1),("Coin",1)]
   | n == "Troll Archer" = [("Arrow",1),("Potion",0),("Mushroom",0),("Coin",1)]
@@ -167,7 +167,7 @@ mkMonster name desc xy = let
     | n == "Mouse" = smBeast
     | n == "Orc"        = mdHumanoid
     | n == "Orc Archer" = mdHumanoid
-    | n == "Orc Shaman" = mdHumanoid
+    | n == "Orc Shaman" = mdHumanoidM
     | n == "Spider" = lgBeast
     | n == "Troll"        = gtHumanoid
     | n == "Troll Archer" = gtHumanoid
@@ -176,6 +176,7 @@ mkMonster name desc xy = let
     | otherwise = mdHumanoid
   mProp = mkProp name desc (monster name)
   mHP  = read $ T.unpack $ Map.findWithDefault "1" "HP" mProp
+  mMP  = read $ T.unpack $ Map.findWithDefault "0" "MP" mProp
   mXP  = read $ T.unpack $ Map.findWithDefault "1" "XP" mProp
   mLvl = read $ T.unpack $ Map.findWithDefault "1" "Challenge" mProp
   mInv = Map.fromList $ mkInventory name
@@ -188,6 +189,7 @@ mkMonster name desc xy = let
         , eLvl=mLvl
         , eHP=mHP
         , eMaxHP=mHP
+        , eMP=mMP
         , eXP=mXP
         }
 
@@ -252,6 +254,7 @@ cleric = [ ("str", "10")
          , ("int", "14")
          , ("wis", "15")
          , ("HP", "8")
+         , ("MP", "10")
          , ("XP", "0")
          , ("Proficiency", "2")
          , ("Challenge", "1")
@@ -266,6 +269,7 @@ fighter = [ ("str", "15")
           , ("int", "12")
           , ("wis", "10")
           , ("HP", "10")
+          , ("MP", "1")
           , ("XP", "0")
           , ("Proficiency", "2")
           , ("Challenge", "1")
@@ -279,6 +283,7 @@ mage = [ ("str", "10")
        , ("int", "15")
        , ("wis", "14")
        , ("HP", "6")
+       , ("MP", "12")
        , ("XP", "0")
        , ("Proficiency", "2")
        , ("Challenge", "1")
@@ -293,6 +298,7 @@ ranger = [ ("str", "12")
          , ("int", "10")
          , ("wis", "14")
          , ("HP", "10")
+         , ("MP", "1")
          , ("XP", "0")
          , ("Proficiency", "2")
          , ("Challenge", "1")
@@ -306,6 +312,7 @@ rogue = [ ("str", "10")
         , ("int", "14")
         , ("wis", "12")
         , ("HP", "8")
+        , ("MP", "2")
         , ("XP", "0")
         , ("Proficiency", "2")
         , ("Challenge", "1")
@@ -332,6 +339,7 @@ mdBeast = [ ("str", "12")
           , ("int", "3")
           , ("wis", "12")
           , ("HP", "11")
+          , ("MP", "0")
           , ("XP", "50")
           , ("Proficiency", "2")
           , ("Challenge", "1")
@@ -345,6 +353,7 @@ mdDragon = [ ("str", "15")
            , ("int", "10")
            , ("wis", "11")
            , ("HP", "33")
+           , ("MP", "0")
            , ("XP", "450")
            , ("Proficiency", "4")
            , ("Challenge", "4")
@@ -359,6 +368,7 @@ lgBeast = [ ("str", "14")
           , ("int", "2")
           , ("wis", "11")
           , ("HP", "26")
+          , ("MP", "0")
           , ("XP", "200")
           , ("Proficiency", "3")
           , ("Challenge", "3")
@@ -372,10 +382,25 @@ mdHumanoid = [ ("str", "16")
              , ("int", "7")
              , ("wis", "11")
              , ("HP", "15")
+             , ("MP", "0")
              , ("XP", "100")
              , ("Proficiency", "2")
              , ("Challenge", "2")
              ]
+
+-- | Orc Mage
+mdHumanoidM :: Prop
+mdHumanoidM = [ ("str", "12")
+              , ("dex", "12")
+              , ("con", "16")
+              , ("int", "11")
+              , ("wis", "11")
+              , ("HP", "15")
+              , ("MP", "10")
+              , ("XP", "100")
+              , ("Proficiency", "2")
+              , ("Challenge", "2")
+              ]
 
 -- | Troll
 gtHumanoid :: Prop
@@ -385,6 +410,7 @@ gtHumanoid = [ ("str", "18")
              , ("int", "7")
              , ("wis", "9")
              , ("HP", "84")
+             , ("MP", "0")
              , ("XP", "1800")
              , ("Proficiency", "3")
              , ("Challenge", "5")

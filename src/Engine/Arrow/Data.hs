@@ -52,6 +52,17 @@ data Direction
   | Y
   deriving (Eq)
 
+data GameState
+  = GameStart
+  | GameRun
+  | GameStop
+  | GameAnimation
+  | GameDialog
+  deriving (Eq, Show, Generic)
+
+instance FromJSON GameState
+instance ToJSON GameState
+
 data Intent
   = Action Direction
   | Idle
@@ -70,10 +81,9 @@ data World = World
   , cameraXY :: !(Double, Double)
   , screenXY :: !(Double, Double)
   , scaleXY  :: !(Double, Double)
-  -- GameStates
-  , dirty    :: !Bool
-  , starting :: !Bool
-  , exiting  :: !Bool
+  -- GameState
+  , dirty     :: !Bool
+  , gameState :: !GameState
   } deriving (Show, Generic)
 
 instance FromJSON World
@@ -90,8 +100,7 @@ instance ToJSON World where
     , "screenXY" .= screenXY
     , "scaleXY"  .= scaleXY
     , "dirty"    .= True
-    , "starting" .= True
-    , "exiting"  .= False
+    , "gameState" .= GameStart
     ]
 
 -- | mkWorld build the World
@@ -114,8 +123,7 @@ mkWorld seed (width, height) depth xMax yMax = let
            , screenXY = (fromIntegral width, fromIntegral height)
            , scaleXY  = (sx, sy)
            , dirty    = True
-           , starting = True
-           , exiting  = False
+           , gameState = GameStart
            }
 
 startJournal :: [Text]

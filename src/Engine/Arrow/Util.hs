@@ -46,8 +46,8 @@ actionBump pos em = let
 -- 3. actionMonster handles M events in the World
 -- 4. update Camera
 actionDirection :: Direction -> World -> World
-actionDirection input w = if starting w
-  then EDC.updateCamera w { starting = False }
+actionDirection input w = if gameState w == GameStart
+  then EDC.updateCamera w { gameState = GameRun }
   else let
     -- oldWorld
     (_, playerCoord) = GP.getPlayer (entityT w)
@@ -202,7 +202,6 @@ actionPlayer pos w = let
     else "..."
   entry = [look, listen, learn, alive]
   in world { tick     = newTick
-           , exiting  = eHP newPlayer < 1 -- alive?
            , journalT = GJ.updateJournal entry (journalT world) }
 
 -- | actionQuaff
@@ -316,4 +315,4 @@ showInventory w = let
 -- | quitWorld
 quitWorld :: World -> World
 quitWorld w = w { journalT = GJ.updateJournal ["Saving Game..."] (journalT w)
-                , exiting = True }
+                , gameState = GameStop }

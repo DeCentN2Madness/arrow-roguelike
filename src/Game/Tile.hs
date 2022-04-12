@@ -36,47 +36,46 @@ fromMoveBlocked :: [Coord] -> TileMap -> [Coord]
 fromMoveBlocked pos tm = let
   terrainList = filter ((/=Door).fst) $
     filter ((/=Open).fst) $
-    [ (t, xy) | (_, TileKind xy _ t) <- Map.toList tm ]
+    [ (t, xy) | (_, TileKind xy _ t _ _) <- Map.toList tm ]
   in filter (\x -> x `notElem` [ xy | (_, xy) <- terrainList ]) pos
 
 -- | fromOpen list of Open surfaces
 fromOpen :: TileMap -> [(Terrain, Coord)]
 fromOpen tm = let
   terrainList = filter ((==Open).fst) $
-    [ (t, xy) | (_, TileKind xy _ t) <- Map.toList tm ]
+    [ (t, xy) | (_, TileKind xy _ t _ _) <- Map.toList tm ]
   in terrainList
 
 -- | fromVisual return visual terrain
-fromVisual :: TileMap -> [(Terrain, Coord)]
+fromVisual :: TileMap -> [(TileKind, Coord)]
 fromVisual tm = let
   terrainList = filter ((/=(0,0)).snd) $
-    [ (t, xy) | (_, TileKind pos vis t) <- Map.toList tm,
+    [ (tk, xy) | (_, tk@(TileKind pos vis _ _ _)) <- Map.toList tm,
       let xy = if vis then pos else (0,0) ]
   in terrainList
+
 
 -- | fromVisionBlocked returns VisionBlocked
 fromVisionBlocked :: TileMap -> [(Terrain, Coord)]
 fromVisionBlocked tm = let
   terrainList = filter ((/=Open).fst) $
-    [ (t, xy) | (_, TileKind xy _ t) <- Map.toList tm ]
+    [ (t, xy) | (_, TileKind xy _ t _ _) <- Map.toList tm ]
   in terrainList
 
 -- | mkTileMap builds the TileMap from Dungeon @d@
--- (y,x) in Terrain
--- (x,y) in TileMap
 mkTileMap :: Dungeon -> TileMap
 mkTileMap d = let
   grid = dungeonGrid (dungeonWidth d) (dungeonHeight d)
   tileList = V.toList $ dungeonTiles d
   terrainList = [ tk | (xy, t) <- zip grid tileList,
-               let tk = TileKind xy False t ]
+               let tk = TileKind xy False t (addVisual t) (addLit t) ]
   in Map.fromList $ zip [0 :: Int ..] terrainList
 
 -- | updateTileMap
 updateTileMap :: [Coord] -> TileMap -> TileMap
 updateTileMap seen tm = let
-  tileList = [ (ix, tk) | (ix, TileKind xy vis t) <- Map.toList tm,
+  tileList = [ (ix, tk) | (ix, TileKind xy vis t vt vl) <- Map.toList tm,
                let tk = if xy `elem` seen
-                     then TileKind xy True t
-                     else TileKind xy vis  t ]
+                     then TileKind xy True t vt vl
+                     else TileKind xy vis  t vt vl ]
   in Map.fromList tileList

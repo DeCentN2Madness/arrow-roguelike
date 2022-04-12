@@ -24,7 +24,7 @@ import Game.Tile (TileMap)
 -- >>>  showVault d
 showVault :: TileMap -> IO ()
 showVault tm = do
-  let txList = [ (xy, v) | (_, TileKind xy _ t) <- Map.toList tm,
+  let txList = [ (xy, v) | (_, TileKind xy _ t _ _) <- Map.toList tm,
                 let v = terrainToText t ]
   forM_ txList $ \((i,_), t) -> do
     let vt = if i == 0

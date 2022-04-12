@@ -90,6 +90,7 @@ saveFile w = do
   encodeFile (homeDir ++ savePlayer) pEntity
   encodeFile (homeDir ++ saveAsset) (assetT w)
   encodeFile (homeDir ++ saveEntity) (entityT w)
+  encodeFile (homeDir ++ saveGame) (gameT w)
 
 -- | saveAsset
 saveAsset :: FilePath
@@ -98,6 +99,10 @@ saveAsset = "/Documents/Arrow/asset.json"
 -- | saveAsset
 saveEntity :: FilePath
 saveEntity = "/Documents/Arrow/entity.json"
+
+-- | saveAsset
+saveGame :: FilePath
+saveGame = "/Documents/Arrow/game.json"
 
 -- | savePlayer
 savePlayer :: FilePath

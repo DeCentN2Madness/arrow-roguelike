@@ -26,7 +26,7 @@ import Engine.Arrow.Data (World(..))
 import qualified Engine.SDL.Util as U
 import qualified Game.Entity as GE
 import Game.Kind.Entity (EntityKind(..))
-import Game.Kind.Tile (Terrain(..))
+import Game.Kind.Tile (TileKind(..))
 import Game.Kind.Visual (VisualKind(..))
 import qualified Game.Tile as GT
 
@@ -111,23 +111,11 @@ mkVisualMap ts w = let
   lit    = filter (\(_, j) -> j `elem` fovT w) walls
   seen   = filter (\(_, j) -> j `elem` fovT w) entity
   -- draw Terrain if visible
-  hardT = [ (xy, t) | (tk, xy) <- walls,
-            let t = case tk of
-                  Door   -> mkVisual VDoor   ts
-                  Magma  -> mkVisual VMagma  ts
-                  Open   -> mkVisual VOpen   ts
-                  Rock   -> mkVisual VRock   ts
-                  Rubble -> mkVisual VRubble ts
-                  Wall   -> mkVisual VWall   ts ]
+  hardT = [ (xy, t) | (TileKind _ _ _ vt _, xy) <- walls,
+            let t = mkVisual vt ts ]
   -- draw Terrain if lit
-  litT =  [ (xy, t) | (tk, xy) <- lit,
-            let t = case tk of
-                  Door   -> mkVisual VDoor    ts
-                  Magma  -> mkVisual VLMagma  ts
-                  Open   -> mkVisual VLOpen   ts
-                  Rock   -> mkVisual VRock    ts
-                  Rubble -> mkVisual VLRubble ts
-                  Wall   -> mkVisual VLWall   ts ]
+  litT =  [ (xy, t) | (TileKind _ _ _ _ vl, xy) <- lit,
+            let t = mkVisual vl ts ]
   -- draw Entities if in fovT
   seenT = [ (xy, t) | (ek, xy) <- seen, let t = mkVisual (glyph ek) ts ]
   in Map.fromList $ concat [hardT, litT, seenT]

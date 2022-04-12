@@ -21,8 +21,9 @@ module Game.Kind.Cave (cave
 import Prelude hiding (lookup)
 import Control.Monad.Random (mkStdGen)
 import qualified Data.Map.Strict as Map
+import Data.Maybe
 import qualified Game.Kind.Dungeon as GKD
-import Game.Kind.Tile (Terrain(..), TileKind (..))
+import Game.Kind.Tile
 import Game.Tile (TileMap)
 import qualified Game.Tile as GT
 
@@ -39,11 +40,10 @@ add (y1, x1) ts tm = let
   coordList = mkGrid (x1, y1) end
   terrainList = zip coordList ts
   hallMap = Map.fromList $ zip coordList $
-    [ tk | (xy, t) <- terrainList, let tk = TileKind xy False t ]
-  finalMap = [ (ix, tk) | (ix, TileKind xy v t) <- Map.toList tm,
-                let tk = case Map.lookup xy hallMap of
-                      Just x -> x
-                      Nothing -> TileKind xy v t]
+    [ tk | (xy, t) <- terrainList,
+      let tk = TileKind xy False t (addVisual t) (addLit t) ]
+  finalMap = [ (ix, tk) | (ix, t@(TileKind xy _ _ _ _)) <- Map.toList tm,
+                let tk = fromMaybe t (Map.lookup xy hallMap) ]
   in Map.fromList finalMap
 
 -- | cave

@@ -51,6 +51,16 @@ data VisualKind
   | VDoor
   | V1
   | V2
+  | VDagger
+  | VBow
+  | VRing
+  | VAmulet
+  | VArmor
+  | VCloak
+  | VShield
+  | VHelmet
+  | VGloves
+  | VBoots
   deriving (Ord, Show, Eq, Generic)
 
 instance FromJSON VisualKind

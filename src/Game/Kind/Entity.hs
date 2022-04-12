@@ -31,15 +31,15 @@ type Inventory = Map Text Int
 data Entity
   = Actor
   | Monster
-  | StairDown
-  | StairUp
   | Coin
+  | Item
   | Corpse
   | Arrow
   | Mushroom
-  | Item
   | Potion
   | Trap
+  | StairDown
+  | StairUp
   deriving (Ord, Show, Eq, Generic)
 
 instance FromJSON Entity
@@ -213,7 +213,7 @@ mkEntity Corpse name desc xy = let
   in e { kind=Corpse, glyph=VCorpse }
 mkEntity Item name desc xy = let
   e = defaultEK name desc xy
-  in e { kind=Item, glyph=VItem }
+  in e { kind=Item, glyph=visualId name }
 mkEntity Mushroom name desc xy = let
   e = defaultEK name desc xy
   in e { kind=Mushroom, glyph=VMushroom }
@@ -243,6 +243,16 @@ visualId name = let
     | count "Spider" n > 0 = VSpider
     | count "Troll"  n > 0 = VTroll
     | count "Wolf"   n > 0 = VWolf
+    | count "Dagger" n > 0 = VDagger
+    | count "Bow"    n > 0 = VBow
+    | count "Ring"   n > 0 = VRing
+    | count "Amulet" n > 0 = VAmulet
+    | count "Armor"  n > 0 = VArmor
+    | count "Cloak"  n > 0 = VCloak
+    | count "Shield" n > 0 = VShield
+    | count "Helmet" n > 0 = VHelmet
+    | count "Gloves" n > 0 = VGloves
+    | count "Boots"  n > 0 = VBoots
     | otherwise            = VMouse
   in visual name
 

@@ -55,6 +55,28 @@ loadTextures :: (MonadIO m)
   -> m TextureMap
 loadTextures r = mapM (U.loadTextureWithInfo r)
 
+-- | mkVisualMao
+-- Make the visual for rendering
+-- 1. Terrain
+-- 2. Lit Terrain with Lamp effect in FoV
+-- 3. Entities in FoV
+--    a. fromEntityStack preserves Actor, Monster, Coin...
+mkVisualMap :: TextureMap -> World -> VisualMap
+mkVisualMap ts w = let
+  entity = GE.fromEntityStack (entityT w)
+  walls  = GT.fromVisual (gameT w)
+  lit    = filter (\(_, j) -> j `elem` fovT w) walls
+  seen   = filter (\(_, j) -> j `elem` fovT w) entity
+  -- draw Terrain if visible
+  hardT = [ (xy, t) | (TileKind _ _ _ vt _, xy) <- walls,
+            let t = mkVisual vt ts ]
+  -- draw Terrain if lit
+  litT =  [ (xy, t) | (TileKind _ _ _ _ vl, xy) <- lit,
+            let t = mkVisual vl ts ]
+  -- draw Entities if in fovT
+  seenT = [ (xy, t) | (ek, xy) <- seen, let t = mkVisual (glyph ek) ts ]
+  in Map.fromList $ concat [hardT, litT, seenT]
+
 -- | tile sizes
 width, height :: CInt
 (width, height) = (32, 35)
@@ -97,25 +119,13 @@ mkVisual VHuman    ts = Visual (416, height) (style ts) width height
 mkVisual VDoor     ts = Visual (448, height) (style ts) width height
 mkVisual V1        ts = Visual (480, height) (style ts) width height
 mkVisual V2        ts = Visual (512, height) (style ts) width height
-
--- | mkVisualMao
--- Make the visual for rendering
--- 1. Terrain
--- 2. Lit Terrain with Lamp effect in FoV
--- 3. Entities in FoV
---    a. fromEntityStack preserves Actor, Monster, Coin...
-mkVisualMap :: TextureMap -> World -> VisualMap
-mkVisualMap ts w = let
-  entity = GE.fromEntityStack (entityT w)
-  walls  = GT.fromVisual (gameT w)
-  lit    = filter (\(_, j) -> j `elem` fovT w) walls
-  seen   = filter (\(_, j) -> j `elem` fovT w) entity
-  -- draw Terrain if visible
-  hardT = [ (xy, t) | (TileKind _ _ _ vt _, xy) <- walls,
-            let t = mkVisual vt ts ]
-  -- draw Terrain if lit
-  litT =  [ (xy, t) | (TileKind _ _ _ _ vl, xy) <- lit,
-            let t = mkVisual vl ts ]
-  -- draw Entities if in fovT
-  seenT = [ (xy, t) | (ek, xy) <- seen, let t = mkVisual (glyph ek) ts ]
-  in Map.fromList $ concat [hardT, litT, seenT]
+mkVisual VDagger   ts = Visual (0,   2*height) (style ts) width height
+mkVisual VBow      ts = Visual (32,  2*height) (style ts) width height
+mkVisual VRing     ts = Visual (64,  2*height) (style ts) width height
+mkVisual VAmulet   ts = Visual (96,  2*height) (style ts) width height
+mkVisual VArmor    ts = Visual (128,  2*height) (style ts) width height
+mkVisual VCloak    ts = Visual (160, 2*height) (style ts) width height
+mkVisual VShield   ts = Visual (192, 2*height) (style ts) width height
+mkVisual VHelmet   ts = Visual (224, 2*height) (style ts) width height
+mkVisual VGloves   ts = Visual (256, 2*height) (style ts) width height
+mkVisual VBoots    ts = Visual (288, height) (style ts) width height

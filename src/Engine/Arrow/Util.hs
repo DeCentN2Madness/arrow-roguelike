@@ -347,7 +347,8 @@ resetWorld w = let
 -- | showInventory
 showInventory :: World -> World
 showInventory w = let
-  entry = T.intercalate ", " $ GP.characterInventory (entityT w)
+  entry = T.append "@: " $
+    T.intercalate ", " $ GP.characterInventory (entityT w) (assetT w)
   in w { journalT = GJ.updateJournal [entry] (journalT w) }
 
 -- | quitWorld

@@ -25,6 +25,7 @@ module Game.Player (characterSheet
 
 import Prelude hiding (lookup)
 import qualified Data.Map.Strict as Map
+import Data.Maybe
 import Data.Text (Text)
 import qualified Data.Text as T
 import Game.Entity (EntityMap)
@@ -33,6 +34,7 @@ import Game.Kind.Entity (EntityKind(..))
 
 type Coord = (Int, Int)
 type Player = EntityKind
+type AssetMap = EntityMap
 
 -- | abilityMod
 abilityMod :: Int -> Int
@@ -44,8 +46,8 @@ characterSheet em = let
   (pEntity, _) = getPlayer em
   pInv  = inventory pEntity
   pCoin = T.append "AU: " (T.pack $ show $ Map.findWithDefault 0 "Coin" pInv)
-  pEquipment = T.concat [ "."
-    , equip "|"  (Map.findWithDefault 0 "Dagger" pInv)
+  pEquipment = T.concat [
+    equip "|"  (Map.findWithDefault 0 "Dagger" pInv)
     , equip "{"  (Map.findWithDefault 0 "Bow" pInv)
     , equip "="  (Map.findWithDefault 0 "Ring" pInv)
     , equip "\"" (Map.findWithDefault 0 "Amulet" pInv)
@@ -67,11 +69,16 @@ characterSheet em = let
   in [ pLvl, pExp, pCoin, pEquipment, pStr, pDex, pCon, pInt, pWis ]
 
 -- | @ Inv
-characterInventory :: EntityMap -> [Text]
-characterInventory em = let
+characterInventory :: EntityMap -> AssetMap -> [Text]
+characterInventory em am = let
   (pEntity, _) = getPlayer em
+  descMap = Map.fromList $
+    [ (name, desc) | (_, ek) <- Map.toList am,
+      let name = fromMaybe "I" (Map.lookup "Name" (property ek))
+          desc = fromMaybe "~" (Map.lookup "Description" (property ek)) ]
   pInv = [ i | (k, v) <- Map.toList (inventory pEntity),
-           let i = T.append k (T.pack $ ":" ++ show v) ]
+           let i = T.append item (T.pack $ ":" ++ show v)
+               item = fromMaybe "I" (Map.lookup k descMap) ]
   in pInv
 
 -- | @ equipment

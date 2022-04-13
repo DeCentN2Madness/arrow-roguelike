@@ -28,6 +28,7 @@ drawText r w = do
       sheet = zip [0..] $ GP.characterSheet (entityT w)
       -- Color
       color x
+        | T.any (=='@') x = green
         | T.any (=='!') x = red
         | T.any (=='*') x = purple
         | T.any (=='-') x = blue

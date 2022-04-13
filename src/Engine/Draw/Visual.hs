@@ -79,7 +79,7 @@ mkVisualMap ts w = let
 
 -- | tile sizes
 width, height :: CInt
-(width, height) = (32, 35)
+(width, height) = (32, 32)
 
 -- | mkVisual
 -- width x height is Tile coordinates which look good to the screen

@@ -34,7 +34,7 @@ Step 9 of the 15 Steps... The goal is to have fun!
 
 &mdash; bump `Monster` to attack
 
-&mdash; `c` to `showCharacter`
+&mdash; `c` to cast `Magic`
 
 &mdash; `e` to eat a `Mushroom`
 

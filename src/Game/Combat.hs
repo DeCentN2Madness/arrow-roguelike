@@ -49,8 +49,7 @@ condition hp = let
   in T.append brave dead
 
 -- | death
--- drop inventory around the Corpse...
--- TODO random Item drop
+-- Inventory drop around the Corpse...
 death :: Int -> EntityKind -> AssetMap -> EntityMap -> EntityMap
 death mx mEntity am em = let
   mPos   = coord mEntity
@@ -72,7 +71,7 @@ death mx mEntity am em = let
   in GI.putDown item newCorpse
 
 -- | misFire
--- Arrows that miss the mark
+-- Arrows that miss the mark...
 misFire :: EntityKind -> AssetMap -> EntityMap -> EntityMap
 misFire mEntity am em = let
   loc  = scatter mEntity
@@ -124,7 +123,7 @@ mkCombat px mx w = if px == mx
        , journalT = GJ.updateJournal [pEntry] (journalT w) }
 
 -- | mkMagicCombat
--- TODO Magic Skill, Effects...
+-- TODO Magic Skill, Ball, Bolt; Cone, and effects...
 mkMagicCombat :: Int -> Int -> World -> World
 mkMagicCombat px mx w = if px == mx
   then w
@@ -216,7 +215,7 @@ scatter :: EntityKind -> (Int, Int)
 scatter mEntity = let
   mPos     = coord mEntity
   -- random around the target
-  seed = 1 + uncurry (*) mPos
+  seed     = 1 + uncurry (*) mPos
   missList = moveT mEntity ++ [mPos]
   sz       = length missList - 1
   missRoll = head $ DS.rollList 1 (fromIntegral sz) seed

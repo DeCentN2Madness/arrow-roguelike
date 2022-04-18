@@ -17,7 +17,7 @@ import qualified Game.Combat as GC
 import qualified Game.Entity as GE
 import qualified Game.Inventory as GI
 import qualified Game.Journal as GJ
-import Game.Kind.Entity (EntityKind(..), Entity(..))
+import Game.Kind.Entity (Entity(..), EntityKind(..))
 import qualified Game.Player as GP
 
 data AI
@@ -62,7 +62,7 @@ aiAction ((mx, mEntity):xs) w = if mx == 0 || not (block mEntity)
     | (mMp > 0)    && (EAC.chessDist mPos pPos <= 4) = Cast
     | (mMush > 0)  && (mMaxHp `div` mHp > 2) = Eat
     | (mPot > 0)   && (mMaxHp `div` mHp > 3) = Drink
-    | (mInt > 6)  && any (\(i, _) -> kind i == Coin) mItems = Get
+    | (mInt > 6)   && any (\(i, _) -> kind i == Coin) mItems = Get
     | (mHp > 0) = Move
     | otherwise = Wait
   world = case action of
@@ -213,7 +213,6 @@ monsterThrow mx mEntity w = let
 -- | pathFinder
 -- 0. Don't move the Player at 0
 -- 1. Distance from goal
---   a. 5 or less is *critical*
 -- 2. Decide by distance
 --    a. 4 is Vision
 --    b. 7 is Hear

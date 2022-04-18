@@ -88,8 +88,8 @@ mkNameMap am = let
 mkDropItem :: Text -> Coord -> AssetMap -> EntityKind
 mkDropItem name pos am = let
   assets = mkNameMap am
-  coin = mkItem "Coin" "$" pos
-  item = Map.findWithDefault coin name assets
+  coin   = mkItem "Coin" "$" pos
+  item   = Map.findWithDefault coin name assets
   in item { coord = pos, spawn = pos }
 
 -- | random Item
@@ -97,10 +97,10 @@ mkRandItem :: Coord -> AssetMap -> EntityKind
 mkRandItem pos am = let
   itemList = filter ((/=(-1)).fst) $ [ (ix, v) | (k, v) <- Map.toList am,
                let ix = if kind v == Item then k else (-1) ]
-  seed = 1 + uncurry (*) pos
-  sz = length itemList - 1
+  seed     = 1 + uncurry (*) pos
+  sz       = length itemList - 1
   itemRoll = head $ DS.rollList 1 (fromIntegral sz) seed
-  item = nth itemRoll itemList
+  item     = nth itemRoll itemList
   in item { coord = pos, spawn = pos }
 
 -- | nth safe chooser

@@ -24,16 +24,14 @@ type TextMap = Map Int Text
 
 -- | fromJournal reads TextMap at ix
 fromJournal :: [Int] -> TextMap -> [(Int, Text)]
-fromJournal [] _ = []
+fromJournal [] _      = []
 fromJournal (x:xs) tm = let
   t = getJournalAt x tm
   in (x, t) : fromJournal xs tm
 
 -- | getJournalAt
 getJournalAt :: Int -> TextMap -> Text
-getJournalAt ix tm = let
-  t = fromMaybe (T.pack "...") $ Map.lookup ix tm
-  in t
+getJournalAt ix tm = fromMaybe (T.pack "...") $ Map.lookup ix tm
 
 -- | mkTextMap starts the TextMap
 mkTextMap :: TextMap

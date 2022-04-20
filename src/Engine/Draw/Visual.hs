@@ -74,7 +74,8 @@ mkVisualMap ts w = let
   litT =  [ (xy, t) | (TileKind _ _ _ _ vl, xy) <- lit,
             let t = mkVisual vl ts ]
   -- draw Entities if in fovT
-  seenT = [ (xy, t) | (ek, xy) <- seen, let t = mkVisual (glyph ek) ts ]
+  seenT = [ (xy, t) | (ek, xy) <- seen,
+            let t = mkVisual (glyph ek) ts ]
   in Map.fromList $ concat [hardT, litT, seenT]
 
 -- | tile sizes
@@ -123,9 +124,9 @@ mkVisual VDagger   ts = Visual (0,   2*height) (style ts) width height
 mkVisual VBow      ts = Visual (32,  2*height) (style ts) width height
 mkVisual VRing     ts = Visual (64,  2*height) (style ts) width height
 mkVisual VAmulet   ts = Visual (96,  2*height) (style ts) width height
-mkVisual VArmor    ts = Visual (128,  2*height) (style ts) width height
+mkVisual VArmor    ts = Visual (128, 2*height) (style ts) width height
 mkVisual VCloak    ts = Visual (160, 2*height) (style ts) width height
 mkVisual VShield   ts = Visual (192, 2*height) (style ts) width height
 mkVisual VHelmet   ts = Visual (224, 2*height) (style ts) width height
 mkVisual VGloves   ts = Visual (256, 2*height) (style ts) width height
-mkVisual VBoots    ts = Visual (288, height) (style ts) width height
+mkVisual VBoots    ts = Visual (288, 2*height) (style ts) width height

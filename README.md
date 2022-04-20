@@ -36,11 +36,13 @@ Step 9 of the 15 Steps... The goal is to have fun!
 
 &mdash; `c` to cast `Magic`
 
+&mdash; `d` to drop `Coin` for `Arrow`
+
 &mdash; `e` to eat a `Mushroom`
 
-&mdash; `g` to get `Coin`
+&mdash; `g` to get `Coin`, `Mushroom`, `Potion`, and `Item`
 
-&mdash; `i` to `showInventory`
+&mdash; `i` to show `Inventory`
 
 &mdash; `q` to drink a `Potion`
 

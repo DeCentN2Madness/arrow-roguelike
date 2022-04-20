@@ -96,9 +96,9 @@ insertVaultPair (x1, y1) v1 (x2, y2) v2 tm = let
 -- | mkGameMap
 -- GameMap influenced by depth
 mkGameMap :: Seed -> Depth -> Int -> Int -> TileMap
-mkGameMap seed depth width height= let
-  tm = cave seed width height
-  in level depth tm
+mkGameMap seed depth w h = let
+  tm = cave seed w h
+  in level depth w h tm
 
 -- | mkHall
 mkHall :: Coord -> Coord -> CoordMap
@@ -111,14 +111,38 @@ mkHall (x1, y1) (x2, y2) = let
                      let tk = TileKind xy False t (addVisual t) (addLit t) ]
   in Map.fromList tm
 
--- | demo vaults
--- A version is door opening East,
+-- | level vaults
+-- A version is door opening East...
 -- B version is door opening West...
-level :: Depth -> TileMap -> TileMap
-level depth tm
-  | depth > 10 = insertVaultPair (1,30) townA (70,1) townB $
-    insertVaultPair (1,15) crossA (70,15) crossB $
-    insertVaultPair (1,1) pillarA (70,30 ) pillarB tm
-  | depth > 5 && depth <= 10 = insertVaultPair (1,1) crossA (70,1) crossB $
-    insertVaultPair (1,15) townA (70,25) townB tm
-  | otherwise = insertVaultPair (1,1) townA (30,1) townB tm  -- Easy
+-- Sections:
+-- 1 - 2 - 3
+-- 4 - 5 - 6
+-- 7 - 8 - 9
+level :: Depth -> Int -> Int -> TileMap -> TileMap
+level depth w h tm = let
+  secW = w `div` 3
+  secH = h `div` 3
+  s1   = (secW-10, secH-10)
+  s2   = (secW, secH-10)
+  s3   = (2*secW, secH-10)
+  s4   = (secW-10, secH)
+  s5   = (secW, secH)
+  s6   = (2*secW, secH)
+  s7   = (secW-10, 2*secH)
+  s8   = (secW, 2*secH)
+  s9   = (2*secW, 2*secH)
+  myLevel n
+    | n > 15 =
+      insertVaultPair s2 pillarA s9 pillarB $
+      insertVaultPair s5 crossA  s6 crossB $
+      insertVaultPair s8 townA   s3 townB tm
+    | n > 10 && n <= 15 =
+      insertVaultPair s1 pillarA s9 pillarB $
+      insertVaultPair s4 crossA  s6 crossB $
+      insertVaultPair s7 townA   s3 townB tm
+    | n > 5 && n <= 10 =
+      insertVaultPair s1 townA   s3 townB $
+      insertVaultPair s7 lairA   s9 lairB tm
+    | otherwise =
+      insertVaultPair s1 lairA   s3 lairB tm
+  in myLevel depth

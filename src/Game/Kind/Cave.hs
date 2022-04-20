@@ -31,7 +31,7 @@ type Coord = (Int, Int)
 type Seed = Int
 
 -- | add Terrain to TileMap at pos
--- (y,x) in [Terrain]
+-- (y,x) in Terrain
 -- (x,y) in TileMap
 add :: Coord -> [Terrain] -> TileMap -> TileMap
 add (y1, x1) ts tm = let
@@ -55,6 +55,7 @@ cave seed width height = let
   in GT.mkTileMap d
 
 -- | uniform grid
+-- (y,x) in Terrain
 mkGrid :: Coord -> Coord -> [Coord]
 mkGrid (x1, y1) (x2, y2) = [ (y, x) | x <- [x1..x2], y <- [y1..y2] ]
 

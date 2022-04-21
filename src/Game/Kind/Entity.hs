@@ -132,6 +132,7 @@ mkItem name desc xy = let
     | n == "Potion"    = mkEntity Potion name desc xy
     | n == "StairDown" = mkEntity StairDown name desc xy
     | n == "StairUp"   = mkEntity StairUp name desc xy
+    | n == "Trap"      = mkEntity Trap name desc xy
     | otherwise        = mkEntity Item name desc xy
   in item name
 
@@ -151,15 +152,13 @@ mkMonster name desc xy = let
     | n == "Blue Dragon"  = mdDragon
     | n == "Black Dragon" = mdDragon
     | n == "White Dragon" = mdDragon
-    | n == "Mouse" = smBeast
+    | n == "Mouse"      = smBeast
     | n == "Orc"        = mdHumanoid
     | n == "Orc Archer" = mdHumanoid
     | n == "Orc Shaman" = mdHumanoidM
-    | n == "Spider" = lgBeast
-    | n == "Troll"        = gtHumanoid
-    | n == "Troll Archer" = gtHumanoid
-    | n == "Troll Shaman" = gtHumanoid
-    | n == "Wolf" = mdBeast
+    | n == "Spider"     = lgBeast
+    | n == "Troll"      = gtHumanoid
+    | n == "Wolf"       = mdBeast
     | otherwise = mdHumanoid
   mProp = mkProp name desc (monster name)
   mHP  = read $ T.unpack $ Map.findWithDefault "1" "HP" mProp

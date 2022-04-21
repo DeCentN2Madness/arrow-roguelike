@@ -87,41 +87,75 @@ mkAssetMap :: AssetMap
 mkAssetMap = let
   pos = (0, 0)
   em = [ mkMonster "Player" "The Hero (@)" pos
-       -- Generics
-       , mkItem "Arrow" "~" pos
-       , mkItem "Coin" "$" pos
-       , mkItem "Corpse" "%" pos
-       , mkItem "Mushroom" "," pos
-       , mkItem "Potion" "!" pos
+       -- generics
+       , mkItem "Arrow"     "~" pos
+       , mkItem "Coin"      "$" pos
+       , mkItem "Corpse"    "%" pos
+       , mkItem "Mushroom"  "," pos
+       , mkItem "Potion"    "!" pos
        , mkItem "StairDown" ">" pos
-       , mkItem "StairUp" "<" pos
-       , mkItem "Trap" "^" pos
-       --- Items
-       , mkItem "Dagger" "|" pos
-       , mkItem "Bow" "}" pos
-       , mkItem "Ring" "=" pos
-       , mkItem "Amulet" "\"" pos
-       , mkItem "Armor" "[" pos
-       , mkItem "Cloak" "(" pos
-       , mkItem "Shield" ")" pos
-       , mkItem "Helmet" "]" pos
-       , mkItem "Gloves" "]" pos
-       , mkItem "Boots" "]" pos
-       -- Monsters
+       , mkItem "StairUp"   "<" pos
+       , mkItem "Trap"      "^" pos
+       --- melee
+       , mkItem "melee/Dagger"        "|" pos
+       , mkItem "melee/Sword"         "|" pos
+       , mkItem "melee/Axe"           "|" pos
+       , mkItem "melee/Mace"          "|" pos
+       , mkItem "melee/Rapier"        "|" pos
+       , mkItem "melee/Flail"         "|" pos
+       , mkItem "melee/Halberd"       "|" pos
+       , mkItem "melee/Spear"         "|" pos
+       , mkItem "melee/Quarter Staff" "|" pos
+       , mkItem "melee/Bastard Sword" "|" pos
+       , mkItem "melee/Great Axe"     "|" pos
+       , mkItem "melee/Warhammer"     "|" pos
+       , mkItem "melee/Zweihander"    "|" pos
+       -- shield
+       , mkItem "shield/Buckler"      ")" pos
+       , mkItem "shield/Shield"       ")" pos
+       , mkItem "shield/Kite Shield"  ")" pos
+       -- shoot
+       , mkItem "shoot/Bow"           "}" pos
+       , mkItem "shoot/Longbow"       "}" pos
+       , mkItem "shoot/Shortbow"      "}" pos
+       , mkItem "shoot/Sling"         "}" pos
+       -- armor
+       , mkItem "armor/Leather Jack"    "[" pos
+       , mkItem "armor/Leather Jerkin"  "[" pos
+       , mkItem "armor/Mail Coat"       "[" pos
+       , mkItem "armor/Mail Shirt"      "[" pos
+       , mkItem "armor/Breastplate"     "[" pos
+       -- head
+       , mkItem "head/Leather Skullcap" "]" pos
+       , mkItem "head/Mail Coif"        "]" pos
+       , mkItem "head/Open Helm"        "]" pos
+       , mkItem "head/Helm"             "]" pos
+       -- feet
+       , mkItem "feet/Leather Leggings" "]" pos
+       , mkItem "feet/Mail Chausses"    "]" pos
+       , mkItem "feet/Plate Leggings"   "]" pos
+       -- hands
+       , mkItem "hands/Bracers"   "]" pos
+       , mkItem "hands/Gloves"    "]" pos
+       , mkItem "hands/Gauntlets" "]" pos
+       -- Items
+       , mkItem "jewelry/Ring" "=" pos
+       , mkItem "neck/Amulet"  "\"" pos
+       , mkItem "cloak/Cloak"  "(" pos
+       , mkItem "hands/Boots"  "]" pos
+       -- monsters
        , mkMonster "Cleric"  "Medium human (h)" pos
        , mkMonster "Fighter" "Medium human (h)" pos
        , mkMonster "Ranger"  "Medium human (h)" pos
        , mkMonster "Rogue"   "Medium human (h)" pos
        , mkMonster "Mage"    "Medium human (h)" pos
-       , mkMonster "Mouse"   "Small beast (r)" pos
-       , mkMonster "Orc"         "Medium humanoid (o)" pos
-       , mkMonster "Orc Archer"  "Medium humanoid (o)" pos
-       , mkMonster "Orc Shaman"  "Medium humanoid (o)" pos
-       , mkMonster "Spider" "Large beast (S)" pos
+       , mkMonster "Mouse"        "Small beast (r)" pos
+       , mkMonster "Orc"          "Medium humanoid (o)" pos
+       , mkMonster "Orc Archer"   "Medium humanoid (o)" pos
+       , mkMonster "Orc Shaman"   "Medium humanoid (o)" pos
+       , mkMonster "Spider"       "Large beast (S)" pos
        , mkMonster "Troll"        "Large giant (T)" pos
-       , mkMonster "Troll Archer" "Large giant (T)" pos
-       , mkMonster "Troll Shaman" "Large giant (T)" pos
-       , mkMonster "Wolf" "Medium beast (c)" pos
+       , mkMonster "Wolf"         "Medium beast (c)" pos
        , mkMonster "Dragon"       "Medium dragon (d)" pos
        , mkMonster "Red Dragon"   "Medium dragon (d)" pos
        , mkMonster "Green Dragon" "Medium dragon (d)" pos

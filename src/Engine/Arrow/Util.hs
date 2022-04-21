@@ -185,7 +185,8 @@ actionLook xs = let
   -- items
   items = groupF $ filter (/="Player") $
     [ name | (ek, _) <- xs,
-      let name = Map.findWithDefault "Player" "Name" (property ek) ]
+      let name = snd $ T.breakOnEnd "/" $
+            Map.findWithDefault "I" "Name" (property ek) ]
   look = T.concat $ [ e | (i, j) <- items,
                       let e = if j > 1
                             then T.append i $ T.pack $ " <" ++ show j ++ ">, "

@@ -36,24 +36,18 @@ checkPickUp invA invB = let
   pickItems v1 v2 = if v1 /= v2 then Just v1 else Nothing
   in Map.differenceWith pickItems invA invB
 
+-- | clamp to 20
+clamp :: Text -> Int -> Int
+clamp n v
+  | n == "Coin" = v
+  | v > 20      = 20
+  | otherwise   = v
+
 -- | encumberance
 -- Twenty is the limit, except Coin...
 encumberance :: Inventory -> Inventory
 encumberance inv = let
-  invT = [ (k, v) | (k, j) <- Map.toList inv,
-           let v = case k of
-                 "Dagger" -> 1
-                 "Bow"    -> 1
-                 "Ring"   -> 1
-                 "Amulet" -> 1
-                 "Armor"  -> 1
-                 "Cloak"  -> 1
-                 "Shield" -> 1
-                 "Helmet" -> 1
-                 "Gloves" -> 1
-                 "Boots"  -> 1
-                 "Coin"   -> j
-                 _        -> if j > 20 then 20 else j ]
+  invT = [ (k, v) | (k, j) <- Map.toList inv, let v = clamp k j ]
   in Map.fromList invT
 
 -- | emptyBy
@@ -80,8 +74,8 @@ groupEK = map (head &&& length) . group . sort
 -- All the assets by Name
 mkNameMap :: AssetMap -> NameMap
 mkNameMap am = let
-  assetList = [ (name, ek) | (_, ek) <- Map.toList am,
-                let name = Map.findWithDefault "I" "Name" (property ek) ]
+  assetList = [ (k, ek) | (_, ek) <- Map.toList am,
+                let k = Map.findWithDefault "I" "Name" (property ek) ]
   in Map.fromList assetList
 
 -- | mkDropItem

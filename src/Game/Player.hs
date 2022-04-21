@@ -47,16 +47,17 @@ characterSheet em = let
   pInv  = inventory pEntity
   pCoin = T.append "AU: " (T.pack $ show $ Map.findWithDefault 0 "Coin" pInv)
   pEquipment = T.concat [
-    equip "|"  (Map.findWithDefault 0 "Dagger" pInv)
-    , equip "{"  (Map.findWithDefault 0 "Bow" pInv)
-    , equip "="  (Map.findWithDefault 0 "Ring" pInv)
-    , equip "\"" (Map.findWithDefault 0 "Amulet" pInv)
-    , equip "["  (Map.findWithDefault 0 "Armor" pInv)
-    , equip "("  (Map.findWithDefault 0 "Cloak" pInv)
-    , equip ")"  (Map.findWithDefault 0 "Shield" pInv)
-    , equip "]"  (Map.findWithDefault 0 "Helmet" pInv)
-    , equip "]"  (Map.findWithDefault 0 "Gloves" pInv)
-    , equip "]"  (Map.findWithDefault 0 "Boots" pInv)
+    equip "|"    (Map.findWithDefault 0 "melee/Dagger" pInv)
+    , equip "{"  (Map.findWithDefault 0 "shoot/Bow" pInv)
+    , equip "="  (Map.findWithDefault 0 "jewelry/Ring" pInv)
+    , equip "="  (Map.findWithDefault 0 "jewelry/Ring" pInv)
+    , equip "\"" (Map.findWithDefault 0 "neck/Amulet" pInv)
+    , equip "["  (Map.findWithDefault 0 "armor/Armor" pInv)
+    , equip "("  (Map.findWithDefault 0 "cloak/Cloak" pInv)
+    , equip ")"  (Map.findWithDefault 0 "shield/Shield" pInv)
+    , equip "]"  (Map.findWithDefault 0 "head/Helmet" pInv)
+    , equip "]"  (Map.findWithDefault 0 "hands/Gloves" pInv)
+    , equip "]"  (Map.findWithDefault 0 "feet/Boots" pInv)
     ]
   pProp = property pEntity
   pStr  = T.append "Str: " (Map.findWithDefault "1" "str" pProp)

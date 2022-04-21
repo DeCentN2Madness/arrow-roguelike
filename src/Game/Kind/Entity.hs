@@ -119,8 +119,6 @@ mkInventory n
   | n == "Orc Shaman"   = [("Arrow",0),("Potion",1),("Mushroom",0),("Item",1)]
   | n == "Spider"       = [("Arrow",0),("Potion",1),("Mushroom",1),("Coin",1)]
   | n == "Troll"        = [("Arrow",0),("Potion",0),("Mushroom",1),("Coin",1)]
-  | n == "Troll Archer" = [("Arrow",1),("Potion",0),("Mushroom",0),("Coin",1)]
-  | n == "Troll Shaman" = [("Arrow",0),("Potion",1),("Mushroom",0),("Coin",1)]
   | otherwise = [("Arrow",0),("Potion",0),("Mushroom",0),("Coin",0)]
 
 -- | mkItem
@@ -134,18 +132,7 @@ mkItem name desc xy = let
     | n == "Potion"    = mkEntity Potion name desc xy
     | n == "StairDown" = mkEntity StairDown name desc xy
     | n == "StairUp"   = mkEntity StairUp name desc xy
-    | n == "Trap"      = mkEntity Trap name desc xy
-    | n == "Dagger"    = mkEntity Item name desc xy
-    | n == "Bow"       = mkEntity Item name desc xy
-    | n == "Ring"      = mkEntity Item name desc xy
-    | n == "Amulet"    = mkEntity Item name desc xy
-    | n == "Armor"     = mkEntity Item name desc xy
-    | n == "Cloak"     = mkEntity Item name desc xy
-    | n == "Shield"    = mkEntity Item name desc xy
-    | n == "Helmet"    = mkEntity Item name desc xy
-    | n == "Gloves"    = mkEntity Item name desc xy
-    | n == "Boots"     = mkEntity Item name desc xy
-    | otherwise        = mkEntity Arrow name desc xy
+    | otherwise        = mkEntity Item name desc xy
   in item name
 
 -- | mkMonster
@@ -233,7 +220,8 @@ mkEntity Trap name desc xy = let
 -- | identify Item, Monster, ... by Name
 visualId :: Text -> VisualKind
 visualId name = let
-  count x xs = length $ filter (==T.pack x) (T.words xs)
+  count x xs = length $
+    filter (==T.pack x) (T.words $ fst $ T.breakOn "/" xs)
   visual n
     | count "Actor"  n > 0 = VActor
     | count "Player" n > 0 = VActor
@@ -243,16 +231,16 @@ visualId name = let
     | count "Spider" n > 0 = VSpider
     | count "Troll"  n > 0 = VTroll
     | count "Wolf"   n > 0 = VWolf
-    | count "Dagger" n > 0 = VDagger
-    | count "Bow"    n > 0 = VBow
-    | count "Ring"   n > 0 = VRing
-    | count "Amulet" n > 0 = VAmulet
-    | count "Armor"  n > 0 = VArmor
-    | count "Cloak"  n > 0 = VCloak
-    | count "Shield" n > 0 = VShield
-    | count "Helmet" n > 0 = VHelmet
-    | count "Gloves" n > 0 = VGloves
-    | count "Boots"  n > 0 = VBoots
+    | count "melee"   n > 0 = VDagger
+    | count "shoot"   n > 0 = VBow
+    | count "jewelry" n > 0 = VRing
+    | count "neck"    n > 0 = VAmulet
+    | count "armor"   n > 0 = VArmor
+    | count "cloak"   n > 0 = VCloak
+    | count "shield"  n > 0 = VShield
+    | count "head"    n > 0 = VHelmet
+    | count "hands"   n > 0 = VGloves
+    | count "feet"    n > 0 = VBoots
     | otherwise            = VMouse
   in visual name
 

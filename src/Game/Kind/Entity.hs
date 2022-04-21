@@ -219,8 +219,9 @@ mkEntity Trap name desc xy = let
 -- | identify Item, Monster, ... by Name
 visualId :: Text -> VisualKind
 visualId name = let
+  count :: Text -> Text -> Int
   count x xs = length $
-    filter (==T.pack x) (T.words $ fst $ T.breakOn "/" xs)
+    filter (==x) (T.words $ fst $ T.breakOn "/" xs)
   visual n
     | count "Actor"  n > 0 = VActor
     | count "Player" n > 0 = VActor
@@ -240,7 +241,7 @@ visualId name = let
     | count "head"    n > 0 = VHelmet
     | count "hands"   n > 0 = VGloves
     | count "feet"    n > 0 = VBoots
-    | otherwise            = VMouse
+    | otherwise = VMouse
   in visual name
 
 -- | cleric

@@ -128,21 +128,32 @@ level depth w h tm = let
   s4   = (secW-10, secH)
   s5   = (secW, secH)
   s6   = (2*secW, secH)
-  s7   = (secW-10, 2*secH)
-  s8   = (secW, 2*secH)
-  s9   = (2*secW, 2*secH)
+  s7   = (secW-10, 2*secH-10)
+  s8   = (secW, 2*secH-10)
+  s9   = (2*secW, 2*secH-10)
   myLevel n
-    | n > 15 =
+    | n > 18 =
       insertVaultPair s2 pillarA s9 pillarB $
       insertVaultPair s5 crossA  s6 crossB $
       insertVaultPair s8 townA   s3 townB tm
-    | n > 10 && n <= 15 =
+    | n > 16 && n <= 18 =
+      insertVaultPair s2 townA   s9 townB $
+      insertVaultPair s5 lairA   s6 lairB $
+      insertVaultPair s7 pillarA s3 pillarB tm
+    | n > 16 && n <= 18 =
+      insertVaultPair s2 townA   s9 townB $
+      insertVaultPair s4 crossA  s6 crossB $
+      insertVaultPair s7 pillarA s3 pillarB tm
+    | n > 12 && n <= 16 =
       insertVaultPair s1 pillarA s9 pillarB $
       insertVaultPair s4 crossA  s6 crossB $
+      insertVaultPair s7 lairA   s3 lairB tm
+    | n > 8 && n <= 12 =
+      insertVaultPair s1 pillarA s9 pillarB $
       insertVaultPair s7 townA   s3 townB tm
-    | n > 5 && n <= 10 =
+    | n > 5 && n <= 8 =
       insertVaultPair s1 townA   s3 townB $
-      insertVaultPair s7 lairA   s9 lairB tm
+      insertVaultPair s4 lairA   s6 lairB tm
     | otherwise =
       insertVaultPair s1 lairA   s3 lairB tm
   in myLevel depth

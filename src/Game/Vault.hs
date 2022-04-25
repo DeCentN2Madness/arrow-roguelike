@@ -122,15 +122,15 @@ level :: Depth -> Int -> Int -> TileMap -> TileMap
 level depth w h tm = let
   secW = w `div` 3
   secH = h `div` 3
-  s1   = (secW-10, secH-10)
-  s2   = (secW, secH-10)
-  s3   = (2*secW, secH-10)
-  s4   = (secW-10, secH)
-  s5   = (secW, secH)
-  s6   = (2*secW, secH)
-  s7   = (secW-10, 2*secH-10)
-  s8   = (secW, 2*secH-10)
-  s9   = (2*secW, 2*secH-10)
+  s1   = (secW-10,   secH-10)
+  s2   = (2*secW-10, secH-10)
+  s3   = (3*secW-10, secH-10)
+  s4   = (secW-10,   2*secH-10)
+  s5   = (2*secW-10, 2*secH-10)
+  s6   = (3*secW-10, 2*secH-10)
+  s7   = (secW-10,   3*secH-10)
+  s8   = (2*secW-10, 3*secH-10)
+  s9   = (2*secW-10, 3*secH-10)
   myLevel n
     | n > 18 =
       insertVaultPair s2 pillarA s9 pillarB $

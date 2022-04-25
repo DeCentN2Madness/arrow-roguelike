@@ -99,8 +99,7 @@ equip name desc items = let
 getArrow :: EntityMap -> Double
 getArrow em = let
   (pEntity, _) = getPlayer em
-  pInv   = inventory pEntity
-  pArrow = fromIntegral $ Map.findWithDefault 0 "Arrow" pInv
+  pArrow = fromIntegral $ Map.findWithDefault 0 "Arrow" (inventory pEntity)
   in pArrow / 20.0
 
 -- | @ lives at 0
@@ -117,8 +116,7 @@ getHealth em = let
 getMushroom :: EntityMap -> Double
 getMushroom em = let
   (pEntity, _) = getPlayer em
-  pInv  = inventory pEntity
-  pMush = fromIntegral $ Map.findWithDefault 0 "Mushroom" pInv
+  pMush = fromIntegral $ Map.findWithDefault 0 "Mushroom" (inventory pEntity)
   in pMush / 20.0
 
 -- | @ lives at 0
@@ -140,8 +138,7 @@ getPlayer = GE.getEntityAt 0
 getPotion :: EntityMap -> Double
 getPotion em = let
   (pEntity, _) = getPlayer em
-  pInv = inventory pEntity
-  pPot = fromIntegral $ Map.findWithDefault 0 "Potion" pInv
+  pPot = fromIntegral $ Map.findWithDefault 0 "Potion" (inventory pEntity)
   in pPot / 20.0
 
 -- | @ gets better with level

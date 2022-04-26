@@ -125,35 +125,34 @@ level depth w h tm = let
   s1   = (secW-10,   secH-10)
   s2   = (2*secW-10, secH-10)
   s3   = (3*secW-10, secH-10)
-  s4   = (secW-10,   2*secH-10)
-  s5   = (2*secW-10, 2*secH-10)
-  s6   = (3*secW-10, 2*secH-10)
-  s7   = (secW-10,   3*secH-10)
-  s8   = (2*secW-10, 3*secH-10)
-  s9   = (2*secW-10, 3*secH-10)
+  s4   = (secW-10,   secH)
+  s5   = (2*secW-10, secH)
+  s6   = (3*secW-10, secH)
+  s7   = (secW-10,   secH+10)
+  s8   = (2*secW-10, secH+10)
+  s9   = (3*secW-10, secH+10)
   myLevel n
-    | n > 18 =
-      insertVaultPair s2 pillarA s9 pillarB $
-      insertVaultPair s5 crossA  s6 crossB $
-      insertVaultPair s8 townA   s3 townB tm
-    | n > 16 && n <= 18 =
-      insertVaultPair s2 townA   s9 townB $
-      insertVaultPair s5 lairA   s6 lairB $
-      insertVaultPair s7 pillarA s3 pillarB tm
-    | n > 16 && n <= 18 =
-      insertVaultPair s2 townA   s9 townB $
-      insertVaultPair s4 crossA  s6 crossB $
-      insertVaultPair s7 pillarA s3 pillarB tm
-    | n > 12 && n <= 16 =
-      insertVaultPair s1 pillarA s9 pillarB $
-      insertVaultPair s4 crossA  s6 crossB $
-      insertVaultPair s7 lairA   s3 lairB tm
-    | n > 8 && n <= 12 =
-      insertVaultPair s1 pillarA s9 pillarB $
-      insertVaultPair s7 townA   s3 townB tm
-    | n > 5 && n <= 8 =
-      insertVaultPair s1 townA   s3 townB $
-      insertVaultPair s4 lairA   s6 lairB tm
+    | n >= 15 =
+      insertVaultPair s7 pillarA s3 crossB $
+      insertVaultPair s7 pillarA s6 crossB $
+      insertVaultPair s7 pillarA s9 crossB $
+      insertVaultPair s7 pillarA s2 townB $
+      insertVaultPair s7 pillarA s5 townB $
+      insertVaultPair s7 pillarA s8 townB tm
+    | n >= 10 && n < 15 =
+      insertVaultPair s4 crossA s3 pillarB $
+      insertVaultPair s4 crossA s6 pillarB $
+      insertVaultPair s4 crossA s9 pillarB $
+      insertVaultPair s4 crossA s2 townB $
+      insertVaultPair s4 crossA s5 townB $
+      insertVaultPair s4 crossA s8 townB tm
+    | n >= 5 && n < 10 =
+      insertVaultPair s1 townA s3 pillarB $
+      insertVaultPair s1 townA s6 pillarB $
+      insertVaultPair s1 townA s9 pillarB $
+      insertVaultPair s1 townA s2 pillarB $
+      insertVaultPair s1 townA s5 pillarB $
+      insertVaultPair s1 townA s8 pillarB tm
     | otherwise =
       insertVaultPair s1 lairA   s3 lairB tm
   in myLevel depth

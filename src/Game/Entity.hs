@@ -170,7 +170,7 @@ mkAssetMap = let
 -- insert the Hero at 0
 mkEntityMap :: Depth -> TileMap -> AssetMap -> EntityMap
 mkEntityMap depth tm am = let
-  player   = mkMonster "Player" "The Hero (@)" (2,2)
+  player   = mkMonster "Player" "The Hero (@)" (0,0)
   monsters = mkMonsterMap depth tm am
   in safeInsertEntity 0 player tm monsters
 
@@ -184,7 +184,7 @@ safeInsertEntity ix ek tm em = let
     else head openList
   -- dead @... start in 1st vault
   newEntity = if kind ek == Corpse
-    then mkMonster "Player" "The Hero (@)" (2,2)
+    then mkMonster "Player" "The Hero (@)" (17,4)
     else ek
   in Map.insert ix (newEntity { coord = xy }) em
 

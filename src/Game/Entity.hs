@@ -100,14 +100,7 @@ mkAssetMap = let
        , mkItem "melee/Dagger"        "|" pos
        , mkItem "melee/Sword"         "|" pos
        , mkItem "melee/Axe"           "|" pos
-       , mkItem "melee/Mace"          "|" pos
-       , mkItem "melee/Rapier"        "|" pos
-       , mkItem "melee/Flail"         "|" pos
-       , mkItem "melee/Halberd"       "|" pos
        , mkItem "melee/Spear"         "|" pos
-       , mkItem "melee/Quarter Staff" "|" pos
-       , mkItem "melee/Bastard Sword" "|" pos
-       , mkItem "melee/Great Axe"     "|" pos
        , mkItem "melee/Warhammer"     "|" pos
        , mkItem "melee/Zweihander"    "|" pos
        -- shield
@@ -118,7 +111,6 @@ mkAssetMap = let
        , mkItem "shoot/Bow"           "}" pos
        , mkItem "shoot/Longbow"       "}" pos
        , mkItem "shoot/Shortbow"      "}" pos
-       , mkItem "shoot/Sling"         "}" pos
        -- armor
        , mkItem "armor/Leather Jack"    "[" pos
        , mkItem "armor/Leather Jerkin"  "[" pos
@@ -131,18 +123,18 @@ mkAssetMap = let
        , mkItem "head/Open Helm"        "]" pos
        , mkItem "head/Helm"             "]" pos
        -- feet
+       , mkItem "feet/Boots"            "]" pos
        , mkItem "feet/Leather Leggings" "]" pos
        , mkItem "feet/Mail Chausses"    "]" pos
        , mkItem "feet/Plate Leggings"   "]" pos
        -- hands
-       , mkItem "hands/Bracers"   "]" pos
        , mkItem "hands/Gloves"    "]" pos
+       , mkItem "hands/Bracers"   "]" pos
        , mkItem "hands/Gauntlets" "]" pos
        -- Items
        , mkItem "jewelry/Ring" "=" pos
        , mkItem "neck/Amulet"  "\"" pos
        , mkItem "cloak/Cloak"  "(" pos
-       , mkItem "hands/Boots"  "]" pos
        -- monsters
        , mkMonster "Cleric"  "Medium human (h)" pos
        , mkMonster "Fighter" "Medium human (h)" pos

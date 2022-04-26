@@ -29,10 +29,11 @@ abilityMod :: Int -> Int
 abilityMod n = (n-10) `div` 2
 
 -- | attack verb
-attack :: Int -> Int -> Text
-attack ar dr = if ar >= dr
-  then T.pack " hits the "
-  else " attack misses the "
+attack :: Int -> Int -> Int -> Text -> Text
+attack ar dr dam name = if ar >= dr
+  then T.append " hits the " $
+  T.append name $ T.pack $ " <" ++ show dam ++ ">"
+  else T.append " misses " name
 
 -- | clamp crits on > 20
 clamp :: Int -> Int
@@ -44,8 +45,8 @@ clamp n
 -- | condition of Monster
 condition :: Int -> Text
 condition hp = let
-  dead  = if hp < 1 then "Dead!" else "..."
-  brave = if hp >= 1 && hp <= 5 then "*Critical* " else ""
+  dead  = if hp < 1 then ", Dead!" else "..."
+  brave = if hp >= 1 && hp <= 5 then ", *Critical* " else ""
   in T.append brave dead
 
 -- | death
@@ -111,10 +112,8 @@ mkCombat px mx w = if px == mx
     pAttack = if pAR >= mDR then mHP - pDam else mHP -- Miss
     -- journal
     pEntry = T.concat [ pName
-                    , attack pAR mDR
-                    , mName
-                    , T.pack ", "
-                    , condition pAttack ]
+                      , attack pAR mDR pDam mName
+                      , condition pAttack ]
     -- newEntity with damages and deaths and Exp awards
     newEntity = if pAttack < 1
       then death mx mEntity (assetT w) $ GP.updatePlayerXP mExp (entityT w)
@@ -150,10 +149,8 @@ mkMagicCombat px mx w = if px == mx
     pAttack = if pAR >= mDR then mHP - pDam else mHP -- Miss
     -- journal
     pEntry = T.concat [ pName
-                    , shootM pAR mDR
-                    , mName
-                    , T.pack ", "
-                    , condition pAttack ]
+                      , shootM pAR mDR pDam mName
+                      , condition pAttack ]
     -- newEntity with damages and deaths and Exp awards
     newEntity = if pAttack < 1
       then death mx mEntity (assetT w) $ GP.updatePlayerXP mExp (entityT w)
@@ -193,10 +190,8 @@ mkRangeCombat px mx w = if px == mx
       else entityT w
     -- journal
     pEntry = T.concat [ pName
-                    , shoot pAR mDR
-                    , mName
-                    , T.pack ", "
-                    , condition pAttack ]
+                      , shoot pAR mDR pDam mName
+                      , condition pAttack ]
     -- newEntity with damages and deaths and Exp awards
     newEntity = if pAttack < 1
       then death mx mEntity (assetT w) $ GP.updatePlayerXP mExp (entityT w)
@@ -222,13 +217,15 @@ scatter mEntity = let
   in nth missRoll missList
 
 -- | shoot verb
-shoot :: Int -> Int -> Text
-shoot ar dr = if ar >= dr
-  then T.pack " shoots ~Arrow~ at "
-  else " ~Arrow~ misses the "
+shoot :: Int -> Int -> Int -> Text -> Text
+shoot ar dr dam name = if ar >= dr
+  then T.append " shoots -Arrow~ at " $
+  T.append name $ T.pack $ " <" ++ show dam ++ ">"
+  else T.append " ~Arrow~ misses the " name
 
 -- | shoot verb
-shootM :: Int -> Int -> Text
-shootM ar dr = if ar >= dr
-  then T.pack " casts -Spell- at "
-  else " -Spell- misses the "
+shootM :: Int -> Int -> Int -> Text -> Text
+shootM ar dr dam name = if ar >= dr
+  then T.append " casts -Spell- at " $
+  T.append name $ T.pack $ " <" ++ show dam ++ ">"
+  else T.append " -Spell- misses the " name

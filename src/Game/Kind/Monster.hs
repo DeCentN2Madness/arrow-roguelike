@@ -56,13 +56,13 @@ mkMonsterMap depth tm am = let
   potions = Map.findWithDefault arr "Potion"   assets
   shrooms = Map.findWithDefault arr "Mushroom" assets
   -- add powerful monsters deeper to level...
-  wolves     = Map.findWithDefault arr "Wolf"       assets
-  orc        = Map.findWithDefault arr "Orc"        assets
-  orcArcher  = Map.findWithDefault arr "Orc Archer" assets
-  orcShaman  = Map.findWithDefault arr "Orc Shaman" assets
-  dragons    = Map.findWithDefault arr "Dragon"     assets
-  spiders    = Map.findWithDefault arr "Spider"     assets
-  trolls     = Map.findWithDefault arr "Troll"      assets
+  wolves     = Map.findWithDefault arr "Wolf"         assets
+  orc        = Map.findWithDefault arr "Orc"          assets
+  orcArcher  = Map.findWithDefault arr "Orc Archer"   assets
+  orcShaman  = Map.findWithDefault arr "Orc Shaman"   assets
+  dragons    = Map.findWithDefault arr "Green Dragon" assets
+  spiders    = Map.findWithDefault arr "Spider"       assets
+  trolls     = Map.findWithDefault arr "Troll"        assets
   -- fill the dungeon...
   monsters
     | depth >= 18 =

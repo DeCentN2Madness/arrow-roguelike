@@ -148,7 +148,6 @@ mkAssetMap = let
        , mkMonster "Spider"       "Large beast (S)" pos
        , mkMonster "Troll"        "Large giant (T)" pos
        , mkMonster "Wolf"         "Medium beast (c)" pos
-       , mkMonster "Dragon"       "Medium dragon (d)" pos
        , mkMonster "Red Dragon"   "Medium dragon (d)" pos
        , mkMonster "Green Dragon" "Medium dragon (d)" pos
        , mkMonster "Blue Dragon"  "Medium dragon (d)" pos

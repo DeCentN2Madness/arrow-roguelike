@@ -108,16 +108,15 @@ mkInventory n
   | n == "Player"  = [("Arrow",0),("Potion",0),("Mushroom",1),("Coin",0)]
   | n == "Ranger"  = [("Arrow",1),("Potion",0),("Mushroom",1),("Coin",1)]
   | n == "Rogue"   = [("Arrow",0),("Potion",1),("Mushroom",1),("Coin",1)]
-  | n == "Dragon"       = [("Arrow",1),("Potion",1),("Mushroom",1),("Coin",1)]
   | n == "Red Dragon"   = [("Arrow",1),("Potion",1),("Mushroom",1),("Coin",1)]
   | n == "Green Dragon" = [("Arrow",1),("Potion",1),("Mushroom",1),("Coin",1)]
   | n == "Blue Dragon"  = [("Arrow",1),("Potion",1),("Mushroom",1),("Coin",1)]
   | n == "Black Dragon" = [("Arrow",1),("Potion",1),("Mushroom",1),("Coin",1)]
   | n == "White Dragon" = [("Arrow",1),("Potion",1),("Mushroom",1),("Coin",1)]
   | n == "Orc"          = [("Arrow",0),("Potion",0),("Mushroom",1),("Item",1)]
-  | n == "Orc Archer"   = [("Arrow",5),("Potion",0),("Mushroom",0),("Item",1)]
-  | n == "Orc Shaman"   = [("Arrow",0),("Potion",1),("Mushroom",0),("Item",1)]
-  | n == "Spider"       = [("Arrow",0),("Potion",1),("Mushroom",1),("Coin",1)]
+  | n == "Orc Archer"   = [("Arrow",5),("Potion",0),("Mushroom",1),("Item",1)]
+  | n == "Orc Shaman"   = [("Arrow",0),("Potion",1),("Mushroom",1),("Item",1)]
+  | n == "Spider"       = [("Arrow",0),("Potion",0),("Mushroom",1),("Coin",1)]
   | n == "Troll"        = [("Arrow",0),("Potion",0),("Mushroom",1),("Coin",1)]
   | otherwise = [("Arrow",0),("Potion",0),("Mushroom",0),("Coin",0)]
 
@@ -146,7 +145,6 @@ mkMonster name desc xy = let
     | n == "Player"  = fighter
     | n == "Ranger"  = ranger
     | n == "Rogue"   = rogue
-    | n == "Dragon"       = mdDragon
     | n == "Red Dragon"   = mdDragon
     | n == "Green Dragon" = mdDragon
     | n == "Blue Dragon"  = mdDragon

@@ -21,7 +21,6 @@ library
                     , Engine.Arrow.Debug
                     , Engine.Arrow.FoV
                     , Engine.Arrow.Save
-                    , Engine.Arrow.Util
                     , Engine.Arrow.View
                     , Engine.Draw.Camera
                     , Engine.Draw.Inventory
@@ -31,6 +30,7 @@ library
                     , Engine.SDL.Event
                     , Engine.SDL.Util
                     , Game.AI
+                    , Game.Arrow
                     , Game.Combat
                     , Game.DiceSet
                     , Game.Entity
@@ -68,7 +68,6 @@ executable Arrow
                     , Engine.Arrow.Debug
                     , Engine.Arrow.FoV
                     , Engine.Arrow.Save
-                    , Engine.Arrow.Util
                     , Engine.Arrow.View
                     , Engine.Draw.Camera
                     , Engine.Draw.Inventory
@@ -78,6 +77,7 @@ executable Arrow
                     , Engine.SDL.Event
                     , Engine.SDL.Util
                     , Game.AI
+                    , Game.Arrow
                     , Game.Combat
                     , Game.DiceSet
                     , Game.Entity

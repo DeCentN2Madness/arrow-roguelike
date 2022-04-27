@@ -1,14 +1,15 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-
 
-Engine.Arrow.Util.hs
+Game.Arrow.hs
 
-applyIntent to the World
+Game.Arrow takes Intent and `applyIntent` to the World. This is the
+main control for the Player '@' in the Game.
 
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
 -}
-module Engine.Arrow.Util (applyIntent) where
+module Game.Arrow (applyIntent) where
 
 import Prelude hiding (lookup)
 import Control.Arrow ((&&&))

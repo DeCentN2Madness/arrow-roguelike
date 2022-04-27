@@ -14,12 +14,12 @@ import Control.Monad.Extra (unless)
 import qualified SDL
 import Engine.Arrow.Data (GameState(..), World(..))
 import qualified Engine.Arrow.Save as EAS
-import qualified Engine.Arrow.Util as EAU
 import qualified Engine.Draw.Util as EDU
 import Engine.Draw.Visual (TextureMap)
 import qualified Engine.Draw.Visual as EDV
 import qualified Engine.SDL.Event as ESE
 import qualified Engine.SDL.Util as U
+import qualified Game.Arrow as GA
 
 -- | main
 main :: IO ()
@@ -51,7 +51,7 @@ mainLoop world render ts = do
   events <- SDL.pumpEvents >> SDL.pollEvents
   let intents = ESE.mkIntents events
   forM_ intents $ \i -> do
-    modifyIORef world (EAU.applyIntent i)
+    modifyIORef world (GA.applyIntent i)
     d <- readIORef world
     EDU.draw render ts d
   unless (gameState q == GameStop) $ mainLoop world render ts

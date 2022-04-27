@@ -24,6 +24,7 @@ library
                     , Engine.Arrow.Util
                     , Engine.Arrow.View
                     , Engine.Draw.Camera
+                    , Engine.Draw.Inventory
                     , Engine.Draw.Textual
                     , Engine.Draw.Util
                     , Engine.Draw.Visual
@@ -70,6 +71,7 @@ executable Arrow
                     , Engine.Arrow.Util
                     , Engine.Arrow.View
                     , Engine.Draw.Camera
+                    , Engine.Draw.Inventory
                     , Engine.Draw.Textual
                     , Engine.Draw.Util
                     , Engine.Draw.Visual

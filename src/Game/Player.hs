@@ -74,13 +74,13 @@ characterInventory :: EntityMap -> AssetMap -> [Text]
 characterInventory em am = let
   (pEntity, _) = getPlayer em
   descMap = Map.fromList $
-    [ (name, desc) | (_, ek) <- Map.toList am,
-      let name = fromMaybe "I" (Map.lookup "Name" (property ek))
-          desc = fromMaybe "~" (Map.lookup "Description" (property ek)) ]
+    [ (k, v) | (_, ek) <- Map.toList am,
+      let k = fromMaybe "I" (Map.lookup "Name" (property ek))
+          v = fromMaybe "~" (Map.lookup "Description" (property ek)) ]
   pInv = [ i | (k, v) <- Map.toList (inventory pEntity),
-           let i = T.append item (T.pack $ ":" ++ show v)
-               item = fromMaybe "I" (Map.lookup k descMap) ]
-  in pInv
+           let i = T.append k (T.pack $ " (" ++ desc ++ "): " ++ show v)
+               desc = T.unpack $ fromMaybe "I" (Map.lookup k descMap) ]
+  in pInv ++ [" ", "Press ESC, I to Continue..."]
 
 -- | @ equipment
 equip :: Text -> Text -> Inventory -> Text

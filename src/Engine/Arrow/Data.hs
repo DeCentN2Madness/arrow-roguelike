@@ -58,6 +58,7 @@ data GameState
   | GameStop
   | GameAnimation
   | GameDialog
+  | GameInventory
   deriving (Eq, Show, Generic)
 
 instance FromJSON GameState

@@ -8,7 +8,7 @@ This module keeps the Text routines for SDL.Renderer.
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
 -}
-module Engine.Draw.Textual where
+module Engine.Draw.Textual (drawText, renderText) where
 
 import Control.Monad (forM_)
 import qualified Data.Text as T
@@ -87,9 +87,6 @@ purple = SDL.V4 128 0 128 255
 
 yellow :: SDL.Font.Color
 yellow = SDL.V4 255 255 0 255
-
-black :: SDL.Font.Color
-black = SDL.V4 0 0 0 255
 
 white :: SDL.Font.Color
 white = SDL.V4 255 255 255 255

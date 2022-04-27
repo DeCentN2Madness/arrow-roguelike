@@ -339,20 +339,17 @@ resetWorld w = let
   in world { entityT  = GE.safeInsertEntity 0 p (gameT world) (entityT world)
            , journalT = GJ.updateJournal [entry] (journalT w) }
 
--- | showCharacter
--- showCharacter :: World -> World
--- showCharacter w = let
--- entry = T.intercalate ", " $ filter (/=" ") $ GP.characterSheet (entityT w)
--- in w { journalT = GJ.updateJournal [entry] (journalT w) }
-
 -- | showInventory
 showInventory :: World -> World
-showInventory w = let
-  entry = T.append "@: " $
-    T.intercalate ", " $ GP.characterInventory (entityT w) (assetT w)
-  in w { journalT = GJ.updateJournal [entry] (journalT w) }
+showInventory w = w { journalT = GJ.updateJournal ["Inventory..."] (journalT w)
+                    , gameState = if gameState w == GameInventory
+                      then GameRun
+                      else GameInventory }
 
 -- | quitWorld
+-- ESC changes gameState in the World
 quitWorld :: World -> World
-quitWorld w = w { journalT = GJ.updateJournal ["Saving Game..."] (journalT w)
-                , gameState = GameStop }
+quitWorld w = w { journalT = GJ.updateJournal ["ESC Pressed..."] (journalT w)
+                , gameState = if gameState w == GameRun
+                  then GameStop
+                  else GameRun }

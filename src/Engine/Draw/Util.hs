@@ -19,6 +19,7 @@ import Engine.Arrow.Data (GameState(..), World(..))
 import Engine.Draw.Visual (AssetMap(..), TextureMap, Visual(..))
 import qualified Engine.Draw.Visual as EDV
 import qualified Engine.Draw.Textual as EDT
+import qualified Engine.Draw.Inventory as EDI
 import qualified Engine.SDL.Util as U
 import qualified Game.Player as GP
 
@@ -37,8 +38,7 @@ data Colour
 -- main drawing loop
 draw :: SDL.Renderer -> TextureMap -> World -> IO ()
 draw r ts w = do
-  setColor r Black
-  SDL.clear r
+  {-
   -- Game
   if gameState w /= GameRun
     then renderTexture r (arrow ts) (0.0, 0.0 :: Double)
@@ -58,6 +58,35 @@ draw r ts w = do
      renderHpBar r (5, 190) 100.0 10.0 Gray  Yellow pArrow
      renderHpBar r (5, 200) 100.0 10.0 Gray  Brown  pMush
      renderHpBar r (5, 210) 100.0 10.0 Gray  Purple pPot
+  -}
+  _ <- case gameState w of
+    GameStart -> do
+      setColor r Black
+      SDL.clear r
+      renderTexture r (arrow ts) (0.0, 0.0 :: Double)
+    GameStop      -> return ()
+    GameAnimation -> return ()
+    GameDialog    -> return  ()
+    GameInventory -> EDI.drawInventory r w
+    GameRun -> do
+      setColor r Black
+      SDL.clear r
+      let
+        pHp    = GP.getHealth   (entityT w)
+        pMp    = GP.getMana     (entityT w)
+        pArrow = GP.getArrow    (entityT w)
+        pMush  = GP.getMushroom (entityT w)
+        pPot   = GP.getPotion   (entityT w)
+      -- Vitals Bar
+      renderHpBar r (5, 170) 100.0 10.0 Red   Green  pHp
+      renderHpBar r (5, 180) 100.0 10.0 White Blue   pMp
+      renderHpBar r (5, 190) 100.0 10.0 Gray  Yellow pArrow
+      renderHpBar r (5, 200) 100.0 10.0 Gray  Brown  pMush
+      renderHpBar r (5, 210) 100.0 10.0 Gray  Purple pPot
+      -- Draw Visual Map
+      drawMap r ts w
+      -- HUD Text
+      EDT.drawText r w
   -- Screen
   SDL.present r
 

@@ -303,32 +303,36 @@ actionThrow w = let
 -- | applyIntent
 -- Events applied to the World
 -- Currently, Player Turn then Monster Turn...
--- TODO action stack
 applyIntent :: Intent -> World -> World
 applyIntent intent w = let
-  world = case intent of
-    Action North     -> actionDirection North w
-    Action NorthEast -> actionDirection NorthEast w
-    Action East      -> actionDirection East w
-    Action SouthEast -> actionDirection SouthEast w
-    Action South     -> actionDirection South w
-    Action SouthWest -> actionDirection SouthWest w
-    Action West      -> actionDirection West w
-    Action NorthWest -> actionDirection NorthWest w
-    Action C -> actionMonster $ actionCast w
-    Action D -> actionDrop w
-    Action E -> actionMonster $ actionEat w
-    Action G -> actionGet w
-    Action I -> invWorld w
-    Action Q -> actionMonster $ actionQuaff w
-    Action R -> resetWorld w
-    Action T -> actionMonster $ actionThrow w
-    Quit     -> escWorld w
-    _ -> w
-  in world
+  world n
+    | n == GameInventory = case intent of
+        Action I -> invWorld w
+        Quit -> escWorld w
+        _ -> w
+    | otherwise = case intent of
+        Action North     -> actionDirection North w
+        Action NorthEast -> actionDirection NorthEast w
+        Action East      -> actionDirection East w
+        Action SouthEast -> actionDirection SouthEast w
+        Action South     -> actionDirection South w
+        Action SouthWest -> actionDirection SouthWest w
+        Action West      -> actionDirection West w
+        Action NorthWest -> actionDirection NorthWest w
+        Action C -> actionMonster $ actionCast w
+        Action D -> actionDrop w
+        Action E -> actionMonster $ actionEat w
+        Action G -> actionGet w
+        Action I -> invWorld w
+        Action Q -> actionMonster $ actionQuaff w
+        Action R -> resetWorld w
+        Action T -> actionMonster $ actionThrow w
+        Quit -> escWorld w
+        _ -> w
+  in world (gameState w)
 
 -- | escWorld
--- ESC changes gameState in the World
+-- ESC changes gameState
 escWorld :: World -> World
 escWorld w = w { journalT = GJ.updateJournal ["ESC Pressed..."] (journalT w)
                , gameState = if gameState w == GameRun

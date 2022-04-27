@@ -316,16 +316,32 @@ applyIntent intent w = let
     Action West      -> actionDirection West w
     Action NorthWest -> actionDirection NorthWest w
     Action C -> actionMonster $ actionCast w
-    Action D -> actionMonster $ actionDrop w
+    Action D -> actionDrop w
     Action E -> actionMonster $ actionEat w
-    Action G -> actionMonster $ actionGet w
-    Action I -> showInventory w
+    Action G -> actionGet w
+    Action I -> invWorld w
     Action Q -> actionMonster $ actionQuaff w
     Action R -> resetWorld w
     Action T -> actionMonster $ actionThrow w
-    Quit     -> quitWorld w
+    Quit     -> escWorld w
     _ -> w
   in world
+
+-- | escWorld
+-- ESC changes gameState in the World
+escWorld :: World -> World
+escWorld w = w { journalT = GJ.updateJournal ["ESC Pressed..."] (journalT w)
+               , gameState = if gameState w == GameRun
+                 then GameStop
+                 else GameRun }
+
+-- | invWorld
+-- Inventory mode
+invWorld :: World -> World
+invWorld w = w { journalT = GJ.updateJournal ["I Pressed..."] (journalT w)
+                    , gameState = if gameState w == GameInventory
+                      then GameRun
+                      else GameInventory }
 
 -- | resetWorld, save the Player, and rebuild the World
 -- TODO depth set by stairs...
@@ -337,19 +353,4 @@ resetWorld w = let
   world        = mkWorld (tick w) (floor maxX, floor maxY) (eLvl p) row col
   entry        = T.pack $ "Depth " ++ show (50 * eLvl p) ++ "'..."
   in world { entityT  = GE.safeInsertEntity 0 p (gameT world) (entityT world)
-           , journalT = GJ.updateJournal [entry] (journalT w) }
-
--- | showInventory
-showInventory :: World -> World
-showInventory w = w { journalT = GJ.updateJournal ["Inventory..."] (journalT w)
-                    , gameState = if gameState w == GameInventory
-                      then GameRun
-                      else GameInventory }
-
--- | quitWorld
--- ESC changes gameState in the World
-quitWorld :: World -> World
-quitWorld w = w { journalT = GJ.updateJournal ["ESC Pressed..."] (journalT w)
-                , gameState = if gameState w == GameRun
-                  then GameStop
-                  else GameRun }
+           , journalT = GJ.updateJournal ["R pressed...", entry] (journalT w) }

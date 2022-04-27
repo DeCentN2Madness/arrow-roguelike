@@ -19,7 +19,6 @@ import qualified Game.Player as GP
 
 -- | drawInventory
 -- Show the Inventory
--- Show the Character
 drawInventory :: SDL.Renderer -> World -> IO ()
 drawInventory r w = do
   let logs  = zip [0..] $ GP.characterInventory (entityT w) (assetT w)

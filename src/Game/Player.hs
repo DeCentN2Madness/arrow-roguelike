@@ -78,7 +78,7 @@ characterInventory em am = let
       let k = fromMaybe "I" (Map.lookup "Name" (property ek))
           v = fromMaybe "~" (Map.lookup "Description" (property ek)) ]
   pInv = [ i | (k, v) <- Map.toList (inventory pEntity),
-           let i = T.append k (T.pack $ " (" ++ desc ++ "): " ++ show v)
+           let i = T.append k (T.pack $ " '" ++ desc ++ "': " ++ show v)
                desc = T.unpack $ fromMaybe "I" (Map.lookup k descMap) ]
   in pInv ++ [" ", "Press ESC, I to Continue..."]
 

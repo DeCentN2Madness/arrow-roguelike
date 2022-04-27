@@ -38,27 +38,6 @@ data Colour
 -- main drawing loop
 draw :: SDL.Renderer -> TextureMap -> World -> IO ()
 draw r ts w = do
-  {-
-  -- Game
-  if gameState w /= GameRun
-    then renderTexture r (arrow ts) (0.0, 0.0 :: Double)
-    else do
-     -- Draw Visual Map
-     drawMap r ts w
-     -- HUD Text
-     EDT.drawText r w
-     -- Vitals Bar
-     let pHp    = GP.getHealth   (entityT w)
-         pMp    = GP.getMana     (entityT w)
-         pArrow = GP.getArrow    (entityT w)
-         pMush  = GP.getMushroom (entityT w)
-         pPot   = GP.getPotion   (entityT w)
-     renderHpBar r (5, 170) 100.0 10.0 Red   Green  pHp
-     renderHpBar r (5, 180) 100.0 10.0 White Blue   pMp
-     renderHpBar r (5, 190) 100.0 10.0 Gray  Yellow pArrow
-     renderHpBar r (5, 200) 100.0 10.0 Gray  Brown  pMush
-     renderHpBar r (5, 210) 100.0 10.0 Gray  Purple pPot
-  -}
   _ <- case gameState w of
     GameStart -> do
       setColor r Black

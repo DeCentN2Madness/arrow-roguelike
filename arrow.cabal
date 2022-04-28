@@ -16,8 +16,7 @@ source-repository head
 
 library
   hs-source-dirs:   src
-  exposed-modules:  Engine.Arrow.Compass
-                    , Engine.Arrow.Data
+  exposed-modules:  Engine.Arrow.Data
                     , Engine.Arrow.Debug
                     , Engine.Arrow.FoV
                     , Engine.Arrow.Save
@@ -32,6 +31,7 @@ library
                     , Game.AI
                     , Game.Arrow
                     , Game.Combat
+                    , Game.Compass
                     , Game.DiceSet
                     , Game.Entity
                     , Game.Inventory
@@ -63,8 +63,7 @@ library
 
 executable Arrow
   main-is:          Main.hs
-  other-modules:    Engine.Arrow.Compass
-                    , Engine.Arrow.Data
+  other-modules:    Engine.Arrow.Data
                     , Engine.Arrow.Debug
                     , Engine.Arrow.FoV
                     , Engine.Arrow.Save
@@ -79,6 +78,7 @@ executable Arrow
                     , Game.AI
                     , Game.Arrow
                     , Game.Combat
+                    , Game.Compass
                     , Game.DiceSet
                     , Game.Entity
                     , Game.Inventory

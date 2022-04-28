@@ -38,25 +38,24 @@ data Colour
 -- main drawing loop
 draw :: SDL.Renderer -> TextureMap -> World -> IO ()
 draw r ts w = do
+  setColor r Black
+  SDL.clear r
+  let pHp    = GP.getHealth (entityT w)
+      pMp    = GP.getMana (entityT w)
+      pArrow = GP.getArrow (entityT w)
+      pMush  = GP.getMushroom (entityT w)
+      pPot   = GP.getPotion (entityT w)
+  -- Dialog
   _ <- case gameState w of
-    GameStart -> do
-      setColor r Black
-      SDL.clear r
-      renderTexture r (arrow ts) (0.0, 0.0 :: Double)
-    GameStop      -> return ()
-    GameAnimation -> return ()
-    GameDialog    -> return  ()
+    GameDrop      -> EDI.drawInventory r w
+    GameEquipment -> EDI.drawEquipment r w
     GameInventory -> EDI.drawInventory r w
-    GameRun -> do
-      setColor r Black
-      SDL.clear r
-      let
-        pHp    = GP.getHealth   (entityT w)
-        pMp    = GP.getMana     (entityT w)
-        pArrow = GP.getArrow    (entityT w)
-        pMush  = GP.getMushroom (entityT w)
-        pPot   = GP.getPotion   (entityT w)
-      -- Vitals Bar
+    _ -> setColor r White
+  -- Arrow
+  if gameState w == GameStart
+    then renderTexture r (arrow ts) (0.0, 0.0 :: Double)
+    else do
+      -- Vitals
       renderHpBar r (5, 170) 100.0 10.0 Red   Green  pHp
       renderHpBar r (5, 180) 100.0 10.0 White Blue   pMp
       renderHpBar r (5, 190) 100.0 10.0 Gray  Yellow pArrow

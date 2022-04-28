@@ -269,6 +269,16 @@ fighter = [ ("str", "15")
           , ("XP", "0")
           , ("Proficiency", "2")
           , ("Challenge", "1")
+          , ("melee", "None")
+          , ("shoot", "None")
+          , ("jewelry", "None")
+          , ("neck", "None")
+          , ("armor", "None")
+          , ("cloak", "None")
+          , ("shield", "None")
+          , ("head", "None")
+          , ("hands", "None")
+          , ("feet", "None")
           ]
 
 -- | mage

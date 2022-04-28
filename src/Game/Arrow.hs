@@ -18,12 +18,12 @@ import Data.List
 import qualified Data.Map.Strict as Map
 import Data.Text (Text)
 import qualified Data.Text as T
-import Engine.Arrow.Compass
 import Engine.Arrow.Data
 import qualified Engine.Arrow.View as EAV
 import qualified Engine.Draw.Camera as EDC
 import qualified Game.AI as GAI
 import qualified Game.Combat as GC
+import Game.Compass
 import Game.Entity (EntityMap)
 import qualified Game.Entity as GE
 import qualified Game.Inventory as GI
@@ -95,24 +95,68 @@ actionDirection input w = if gameState w == GameStart
       else world { dirty = False }
   in EDC.updateCamera run
 
+-- | actionDoff
+-- if there is a Hat to take off...
+actionDoff :: Text -> World -> World
+actionDoff item w = let
+  newTick      = tick w + 1
+  (pEntity, _) = GP.getPlayer (entityT w)
+  pEquip = fst $ T.breakOn "/" item
+  pItems = filter ((==item).fst) $ Map.toList (property pEntity)
+  pItem = if not (null pItems)
+    then head pItems
+    else ("None", "None")
+  newPlayer = if snd pItem /= "None"
+    then let
+    in pEntity { inventory = Map.insert (snd pItem) 1 (inventory pEntity)
+               , property  = Map.insert pEquip "None" (property pEntity) }
+    else pEntity
+  entry = if not (null pItems)
+    then T.pack $ "Doff " ++ show (head pItems)
+    else T.append "No Doff..." item
+  in w { tick = newTick
+       , entityT  = GP.updatePlayer newPlayer (entityT w)
+       , journalT = GJ.updateJournal [entry] (journalT w) }
+
+-- | actionDon
+-- if there is Hat to Wear...
+actionDon :: Text -> World -> World
+actionDon item w = let
+  newTick      = tick w + 1
+  (pEntity, _) = GP.getPlayer (entityT w)
+  pEquip = fst $ T.breakOn "/" item
+  pItems = filter ((==item).fst) $ Map.toList (inventory pEntity)
+  pItem = if not (null pItems)
+    then head pItems
+    else ("None", 0)
+  newPlayer = if snd pItem > 0
+    then let
+    in pEntity { inventory = Map.insert item (snd pItem-1) (inventory pEntity)
+               , property  = Map.insert pEquip (fst pItem) (property pEntity) }
+    else pEntity
+  entry = if not (null pItems)
+    then T.pack $ "Don " ++ show (head pItems)
+    else T.pack "No Don..."
+  in w { tick = newTick
+       , entityT  = GP.updatePlayer newPlayer (entityT w)
+       , journalT = GJ.updateJournal [entry] (journalT w) }
+
 -- | actionDrop
 -- if there is something to drop...
--- TODO change from Coin to Arrow to pick of items to drop
-actionDrop :: World -> World
-actionDrop w = let
+actionDrop :: Text -> World -> World
+actionDrop item w = let
   newTick         = tick w + 1
   (pEntity, pPos) = GP.getPlayer (entityT w)
-  pInv            = inventory pEntity
-  pCoin           = Map.findWithDefault 0 "Coin" pInv
-  item            = GI.mkDropItem "Arrow" pPos (assetT w)
-  newPlayer = if pCoin > 0
-    then pEntity { inventory = Map.insert "Coin" (pCoin-1) pInv }
+  count           = Map.findWithDefault 0 item (inventory pEntity)
+  pItem           = GI.mkDropItem item pPos (assetT w)
+  newPlayer = if count > 0
+    then pEntity { inventory = Map.insert item (count-1) (inventory pEntity) }
     else pEntity
-  newEntity = if pCoin > 0
-    then GI.putDown item (entityT w)
+  newEntity = if count > 0
+    then GI.putDown pItem (entityT w)
     else entityT w
-  entry = if pCoin > 0
-    then T.append "Drop " (actionLook [(item, pPos)])
+  entry = if count > 0
+    then T.append "Drop " (actionLook [(pItem, pPos)])
     else T.pack "No Drop..."
   in w { tick = newTick
        , entityT  = GP.updatePlayer newPlayer newEntity
@@ -141,6 +185,7 @@ actionEat w = let
   in w { tick = newTick
        , entityT  = GP.updatePlayer newPlayer (entityT w)
        , journalT = GJ.updateJournal [entry] (journalT w) }
+
 
 -- | actionGet
 -- if there is something to get...
@@ -304,11 +349,47 @@ actionThrow w = let
 -- | applyIntent
 -- Events applied to the World
 -- Currently, Player Turn then Monster Turn...
+-- TODO build equip k/v
 applyIntent :: Intent -> World -> World
 applyIntent intent w = let
   world n
+    | n == GameDrop = case intent of
+        Action Zero  -> actionDrop "melee/Dagger" w
+        Action One   -> actionDrop "shoot/Bow" w
+        Action Two   -> actionDrop "jewelry/Ring" w
+        Action Three -> actionDrop "neck/Amulet" w
+        Action Four  -> actionDrop "armor/Leather Jack" w
+        Action Five  -> actionDrop "cloak/Cloak" w
+        Action Six   -> actionDrop "shield/Buckler" w
+        Action Seven -> actionDrop "head/Leather Skullcap" w
+        Action Eight -> actionDrop "hands/Gloves" w
+        Action Nine  -> actionDrop "feet/Leather Leggings" w
+        Quit -> escWorld w
+        _ -> w
+    | n == GameEquipment = case intent of
+        Action Zero  -> actionDoff "melee" w
+        Action One   -> actionDoff "shoot" w
+        Action Two   -> actionDoff "jewelry" w
+        Action Three -> actionDoff "neck" w
+        Action Four  -> actionDoff "armor" w
+        Action Five  -> actionDoff "cloak" w
+        Action Six   -> actionDoff "shield" w
+        Action Seven -> actionDoff "head" w
+        Action Eight -> actionDoff "hands" w
+        Action Nine  -> actionDoff "feet" w
+        Quit -> escWorld w
+        _ -> w
     | n == GameInventory = case intent of
-        Action I -> invWorld w
+        Action Zero  -> actionDon "melee/Dagger" w
+        Action One   -> actionDon "shoot/Bow" w
+        Action Two   -> actionDon "jewelry/Ring" w
+        Action Three -> actionDon "neck/Amulet" w
+        Action Four  -> actionDon "armor/Leather Jack" w
+        Action Five  -> actionDon "cloak/Cloak" w
+        Action Six   -> actionDon "shield/Buckler" w
+        Action Seven -> actionDon "head/Leather Skullcap" w
+        Action Eight -> actionDon "hands/Gloves" w
+        Action Nine  -> actionDon "feet/Leather Leggings" w
         Quit -> escWorld w
         _ -> w
     | otherwise = case intent of
@@ -321,16 +402,25 @@ applyIntent intent w = let
         Action West      -> actionDirection West w
         Action NorthWest -> actionDirection NorthWest w
         Action C -> actionMonster $ actionCast w
-        Action D -> actionDrop w
+        Action D -> dropWorld w
         Action E -> actionMonster $ actionEat w
         Action G -> actionGet w
         Action I -> invWorld w
         Action Q -> actionMonster $ actionQuaff w
         Action R -> resetWorld w
         Action T -> actionMonster $ actionThrow w
+        Action W -> equipWorld w
         Quit -> escWorld w
         _ -> w
   in world (gameState w)
+
+-- | dropWorld
+-- Equipment mode
+dropWorld :: World -> World
+dropWorld w = w { journalT = GJ.updateJournal ["D Pressed..."] (journalT w)
+                 , gameState = if gameState w == GameDrop
+                   then GameRun
+                   else GameDrop }
 
 -- | escWorld
 -- ESC changes gameState
@@ -339,6 +429,14 @@ escWorld w = w { journalT = GJ.updateJournal ["ESC Pressed..."] (journalT w)
                , gameState = if gameState w == GameRun
                  then GameStop
                  else GameRun }
+
+-- | equipWorld
+-- Equipment mode
+equipWorld :: World -> World
+equipWorld w = w { journalT = GJ.updateJournal ["W Pressed..."] (journalT w)
+                 , gameState = if gameState w == GameEquipment
+                   then GameRun
+                   else GameEquipment }
 
 -- | invWorld
 -- Inventory mode

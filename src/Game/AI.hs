@@ -12,8 +12,8 @@ import Data.List
 import qualified Data.Map.Strict as Map
 import qualified Data.Text as T
 import Engine.Arrow.Data (World(..))
-import qualified Engine.Arrow.Compass as EAC
 import qualified Game.Combat as GC
+import qualified Game.Compass as C
 import qualified Game.Entity as GE
 import qualified Game.Inventory as GI
 import qualified Game.Journal as GJ
@@ -56,10 +56,10 @@ aiAction ((mx, mEntity):xs) w = if mx == 0 || not (block mEntity)
   mSpawn = spawn mEntity
   -- action
   action
-    | EAC.adjacent mPos pPos = Attack
-    | (mHp <= 5)   && EAC.adjacent mPos mSpawn = Rest
-    | (mArrow > 0) && (EAC.chessDist mPos pPos <= 4) = Throw
-    | (mMp > 0)    && (EAC.chessDist mPos pPos <= 4) = Cast
+    | C.adjacent mPos pPos = Attack
+    | (mHp <= 5)   && C.adjacent mPos mSpawn = Rest
+    | (mArrow > 0) && (C.chessDist mPos pPos <= 4) = Throw
+    | (mMp > 0)    && (C.chessDist mPos pPos <= 4) = Cast
     | (mMush > 0)  && (mMaxHp `div` mHp > 2) = Eat
     | (mPot > 0)   && (mMaxHp `div` mHp > 3) = Drink
     | (mInt > 6)   && any (\(i, _) -> kind i == Coin) mItems = Get
@@ -231,9 +231,9 @@ pathFinder mx mEntity w = if mx == 0 || not (block mEntity)
   mPos   = coord mEntity
   mSpawn = spawn mEntity
   -- M move based on goal
-  distList = [ (d, xy) | xy <- moveT mEntity, let d = EAC.chessDist mGoal xy ]
+  distList = [ (d, xy) | xy <- moveT mEntity, let d = C.chessDist mGoal xy ]
   moveList = coordF $
     [ xy | (d, pos) <- sort distList,
-      let xy = if EAC.adjacent mPos mGoal || d >= 7 then mPos else pos ]
+      let xy = if C.adjacent mPos mGoal || d >= 7 then mPos else pos ]
   move = if null moveList then mPos else head moveList
   in w { entityT = GE.updateEntityPos mx move (entityT w) }

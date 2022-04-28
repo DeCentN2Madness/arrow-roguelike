@@ -1,25 +1,25 @@
 {-
 
-Engine.Arrow.Compass.hs
+Game.Compass.hs
 
 Compass Coord for the World
 
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
 -}
-module Engine.Arrow.Compass ((|+|)
-                            , abovePoint
-                            , aboveOrCollinearPoint
-                            , adjacent
-                            , belowOrCollinearPoint
-                            , belowPoint
-                            , cardinal
-                            , chessDist
-                            , clamp
-                            , collinearPoint
-                            , collinearLine
-                            , dirToCoord
-                            , distance) where
+module Game.Compass ((|+|)
+                    , abovePoint
+                    , aboveOrCollinearPoint
+                    , adjacent
+                    , belowOrCollinearPoint
+                    , belowPoint
+                    , cardinal
+                    , chessDist
+                    , clamp
+                    , collinearPoint
+                    , collinearLine
+                    , dirToCoord
+                    , distance) where
 
 import Engine.Arrow.Data (Coord, Direction(..))
 

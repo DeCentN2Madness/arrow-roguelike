@@ -12,6 +12,7 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
 -}
 module Game.Player (characterSheet
+                   , characterEquipment
                    , characterInventory
                    , getArrow
                    , getHealth
@@ -36,7 +37,7 @@ import Game.Kind.Entity (EntityKind(..))
 type Coord = (Int, Int)
 type Player = EntityKind
 type AssetMap = EntityMap
-type Inventory = Map Text Int
+type Properties = Map Text Text
 
 -- | abilityMod
 abilityMod :: Int -> Int
@@ -48,18 +49,18 @@ characterSheet em = let
   (pEntity, _) = getPlayer em
   pInv   = inventory pEntity
   pCoin  = T.append "AU: " (T.pack $ show $ Map.findWithDefault 0 "Coin" pInv)
-  pEquip = T.concat [ equip "melee" "|" pInv
-    , equip "shoot"   "{" pInv
-    , equip "jewelry" "=" pInv
-    , equip "neck"    "\"" pInv
-    , equip "armor"   "[" pInv
-    , equip "cloak"   "(" pInv
-    , equip "shield"  ")" pInv
-    , equip "head"    "]" pInv
-    , equip "hands"   "]" pInv
-    , equip "feet"    "]" pInv
-    ]
   pProp = property pEntity
+  pEquip = T.concat [ equip "melee" "|" pProp
+    , equip "shoot"   "{" pProp
+    , equip "jewelry" "=" pProp
+    , equip "neck"    "\"" pProp
+    , equip "armor"   "[" pProp
+    , equip "cloak"   "(" pProp
+    , equip "shield"  ")" pProp
+    , equip "head"    "]" pProp
+    , equip "hands"   "]" pProp
+    , equip "feet"    "]" pProp
+    ]
   pStr  = T.append "Str: " (Map.findWithDefault "1" "str" pProp)
   pDex  = T.append "Dex: " (Map.findWithDefault "1" "dex" pProp)
   pCon  = T.append "Con: " (Map.findWithDefault "1" "con" pProp)
@@ -69,7 +70,25 @@ characterSheet em = let
   pExp  = T.pack $ "EXP: " ++ show (eXP pEntity)
   in [ pLvl, pExp, pCoin, pEquip, pStr, pDex, pCon, pInt, pWis ]
 
--- | @ Inv
+-- | @ Equipment
+characterEquipment :: EntityMap -> AssetMap -> [Text]
+characterEquipment em _ = let
+  (pEntity, _) = getPlayer em
+  pProp = property pEntity
+  melee  = T.append "Melee: " $ fromMaybe "None" (Map.lookup "melee" pProp)
+  shoot  = T.append "Shoot: " $ fromMaybe "None" (Map.lookup "shoot" pProp)
+  ring   = T.append "Ring:  " $ fromMaybe "None" (Map.lookup "jewelry" pProp)
+  neck   = T.append "Neck:  " $ fromMaybe "None" (Map.lookup "neck" pProp)
+  armor  = T.append "Armor: " $ fromMaybe "None" (Map.lookup "armor" pProp)
+  cloak  = T.append "Cloak: " $ fromMaybe "None" (Map.lookup "cloak" pProp)
+  shield = T.append "Shield: " $ fromMaybe "None" (Map.lookup "shield" pProp)
+  helmet = T.append "Head: "  $ fromMaybe "None" (Map.lookup "head" pProp)
+  hands  = T.append "Hands: " $ fromMaybe "None" (Map.lookup "hands" pProp)
+  feet   = T.append "Feet: "  $ fromMaybe "None" (Map.lookup "feet" pProp)
+  in [melee, shoot, ring, neck, armor, cloak, shield, helmet, hands, feet]
+  ++ [" ", "Press [0-9] to Doff. Press ESC to Continue..."]
+
+-- | @ Inventory
 characterInventory :: EntityMap -> AssetMap -> [Text]
 characterInventory em am = let
   (pEntity, _) = getPlayer em
@@ -80,19 +99,16 @@ characterInventory em am = let
   pInv = [ i | (k, v) <- Map.toList (inventory pEntity),
            let i = T.append k (T.pack $ " '" ++ desc ++ "': " ++ show v)
                desc = T.unpack $ fromMaybe "I" (Map.lookup k descMap) ]
-  in pInv ++ [" ", "Press ESC, I to Continue..."]
+  in pInv ++ [" ", "Press [0-9] to Don / Drop. ESC to Continue..."]
 
 -- | @ equipment
-equip :: Text -> Text -> Inventory -> Text
-equip name desc items = let
-  count :: Text -> Text -> Int
-  count x xs = length $
-    filter (==x) (T.words $ fst $ T.breakOn "/" xs)
-  item = sum $ [ x :: Int | (k, _) <- Map.toList items, let x = equipped k ]
+equip :: Text -> Text -> Properties -> Text
+equip name desc prop = let
+  item = fromMaybe "None" (Map.lookup name prop)
   equipped n
-    | count name n > 0 = 1
-    | otherwise = 0
-  in if item > 0 then desc else "."
+    | n == "None" = "."
+    | otherwise = desc
+  in equipped item
 
 -- | @ lives at 0
 -- Arrow for Player

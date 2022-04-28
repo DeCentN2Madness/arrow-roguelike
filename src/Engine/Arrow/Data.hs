@@ -34,6 +34,16 @@ data Direction
   | SouthWest
   | West
   | NorthWest
+  | Zero
+  | One
+  | Two
+  | Three
+  | Four
+  | Five
+  | Six
+  | Seven
+  | Eight
+  | Nine
   | B
   | C
   | D
@@ -49,6 +59,7 @@ data Direction
   | R
   | T
   | U
+  | W
   | Y
   deriving (Eq)
 
@@ -58,6 +69,8 @@ data GameState
   | GameStop
   | GameAnimation
   | GameDialog
+  | GameDrop
+  | GameEquipment
   | GameInventory
   deriving (Eq, Show, Generic)
 

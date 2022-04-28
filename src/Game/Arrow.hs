@@ -438,15 +438,23 @@ applyIntent intent w = let
         Action SouthWest -> actionDirection SouthWest w
         Action West      -> actionDirection West w
         Action NorthWest -> actionDirection NorthWest w
+        Action B -> actionDirection SouthWest w
         Action C -> actionMonster $ actionCast w
         Action D -> dropWorld w
         Action E -> actionMonster $ actionEat w
         Action G -> actionGet w
+        Action H -> actionDirection East w
         Action I -> invWorld w
+        Action J -> actionDirection South w
+        Action K -> actionDirection North w
+        Action L -> actionDirection West w
+        Action N -> actionDirection SouthEast w
         Action Q -> actionMonster $ actionQuaff w
         Action R -> resetWorld w
         Action T -> actionMonster $ actionThrow w
+        Action U -> actionDirection NorthWest w
         Action W -> equipWorld w
+        Action Y -> actionDirection NorthEast w
         Quit -> escWorld w
         _ -> w
   in world (gameState w)

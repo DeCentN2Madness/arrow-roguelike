@@ -42,23 +42,32 @@ getKey (SDL.KeyboardEventData _ SDL.Pressed False keysym) =
     SDL.Keycode7      -> Action Seven
     SDL.Keycode8      -> Action Eight
     SDL.Keycode9      -> Action Nine
+    SDL.KeycodeA      -> Action A
     SDL.KeycodeB      -> Action SouthWest
     SDL.KeycodeC      -> Action C
     SDL.KeycodeD      -> Action D
     SDL.KeycodeE      -> Action E
+    SDL.KeycodeF      -> Action F
     SDL.KeycodeG      -> Action G
     SDL.KeycodeH      -> Action East
     SDL.KeycodeI      -> Action I
     SDL.KeycodeJ      -> Action South
     SDL.KeycodeK      -> Action North
     SDL.KeycodeL      -> Action West
+    SDL.KeycodeM      -> Action M
     SDL.KeycodeN      -> Action SouthEast
+    SDL.KeycodeO      -> Action O
+    SDL.KeycodeP      -> Action P
     SDL.KeycodeQ      -> Action Q
     SDL.KeycodeR      -> Action R
+    SDL.KeycodeS      -> Action S
     SDL.KeycodeT      -> Action T
     SDL.KeycodeU      -> Action NorthWest
+    SDL.KeycodeV      -> Action V
     SDL.KeycodeW      -> Action W
+    SDL.KeycodeX      -> Action X
     SDL.KeycodeY      -> Action NorthEast
+    SDL.KeycodeZ      -> Action Z
     _                 -> Action Help
 
 -- | mkIntents handles multiple events

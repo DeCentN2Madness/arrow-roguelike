@@ -96,7 +96,7 @@ actionDirection input w = if gameState w == GameStart
   in EDC.updateCamera run
 
 -- | actionDoff
--- if there is a Hat to take off...
+-- if there is a Hat to remove...
 actionDoff :: Text -> World -> World
 actionDoff item w = let
   newTick      = tick w + 1
@@ -112,51 +112,68 @@ actionDoff item w = let
                , property  = Map.insert pEquip "None" (property pEntity) }
     else pEntity
   entry = if not (null pItems)
-    then T.pack $ "Doff " ++ show (head pItems)
-    else T.append "No Doff..." item
+    then T.concat ["Doff ", fst pItem, "..."]
+    else "No Doff..."
   in w { tick = newTick
        , entityT  = GP.updatePlayer newPlayer (entityT w)
        , journalT = GJ.updateJournal [entry] (journalT w) }
 
 -- | actionDon
 -- if there is Hat to Wear...
-actionDon :: Text -> World -> World
-actionDon item w = let
+actionDon :: Int -> World -> World
+actionDon ix w = let
   newTick      = tick w + 1
   (pEntity, _) = GP.getPlayer (entityT w)
-  pEquip = fst $ T.breakOn "/" item
-  pItems = filter ((==item).fst) $ Map.toList (inventory pEntity)
+  pInv = inventory pEntity
+  pItems = filter (\(i, _) ->
+                     i `notElem` ["Arrow", "Coin", "Mushroom", "Potion"]) $
+           Map.toList pInv
   pItem = if not (null pItems)
-    then head pItems
+    then pItems!!ix
     else ("None", 0)
+  pEquip = fst $ T.breakOn "/" (fst pItem)
+  -- add old equip into inventory
+  equip =  Map.findWithDefault "None" pEquip (property pEntity)
+  newInv = if equip /= "None"
+    then Map.insert equip 1 pInv
+    else pInv
   newPlayer = if snd pItem > 0
     then let
-    in pEntity { inventory = Map.insert item (snd pItem-1) (inventory pEntity)
+    in pEntity { inventory = Map.insert (fst pItem) (snd pItem-1) newInv
                , property  = Map.insert pEquip (fst pItem) (property pEntity) }
     else pEntity
   entry = if not (null pItems)
-    then T.pack $ "Don " ++ show (head pItems)
-    else T.pack "No Don..."
+    then if equip /= "None"
+    then T.concat ["Doff ", equip, ", Don ", fst pItem, "..."]
+    else T.concat ["Don ", fst pItem, "..."]
+    else "No Don..."
   in w { tick = newTick
        , entityT  = GP.updatePlayer newPlayer (entityT w)
        , journalT = GJ.updateJournal [entry] (journalT w) }
 
 -- | actionDrop
 -- if there is something to drop...
-actionDrop :: Text -> World -> World
-actionDrop item w = let
+actionDrop :: Int -> World -> World
+actionDrop ix w = let
   newTick         = tick w + 1
   (pEntity, pPos) = GP.getPlayer (entityT w)
-  count           = Map.findWithDefault 0 item (inventory pEntity)
-  pItem           = GI.mkDropItem item pPos (assetT w)
+  pInv = inventory pEntity
+  pItems = filter (\(i, _) ->
+                     i `notElem` ["Arrow", "Coin", "Mushroom", "Potion"]) $
+           Map.toList pInv
+  pItem = if not (null pItems)
+    then pItems!!ix
+    else ("None", 0)
+  count = Map.findWithDefault 0 (fst pItem) pInv
+  item = GI.mkDropItem (fst pItem) pPos (assetT w)
   newPlayer = if count > 0
-    then pEntity { inventory = Map.insert item (count-1) (inventory pEntity) }
+    then pEntity { inventory = Map.insert (fst pItem) (count-1) pInv }
     else pEntity
   newEntity = if count > 0
-    then GI.putDown pItem (entityT w)
+    then GI.putDown item (entityT w)
     else entityT w
   entry = if count > 0
-    then T.append "Drop " (actionLook [(pItem, pPos)])
+    then T.append "Drop " (actionLook [(item, pPos)])
     else T.pack "No Drop..."
   in w { tick = newTick
        , entityT  = GP.updatePlayer newPlayer newEntity
@@ -354,16 +371,27 @@ applyIntent :: Intent -> World -> World
 applyIntent intent w = let
   world n
     | n == GameDrop = case intent of
-        Action Zero  -> actionDrop "melee/Dagger" w
-        Action One   -> actionDrop "shoot/Bow" w
-        Action Two   -> actionDrop "jewelry/Ring" w
-        Action Three -> actionDrop "neck/Amulet" w
-        Action Four  -> actionDrop "armor/Leather Jack" w
-        Action Five  -> actionDrop "cloak/Cloak" w
-        Action Six   -> actionDrop "shield/Buckler" w
-        Action Seven -> actionDrop "head/Leather Skullcap" w
-        Action Eight -> actionDrop "hands/Gloves" w
-        Action Nine  -> actionDrop "feet/Leather Leggings" w
+        Action Zero  -> actionDrop 0 w
+        Action One   -> actionDrop 1 w
+        Action Two   -> actionDrop 2 w
+        Action Three -> actionDrop 3 w
+        Action Four  -> actionDrop 4 w
+        Action Five  -> actionDrop 5 w
+        Action Six   -> actionDrop 6 w
+        Action Seven -> actionDrop 7 w
+        Action Eight -> actionDrop 8 w
+        Action Nine  -> actionDrop 9 w
+        Action A  -> actionDrop 10 w
+        Action B  -> actionDrop 11 w
+        Action C  -> actionDrop 12 w
+        Action D  -> actionDrop 13 w
+        Action E  -> actionDrop 14 w
+        Action F  -> actionDrop 15 w
+        Action G  -> actionDrop 16 w
+        Action H  -> actionDrop 17 w
+        Action I  -> actionDrop 18 w
+        Action J  -> actionDrop 19 w
+        Action K  -> actionDrop 20 w
         Quit -> escWorld w
         _ -> w
     | n == GameEquipment = case intent of
@@ -380,16 +408,27 @@ applyIntent intent w = let
         Quit -> escWorld w
         _ -> w
     | n == GameInventory = case intent of
-        Action Zero  -> actionDon "melee/Dagger" w
-        Action One   -> actionDon "shoot/Bow" w
-        Action Two   -> actionDon "jewelry/Ring" w
-        Action Three -> actionDon "neck/Amulet" w
-        Action Four  -> actionDon "armor/Leather Jack" w
-        Action Five  -> actionDon "cloak/Cloak" w
-        Action Six   -> actionDon "shield/Buckler" w
-        Action Seven -> actionDon "head/Leather Skullcap" w
-        Action Eight -> actionDon "hands/Gloves" w
-        Action Nine  -> actionDon "feet/Leather Leggings" w
+        Action Zero  -> actionDon 0 w
+        Action One   -> actionDon 1 w
+        Action Two   -> actionDon 2 w
+        Action Three -> actionDon 3 w
+        Action Four  -> actionDon 4 w
+        Action Five  -> actionDon 5 w
+        Action Six   -> actionDon 6 w
+        Action Seven -> actionDon 7 w
+        Action Eight -> actionDon 8 w
+        Action Nine  -> actionDon 9 w
+        Action A  -> actionDon 10 w
+        Action B  -> actionDon 11 w
+        Action C  -> actionDon 12 w
+        Action D  -> actionDon 13 w
+        Action E  -> actionDon 14 w
+        Action F  -> actionDon 15 w
+        Action G  -> actionDon 16 w
+        Action H  -> actionDon 17 w
+        Action I  -> actionDon 18 w
+        Action J  -> actionDon 19 w
+        Action K  -> actionDon 20 w
         Quit -> escWorld w
         _ -> w
     | otherwise = case intent of

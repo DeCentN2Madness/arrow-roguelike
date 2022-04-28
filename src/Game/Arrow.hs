@@ -125,10 +125,10 @@ actionDon ix w = let
   newTick      = tick w + 1
   (pEntity, _) = GP.getPlayer (entityT w)
   pInv = inventory pEntity
-  pItems = filter (\(i, _) ->
+  pItems = filter (\(i, j) -> j > 0 &&
                      i `notElem` ["Arrow", "Coin", "Mushroom", "Potion"]) $
            Map.toList pInv
-  pItem = if not (null pItems)
+  pItem = if ix < length pItems
     then pItems!!ix
     else ("None", 0)
   pEquip = fst $ T.breakOn "/" (fst pItem)
@@ -142,7 +142,7 @@ actionDon ix w = let
     in pEntity { inventory = Map.insert (fst pItem) (snd pItem-1) newInv
                , property  = Map.insert pEquip (fst pItem) (property pEntity) }
     else pEntity
-  entry = if not (null pItems)
+  entry = if fst pItem /= "None"
     then if equip /= "None"
     then T.concat ["Doff ", equip, ", Don ", fst pItem, "..."]
     else T.concat ["Don ", fst pItem, "..."]
@@ -158,10 +158,10 @@ actionDrop ix w = let
   newTick         = tick w + 1
   (pEntity, pPos) = GP.getPlayer (entityT w)
   pInv = inventory pEntity
-  pItems = filter (\(i, _) ->
+  pItems = filter (\(i, j) -> j > 0 &&
                      i `notElem` ["Arrow", "Coin", "Mushroom", "Potion"]) $
            Map.toList pInv
-  pItem = if not (null pItems)
+  pItem = if ix < length pItems
     then pItems!!ix
     else ("None", 0)
   count = Map.findWithDefault 0 (fst pItem) pInv
@@ -174,7 +174,7 @@ actionDrop ix w = let
     else entityT w
   entry = if count > 0
     then T.append "Drop " (actionLook [(item, pPos)])
-    else T.pack "No Drop..."
+    else "No Drop..."
   in w { tick = newTick
        , entityT  = GP.updatePlayer newPlayer newEntity
        , journalT = GJ.updateJournal [entry] (journalT w) }
@@ -186,19 +186,19 @@ actionEat w = let
   newTick      = tick w + 1
   (pEntity, _) = GP.getPlayer (entityT w)
   -- Mushroom
-  pInv         = inventory pEntity
-  pMush        = Map.findWithDefault 0 "Mushroom" pInv
-  heal         = eHP pEntity + (pCon `div` 2)
-  pHp          = if heal > pMaxHp then pMaxHp else heal
-  pMaxHp       = eMaxHP pEntity
-  pProp        = property pEntity
-  pCon         = read $ T.unpack $ Map.findWithDefault "1" "con" pProp
+  pInv   = inventory pEntity
+  pMush  = Map.findWithDefault 0 "Mushroom" pInv
+  heal   = eHP pEntity + (pCon `div` 2)
+  pHp    = if heal > pMaxHp then pMaxHp else heal
+  pMaxHp = eMaxHP pEntity
+  pProp  = property pEntity
+  pCon   = read $ T.unpack $ Map.findWithDefault "1" "con" pProp
   newPlayer = if pMush > 0
     then pEntity { inventory = Map.insert "Mushroom" (pMush-1) pInv, eHP = pHp }
     else pEntity
   entry = if pMush > 0
     then T.pack "Eat a tasty :Mushroom:..."
-    else T.pack "No Eat..."
+    else "No Eat..."
   in w { tick = newTick
        , entityT  = GP.updatePlayer newPlayer (entityT w)
        , journalT = GJ.updateJournal [entry] (journalT w) }
@@ -220,7 +220,7 @@ actionGet w = let
     else entityT w
   entry = if pickedItems /= Map.empty
     then T.append "Get " (actionLook items)
-    else T.pack "No Get..."
+    else "No Get..."
   in w { tick = newTick
        , entityT  = GP.updatePlayer newPlayer newEntity
        , journalT = GJ.updateJournal [entry] (journalT w) }
@@ -307,17 +307,17 @@ actionQuaff w = let
   newTick      = tick w + 1
   (pEntity, _) = GP.getPlayer (entityT w)
   -- Potion
-  pInv         = inventory pEntity
-  pPot         = Map.findWithDefault 0 "Potion" pInv
-  heal         = eHP pEntity + pCon
-  mana         = eMP pEntity + pWis
-  pHp          = if heal > pMaxHp then pMaxHp else heal
-  pMp          = if mana > pMaxMp then pMaxMp else mana
-  pMaxHp       = eMaxHP pEntity
-  pMaxMp       = eMaxMP pEntity
-  pProp        = property pEntity
-  pCon         = read $ T.unpack $ Map.findWithDefault "1" "con" pProp
-  pWis         = read $ T.unpack $ Map.findWithDefault "1" "wis" pProp
+  pInv   = inventory pEntity
+  pPot   = Map.findWithDefault 0 "Potion" pInv
+  heal   = eHP pEntity + pCon
+  mana   = eMP pEntity + pWis
+  pHp    = if heal > pMaxHp then pMaxHp else heal
+  pMp    = if mana > pMaxMp then pMaxMp else mana
+  pMaxHp = eMaxHP pEntity
+  pMaxMp = eMaxMP pEntity
+  pProp  = property pEntity
+  pCon   = read $ T.unpack $ Map.findWithDefault "1" "con" pProp
+  pWis   = read $ T.unpack $ Map.findWithDefault "1" "wis" pProp
   newPlayer = if pPot > 0
     then pEntity { inventory = Map.insert "Potion" (pPot-1) pInv
                  , eHP = pHp
@@ -325,7 +325,7 @@ actionQuaff w = let
     else pEntity
   entry = if pPot > 0
     then T.pack "Drink a delicious :Potion:..."
-    else T.pack "No Drink..."
+    else "No Drink..."
   in w { tick = newTick
        , entityT  = GP.updatePlayer newPlayer (entityT w)
        , journalT = GJ.updateJournal [entry] (journalT w) }
@@ -353,7 +353,7 @@ actionThrow w = let
     else pEntity
   entry = if pArrow > 0 && mTarget > 0
     then T.pack "Shoots an Arrow..."
-    else T.pack "No Shoot..."
+    else "No Shoot..."
   -- throwWorld
   throwWorld = w { entityT  = GP.updatePlayer newPlayer (entityT w)
                  , journalT = GJ.updateJournal [entry] (journalT w) }
@@ -391,7 +391,6 @@ applyIntent intent w = let
         Action H  -> actionDrop 17 w
         Action I  -> actionDrop 18 w
         Action J  -> actionDrop 19 w
-        Action K  -> actionDrop 20 w
         Quit -> escWorld w
         _ -> w
     | n == GameEquipment = case intent of
@@ -428,7 +427,6 @@ applyIntent intent w = let
         Action H  -> actionDon 17 w
         Action I  -> actionDon 18 w
         Action J  -> actionDon 19 w
-        Action K  -> actionDon 20 w
         Quit -> escWorld w
         _ -> w
     | otherwise = case intent of

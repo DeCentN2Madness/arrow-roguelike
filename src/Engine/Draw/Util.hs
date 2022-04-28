@@ -45,12 +45,6 @@ draw r ts w = do
       pArrow = GP.getArrow (entityT w)
       pMush  = GP.getMushroom (entityT w)
       pPot   = GP.getPotion (entityT w)
-  -- Dialog
-  _ <- case gameState w of
-    GameDrop      -> EDI.drawInventory r w
-    GameEquipment -> EDI.drawEquipment r w
-    GameInventory -> EDI.drawInventory r w
-    _ -> setColor r White
   -- Arrow
   if gameState w == GameStart
     then renderTexture r (arrow ts) (0.0, 0.0 :: Double)
@@ -65,6 +59,12 @@ draw r ts w = do
       drawMap r ts w
       -- HUD Text
       EDT.drawText r w
+  -- Dialog
+  _ <- case gameState w of
+    GameDrop      -> EDI.drawInventory r w
+    GameEquipment -> EDI.drawEquipment r w
+    GameInventory -> EDI.drawInventory r w
+    _ -> setColor r White
   -- Screen
   SDL.present r
 

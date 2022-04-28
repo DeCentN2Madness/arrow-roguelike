@@ -45,9 +45,10 @@ clamp n v
 
 -- | encumberance
 -- Twenty is the limit, except Coin...
+-- 4 slots for Arrow, Coin, Mushroom, Potion, 20 Items...
 encumberance :: Inventory -> Inventory
 encumberance inv = let
-  invT = [ (k, v) | (k, j) <- Map.toList inv, let v = clamp k j ]
+  invT = take 24 $ [ (k, v) | (k, j) <- Map.toList inv, let v = clamp k j ]
   in Map.fromList invT
 
 -- | emptyBy

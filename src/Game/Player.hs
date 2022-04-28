@@ -75,38 +75,36 @@ characterEquipment :: EntityMap -> AssetMap -> [Text]
 characterEquipment em _ = let
   (pEntity, _) = getPlayer em
   pProp = property pEntity
-  melee  = T.append "Melee: " $ fromMaybe "None" (Map.lookup "melee" pProp)
-  shoot  = T.append "Shoot: " $ fromMaybe "None" (Map.lookup "shoot" pProp)
-  ring   = T.append "Ring:  " $ fromMaybe "None" (Map.lookup "jewelry" pProp)
-  neck   = T.append "Neck:  " $ fromMaybe "None" (Map.lookup "neck" pProp)
-  armor  = T.append "Armor: " $ fromMaybe "None" (Map.lookup "armor" pProp)
-  cloak  = T.append "Cloak: " $ fromMaybe "None" (Map.lookup "cloak" pProp)
-  shield = T.append "Shield: " $ fromMaybe "None" (Map.lookup "shield" pProp)
-  helmet = T.append "Head: "  $ fromMaybe "None" (Map.lookup "head" pProp)
-  hands  = T.append "Hands: " $ fromMaybe "None" (Map.lookup "hands" pProp)
-  feet   = T.append "Feet: "  $ fromMaybe "None" (Map.lookup "feet" pProp)
+  melee  = T.append "Melee: " $ fromMaybe "I" (Map.lookup "melee" pProp)
+  shoot  = T.append "Shoot: " $ fromMaybe "I" (Map.lookup "shoot" pProp)
+  ring   = T.append "Ring:  " $ fromMaybe "I" (Map.lookup "jewelry" pProp)
+  neck   = T.append "Neck:  " $ fromMaybe "I" (Map.lookup "neck" pProp)
+  armor  = T.append "Armor: " $ fromMaybe "I" (Map.lookup "armor" pProp)
+  cloak  = T.append "Cloak: " $ fromMaybe "I" (Map.lookup "cloak" pProp)
+  shield = T.append "Shield: " $ fromMaybe "I" (Map.lookup "shield" pProp)
+  helmet = T.append "Head: "  $ fromMaybe "I" (Map.lookup "head" pProp)
+  hands  = T.append "Hands: " $ fromMaybe "I" (Map.lookup "hands" pProp)
+  feet   = T.append "Feet: "  $ fromMaybe "I" (Map.lookup "feet" pProp)
   in [melee, shoot, ring, neck, armor, cloak, shield, helmet, hands, feet]
   ++ [" ", "Press [0-9] to Doff. Press ESC to Continue..."]
 
 -- | @ Inventory
 characterInventory :: EntityMap -> AssetMap -> [Text]
-characterInventory em am = let
+characterInventory em _ = let
   (pEntity, _) = getPlayer em
-  descMap = Map.fromList $
-    [ (k, v) | (_, ek) <- Map.toList am,
-      let k = fromMaybe "I" (Map.lookup "Name" (property ek))
-          v = fromMaybe "~" (Map.lookup "Description" (property ek)) ]
-  pInv = [ i | (k, v) <- Map.toList (inventory pEntity),
-           let i = T.append k (T.pack $ " '" ++ desc ++ "': " ++ show v)
-               desc = T.unpack $ fromMaybe "I" (Map.lookup k descMap) ]
-  in pInv ++ [" ", "Press [0-9] to Don / Drop. ESC to Continue..."]
+  pInv = filter (/="I") $
+    [ name | (k, v) <- Map.toList (inventory pEntity),
+      let name = if  v > 0
+            then T.append k (T.pack $ " (" ++ show v ++ ")")
+            else "I" ]
+  in pInv ++ [" ", "Press [0-9, A-J] to Don / Drop. ESC to Continue..."]
 
 -- | @ equipment
 equip :: Text -> Text -> Properties -> Text
 equip name desc prop = let
-  item = fromMaybe "None" (Map.lookup name prop)
+  item = fromMaybe "I" (Map.lookup name prop)
   equipped n
-    | n == "None" = "."
+    | n == "I" = "."
     | otherwise = desc
   in equipped item
 

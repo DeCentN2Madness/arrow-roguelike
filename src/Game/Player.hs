@@ -14,6 +14,7 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 module Game.Player (characterSheet
                    , characterEquipment
                    , characterInventory
+                   , characterStore
                    , getArrow
                    , getHealth
                    , getMana
@@ -98,6 +99,17 @@ characterInventory em _ = let
             then T.append k (T.pack $ " (" ++ show v ++ ")")
             else "I" ]
   in pInv ++ [" ", "Press [0-9, A-J] to Don / Drop. ESC to Continue..."]
+
+-- | @ Store
+characterStore :: EntityMap -> AssetMap -> [Text]
+characterStore em _ = let
+  (pEntity, _) = getPlayer em
+  pInv = filter (/="I") $
+    [ name | (k, v) <- Map.toList (inventory pEntity),
+      let name = if k `elem` ["Arrow", "Mushroom", "Potion"]
+            then T.append k (T.pack $ " (" ++ show v ++ ")")
+            else "I" ]
+  in pInv ++ [" ", "Press [0-9] to Purchase. ESC to Continue..."]
 
 -- | @ equipment
 equip :: Text -> Text -> Properties -> Text

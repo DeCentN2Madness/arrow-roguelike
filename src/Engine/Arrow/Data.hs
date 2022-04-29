@@ -81,6 +81,7 @@ data GameState
   | GameDrop
   | GameEquipment
   | GameInventory
+  | GameStore
   deriving (Eq, Show, Generic)
 
 instance FromJSON GameState

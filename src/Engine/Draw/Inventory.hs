@@ -9,7 +9,8 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
 -}
 module Engine.Draw.Inventory (drawEquipment
-                             , drawInventory) where
+                             , drawInventory
+                             , drawStore) where
 
 import Control.Monad (forM_)
 import qualified SDL
@@ -58,9 +59,32 @@ drawInventory r w = do
     SDL.destroyTexture rt
   SDL.Font.free fn
 
+-- | drawStore
+-- Show the Store
+drawStore :: SDL.Renderer -> World -> IO ()
+drawStore r w = do
+  let logs = zip [0..] $ GP.characterStore (entityT w) (assetT w)
+  fn <- SDL.Font.load "./assets/fonts/Hack-Regular.ttf" 14
+  -- Journal
+  forM_ logs $ \(i, j) -> do
+    -- Text
+    tx <- SDL.Font.blended fn yellow j
+    sz <- SDL.Font.size fn j
+    rt <- SDL.createTextureFromSurface r tx
+    -- HUD
+    let hudT = fromIntegral $ snd sz + (i * snd sz) :: Double
+    EDT.renderText r rt sz (125, hudT)
+    -- Cleanup
+    SDL.freeSurface tx
+    SDL.destroyTexture rt
+  SDL.Font.free fn
+
 -- | colors
 green :: SDL.Font.Color
 green = SDL.V4 0 255 0 255
 
 white :: SDL.Font.Color
 white = SDL.V4 255 255 255 255
+
+yellow :: SDL.Font.Color
+yellow = SDL.V4 255 255 0 255

@@ -73,6 +73,33 @@ actionCast w = let
     else throwWorld
   in world { tick = newTick }
 
+-- | actionCoin
+-- if there is $ to spend...
+actionCoin :: Int -> World -> World
+actionCoin ix w = let
+  newTick      = tick w + 1
+  (pEntity, _) = GP.getPlayer (entityT w)
+  pInv = inventory pEntity
+  pCoin = Map.findWithDefault 0 "Coin" pInv
+  pItems = filter (\(i, _) -> i `elem` ["Arrow", "Mushroom", "Potion"]) $
+           Map.toList pInv
+  pItem = if ix < length pItems
+    then pItems!!ix
+    else ("None", 0)
+  newInv = if pCoin > 0 && snd pItem < 20
+    then Map.insert "Coin" (pCoin-1) pInv
+    else pInv
+  newPlayer = if fst pItem /= "None" && snd pItem < 20
+    then let
+    in pEntity { inventory = Map.insert (fst pItem) (snd pItem+1) newInv }
+    else pEntity
+  entry = if fst pItem /= "None"
+    then T.concat [fst pItem, " +1, ..."]
+    else "No Spend... "
+  in w { tick = newTick
+       , entityT  = GP.updatePlayer newPlayer (entityT w)
+       , journalT = GJ.updateJournal [entry] (journalT w) }
+
 -- | actionDirection the world will change with @input@
 -- 1. clampCoord checks the input vs grid
 -- 2. actionPlayer handles P events in the World
@@ -429,6 +456,19 @@ applyIntent intent w = let
         Action J  -> actionDon 19 w
         Quit -> escWorld w
         _ -> w
+    | n == GameStore = case intent of
+        Action Zero  -> actionCoin 0 w
+        Action One   -> actionCoin 1 w
+        Action Two   -> actionCoin 2 w
+        Action Three -> actionCoin 3 w
+        Action Four  -> actionCoin 4 w
+        Action Five  -> actionCoin 5 w
+        Action Six   -> actionCoin 6 w
+        Action Seven -> actionCoin 7 w
+        Action Eight -> actionCoin 8 w
+        Action Nine  -> actionCoin 9 w
+        Quit -> escWorld w
+        _ -> w
     | otherwise = case intent of
         Action North     -> actionDirection North w
         Action NorthEast -> actionDirection NorthEast w
@@ -438,6 +478,7 @@ applyIntent intent w = let
         Action SouthWest -> actionDirection SouthWest w
         Action West      -> actionDirection West w
         Action NorthWest -> actionDirection NorthWest w
+        Action A -> coinWorld w
         Action B -> actionDirection SouthWest w
         Action C -> actionMonster $ actionCast w
         Action D -> dropWorld w
@@ -458,6 +499,14 @@ applyIntent intent w = let
         Quit -> escWorld w
         _ -> w
   in world (gameState w)
+
+-- | coinWorld
+-- store mode
+coinWorld :: World -> World
+coinWorld w = w { journalT = GJ.updateJournal ["A Pressed..."] (journalT w)
+                 , gameState = if gameState w == GameStore
+                   then GameRun
+                   else GameStore }
 
 -- | dropWorld
 -- Equipment mode

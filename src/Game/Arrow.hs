@@ -483,7 +483,7 @@ applyIntent intent w = let
         Action C -> actionMonster $ actionCast w
         Action D -> dropWorld w
         Action E -> actionMonster $ actionEat w
-        Action G -> actionGet w
+        Action G -> actionMonster $ actionGet w
         Action H -> actionDirection East w
         Action I -> invWorld w
         Action J -> actionDirection South w

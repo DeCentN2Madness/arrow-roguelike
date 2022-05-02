@@ -3,6 +3,8 @@
 
 Game.AI.hs
 
+Game.AI.hs is the actions for the Monster 'M' in the Game.
+
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
 -}
@@ -34,7 +36,6 @@ data AI
 
 -- | aiAction
 -- AI actions based on goal, HP, position...
--- TODO more actions, like throw, use items...
 aiAction :: [(Int, EntityKind)] -> World -> World
 aiAction [] w = w
 aiAction ((mx, mEntity):xs) w = if mx == 0 || not (block mEntity)

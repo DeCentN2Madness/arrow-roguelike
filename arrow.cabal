@@ -28,6 +28,7 @@ library
                     , Engine.Draw.Visual
                     , Engine.SDL.Event
                     , Engine.SDL.Util
+                    , Game.Action
                     , Game.AI
                     , Game.Arrow
                     , Game.Combat
@@ -75,6 +76,7 @@ executable Arrow
                     , Engine.Draw.Visual
                     , Engine.SDL.Event
                     , Engine.SDL.Util
+                    , Game.Action
                     , Game.AI
                     , Game.Arrow
                     , Game.Combat

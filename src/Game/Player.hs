@@ -78,9 +78,7 @@ characterEquipment :: EntityMap -> AssetMap -> [Text]
 characterEquipment em _ = let
   (pEntity, _) = getPlayer em
   pProp = property pEntity
-  sel = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"
-        , "a", "b", "c", "d", "e", "f", "g", "h", "i", "j"]
-  inv = [melee, shoot, ring, neck, armor, cloak, shield, helmet, hands, feet]
+  pInv = [melee, shoot, ring, neck, armor, cloak, shield, helmet, hands, feet]
   melee  = T.append "Melee: " $ fromMaybe "None" (Map.lookup "melee" pProp)
   shoot  = T.append "Shoot: " $ fromMaybe "None" (Map.lookup "shoot" pProp)
   ring   = T.append "Ring:  " $ fromMaybe "None" (Map.lookup "jewelry" pProp)
@@ -91,37 +89,33 @@ characterEquipment em _ = let
   helmet = T.append "Head: "  $ fromMaybe "None" (Map.lookup "head" pProp)
   hands  = T.append "Hands: " $ fromMaybe "None" (Map.lookup "hands" pProp)
   feet   = T.append "Feet: "  $ fromMaybe "None" (Map.lookup "feet" pProp)
-  pInv = [ name | (k, v) <- zip sel inv, let name = T.concat [k, ") ", v] ]
-  in pInv ++ [" ", "Press [0-9] to Doff. Press ESC to Continue..."]
+  in selection pInv
+  ++ [" ", "Press [0-9] to Doff. Press ESC to Continue..."]
 
 -- | @ Inventory
 characterInventory :: EntityMap -> AssetMap -> [Text]
 characterInventory em _ = let
   (pEntity, _) = getPlayer em
-  sel = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"
-        , "a", "b", "c", "d", "e", "f", "g", "h", "i", "j"]
-  inv = filter (/="I") $
+  pInv = filter (/="I") $
     [ name | (k, v) <- sortBy (compare `on` snd) $
       Map.toList (inventory pEntity),
-      let name = if  v > 0
+      let name = if v > 0
             then T.append k (T.pack $ " (" ++ show v ++ ")")
             else "I" ]
-  pInv = [ name | (k, v) <- zip sel inv, let name = T.concat [k, ") ", v] ]
-  in pInv ++ [" ", "Press [0-9, A-J] to Don / Drop. ESC to Continue..."]
+  in selection pInv
+  ++ [" ", "Press [0-9, A-J] to Don / Drop. ESC to Continue..."]
 
 -- | @ Store
 characterStore :: EntityMap -> AssetMap -> [Text]
 characterStore em _ = let
   (pEntity, _) = getPlayer em
-  sel = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"
-        , "a", "b", "c", "d", "e", "f", "g", "h", "i", "j"]
-  inv = filter (/="I") $
+  pInv = filter (/="I") $
     [ name | (k, v) <- Map.toList (inventory pEntity),
       let name = if k `elem` ["Arrow", "Mushroom", "Potion"]
             then T.append k (T.pack $ " (" ++ show v ++ ")")
             else "I" ]
-  pInv = [ name | (k, v) <- zip sel inv, let name = T.concat [k, ") ", v] ]
-  in pInv ++ [" ", "Press [0-9, A-J] to Purchase. ESC to Continue..."]
+  in selection pInv
+  ++ [" ", "Press [0-9, A-J] to Purchase. ESC to Continue..."]
 
 -- | @ equipment
 equip :: Text -> Text -> Properties -> Text
@@ -188,6 +182,14 @@ proficiency lvl
   | lvl >= 13 && lvl <= 16 = 5
   | lvl >= 17 && lvl <= 20 = 6
   | otherwise = 2
+
+-- | @ selection
+selection :: [Text] -> [Text]
+selection xs = let
+  pSel = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"
+        , "a", "b", "c", "d", "e", "f", "g", "h", "i", "j"]
+  pInv = [ name | (k, v) <- zip pSel xs, let name = T.concat [k, ") ", v] ]
+  in pInv
 
 -- | update @ properties
 updatePlayer :: Player -> EntityMap -> EntityMap

@@ -28,7 +28,6 @@ module Game.Player (characterEquipment
 
 import Prelude hiding (lookup)
 import Control.Arrow ((&&&))
-import Data.Function (on)
 import Data.List
 import Data.Map (Map)
 import qualified Data.Map.Strict as Map
@@ -65,7 +64,7 @@ characterEquipment em _ = let
   hands  = T.append "Hands: " $ fromMaybe "None" (Map.lookup "hands" pProp)
   feet   = T.append "Feet: "  $ fromMaybe "None" (Map.lookup "feet" pProp)
   in selection pInv
-  ++ [" ", "Press [0-9] to Doff. Press ESC to Continue..."]
+  ++ [" ", "Press [0-9] to Doff, (I)nventory. Press ESC to Continue..."]
 
 -- | @ Inventory
 characterInventory :: EntityMap -> AssetMap -> [Text]
@@ -75,12 +74,12 @@ characterInventory em _ = let
                   i `notElem` ["Arrow", "Coin", "Mushroom", "Potion"]) $
            Map.toList (inventory pEntity)
   pInv = filter (/="I") $
-    [ name | (k, v) <- sortBy (compare `on` snd) pItems,
+    [ name | (k, v) <- pItems,
       let name = if v > 0
             then T.append k (T.pack $ " (" ++ show v ++ ")")
             else "I" ]
   in selection pInv
-  ++ [" ", "Press [0-9, A-J] to Don / Drop. ESC to Continue..."]
+  ++ [" ", "Press [0-9, A-J] to Don/Drop, (W)ield. ESC to Continue..."]
 
 -- | @ Look
 characterLook :: EntityMap -> [Text]

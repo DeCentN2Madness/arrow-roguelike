@@ -129,6 +129,7 @@ applyIntent intent w = let
         Action H  -> GA.actionDrop 17 w
         Action I  -> GA.actionDrop 18 w
         Action J  -> GA.actionDrop 19 w
+        Action W  -> equipWorld w
         Quit -> escWorld w
         _ -> w
     | n == GameEquipment = case intent of
@@ -142,6 +143,7 @@ applyIntent intent w = let
         Action Seven -> GA.actionDoff "head" w
         Action Eight -> GA.actionDoff "hands" w
         Action Nine  -> GA.actionDoff "feet" w
+        Action I     -> invWorld w
         Quit -> escWorld w
         _ -> w
     | n == GameInventory = case intent of
@@ -165,6 +167,7 @@ applyIntent intent w = let
         Action H  -> GA.actionDon 17 w
         Action I  -> GA.actionDon 18 w
         Action J  -> GA.actionDon 19 w
+        Action W  -> equipWorld w
         Quit -> escWorld w
         _ -> w
     | n == GameStore = case intent of

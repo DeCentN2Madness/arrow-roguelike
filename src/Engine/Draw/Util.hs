@@ -59,6 +59,8 @@ draw r ts w = do
       drawMap r ts w
       -- HUD Text
       EDT.drawText r w
+      -- Look Text
+      EDT.drawLook r w
   -- Dialog
   _ <- case gameState w of
     GameDrop      -> EDI.drawInventory r w

@@ -11,9 +11,10 @@ Example: getPlayer returns the Player from the EntityMap
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
 -}
-module Game.Player (characterSheet
-                   , characterEquipment
+module Game.Player (characterEquipment
                    , characterInventory
+                   , characterLook
+                   , characterSheet
                    , characterStore
                    , getArrow
                    , getHealth
@@ -26,6 +27,7 @@ module Game.Player (characterSheet
                    , updatePlayerXP) where
 
 import Prelude hiding (lookup)
+import Control.Arrow ((&&&))
 import Data.Function (on)
 import Data.List
 import Data.Map (Map)
@@ -46,32 +48,6 @@ type Properties = Map Text Text
 abilityMod :: Int -> Int
 abilityMod n = (n-10) `div` 2
 
--- | @ Stats
-characterSheet :: EntityMap -> [Text]
-characterSheet em = let
-  (pEntity, _) = getPlayer em
-  pInv   = inventory pEntity
-  pCoin  = T.append "AU: " (T.pack $ show $ Map.findWithDefault 0 "Coin" pInv)
-  pProp = property pEntity
-  pEquip = T.concat [ equip "melee" "|" pProp
-    , equip "shoot"   "{" pProp
-    , equip "jewelry" "=" pProp
-    , equip "neck"    "\"" pProp
-    , equip "armor"   "[" pProp
-    , equip "cloak"   "(" pProp
-    , equip "shield"  ")" pProp
-    , equip "head"    "]" pProp
-    , equip "hands"   "]" pProp
-    , equip "feet"    "]" pProp
-    ]
-  pStr  = T.append "Str: " (Map.findWithDefault "1" "str" pProp)
-  pDex  = T.append "Dex: " (Map.findWithDefault "1" "dex" pProp)
-  pCon  = T.append "Con: " (Map.findWithDefault "1" "con" pProp)
-  pInt  = T.append "Int: " (Map.findWithDefault "1" "int" pProp)
-  pWis  = T.append "Wis: " (Map.findWithDefault "1" "wis" pProp)
-  pLvl  = T.pack $ "Level: " ++ show (eLvl pEntity)
-  pExp  = T.pack $ "EXP: " ++ show (eXP pEntity)
-  in [ pLvl, pExp, pCoin, pEquip, pStr, pDex, pCon, pInt, pWis ]
 
 -- | @ Equipment
 characterEquipment :: EntityMap -> AssetMap -> [Text]
@@ -104,6 +80,51 @@ characterInventory em _ = let
             else "I" ]
   in selection pInv
   ++ [" ", "Press [0-9, A-J] to Don / Drop. ESC to Continue..."]
+
+-- | @ Look
+characterLook :: EntityMap -> [Text]
+characterLook em = let
+  groupF :: [Text] -> [(Text, Int)]
+  groupF = map (head &&& length) . group . sort
+  (_, pPos) = getPlayer em
+  view = GE.getEntityBy pPos em
+  -- items
+  items = groupF $ filter (/="Player") $
+    [ name | (ek, _) <- view,
+      let name = snd $ T.breakOnEnd "/" $
+            Map.findWithDefault "I" "Name" (property ek) ]
+  pInv = [ e | (i, j) <- items,
+           let e = if j > 1
+                 then T.append i $ T.pack $ " <" ++ show j ++ ">"
+                 else i ]
+  in selection pInv
+
+-- | @ Stats
+characterSheet :: EntityMap -> [Text]
+characterSheet em = let
+  (pEntity, _) = getPlayer em
+  pInv   = inventory pEntity
+  pCoin  = T.append "AU: " (T.pack $ show $ Map.findWithDefault 0 "Coin" pInv)
+  pProp = property pEntity
+  pEquip = T.concat [ equip "melee" "|" pProp
+    , equip "shoot"   "{" pProp
+    , equip "jewelry" "=" pProp
+    , equip "neck"    "\"" pProp
+    , equip "armor"   "[" pProp
+    , equip "cloak"   "(" pProp
+    , equip "shield"  ")" pProp
+    , equip "head"    "]" pProp
+    , equip "hands"   "]" pProp
+    , equip "feet"    "]" pProp
+    ]
+  pStr  = T.append "Str: " (Map.findWithDefault "1" "str" pProp)
+  pDex  = T.append "Dex: " (Map.findWithDefault "1" "dex" pProp)
+  pCon  = T.append "Con: " (Map.findWithDefault "1" "con" pProp)
+  pInt  = T.append "Int: " (Map.findWithDefault "1" "int" pProp)
+  pWis  = T.append "Wis: " (Map.findWithDefault "1" "wis" pProp)
+  pLvl  = T.pack $ "Level: " ++ show (eLvl pEntity)
+  pExp  = T.pack $ "EXP: " ++ show (eXP pEntity)
+  in [ pLvl, pExp, pCoin, pEquip, pStr, pDex, pCon, pInt, pWis ]
 
 -- | @ Store
 characterStore :: EntityMap -> AssetMap -> [Text]

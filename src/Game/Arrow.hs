@@ -86,8 +86,7 @@ actionPlayer pos w = let
   -- Move event
   newCoord  = if bumpCoord `elem` moveT pEntity then bumpCoord else pPos
   moveWorld = w { entityT = GP.updatePlayerBy newCoord (entityT w) }
-  -- Look && Listen event
-  look      = GA.actionLook $ GE.getEntityBy newCoord (entityT moveWorld)
+  -- Listen event
   listen    = GA.actionHear (entityT moveWorld) newCoord
   -- Combat event
   world     = if bump > 0 then GC.mkCombat 0 bump moveWorld else moveWorld
@@ -99,7 +98,7 @@ actionPlayer pos w = let
   alive = if eHP newPlayer < 1
     then "Player is Dead! Press r to Restart..."
     else "..."
-  entry = [look, listen, learn, alive]
+  entry = [listen, learn, alive]
   in world { tick     = newTick
            , journalT = GJ.updateJournal entry (journalT world) }
 

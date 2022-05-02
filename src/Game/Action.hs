@@ -249,10 +249,11 @@ actionLook xs = let
     [ name | (ek, _) <- xs,
       let name = snd $ T.breakOnEnd "/" $
             Map.findWithDefault "I" "Name" (property ek) ]
-  look = T.concat $ [ e | (i, j) <- items,
-                      let e = if j > 1
-                            then T.append i $ T.pack $ " <" ++ show j ++ ">, "
-                            else T.append i $ T.pack ", " ]
+  look = T.take 70 $ T.concat $
+    [ e | (i, j) <- items,
+      let e = if j > 1
+            then T.append i $ T.pack $ " <" ++ show j ++ ">, "
+            else T.append i $ T.pack ", " ]
   in T.append look "..."
 
 -- | actionQuaff

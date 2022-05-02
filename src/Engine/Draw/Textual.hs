@@ -8,7 +8,9 @@ This module keeps the Text routines for SDL.Renderer.
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
 -}
-module Engine.Draw.Textual (drawText, renderText) where
+module Engine.Draw.Textual (drawLook
+                           , drawText
+                           , renderText) where
 
 import Control.Monad (forM_)
 import qualified Data.Text as T
@@ -18,6 +20,24 @@ import Engine.Arrow.Data (World(..))
 import qualified Engine.SDL.Util as U
 import qualified Game.Journal as GJ
 import qualified Game.Player as GP
+
+drawLook :: SDL.Renderer -> World -> IO ()
+drawLook r w = do
+  let logs = zip [0..9] $ GP.characterLook (entityT w)
+  fn <- SDL.Font.load "./assets/fonts/Hack-Regular.ttf" 14
+  -- Journal
+  forM_ logs $ \(i, j) -> do
+    -- Text
+    tx <- SDL.Font.blended fn white j
+    sz <- SDL.Font.size fn j
+    rt <- SDL.createTextureFromSurface r tx
+    -- HUD
+    let hudT = snd (screenXY w) - fromIntegral (snd sz + (i * snd sz))
+    renderText r rt sz (800, hudT)
+    -- Cleanup
+    SDL.freeSurface tx
+    SDL.destroyTexture rt
+  SDL.Font.free fn
 
 -- | drawText
 -- Show the Journal

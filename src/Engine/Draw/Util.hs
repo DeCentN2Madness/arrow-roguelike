@@ -49,14 +49,16 @@ draw r ts w = do
   if gameState w == GameStart
     then renderTexture r (arrow ts) (0.0, 0.0 :: Double)
     else do
-      -- Vitals
+      -- Draw Visual Map
+      drawMap r ts w
+      -- '@' Stats
+      renderHpBar r (5, 10)  100.0 160.0 Gray Gray 1.0
+      -- '@' Vitals
       renderHpBar r (5, 170) 100.0 10.0 Red   Green  pHp
       renderHpBar r (5, 180) 100.0 10.0 White Blue   pMp
       renderHpBar r (5, 190) 100.0 10.0 Gray  Yellow pArrow
       renderHpBar r (5, 200) 100.0 10.0 Gray  Brown  pMush
       renderHpBar r (5, 210) 100.0 10.0 Gray  Purple pPot
-      -- Draw Visual Map
-      drawMap r ts w
       -- HUD Text
       EDT.drawText r w
       -- Look Text

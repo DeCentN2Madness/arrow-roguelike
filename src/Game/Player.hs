@@ -48,7 +48,6 @@ type Properties = Map Text Text
 abilityMod :: Int -> Int
 abilityMod n = (n-10) `div` 2
 
-
 -- | @ Equipment
 characterEquipment :: EntityMap -> AssetMap -> [Text]
 characterEquipment em _ = let
@@ -72,9 +71,11 @@ characterEquipment em _ = let
 characterInventory :: EntityMap -> AssetMap -> [Text]
 characterInventory em _ = let
   (pEntity, _) = getPlayer em
+  pItems = filter (\(i, j) -> j > 0 &&
+                  i `notElem` ["Arrow", "Coin", "Mushroom", "Potion"]) $
+           Map.toList (inventory pEntity)
   pInv = filter (/="I") $
-    [ name | (k, v) <- sortBy (compare `on` snd) $
-      Map.toList (inventory pEntity),
+    [ name | (k, v) <- sortBy (compare `on` snd) pItems,
       let name = if v > 0
             then T.append k (T.pack $ " (" ++ show v ++ ")")
             else "I" ]

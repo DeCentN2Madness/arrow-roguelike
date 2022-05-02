@@ -81,14 +81,14 @@ actionCoin ix w = let
   pItem = if ix < length pItems
     then pItems!!ix
     else ("None", 0)
-  newInv = if pCoin > 0 && snd pItem < 20
+  newInv = if pCoin >= 1 && snd pItem < 20
     then Map.insert "Coin" (pCoin-1) pInv
     else pInv
-  newPlayer = if fst pItem /= "None" && snd pItem < 20
+  newPlayer = if pCoin >= 1 && fst pItem /= "None" && snd pItem < 20
     then let
     in pEntity { inventory = Map.insert (fst pItem) (snd pItem+1) newInv }
     else pEntity
-  entry = if fst pItem /= "None" && snd pItem < 20
+  entry = if pCoin >= 1 && fst pItem /= "None" && snd pItem < 20
     then T.concat [fst pItem, " +1, ..."]
     else "No Spend... "
   in w { tick = newTick

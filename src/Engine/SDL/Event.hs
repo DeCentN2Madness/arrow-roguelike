@@ -68,7 +68,8 @@ getKey (SDL.KeyboardEventData _ SDL.Pressed False keysym) =
     SDL.KeycodeX      -> Action X
     SDL.KeycodeY      -> Action Y
     SDL.KeycodeZ      -> Action Z
-    _                 -> Action Help
+    SDL.KeycodeQuestion -> Action Help
+    _                   -> Action Help
 
 -- | mkIntents handles multiple events
 -- <https://github.com/haskell-game/sdl2/issues/241>

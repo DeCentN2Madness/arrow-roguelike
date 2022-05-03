@@ -108,7 +108,7 @@ actionPlayer pos w = let
 applyIntent :: Intent -> World -> World
 applyIntent intent w = let
   world n
-    | n == GameDialog = escWorld w
+    | n == GameDialog = helpWorld w
     | n == GameDrop = case intent of
         Action Zero  -> GA.actionDrop 0 w
         Action One   -> GA.actionDrop 1 w
@@ -254,7 +254,7 @@ helpWorld :: World -> World
 helpWorld w = let
   help = [ "..."
          , "Movement: vi mode or Arrow keys, ESC to Continue/Quit..."
-         , "(T)hrow,   (W)ield,"
+         , "(T)hrow,   (W)ield,     (?)Help, ..."
          , "(G)et,     (I)nventory, (Q)uaff, (R)eset,"
          , "(A)cquire, (C)ast,      (D)rop,  (E)at,"
          , "~Arrow~ Commands"

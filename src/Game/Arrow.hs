@@ -108,6 +108,7 @@ actionPlayer pos w = let
 applyIntent :: Intent -> World -> World
 applyIntent intent w = let
   world n
+    | n == GameDialog = escWorld w
     | n == GameDrop = case intent of
         Action Zero  -> GA.actionDrop 0 w
         Action One   -> GA.actionDrop 1 w
@@ -210,12 +211,13 @@ applyIntent intent w = let
         Action U -> actionDirection NorthWest w
         Action W -> equipWorld w
         Action Y -> actionDirection NorthEast w
+        Action Help -> helpWorld w
         Quit -> escWorld w
         _ -> w
   in world (gameState w)
 
 -- | coinWorld
--- store mode
+-- Acquire mode
 coinWorld :: World -> World
 coinWorld w = w { journalT = GJ.updateJournal ["A Pressed..."] (journalT w)
                  , gameState = if gameState w == GameStore
@@ -223,20 +225,12 @@ coinWorld w = w { journalT = GJ.updateJournal ["A Pressed..."] (journalT w)
                    else GameStore }
 
 -- | dropWorld
--- Equipment mode
+-- Drop mode
 dropWorld :: World -> World
 dropWorld w = w { journalT = GJ.updateJournal ["D Pressed..."] (journalT w)
                  , gameState = if gameState w == GameDrop
                    then GameRun
                    else GameDrop }
-
--- | escWorld
--- ESC changes gameState
-escWorld :: World -> World
-escWorld w = w { journalT = GJ.updateJournal ["ESC Pressed..."] (journalT w)
-               , gameState = if gameState w == GameRun
-                 then GameStop
-                 else GameRun }
 
 -- | equipWorld
 -- Equipment mode
@@ -246,16 +240,40 @@ equipWorld w = w { journalT = GJ.updateJournal ["W Pressed..."] (journalT w)
                    then GameRun
                    else GameEquipment }
 
+-- | escWorld
+-- ESC changes gameState
+escWorld :: World -> World
+escWorld w = w { journalT = GJ.updateJournal ["ESC Pressed..."] (journalT w)
+               , gameState = if gameState w == GameRun
+                 then GameStop
+                 else GameRun }
+
+-- | helpWorld
+-- Help mode
+helpWorld :: World -> World
+helpWorld w = let
+  help = [ "..."
+         , "Movement: vi mode or Arrow keys, ESC to Continue/Quit..."
+         , "(T)hrow,   (W)ield,"
+         , "(G)et,     (I)nventory, (Q)uaff, (R)eset,"
+         , "(A)cquire, (C)ast,      (D)rop,  (E)at,"
+         , "~Arrow~ Commands"
+         ]
+  in w { journalT = GJ.updateJournal help (journalT w)
+       , gameState = if gameState w == GameDialog
+         then GameRun
+         else GameDialog }
+
 -- | invWorld
 -- Inventory mode
 invWorld :: World -> World
 invWorld w = w { journalT = GJ.updateJournal ["I Pressed..."] (journalT w)
-                    , gameState = if gameState w == GameInventory
-                      then GameRun
-                      else GameInventory }
+               , gameState = if gameState w == GameInventory
+                 then GameRun
+                 else GameInventory }
 
--- | resetWorld, save the Player, and rebuild the World
--- TODO depth set by stairs...
+-- | resetWorld
+-- Save the Player, and rebuild the World
 resetWorld :: World -> World
 resetWorld w = let
   (maxX, maxY) = screenXY w

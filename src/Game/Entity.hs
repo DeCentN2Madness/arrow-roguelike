@@ -34,6 +34,7 @@ import Data.List
 import Data.Map (Map)
 import qualified Data.Map.Strict as Map
 import Data.Ord (comparing)
+import Game.Kind.Asset (mkAssetMap)
 import Game.Kind.Entity
 import Game.Kind.Monster
 import Game.Tile (TileMap)
@@ -81,82 +82,7 @@ getEntityBy pos em = let
   in [ e | (ix, _) <- filter ((==pos).snd) entityList,
        let e = getEntityAt ix em ]
 
--- | mkAssetMap
--- All the assets within the World by Ix
-mkAssetMap :: AssetMap
-mkAssetMap = let
-  pos = (0, 0)
-  em = [ mkMonster "Player" "The Hero (@)" pos
-       -- generics
-       , mkItem "Arrow"     "~" pos
-       , mkItem "Coin"      "$" pos
-       , mkItem "Corpse"    "%" pos
-       , mkItem "Mushroom"  "," pos
-       , mkItem "Potion"    "!" pos
-       , mkItem "StairDown" ">" pos
-       , mkItem "StairUp"   "<" pos
-       , mkItem "Trap"      "^" pos
-       --- melee
-       , mkItem "melee/Dagger"        "|" pos
-       , mkItem "melee/Sword"         "|" pos
-       , mkItem "melee/Axe"           "|" pos
-       , mkItem "melee/Spear"         "|" pos
-       , mkItem "melee/Warhammer"     "|" pos
-       , mkItem "melee/Zweihander"    "|" pos
-       -- shield
-       , mkItem "shield/Buckler"      ")" pos
-       , mkItem "shield/Shield"       ")" pos
-       , mkItem "shield/Kite Shield"  ")" pos
-       -- shoot
-       , mkItem "shoot/Bow"           "}" pos
-       , mkItem "shoot/Longbow"       "}" pos
-       , mkItem "shoot/Shortbow"      "}" pos
-       -- armor
-       , mkItem "armor/Leather Jack"    "[" pos
-       , mkItem "armor/Leather Jerkin"  "[" pos
-       , mkItem "armor/Mail Coat"       "[" pos
-       , mkItem "armor/Mail Shirt"      "[" pos
-       , mkItem "armor/Breastplate"     "[" pos
-       -- head
-       , mkItem "head/Leather Skullcap" "]" pos
-       , mkItem "head/Mail Coif"        "]" pos
-       , mkItem "head/Open Helm"        "]" pos
-       , mkItem "head/Helm"             "]" pos
-       -- feet
-       , mkItem "feet/Boots"            "]" pos
-       , mkItem "feet/Leather Leggings" "]" pos
-       , mkItem "feet/Mail Chausses"    "]" pos
-       , mkItem "feet/Plate Leggings"   "]" pos
-       -- hands
-       , mkItem "hands/Gloves"    "]" pos
-       , mkItem "hands/Bracers"   "]" pos
-       , mkItem "hands/Gauntlets" "]" pos
-       -- Items
-       , mkItem "jewelry/Ring" "=" pos
-       , mkItem "neck/Amulet"  "\"" pos
-       , mkItem "cloak/Cloak"  "(" pos
-       -- monsters
-       , mkMonster "Cleric"  "Medium human (h)" pos
-       , mkMonster "Fighter" "Medium human (h)" pos
-       , mkMonster "Ranger"  "Medium human (h)" pos
-       , mkMonster "Rogue"   "Medium human (h)" pos
-       , mkMonster "Mage"    "Medium human (h)" pos
-       , mkMonster "Mouse"        "Small beast (r)" pos
-       , mkMonster "Orc"          "Medium humanoid (o)" pos
-       , mkMonster "Orc Archer"   "Medium humanoid (o)" pos
-       , mkMonster "Orc Shaman"   "Medium humanoid (o)" pos
-       , mkMonster "Spider"       "Large beast (S)" pos
-       , mkMonster "Troll"        "Large giant (T)" pos
-       , mkMonster "Wolf"         "Medium beast (c)" pos
-       , mkMonster "Red Dragon"   "Medium dragon (d)" pos
-       , mkMonster "Green Dragon" "Medium dragon (d)" pos
-       , mkMonster "Blue Dragon"  "Medium dragon (d)" pos
-       , mkMonster "Black Dragon" "Medium dragon (d)" pos
-       , mkMonster "White Dragon" "Medium dragon (d)" pos
-       ]
-  in Map.fromList $ zip [0..] em
-
--- | mkEntityMap will do more
+-- | mkEntityMap
 -- insert Monsters
 -- insert the Hero at 0
 mkEntityMap :: Depth -> TileMap -> AssetMap -> EntityMap

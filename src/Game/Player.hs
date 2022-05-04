@@ -11,7 +11,8 @@ Example: getPlayer returns the Player from the EntityMap
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
 -}
-module Game.Player (characterEquipment
+module Game.Player (armorShield
+                   , characterEquipment
                    , characterInventory
                    , characterLook
                    , characterSheet
@@ -47,6 +48,23 @@ type Properties = Map Text Text
 abilityMod :: Int -> Int
 abilityMod n = (n-10) `div` 2
 
+-- | armorShield
+-- Armor and Shields
+armorShield :: Text -> Properties -> AssetMap -> Properties
+armorShield item pProp am = let
+  descMap = Map.fromList $
+    [ (name, desc) | (_, v) <- Map.toList am,
+      let name = Map.findWithDefault "I" "Name" (property v)
+          desc = Map.findWithDefault "I" "Description" (property v) ]
+  armorStat = T.splitOn ":" $ fromMaybe "I" (Map.lookup item descMap)
+  armorClass = if length armorStat > 1
+    then Map.insert "AC" (armorStat!!1) pProp
+    else pProp
+  armorWeight = if length armorStat > 1
+    then Map.insert "WT" (armorStat!!2) armorClass
+    else armorClass
+  in armorWeight
+
 -- | @ Equipment
 characterEquipment :: EntityMap -> AssetMap -> [Text]
 characterEquipment em _ = let
@@ -63,8 +81,13 @@ characterEquipment em _ = let
   helmet = T.append "Head: "  $ fromMaybe "None" (Map.lookup "head" pProp)
   hands  = T.append "Hands: " $ fromMaybe "None" (Map.lookup "hands" pProp)
   feet   = T.append "Feet: "  $ fromMaybe "None" (Map.lookup "feet" pProp)
+  ac     = T.append "AC: "     $ fromMaybe "0" (Map.lookup "AC" pProp)
+  wt     = T.append "Weight: " $ fromMaybe "0" (Map.lookup "WT" pProp)
   in selection pInv
-  ++ [" ", "Press [0-9] to Doff, (I)nventory. Press ESC to Continue..."]
+  ++ [" "
+     , ac
+     , wt
+     , " ", "Press [0-9] to Doff, (I)nventory. Press ESC to Continue..."]
 
 -- | @ Inventory
 characterInventory :: EntityMap -> AssetMap -> [Text]

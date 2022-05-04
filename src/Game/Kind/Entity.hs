@@ -180,7 +180,7 @@ mkMonster name desc xy = let
 -- | mkProp
 mkProp :: Text -> Text -> Prop -> Properties
 mkProp name desc p = Map.fromList $
-  [ ("Name", name), ("Description", desc)] ++ p
+  [ ("Name", name), ("Description", desc) ] ++ p
 
 -- | mkEntity
 mkEntity :: Entity -> Text -> Text -> Coord -> EntityKind

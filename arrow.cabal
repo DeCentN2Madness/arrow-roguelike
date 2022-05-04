@@ -37,6 +37,7 @@ library
                     , Game.Entity
                     , Game.Inventory
                     , Game.Journal
+                    , Game.Kind.Asset
                     , Game.Kind.Cave
                     , Game.Kind.Dungeon
                     , Game.Kind.Entity
@@ -85,6 +86,7 @@ executable Arrow
                     , Game.Entity
                     , Game.Inventory
                     , Game.Journal
+                    , Game.Kind.Asset
                     , Game.Kind.Cave
                     , Game.Kind.Dungeon
                     , Game.Kind.Entity

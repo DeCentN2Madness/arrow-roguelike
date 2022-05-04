@@ -139,8 +139,9 @@ actionDon ix w = let
     else pInv
   newPlayer = if snd pItem > 0
     then let
+    newProp = Map.insert pEquip (fst pItem) (property pEntity)
     in pEntity { inventory = Map.insert (fst pItem) (snd pItem-1) newInv
-               , property  = Map.insert pEquip (fst pItem) (property pEntity) }
+               , property  = GP.armorShield (fst pItem) newProp (assetT w) }
     else pEntity
   entry = if fst pItem /= "None"
     then if equip /= "None"

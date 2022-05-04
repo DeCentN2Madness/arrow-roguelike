@@ -66,9 +66,16 @@ armorShield pProp am = let
   armorStat = T.splitOn ":" $ fromMaybe "I:0:0" (Map.lookup armor descMap)
   (aAC, aWT) = (read $ T.unpack (armorStat!!1)
                , read $ T.unpack (armorStat!!2)) :: (Int, Int)
+  -- Dex modifier
+  pDex = read $ T.unpack $ Map.findWithDefault "1" "dex" pProp :: Int
+  pDR n
+    | n <  20 = abilityMod pDex
+    | n <= 40 = if abilityMod pDex > 2 then 2 else abilityMod pDex
+    | otherwise = 0
   armorClass  = Map.insert "AC" (T.pack $ show $ aAC + sAC) pProp
   armorWeight = Map.insert "WT" (T.pack $ show $ aWT + sWT) armorClass
-  in armorWeight
+  armorDef    = Map.insert "DR" (T.pack $ show $ pDR aWT)   armorWeight
+  in armorDef
 
 -- | @ Equipment
 characterEquipment :: EntityMap -> AssetMap -> [Text]
@@ -87,12 +94,11 @@ characterEquipment em _ = let
   hands  = T.append "Hands: " $ fromMaybe "None" (Map.lookup "hands" pProp)
   feet   = T.append "Feet: "  $ fromMaybe "None" (Map.lookup "feet" pProp)
   ac     = T.append "AC: "     $ fromMaybe "0" (Map.lookup "AC" pProp)
+  dr     = T.append "DR: "     $ fromMaybe "0" (Map.lookup "DR" pProp)
   wt     = T.append "Weight: " $ fromMaybe "0" (Map.lookup "WT" pProp)
   in selection pInv
-  ++ [" "
-     , ac
-     , wt
-     , " ", "Press [0-9] to Doff, (I)nventory. Press ESC to Continue..."]
+  ++ [" ", ac, dr, wt, " "
+     , "Press [0-9] to Doff, (I)nventory. Press ESC to Continue..."]
 
 -- | @ Inventory
 characterInventory :: EntityMap -> AssetMap -> [Text]

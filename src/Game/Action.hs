@@ -108,8 +108,9 @@ actionDoff item w = let
     else ("None", "None")
   newPlayer = if snd pItem /= "None"
     then let
+    newProp = Map.insert pEquip "None" (property pEntity)
     in pEntity { inventory = Map.insert (snd pItem) 1 (inventory pEntity)
-               , property  = Map.insert pEquip "None" (property pEntity) }
+               , property  = GP.armorShield newProp (assetT w) }
     else pEntity
   entry = if not (null pItems)
     then T.concat ["Doff ", fst pItem, "..."]
@@ -141,7 +142,7 @@ actionDon ix w = let
     then let
     newProp = Map.insert pEquip (fst pItem) (property pEntity)
     in pEntity { inventory = Map.insert (fst pItem) (snd pItem-1) newInv
-               , property  = GP.armorShield (fst pItem) newProp (assetT w) }
+               , property  = GP.armorShield newProp (assetT w) }
     else pEntity
   entry = if fst pItem /= "None"
     then if equip /= "None"

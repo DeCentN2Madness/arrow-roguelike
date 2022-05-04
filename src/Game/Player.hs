@@ -50,19 +50,24 @@ abilityMod n = (n-10) `div` 2
 
 -- | armorShield
 -- Armor and Shields
-armorShield :: Text -> Properties -> AssetMap -> Properties
-armorShield item pProp am = let
+armorShield :: Properties -> AssetMap -> Properties
+armorShield pProp am = let
   descMap = Map.fromList $
     [ (name, desc) | (_, v) <- Map.toList am,
       let name = Map.findWithDefault "I" "Name" (property v)
           desc = Map.findWithDefault "I" "Description" (property v) ]
-  armorStat = T.splitOn ":" $ fromMaybe "I" (Map.lookup item descMap)
-  armorClass = if length armorStat > 1
-    then Map.insert "AC" (armorStat!!1) pProp
-    else pProp
-  armorWeight = if length armorStat > 1
-    then Map.insert "WT" (armorStat!!2) armorClass
-    else armorClass
+  -- shield
+  shield = fromMaybe "None" (Map.lookup "shield" pProp)
+  shieldStat = T.splitOn ":" $ fromMaybe "I:0:0" (Map.lookup shield descMap)
+  (sAC, sWT) = (read $ T.unpack (shieldStat!!1)
+               , read $ T.unpack (shieldStat!!2)) :: (Int, Int)
+  -- armor
+  armor = fromMaybe "None" (Map.lookup "armor" pProp)
+  armorStat = T.splitOn ":" $ fromMaybe "I:0:0" (Map.lookup armor descMap)
+  (aAC, aWT) = (read $ T.unpack (armorStat!!1)
+               , read $ T.unpack (armorStat!!2)) :: (Int, Int)
+  armorClass  = Map.insert "AC" (T.pack $ show $ aAC + sAC) pProp
+  armorWeight = Map.insert "WT" (T.pack $ show $ aWT + sWT) armorClass
   in armorWeight
 
 -- | @ Equipment

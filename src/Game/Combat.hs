@@ -96,7 +96,7 @@ mkCombat px mx w = if px == mx
     pMod  = read $ T.unpack $ Map.findWithDefault "1" "Proficiency" pProp
     pWeap = Map.findWithDefault "1d4" "ATTACK" pProp
     pAR   = clamp $ DS.d20 pSeed + pStr + pMod
-    pDam  = weapon pWeap pSeed pStr
+    pDam  = clamp $ weapon pWeap pSeed pStr
     -- mDR, mAC
     mProp = property mEntity
     mName = Map.findWithDefault "M" "Name" mProp
@@ -135,7 +135,7 @@ mkMagicCombat px mx w = if px == mx
     pMod  = read $ T.unpack $ Map.findWithDefault "1" "Proficiency" pProp
     pWeap = Map.findWithDefault "1d4" "ATTACK" pProp
     pAR   = clamp $ DS.d20 pSeed + pInt + pMod
-    pDam  = weapon pWeap pSeed pInt
+    pDam  = clamp $ weapon pWeap pSeed pInt
     -- mDR,  mAC
     mProp = property mEntity
     mName = Map.findWithDefault "M" "Name" mProp
@@ -174,7 +174,7 @@ mkRangeCombat px mx w = if px == mx
     pMod  = read $ T.unpack $ Map.findWithDefault "1" "Proficiency" pProp
     pWeap = Map.findWithDefault "1d4" "SHOOT" pProp
     pAR   = clamp $ DS.d20 pSeed + pDex + pMod
-    pDam  = weapon pWeap pSeed pDex
+    pDam  = clamp $ weapon pWeap pSeed pDex
     -- mDR,  mAC
     mProp = property mEntity
     mName = Map.findWithDefault "M" "Name" mProp

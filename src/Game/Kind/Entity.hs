@@ -81,16 +81,16 @@ instance FromJSON EntityKind
 instance ToJSON EntityKind
 
 defaultEK :: Text -> Text -> Coord -> EntityKind
-defaultEK name desc xy =
-  EntityKind { coord = xy
+defaultEK name desc pos =
+  EntityKind { coord     = pos
              , block     = False
              , kind      = Arrow
              , glyph     = VArrow
              , moveT     = []
-             , spawn     = xy
+             , spawn     = pos
              , property  = mkProp name desc []
              , inventory = Map.empty
-             , eLvl      = 0
+             , eLvl      = 1
              , eHP       = 0
              , eMaxHP    = 0
              , eMP       = 0
@@ -115,7 +115,7 @@ mkInventory n
   | n == "White Dragon" = [("Arrow",1),("Potion",1),("Mushroom",1),("Coin",1)]
   | n == "Orc"          = [("Arrow",0),("Potion",0),("Mushroom",1),("Item",1)]
   | n == "Orc Archer"   = [("Arrow",5),("Potion",0),("Mushroom",1),("Item",1)]
-  | n == "Orc Shaman"   = [("Arrow",0),("Potion",1),("Mushroom",1),("Item",1)]
+  | n == "Orc Shaman"   = [("Arrow",1),("Potion",1),("Mushroom",1),("Item",1)]
   | n == "Spider"       = [("Arrow",0),("Potion",0),("Mushroom",1),("Coin",1)]
   | n == "Troll"        = [("Arrow",0),("Potion",0),("Mushroom",1),("Coin",1)]
   | otherwise = [("Arrow",0),("Potion",0),("Mushroom",0),("Coin",0)]
@@ -162,7 +162,6 @@ mkMonster name desc xy = let
   mHP  = read $ T.unpack $ Map.findWithDefault "1" "HP" mProp
   mMP  = read $ T.unpack $ Map.findWithDefault "0" "MP" mProp
   mXP  = read $ T.unpack $ Map.findWithDefault "1" "XP" mProp
-  mLvl = read $ T.unpack $ Map.findWithDefault "1" "Challenge" mProp
   mInv = Map.fromList $ mkInventory name
   ek = defaultEK name desc xy
   in ek { block=True
@@ -170,7 +169,6 @@ mkMonster name desc xy = let
         , glyph=visualId name
         , property=mProp
         , inventory=mInv
-        , eLvl=mLvl
         , eHP=mHP
         , eMaxHP=mHP
         , eMP=mMP
@@ -253,6 +251,9 @@ cleric = [ ("str", "10")
          , ("MP", "10")
          , ("XP", "0")
          , ("Proficiency", "2")
+         , ("AC", "10")
+         , ("AR", "0")
+         , ("DR", "1")
          ]
 
 -- | fighter
@@ -266,6 +267,9 @@ fighter = [ ("str", "15")
           , ("MP", "1")
           , ("XP", "0")
           , ("Proficiency", "2")
+          , ("AC", "10")
+          , ("AR", "2")
+          , ("DR", "2")
           , ("melee", "None")
           , ("shoot", "None")
           , ("jewelry", "None")
@@ -289,6 +293,9 @@ mage = [ ("str", "10")
        , ("MP", "12")
        , ("XP", "0")
        , ("Proficiency", "2")
+       , ("AC", "10")
+       , ("AR", "0")
+       , ("DR", "1")
        ]
 
 -- | ranger
@@ -302,6 +309,9 @@ ranger = [ ("str", "12")
          , ("MP", "1")
          , ("XP", "0")
          , ("Proficiency", "2")
+         , ("AC", "10")
+         , ("AR", "1")
+         , ("DR", "2")
          ]
 
 -- | rogue
@@ -315,6 +325,9 @@ rogue = [ ("str", "10")
         , ("MP", "2")
         , ("XP", "0")
         , ("Proficiency", "2")
+        , ("AC", "10")
+        , ("AR", "0")
+        , ("DR", "2")
         ]
 
 -- | Mouse
@@ -328,8 +341,8 @@ smBeast = [ ("str", "7")
           , ("XP", "25")
           , ("Proficiency", "2")
           , ("AC", "12")
-          , ("DR", "2")
           , ("AR", "-2")
+          , ("DR", "2")
           , ("ATTACK", "1d4")
           ]
 
@@ -344,8 +357,8 @@ mdBeast = [ ("str", "12")
           , ("XP", "50")
           , ("Proficiency", "2")
           , ("AC", "13")
-          , ("DR", "2")
           , ("AR", "1")
+          , ("DR", "2")
           , ("ATTACK", "2d4")
           ]
 
@@ -361,8 +374,8 @@ mdDragon = [ ("str", "15")
            , ("Proficiency", "2")
            , ("Throw", "breathes!")
            , ("AC", "17")
-           , ("DR", "1")
            , ("AR", "2")
+           , ("DR", "1")
            , ("ATTACK", "1d10")
            ]
 
@@ -377,8 +390,8 @@ lgBeast = [ ("str", "14")
           , ("XP", "200")
           , ("Proficiency", "2")
           , ("AC", "14")
-          , ("DR", "3")
           , ("AR", "2")
+          , ("DR", "3")
           , ("ATTACK", "1d8")
           ]
 
@@ -393,14 +406,14 @@ mdHumanoid = [ ("str", "16")
              , ("XP", "100")
              , ("Proficiency", "2")
              , ("AC", "13")
-             , ("DR", "1")
              , ("AR", "3")
+             , ("DR", "1")
              , ("ATTACK", "1d12")
              ]
 
 -- | Orc Mage
 mdHumanoidM :: Prop
-mdHumanoidM = mdHumanoid ++ [ ("MP", "10"), ("MR", "1") ]
+mdHumanoidM = mdHumanoid ++ [ ("Throw", "curses!"), ("MP", "10"), ("MR", "1") ]
 
 -- | Troll
 gtHumanoid :: Prop
@@ -413,7 +426,7 @@ gtHumanoid = [ ("str", "18")
              , ("XP", "1800")
              , ("Proficiency", "3")
              , ("AC", "15")
-             , ("DR", "1")
              , ("AR", "4")
+             , ("DR", "1")
              , ("ATTACK", "2d6")
              ]

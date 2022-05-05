@@ -93,12 +93,11 @@ mkCombat px mx w = if px == mx
     pProp = property pEntity
     pName = Map.findWithDefault "P" "Name" pProp
     pStr  = read $ T.unpack $ Map.findWithDefault "1" "AR" pProp
-    pDex  = read $ T.unpack $ Map.findWithDefault "1" "DR" pProp
     pMod  = read $ T.unpack $ Map.findWithDefault "1" "Proficiency" pProp
     pWeap = Map.findWithDefault "1d4" "ATTACK" pProp
-    pAR   = clamp $ DS.d20 pSeed + pDex + pMod
+    pAR   = clamp $ DS.d20 pSeed + pStr + pMod
     pDam  = weapon pWeap pSeed pStr
-    -- mDR
+    -- mDR, mAC
     mProp = property mEntity
     mName = Map.findWithDefault "M" "Name" mProp
     mAC   = read $ T.unpack $ Map.findWithDefault "1" "AC" mProp
@@ -137,7 +136,7 @@ mkMagicCombat px mx w = if px == mx
     pWeap = Map.findWithDefault "1d4" "ATTACK" pProp
     pAR   = clamp $ DS.d20 pSeed + pInt + pMod
     pDam  = weapon pWeap pSeed pInt
-    -- mDR,  mMod
+    -- mDR,  mAC
     mProp = property mEntity
     mName = Map.findWithDefault "M" "Name" mProp
     mAC   = read $ T.unpack $ Map.findWithDefault "1" "AC" mProp
@@ -171,12 +170,12 @@ mkRangeCombat px mx w = if px == mx
     -- pAR, pDam, pMod
     pProp = property pEntity
     pName = Map.findWithDefault "P" "Name" pProp
-    pDex  = read $ T.unpack $ Map.findWithDefault "1" "DR" pProp
+    pDex  = read $ T.unpack $ Map.findWithDefault "1" "dex" pProp
     pMod  = read $ T.unpack $ Map.findWithDefault "1" "Proficiency" pProp
     pWeap = Map.findWithDefault "1d4" "SHOOT" pProp
     pAR   = clamp $ DS.d20 pSeed + pDex + pMod
     pDam  = weapon pWeap pSeed pDex
-    -- mDR,  mMod
+    -- mDR,  mAC
     mProp = property mEntity
     mName = Map.findWithDefault "M" "Name" mProp
     mAC   = read $ T.unpack $ Map.findWithDefault "1" "AC" mProp
@@ -242,7 +241,7 @@ weapon dice seed bonus = let
     "1d8" -> DS.d8 seed
     "1d10" -> DS.d10 seed
     "1d12" -> DS.d12 seed
-    "2d4" -> DS.d4 seed + DS.d4 seed
-    "2d6" -> DS.d6 seed + DS.d6 seed
+    "2d4" -> DS.d4 seed + DS.d4 (seed+1)
+    "2d6" -> DS.d6 seed + DS.d6 (seed+1)
     _     -> DS.d4 seed
   in roll + bonus

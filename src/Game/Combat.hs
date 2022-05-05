@@ -24,6 +24,10 @@ import qualified Game.Player as GP
 
 type AssetMap = EntityMap
 
+-- | abilityMod
+abilityMod :: Int -> Int
+abilityMod n = (n-10) `div` 2
+
 -- | attack verb
 attack :: Int -> Int -> Int -> Text -> Text
 attack ar dr dam name = if ar >= dr
@@ -170,7 +174,7 @@ mkRangeCombat px mx w = if px == mx
     -- pAR, pDam, pMod
     pProp = property pEntity
     pName = Map.findWithDefault "P" "Name" pProp
-    pDex  = read $ T.unpack $ Map.findWithDefault "1" "dex" pProp
+    pDex  = abilityMod $ read $ T.unpack $ Map.findWithDefault "1" "dex" pProp
     pMod  = read $ T.unpack $ Map.findWithDefault "1" "Proficiency" pProp
     pWeap = Map.findWithDefault "1d4" "SHOOT" pProp
     pAR   = clamp $ DS.d20 pSeed + pDex + pMod

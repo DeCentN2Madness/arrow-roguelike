@@ -8,17 +8,7 @@ Game.Action.hs is the actions for the Player '@' in the Game.
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
 -}
-module Game.Action (actionCast
-                   , actionCoin
-                   , actionDoff
-                   , actionDon
-                   , actionDrop
-                   , actionEat
-                   , actionGet
-                   , actionHear
-                   , actionLook
-                   , actionQuaff
-                   , actionThrow)  where
+module Game.Action where
 
 import Prelude hiding (lookup)
 import Control.Arrow ((&&&))
@@ -206,7 +196,7 @@ actionEat w = let
        , journalT = GJ.updateJournal [entry] (journalT w) }
 
 -- | actionGet
--- if there is something to get...
+-- if there is something to Get...
 actionGet :: World -> World
 actionGet w = let
   newTick         = tick w + 1
@@ -278,12 +268,30 @@ actionQuaff w = let
   pWis   = read $ T.unpack $ Map.findWithDefault "1" "wis" pProp
   newPlayer = if pPot > 0
     then pEntity { inventory = Map.insert "Potion" (pPot-1) pInv
-                 , eHP = pHp
-                 , eMP = pMp }
+                 , eHP = pHp, eMP = pMp }
     else pEntity
   entry = if pPot > 0
     then T.pack "Drink a delicious :Potion:..."
     else "No Drink..."
+  in w { tick = newTick
+       , entityT  = GP.updatePlayer newPlayer (entityT w)
+       , journalT = GJ.updateJournal [entry] (journalT w) }
+
+-- | actionRest
+-- if there is time to Rest...
+-- TODO regeneration
+actionRest :: World -> World
+actionRest w = let
+  newTick      = tick w + 1
+  (pEntity, _) = GP.getPlayer (entityT w)
+  heal   = eHP pEntity + 1
+  mana   = eMP pEntity + 1
+  pHp    = if heal > pMaxHp then pMaxHp else heal
+  pMp    = if mana > pMaxMp then pMaxMp else mana
+  pMaxHp = eMaxHP pEntity
+  pMaxMp = eMaxMP pEntity
+  newPlayer = pEntity { eHP = pHp, eMP = pMp }
+  entry = T.append "Rest... tick=" (T.pack $ show newTick)
   in w { tick = newTick
        , entityT  = GP.updatePlayer newPlayer (entityT w)
        , journalT = GJ.updateJournal [entry] (journalT w) }

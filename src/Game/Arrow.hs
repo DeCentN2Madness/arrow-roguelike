@@ -212,6 +212,7 @@ applyIntent intent w = let
         Action W -> equipWorld w
         Action Y -> actionDirection NorthEast w
         Action Help -> helpWorld w
+        Action Space -> actionMonster $ GA.actionRest w
         Quit -> escWorld w
         _ -> w
   in world (gameState w)
@@ -254,7 +255,7 @@ helpWorld :: World -> World
 helpWorld w = let
   help = [ "..."
          , "Movement: vi mode or Arrow keys, ESC to Continue/Quit..."
-         , "(T)hrow,   (W)ield,     (?)Help, ..."
+         , "(T)hrow,   (W)ield,     (?)Help, (SPC)Rest,"
          , "(G)et,     (I)nventory, (Q)uaff, (R)eset,"
          , "(A)cquire, (C)ast,      (D)rop,  (E)at,"
          , "~Arrow~ Commands"

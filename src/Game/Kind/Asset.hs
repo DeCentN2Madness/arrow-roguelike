@@ -36,21 +36,31 @@ mkAssetMap = let
        , mkItem "StairDown" ">" pos
        , mkItem "StairUp"   "<" pos
        , mkItem "Trap"      "^" pos
-       --- melee
-       , mkItem "melee/Dagger"     "|" pos
-       , mkItem "melee/Sword"      "|" pos
-       , mkItem "melee/Axe"        "|" pos
-       , mkItem "melee/Spear"      "|" pos
-       , mkItem "melee/Warhammer"  "|" pos
-       , mkItem "melee/Zweihander" "|" pos
+       --- melee basic
+       , mkItem "melee/Club"         "|:1d4:2" pos
+       , mkItem "melee/Dagger"       "|:1d4:1" pos
+       , mkItem "melee/Handaxe"      "|:1d6:2" pos
+       , mkItem "melee/Mace"         "|:1d6:4" pos
+       , mkItem "melee/Spear"        "|:1d6:3" pos
+       , mkItem "melee/Quarterstaff" "|:1d6:4" pos
+       -- melee martial
+       , mkItem "melee/Battleaxe"    "|:1d8:7"  pos
+       , mkItem "melee/Greataxe"     "|:1d12:7" pos
+       , mkItem "melee/Longsword"    "|:1d8:3"  pos
+       , mkItem "melee/Maul"         "|:2d6:10" pos
+       , mkItem "melee/Morningstar"  "|:1d8:4"  pos
+       , mkItem "melee/Pike"         "|:1d10:3" pos
+       , mkItem "melee/Rapier"       "|:1d8:2"  pos
+       , mkItem "melee/Shortsword"   "|:1d6:2"  pos
+       , mkItem "melee/Warhammer"    "|:1d8:2"  pos
+       , mkItem "melee/Zweihander"   "|:2d6:6"  pos
        -- shield
-       , mkItem "shield/Buckler"      "):2:6" pos
-       , mkItem "shield/Shield"       "):2:6" pos
-       , mkItem "shield/Kite Shield"  "):2:6" pos
+       , mkItem "shield/Buckler"     "):1:2" pos
+       , mkItem "shield/Shield"      "):2:6" pos
+       , mkItem "shield/Kite Shield" "):2:5" pos
        -- shoot
-       , mkItem "shoot/Bow"      "}" pos
-       , mkItem "shoot/Longbow"  "}" pos
-       , mkItem "shoot/Shortbow" "}" pos
+       , mkItem "shoot/Longbow"      "}:1d10:3" pos
+       , mkItem "shoot/Shortbow"     "}:1d6:2"  pos
        -- armor
        , mkItem "armor/Leather Jerkin"  "[:11:8"  pos
        , mkItem "armor/Leather Jack"    "[:11:10" pos
@@ -59,7 +69,6 @@ mkAssetMap = let
        , mkItem "armor/Scale Mail"      "[:14:45" pos
        , mkItem "armor/Breastplate"     "[:14:20" pos
        , mkItem "armor/Half Plate"      "[:15:40" pos
-       , mkItem "armor/Ring Mail"       "[:14:40" pos
        , mkItem "armor/Chain Mail"      "[:16:55" pos
        , mkItem "armor/Splint"          "[:17:60" pos
        , mkItem "armor/Plate"           "[:18:65" pos

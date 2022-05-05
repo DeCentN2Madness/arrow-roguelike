@@ -68,7 +68,7 @@ aiAction ((mx, mEntity):xs) w = if mx == 0 || not (block mEntity)
     | otherwise = Wait
   world = case action of
     Attack -> GC.mkCombat  mx 0 w
-    Cast   -> monsterCast mx mEntity w
+    Cast   -> monsterCast  mx mEntity w
     Drink  -> monsterDrink mx mEntity w
     Eat    -> monsterEat   mx mEntity w
     Get    -> monsterGet   mx mEntity w
@@ -121,8 +121,7 @@ monsterDrink mx mEntity w = let
   mName  = Map.findWithDefault "M" "Name" mProp
   newMonster = if mPot > 0
     then mEntity { inventory = Map.insert "Potion" (mPot-1) mInv
-                 , eHP = mHp
-                 , eMP = mMp }
+                 , eHP = mHp, eMP = mMp }
     else mEntity
   entry = if mPot > 0
     then T.append mName " is :Thirsty:..."

@@ -49,33 +49,60 @@ abilityMod :: Int -> Int
 abilityMod n = (n-10) `div` 2
 
 -- | armorShield
--- Armor and Shields
+-- Armor and Shields modify '@' stats: AC, AR, DR, MR...
 armorShield :: Properties -> AssetMap -> Properties
 armorShield pProp am = let
   descMap = Map.fromList $
     [ (name, desc) | (_, v) <- Map.toList am,
-      let name = Map.findWithDefault "I" "Name" (property v)
-          desc = Map.findWithDefault "I" "Description" (property v) ]
+      let name = Map.findWithDefault "None" "Name" (property v)
+          desc = Map.findWithDefault "None" "Description" (property v) ]
+  -- melee
+  melee = fromMaybe "None" (Map.lookup "melee" pProp)
+  meleeStat = map T.unpack $ T.splitOn ":" $
+    fromMaybe "I:1d4:0" (Map.lookup melee descMap)
+  (mDam, mWT) = (T.pack (meleeStat!!1), read $ meleeStat!!2) :: (Text, Int)
+  -- shoot
+  shoot = fromMaybe "None" (Map.lookup "shoot" pProp)
+  shootStat = map T.unpack $ T.splitOn ":" $
+    fromMaybe "I:1d4:0" (Map.lookup shoot descMap)
+  (rDam, rWT) = (T.pack (shootStat!!1), read $ shootStat!!2) :: (Text, Int)
   -- shield
   shield = fromMaybe "None" (Map.lookup "shield" pProp)
-  shieldStat = T.splitOn ":" $ fromMaybe "I:0:0" (Map.lookup shield descMap)
-  (sAC, sWT) = (read $ T.unpack (shieldStat!!1)
-               , read $ T.unpack (shieldStat!!2)) :: (Int, Int)
+  shieldStat = map T.unpack $ T.splitOn ":" $
+    fromMaybe "I:0:0" (Map.lookup shield descMap)
+  (sAC, sWT) = (read $ shieldStat!!1, read $ shieldStat!!2) :: (Int, Int)
   -- armor
   armor = fromMaybe "None" (Map.lookup "armor" pProp)
-  armorStat = T.splitOn ":" $ fromMaybe "I:0:0" (Map.lookup armor descMap)
-  (aAC, aWT) = (read $ T.unpack (armorStat!!1)
-               , read $ T.unpack (armorStat!!2)) :: (Int, Int)
+  armorStat = map T.unpack $ T.splitOn ":" $
+    fromMaybe "I:10:0" (Map.lookup armor descMap)
+  (aAC, aWT) = (read $ armorStat!!1, read $ armorStat!!2) :: (Int, Int)
+  -- AC
+  pAC = T.pack $ show $ aAC + sAC
+  -- WT
+  pWT = T.pack $ show $ aWT + sWT + mWT + rWT
+  -- DR
+  aDR = T.pack $ show $ pDR aWT
+  -- Str modifier
+  pStr = read $ T.unpack $ Map.findWithDefault "1" "str" pProp :: Int
+  pAR  = T.pack $ show $ abilityMod pStr
   -- Dex modifier
   pDex = read $ T.unpack $ Map.findWithDefault "1" "dex" pProp :: Int
   pDR n
-    | n <  20 = abilityMod pDex
-    | n <= 40 = if abilityMod pDex > 2 then 2 else abilityMod pDex
-    | otherwise = 0
-  armorClass  = Map.insert "AC" (T.pack $ show $ aAC + sAC) pProp
-  armorWeight = Map.insert "WT" (T.pack $ show $ aWT + sWT) armorClass
-  armorDef    = Map.insert "DR" (T.pack $ show $ pDR aWT)   armorWeight
-  in armorDef
+    | n > 40 = 0
+    | n > 20 && n <= 40 = if abilityMod pDex > 2 then 2 else abilityMod pDex
+    | otherwise = abilityMod pDex
+  -- Int modifier
+  pInt = read $ T.unpack $ Map.findWithDefault "1" "int" pProp :: Int
+  pMR  = T.pack $ show $ abilityMod pInt
+  -- '@' Combat Stats
+  ac = Map.insert "AC" pAC pProp
+  wt = Map.insert "WT" pWT ac
+  dr = Map.insert "DR" aDR wt
+  ar = Map.insert "AR" pAR dr
+  mr = Map.insert "MR" pMR ar
+  range  = Map.insert "SHOOT"  rDam mr
+  attack = Map.insert "ATTACK" mDam range
+  in attack
 
 -- | @ Equipment
 characterEquipment :: EntityMap -> AssetMap -> [Text]
@@ -90,14 +117,18 @@ characterEquipment em _ = let
   armor  = T.append "Armor: " $ fromMaybe "None" (Map.lookup "armor" pProp)
   cloak  = T.append "Cloak: " $ fromMaybe "None" (Map.lookup "cloak" pProp)
   shield = T.append "Shield: " $ fromMaybe "None" (Map.lookup "shield" pProp)
-  helmet = T.append "Head: "  $ fromMaybe "None" (Map.lookup "head" pProp)
-  hands  = T.append "Hands: " $ fromMaybe "None" (Map.lookup "hands" pProp)
-  feet   = T.append "Feet: "  $ fromMaybe "None" (Map.lookup "feet" pProp)
+  helmet = T.append "Head: "   $ fromMaybe "None" (Map.lookup "head" pProp)
+  hands  = T.append "Hands: "  $ fromMaybe "None" (Map.lookup "hands" pProp)
+  feet   = T.append "Feet: "   $ fromMaybe "None" (Map.lookup "feet" pProp)
   ac     = T.append "AC: "     $ fromMaybe "0" (Map.lookup "AC" pProp)
+  ar     = T.append "AR: "     $ fromMaybe "0" (Map.lookup "AR" pProp)
   dr     = T.append "DR: "     $ fromMaybe "0" (Map.lookup "DR" pProp)
+  mr     = T.append "MR: "     $ fromMaybe "0" (Map.lookup "MR" pProp)
+  attack = T.append "Attack: " $ fromMaybe "0" (Map.lookup "ATTACK" pProp)
+  range  = T.append "Shoot: "  $ fromMaybe "0" (Map.lookup "SHOOT" pProp)
   wt     = T.append "Weight: " $ fromMaybe "0" (Map.lookup "WT" pProp)
   in selection pInv
-  ++ [" ", ac, dr, wt, " "
+  ++ [" ", ac, ar, dr, mr, attack, range, wt, " "
      , "Press [0-9] to Doff, (I)nventory. Press ESC to Continue..."]
 
 -- | @ Inventory

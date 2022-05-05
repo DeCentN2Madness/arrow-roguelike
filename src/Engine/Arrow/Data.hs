@@ -70,6 +70,7 @@ data Direction
   | X
   | Y
   | Z
+  | Space
   deriving (Eq)
 
 data GameState

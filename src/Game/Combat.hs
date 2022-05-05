@@ -24,10 +24,6 @@ import qualified Game.Player as GP
 
 type AssetMap = EntityMap
 
--- | abilityMod
-abilityMod :: Int -> Int
-abilityMod n = (n-10) `div` 2
-
 -- | attack verb
 attack :: Int -> Int -> Int -> Text -> Text
 attack ar dr dam name = if ar >= dr
@@ -96,18 +92,20 @@ mkCombat px mx w = if px == mx
     -- pAR, pDam, pMod
     pProp = property pEntity
     pName = Map.findWithDefault "P" "Name" pProp
-    pStr  = read $ T.unpack $ Map.findWithDefault "1" "str" pProp
-    pDex  = read $ T.unpack $ Map.findWithDefault "1" "dex" pProp
+    pStr  = read $ T.unpack $ Map.findWithDefault "1" "AR" pProp
+    pDex  = read $ T.unpack $ Map.findWithDefault "1" "DR" pProp
     pMod  = read $ T.unpack $ Map.findWithDefault "1" "Proficiency" pProp
-    pAR   = clamp $ DS.d20 pSeed + abilityMod pDex + pMod
-    pDam  = clamp $ DS.d6  pSeed + abilityMod pStr + pMod
+    pWeap = Map.findWithDefault "1d4" "ATTACK" pProp
+    pAR   = clamp $ DS.d20 pSeed + pDex + pMod
+    pDam  = weapon pWeap pSeed pStr
     -- mDR
     mProp = property mEntity
     mName = Map.findWithDefault "M" "Name" mProp
-    mDex  = read $ T.unpack $ Map.findWithDefault "1" "dex" mProp
+    mAC   = read $ T.unpack $ Map.findWithDefault "1" "AC" mProp
+    mDef  = read $ T.unpack $ Map.findWithDefault "1" "DR" mProp
     mHP   = eHP mEntity
     mExp  = eXP mEntity
-    mDR   = 10 + abilityMod mDex
+    mDR   = mAC + mDef
     -- p v m
     pAttack = if pAR >= mDR then mHP - pDam else mHP -- Miss
     -- journal
@@ -134,17 +132,19 @@ mkMagicCombat px mx w = if px == mx
     -- pAR, pDam, pMod
     pProp = property pEntity
     pName = Map.findWithDefault "P" "Name" pProp
-    pInt  = read $ T.unpack $ Map.findWithDefault "1" "int" pProp
+    pInt  = read $ T.unpack $ Map.findWithDefault "1" "MR" pProp
     pMod  = read $ T.unpack $ Map.findWithDefault "1" "Proficiency" pProp
-    pAR   = clamp $ DS.d20 pSeed + abilityMod pInt + pMod
-    pDam  = clamp $ DS.d4  pSeed + abilityMod pInt + pMod
+    pWeap = Map.findWithDefault "1d4" "ATTACK" pProp
+    pAR   = clamp $ DS.d20 pSeed + pInt + pMod
+    pDam  = weapon pWeap pSeed pInt
     -- mDR,  mMod
     mProp = property mEntity
     mName = Map.findWithDefault "M" "Name" mProp
-    mDex  = read $ T.unpack $ Map.findWithDefault "1" "dex" mProp
+    mAC   = read $ T.unpack $ Map.findWithDefault "1" "AC" mProp
+    mDef  = read $ T.unpack $ Map.findWithDefault "1" "DR" mProp
     mHP   = eHP mEntity
     mExp  = eXP mEntity
-    mDR   = 10 + abilityMod mDex
+    mDR   = mAC + mDef
     -- p v m
     pAttack = if pAR >= mDR then mHP - pDam else mHP -- Miss
     -- journal
@@ -171,17 +171,19 @@ mkRangeCombat px mx w = if px == mx
     -- pAR, pDam, pMod
     pProp = property pEntity
     pName = Map.findWithDefault "P" "Name" pProp
-    pDex  = read $ T.unpack $ Map.findWithDefault "1" "dex" pProp
+    pDex  = read $ T.unpack $ Map.findWithDefault "1" "DR" pProp
     pMod  = read $ T.unpack $ Map.findWithDefault "1" "Proficiency" pProp
-    pAR   = clamp $ DS.d20 pSeed + abilityMod pDex + pMod
-    pDam  = clamp $ DS.d4  pSeed + abilityMod pDex + pMod
+    pWeap = Map.findWithDefault "1d4" "SHOOT" pProp
+    pAR   = clamp $ DS.d20 pSeed + pDex + pMod
+    pDam  = weapon pWeap pSeed pDex
     -- mDR,  mMod
     mProp = property mEntity
     mName = Map.findWithDefault "M" "Name" mProp
-    mDex  = read $ T.unpack $ Map.findWithDefault "1" "dex" mProp
+    mAC   = read $ T.unpack $ Map.findWithDefault "1" "AC" mProp
+    mDef  = read $ T.unpack $ Map.findWithDefault "1" "DR" mProp
     mHP   = eHP mEntity
     mExp  = eXP mEntity
-    mDR   = 10 + abilityMod mDex
+    mDR   = mAC + mDef
     -- p v m
     pAttack = if pAR >= mDR then mHP - pDam else mHP -- Miss
     -- misfire
@@ -229,3 +231,18 @@ shootM ar dr dam name = if ar >= dr
   then T.append " casts -Spell- at " $
   T.append name $ T.pack $ " <" ++ show dam ++ ">"
   else T.append " -Spell- misses the " name
+
+-- | weapon
+-- weapon dice
+weapon :: Text -> Int -> Int -> Int
+weapon dice seed bonus = let
+  roll = case dice of
+    "1d4" -> DS.d4 seed
+    "1d6" -> DS.d6 seed
+    "1d8" -> DS.d8 seed
+    "1d10" -> DS.d10 seed
+    "1d12" -> DS.d12 seed
+    "2d4" -> DS.d4 seed + DS.d4 seed
+    "2d6" -> DS.d6 seed + DS.d6 seed
+    _     -> DS.d4 seed
+  in roll + bonus

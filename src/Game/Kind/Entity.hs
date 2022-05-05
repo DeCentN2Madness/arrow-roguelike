@@ -329,6 +329,7 @@ smBeast = [ ("str", "7")
           , ("Proficiency", "2")
           , ("AC", "12")
           , ("DR", "2")
+          , ("AR", "-2")
           , ("ATTACK", "1d4")
           ]
 
@@ -344,6 +345,7 @@ mdBeast = [ ("str", "12")
           , ("Proficiency", "2")
           , ("AC", "13")
           , ("DR", "2")
+          , ("AR", "1")
           , ("ATTACK", "2d4")
           ]
 
@@ -360,6 +362,7 @@ mdDragon = [ ("str", "15")
            , ("Throw", "breathes!")
            , ("AC", "17")
            , ("DR", "1")
+           , ("AR", "2")
            , ("ATTACK", "1d10")
            ]
 
@@ -375,6 +378,7 @@ lgBeast = [ ("str", "14")
           , ("Proficiency", "2")
           , ("AC", "14")
           , ("DR", "3")
+          , ("AR", "2")
           , ("ATTACK", "1d8")
           ]
 
@@ -390,12 +394,13 @@ mdHumanoid = [ ("str", "16")
              , ("Proficiency", "2")
              , ("AC", "13")
              , ("DR", "1")
+             , ("AR", "3")
              , ("ATTACK", "1d12")
              ]
 
 -- | Orc Mage
 mdHumanoidM :: Prop
-mdHumanoidM = mdHumanoid ++ [ ("MP", "10") ]
+mdHumanoidM = mdHumanoid ++ [ ("MP", "10"), ("MR", "1") ]
 
 -- | Troll
 gtHumanoid :: Prop
@@ -409,5 +414,6 @@ gtHumanoid = [ ("str", "18")
              , ("Proficiency", "3")
              , ("AC", "15")
              , ("DR", "1")
+             , ("AR", "4")
              , ("ATTACK", "2d6")
              ]

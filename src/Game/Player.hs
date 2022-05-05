@@ -97,9 +97,9 @@ armorShield pProp am = let
   -- '@' Combat Stats
   ac = Map.insert "AC" pAC pProp
   wt = Map.insert "WT" pWT ac
-  dr = Map.insert "DR" aDR wt
-  ar = Map.insert "AR" pAR dr
-  mr = Map.insert "MR" pMR ar
+  ar = Map.insert "AR" pAR wt
+  dr = Map.insert "DR" aDR ar
+  mr = Map.insert "MR" pMR dr
   range  = Map.insert "SHOOT"  rDam mr
   attack = Map.insert "ATTACK" mDam range
   in attack

@@ -76,31 +76,20 @@ armorShield pProp am = let
   armorStat = map T.unpack $ T.splitOn ":" $
     fromMaybe "I:10:0" (Map.lookup armor descMap)
   (aAC, aWT) = (read $ armorStat!!1, read $ armorStat!!2) :: (Int, Int)
-  -- AC
-  pAC = T.pack $ show $ aAC + sAC
-  -- WT
-  pWT = T.pack $ show $ aWT + sWT + mWT + rWT
-  -- DR
-  aDR = T.pack $ show $ pDR aWT
-  -- Str modifier
-  pStr = read $ T.unpack $ Map.findWithDefault "1" "str" pProp :: Int
-  pAR  = T.pack $ show $ abilityMod pStr
   -- Dex modifier
   pDex = read $ T.unpack $ Map.findWithDefault "1" "dex" pProp :: Int
   pDR n
     | n > 40 = 0
     | n > 20 && n <= 40 = if abilityMod pDex > 2 then 2 else abilityMod pDex
     | otherwise = abilityMod pDex
-  -- Int modifier
-  pInt = read $ T.unpack $ Map.findWithDefault "1" "int" pProp :: Int
-  pMR  = T.pack $ show $ abilityMod pInt
+  -- AC
+  pAC = T.pack $ show $ aAC + sAC + pDR aWT
+  -- WT
+  pWT = T.pack $ show $ aWT + sWT + mWT + rWT
   -- '@' Combat Stats
   ac = Map.insert "AC" pAC pProp
   wt = Map.insert "WT" pWT ac
-  ar = Map.insert "AR" pAR wt
-  dr = Map.insert "DR" aDR ar
-  mr = Map.insert "MR" pMR dr
-  range  = Map.insert "SHOOT"  rDam mr
+  range  = Map.insert "SHOOT"  rDam wt
   attack = Map.insert "ATTACK" mDam range
   in attack
 
@@ -121,14 +110,11 @@ characterEquipment em _ = let
   hands  = T.append "Hands: "  $ fromMaybe "None" (Map.lookup "hands" pProp)
   feet   = T.append "Feet: "   $ fromMaybe "None" (Map.lookup "feet" pProp)
   ac     = T.append "AC: "     $ fromMaybe "0" (Map.lookup "AC" pProp)
-  ar     = T.append "AR: "     $ fromMaybe "0" (Map.lookup "AR" pProp)
-  dr     = T.append "DR: "     $ fromMaybe "0" (Map.lookup "DR" pProp)
-  mr     = T.append "MR: "     $ fromMaybe "0" (Map.lookup "MR" pProp)
+  wt     = T.append "Weight: " $ fromMaybe "0" (Map.lookup "WT" pProp)
   attack = T.append "Attack: " $ fromMaybe "0" (Map.lookup "ATTACK" pProp)
   range  = T.append "Shoot: "  $ fromMaybe "0" (Map.lookup "SHOOT" pProp)
-  wt     = T.append "Weight: " $ fromMaybe "0" (Map.lookup "WT" pProp)
   in selection pInv
-  ++ [" ", ac, ar, dr, mr, attack, range, wt, " "
+  ++ [" ", ac, wt, attack, range, " "
      , "Press [0-9] to Doff, (I)nventory. Press ESC to Continue..."]
 
 -- | @ Inventory

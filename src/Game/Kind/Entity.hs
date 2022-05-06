@@ -252,8 +252,6 @@ cleric = [ ("str", "10")
          , ("XP", "0")
          , ("Proficiency", "2")
          , ("AC", "10")
-         , ("AR", "0")
-         , ("DR", "1")
          ]
 
 -- | fighter
@@ -268,8 +266,6 @@ fighter = [ ("str", "15")
           , ("XP", "0")
           , ("Proficiency", "2")
           , ("AC", "10")
-          , ("AR", "2")
-          , ("DR", "2")
           , ("melee", "None")
           , ("shoot", "None")
           , ("jewelry", "None")
@@ -294,8 +290,6 @@ mage = [ ("str", "10")
        , ("XP", "0")
        , ("Proficiency", "2")
        , ("AC", "10")
-       , ("AR", "0")
-       , ("DR", "1")
        ]
 
 -- | ranger
@@ -310,8 +304,6 @@ ranger = [ ("str", "12")
          , ("XP", "0")
          , ("Proficiency", "2")
          , ("AC", "10")
-         , ("AR", "1")
-         , ("DR", "2")
          ]
 
 -- | rogue
@@ -326,8 +318,6 @@ rogue = [ ("str", "10")
         , ("XP", "0")
         , ("Proficiency", "2")
         , ("AC", "10")
-        , ("AR", "0")
-        , ("DR", "2")
         ]
 
 -- | Mouse
@@ -341,8 +331,6 @@ smBeast = [ ("str", "7")
           , ("XP", "25")
           , ("Proficiency", "2")
           , ("AC", "12")
-          , ("AR", "-2")
-          , ("DR", "2")
           , ("ATTACK", "1d4")
           ]
 
@@ -357,9 +345,7 @@ mdBeast = [ ("str", "12")
           , ("XP", "50")
           , ("Proficiency", "2")
           , ("AC", "13")
-          , ("AR", "1")
-          , ("DR", "2")
-          , ("ATTACK", "2d4")
+          , ("ATTACK", "2d4+2")
           ]
 
 -- | Dragon Wyrmling
@@ -374,9 +360,7 @@ mdDragon = [ ("str", "15")
            , ("Proficiency", "2")
            , ("Throw", "breathes!")
            , ("AC", "17")
-           , ("AR", "2")
-           , ("DR", "1")
-           , ("ATTACK", "1d10")
+           , ("ATTACK", "1d10+2")
            ]
 
 -- | Spider
@@ -390,9 +374,7 @@ lgBeast = [ ("str", "14")
           , ("XP", "200")
           , ("Proficiency", "2")
           , ("AC", "14")
-          , ("AR", "2")
-          , ("DR", "3")
-          , ("ATTACK", "1d8")
+          , ("ATTACK", "1d8+3")
           ]
 
 -- | Orc
@@ -406,14 +388,13 @@ mdHumanoid = [ ("str", "16")
              , ("XP", "100")
              , ("Proficiency", "2")
              , ("AC", "13")
-             , ("AR", "3")
-             , ("DR", "1")
-             , ("ATTACK", "1d12")
+             , ("ATTACK", "1d12+3")
              ]
 
 -- | Orc Mage
 mdHumanoidM :: Prop
-mdHumanoidM = mdHumanoid ++ [ ("Throw", "curses!"), ("MP", "10"), ("MR", "1") ]
+mdHumanoidM = mdHumanoid
+  ++ [ ("Throw", "curses!"), ("MP", "10"), ("int", "11") ]
 
 -- | Troll
 gtHumanoid :: Prop
@@ -426,7 +407,5 @@ gtHumanoid = [ ("str", "18")
              , ("XP", "1800")
              , ("Proficiency", "3")
              , ("AC", "15")
-             , ("AR", "4")
-             , ("DR", "1")
-             , ("ATTACK", "2d6")
+             , ("ATTACK", "2d6+4")
              ]

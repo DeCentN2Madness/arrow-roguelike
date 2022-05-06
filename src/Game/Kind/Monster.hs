@@ -110,6 +110,7 @@ mkMonsterMap depth tm am = let
              , insertRand arrows  41 50 openList
              , insertRand mice    51 60 openList
              , insertRand wolves  61 70 topRight
+             , insertRand orc     71 75 bottomLeft
              ]
    | otherwise =
      concat [ insertRand shrooms 1  10 openList

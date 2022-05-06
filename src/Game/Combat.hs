@@ -3,6 +3,14 @@
 
 Game.Combat.hs
 
+P vs. M
+  1. if pAR >= mAC then pDam else Miss
+     a. Melee: pDam is Weapon + pStr
+     b. Throw: pDam is Weapon + pDex
+     c. Cast:  pDam is Weapon + pInt
+  3. mHP is recorded
+  4. updateWorld with misfires, Deaths and Corpses...
+
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
 -}
@@ -45,8 +53,8 @@ clamp n
 -- | condition of Monster
 condition :: Int -> Text
 condition hp = let
-  dead  = if hp < 1 then ", Dead!" else "..."
-  brave = if hp >= 1 && hp <= 5 then ", *Critical* " else ""
+  dead  = if hp < 1 then " Dead!" else ", ..."
+  brave = if hp >= 1 && hp <= 5 then " *Critical* " else ""
   in T.append brave dead
 
 -- | death
@@ -81,7 +89,7 @@ misFire mEntity am em = let
 
 -- | mkCombat
 -- p v m
--- 1. if pAR >= mDR then pDam
+-- 1. if pAR >= mAC then pDam else Miss
 -- 2. pDam is Weapon + pStr
 -- 3. mHP is recorded
 -- 4. updateWorld with deaths and corpses
@@ -96,24 +104,22 @@ mkCombat px mx w = if px == mx
     -- pAR, pDam, pMod
     pProp = property pEntity
     pName = Map.findWithDefault "P" "Name" pProp
-    pStr  = read $ T.unpack $ Map.findWithDefault "1" "AR" pProp
+    pStr  = abilityMod $ read $ T.unpack $ Map.findWithDefault "1" "str" pProp
     pMod  = read $ T.unpack $ Map.findWithDefault "1" "Proficiency" pProp
     pWeap = Map.findWithDefault "1d4" "ATTACK" pProp
     pAR   = clamp $ DS.d20 pSeed + pStr + pMod
     pDam  = clamp $ weapon pWeap pSeed pStr
-    -- mDR, mAC
+    -- mAC
     mProp = property mEntity
     mName = Map.findWithDefault "M" "Name" mProp
     mAC   = read $ T.unpack $ Map.findWithDefault "1" "AC" mProp
-    mDef  = read $ T.unpack $ Map.findWithDefault "1" "DR" mProp
     mHP   = eHP mEntity
     mExp  = eXP mEntity
-    mDR   = mAC + mDef
     -- p v m
-    pAttack = if pAR >= mDR then mHP - pDam else mHP -- Miss
+    pAttack = if pAR >= mAC then mHP - pDam else mHP -- Miss
     -- journal
     pEntry = T.concat [ pName
-                      , attack pAR mDR pDam mName
+                      , attack pAR mAC pDam mName
                       , condition pAttack ]
     -- newEntity with damages and deaths and Exp awards
     newEntity = if pAttack < 1
@@ -135,29 +141,31 @@ mkMagicCombat px mx w = if px == mx
     -- pAR, pDam, pMod
     pProp = property pEntity
     pName = Map.findWithDefault "P" "Name" pProp
-    pInt  = read $ T.unpack $ Map.findWithDefault "1" "MR" pProp
+    pInt  = abilityMod $ read $ T.unpack $ Map.findWithDefault "1" "int" pProp
     pMod  = read $ T.unpack $ Map.findWithDefault "1" "Proficiency" pProp
     pWeap = Map.findWithDefault "1d4" "ATTACK" pProp
     pAR   = clamp $ DS.d20 pSeed + pInt + pMod
     pDam  = clamp $ weapon pWeap pSeed pInt
-    -- mDR,  mAC
+    -- mAC
     mProp = property mEntity
     mName = Map.findWithDefault "M" "Name" mProp
     mAC   = read $ T.unpack $ Map.findWithDefault "1" "AC" mProp
-    mDef  = read $ T.unpack $ Map.findWithDefault "1" "DR" mProp
     mHP   = eHP mEntity
     mExp  = eXP mEntity
-    mDR   = mAC + mDef
     -- p v m
-    pAttack = if pAR >= mDR then mHP - pDam else mHP -- Miss
+    pAttack = if pAR >= mAC then mHP - pDam else mHP -- Miss
+    -- miscast
+    shotEntity = if pAR < mAC
+      then misFire mEntity (assetT w) (entityT w)
+      else entityT w
     -- journal
     pEntry = T.concat [ pName
-                      , shootM pAR mDR pDam mName
+                      , shootM pAR mAC pDam mName
                       , condition pAttack ]
     -- newEntity with damages and deaths and Exp awards
     newEntity = if pAttack < 1
       then death mx mEntity (assetT w) $ GP.updatePlayerXP mExp (entityT w)
-      else GE.updateEntityHp mx pAttack (entityT w)
+      else GE.updateEntityHp mx pAttack shotEntity
   in w { entityT  = newEntity
        , journalT = GJ.updateJournal [pEntry] (journalT w) }
 
@@ -183,19 +191,17 @@ mkRangeCombat px mx w = if px == mx
     mProp = property mEntity
     mName = Map.findWithDefault "M" "Name" mProp
     mAC   = read $ T.unpack $ Map.findWithDefault "1" "AC" mProp
-    mDef  = read $ T.unpack $ Map.findWithDefault "1" "DR" mProp
     mHP   = eHP mEntity
     mExp  = eXP mEntity
-    mDR   = mAC + mDef
     -- p v m
-    pAttack = if pAR >= mDR then mHP - pDam else mHP -- Miss
+    pAttack = if pAR >= mAC then mHP - pDam else mHP -- Miss
     -- misfire
-    shotEntity = if pAR < mDR
+    shotEntity = if pAR < mAC
       then misFire mEntity (assetT w) (entityT w)
       else entityT w
     -- journal
     pEntry = T.concat [ pName
-                      , shoot pAR mDR pDam mName
+                      , shoot pAR mAC pDam mName
                       , condition pAttack ]
     -- newEntity with damages and deaths and Exp awards
     newEntity = if pAttack < 1
@@ -236,10 +242,12 @@ shootM ar dr dam name = if ar >= dr
   else T.append " -Spell- misses the " name
 
 -- | weapon
--- weapon dice
+-- Damage roll for Weapons...
+-- Example: 1d4+1
 weapon :: Text -> Int -> Int -> Int
 weapon dice seed bonus = let
-  roll = case dice of
+  (wDam, wMod) = T.breakOn "+" dice
+  roll = case wDam of
     "1d4" -> DS.d4 seed
     "1d6" -> DS.d6 seed
     "1d8" -> DS.d8 seed
@@ -248,4 +256,10 @@ weapon dice seed bonus = let
     "2d4" -> DS.d4 seed + DS.d4 (seed+1)
     "2d6" -> DS.d6 seed + DS.d6 (seed+1)
     _     -> DS.d4 seed
-  in roll + bonus
+  wBonus n
+    | n == "+1" = 1
+    | n == "+2" = 2
+    | n == "+3" = 3
+    | n == "+4" = 4
+    | otherwise = 0
+  in roll + bonus + wBonus wMod

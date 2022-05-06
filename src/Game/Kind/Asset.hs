@@ -46,24 +46,24 @@ mkAssetMap = let
        , mkItem "melee/Spear"           "|:1d6:3" pos
        , mkItem "melee/Throwing Hammer" "|:1d6:2" pos
        -- melee martial
-       , mkItem "melee/Battleaxe"      "|:1d8:4"  pos
-       , mkItem "melee/Greataxe"       "|:1d12:7" pos
-       , mkItem "melee/Halberd"        "|:1d10:6" pos
-       , mkItem "melee/Longsword"      "|:1d8:3"  pos
-       , mkItem "melee/Maul"           "|:2d6:10"  pos
-       , mkItem "melee/Military Flail" "|:2d4:3"  pos
-       , mkItem "melee/Pike"           "|:1d10:18" pos
-       , mkItem "melee/Rapier"         "|:1d8:2"  pos
-       , mkItem "melee/Shortsword"     "|:1d6:2"  pos
-       , mkItem "melee/Warhammer"      "|:1d12:6" pos
-       , mkItem "melee/Zweihander"     "|:2d6:6"  pos
+       , mkItem "melee/Battleaxe"       "|:1d8:4"  pos
+       , mkItem "melee/Greataxe"        "|:1d12:7" pos
+       , mkItem "melee/Halberd"         "|:1d10:6" pos
+       , mkItem "melee/Longsword"       "|:1d8:3"  pos
+       , mkItem "melee/Maul"            "|:2d6:10"  pos
+       , mkItem "melee/Military Flail"  "|:2d4:3"  pos
+       , mkItem "melee/Pike"            "|:1d10:18" pos
+       , mkItem "melee/Rapier"          "|:1d8:2"  pos
+       , mkItem "melee/Shortsword"      "|:1d6:2"  pos
+       , mkItem "melee/Warhammer"       "|:1d12:6" pos
+       , mkItem "melee/Zweihander"      "|:2d6:6"  pos
        -- shield
-       , mkItem "shield/Buckler"     "):1:2" pos
-       , mkItem "shield/Shield"      "):2:6" pos
-       , mkItem "shield/Kite Shield" "):2:5" pos
+       , mkItem "shield/Buckler"        "):1:2" pos
+       , mkItem "shield/Shield"         "):2:6" pos
+       , mkItem "shield/Kite Shield"    "):2:5" pos
        -- shoot
-       , mkItem "shoot/Longbow"      "}:1d10:2" pos
-       , mkItem "shoot/Shortbow"     "}:1d6:2"  pos
+       , mkItem "shoot/Longbow"         "}:1d10:2" pos
+       , mkItem "shoot/Shortbow"        "}:1d6:2"  pos
        -- armor
        , mkItem "armor/Leather Jerkin"  "[:11:8"  pos
        , mkItem "armor/Leather Jack"    "[:11:10" pos

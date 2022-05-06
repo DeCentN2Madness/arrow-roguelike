@@ -88,11 +88,7 @@ misFire mEntity am em = let
   in GI.putDown item em
 
 -- | mkCombat
--- p v m
--- 1. if pAR >= mAC then pDam else Miss
--- 2. pDam is Weapon + pStr
--- 3. mHP is recorded
--- 4. updateWorld with deaths and corpses
+-- Melee...
 mkCombat :: Int -> Int -> World -> World
 mkCombat px mx w = if px == mx
   then w
@@ -129,7 +125,7 @@ mkCombat px mx w = if px == mx
        , journalT = GJ.updateJournal [pEntry] (journalT w) }
 
 -- | mkMagicCombat
--- TODO Magic Skill, Ball, Bolt; Cone, and effects...
+-- Cast, Chant, Magic Combat...
 mkMagicCombat :: Int -> Int -> World -> World
 mkMagicCombat px mx w = if px == mx
   then w
@@ -170,7 +166,7 @@ mkMagicCombat px mx w = if px == mx
        , journalT = GJ.updateJournal [pEntry] (journalT w) }
 
 -- | mkRangeCombat
--- Throw, shoot...
+-- Shoot, Throw, Ranged Combat...
 mkRangeCombat :: Int -> Int -> World -> World
 mkRangeCombat px mx w = if px == mx
   then w

@@ -16,6 +16,7 @@ import qualified Data.Text as T
 import Engine.Arrow.Data (World(..))
 import qualified Game.Combat as GC
 import qualified Game.Compass as C
+import qualified Game.DiceSet as DS
 import qualified Game.Entity as GE
 import qualified Game.Inventory as GI
 import qualified Game.Journal as GJ
@@ -33,6 +34,10 @@ data AI
   | Throw
   | Wait
   deriving (Show, Eq)
+
+-- | abilityMod
+abilityMod :: Int -> Int
+abilityMod n = (n-10) `div` 2
 
 -- | aiAction
 -- AI actions based on goal, HP, position...
@@ -93,7 +98,7 @@ monsterCast mx mEntity w = let
     else mEntity
   entry = if mMana > 0 && mTarget
     then T.append mName " Casts a Spell.."
-    else T.pack "..."
+    else "..."
   -- throwWorld
   throwWorld = w { entityT  = GE.updateEntity mx newMonster (entityT w)
                  , journalT = GJ.updateJournal [entry] (journalT w) }
@@ -107,10 +112,13 @@ monsterCast mx mEntity w = let
 -- M drinks...
 monsterDrink :: Int -> EntityKind -> World -> World
 monsterDrink mx mEntity w = let
+  seed   = tick w
   mInv   = inventory mEntity
   mPot   = Map.findWithDefault 0 "Potion" mInv
-  heal   = eHP mEntity + mCon
-  mana   = eMP mEntity + mWis
+  hRoll  = DS.d4 seed     + DS.d4 (seed+1) + mCon
+  mRoll  = DS.d4 (seed+2) + DS.d4 (seed+3) + mWis
+  heal   = eHP mEntity + hRoll
+  mana   = eMP mEntity + mRoll
   mHp    = if heal > mMaxHp then mMaxHp else heal
   mMp    = if mana > mMaxMp then mMaxMp else mana
   mMaxHp = eMaxHP mEntity
@@ -124,8 +132,9 @@ monsterDrink mx mEntity w = let
                  , eHP = mHp, eMP = mMp }
     else mEntity
   entry = if mPot > 0
-    then T.append mName " is :Thirsty:..."
-    else T.pack "..."
+    then T.append mName $ T.pack $ " is Thirsty:"
+    ++  "<+" ++ show hRoll ++ ", +" ++ show mRoll ++ ">, ..."
+    else "..."
   in w { entityT  = GE.updateEntity mx newMonster (entityT w)
        , journalT = GJ.updateJournal [entry] (journalT w) }
 
@@ -133,20 +142,22 @@ monsterDrink mx mEntity w = let
 -- M eats...
 monsterEat :: Int -> EntityKind -> World -> World
 monsterEat mx mEntity w = let
-  heal   = eHP mEntity + (mCon `div` 2)
   mInv   = inventory mEntity
   mMush  = Map.findWithDefault 0 "Mushroom" mInv
+  hRoll  = DS.d4 (tick w) + mCon
+  heal   = eHP mEntity + hRoll
   mHp    = if heal > mMaxHp then mMaxHp else heal
   mMaxHp = eMaxHP mEntity
   mProp  = property mEntity
-  mCon   = read $ T.unpack $ Map.findWithDefault "1" "con" mProp
+  mCon   = abilityMod $ read $ T.unpack $ Map.findWithDefault "1" "con" mProp
   mName  = Map.findWithDefault "M" "Name" mProp
   newMonster = if mMush > 0
     then mEntity { inventory = Map.insert "Mushroom" (mMush-1) mInv, eHP = mHp }
     else mEntity
   entry = if mMush > 0
-    then T.append mName " is :Hungry:..."
-    else T.pack "..."
+    then T.append mName $ T.pack $ " is :Hungry:"
+    ++ " <+" ++ show hRoll ++ ">, ..."
+    else "..."
   in w { entityT  = GE.updateEntity mx newMonster (entityT w)
        , journalT = GJ.updateJournal [entry] (journalT w) }
 
@@ -166,7 +177,7 @@ monsterGet mx mEntity w = let
     else entityT w
   entry = if pickedItems /= Map.empty
     then T.append mName " Get Coin!"
-    else T.pack "..."
+    else "..."
   in w { entityT  = GE.updateEntity mx newMonster newEntity
        , journalT = GJ.updateJournal [entry] (journalT w) }
 
@@ -180,7 +191,7 @@ monsterHeal mx mEntity w = let
   mName  = Map.findWithDefault "M" "Name" (property mEntity)
   entry = if mHp <= 5
     then T.append mName " is *Hurting*..."
-    else T.pack "..."
+    else "..."
   in w { entityT  = GE.updateEntityHp mx mHp (entityT w)
        , journalT = GJ.updateJournal [entry] (journalT w) }
 
@@ -200,7 +211,7 @@ monsterThrow mx mEntity w = let
     else mEntity
   entry = if mArrow > 0 && mTarget
     then T.append mName $ T.append " " mVerb
-    else T.pack "..."
+    else "..."
   -- throwWorld
   throwWorld = w { entityT  = GE.updateEntity mx newMonster (entityT w)
                  , journalT = GJ.updateJournal [entry] (journalT w) }

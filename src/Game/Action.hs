@@ -20,12 +20,17 @@ import qualified Data.Text as T
 import Engine.Arrow.Data
 import qualified Game.Combat as GC
 import Game.Compass
+import qualified Game.DiceSet as DS
 import Game.Entity (EntityMap)
 import qualified Game.Entity as GE
 import qualified Game.Inventory as GI
 import qualified Game.Journal as GJ
 import Game.Kind.Entity (EntityKind(..))
 import qualified Game.Player as GP
+
+-- | abilityMod
+abilityMod :: Int -> Int
+abilityMod n = (n-10) `div` 2
 
 -- | actionCast
 -- if there is something to Cast...
@@ -180,16 +185,18 @@ actionEat w = let
   -- Mushroom
   pInv   = inventory pEntity
   pMush  = Map.findWithDefault 0 "Mushroom" pInv
-  heal   = eHP pEntity + (pCon `div` 2)
+  hRoll  = DS.d4 newTick + pCon
+  heal   = eHP pEntity + hRoll
   pHp    = if heal > pMaxHp then pMaxHp else heal
   pMaxHp = eMaxHP pEntity
   pProp  = property pEntity
-  pCon   = read $ T.unpack $ Map.findWithDefault "1" "con" pProp
+  pCon   = abilityMod $ read $ T.unpack $ Map.findWithDefault "1" "con" pProp
   newPlayer = if pMush > 0
     then pEntity { inventory = Map.insert "Mushroom" (pMush-1) pInv, eHP = pHp }
     else pEntity
   entry = if pMush > 0
-    then T.pack "Eat a tasty :Mushroom:..."
+    then T.append "Eat a tasty :Mushroom:" $
+    T.pack $ " <+" ++ show hRoll ++ ">, ..."
     else "No Eat..."
   in w { tick = newTick
        , entityT  = GP.updatePlayer newPlayer (entityT w)
@@ -255,23 +262,27 @@ actionQuaff w = let
   newTick      = tick w + 1
   (pEntity, _) = GP.getPlayer (entityT w)
   -- Potion
+  seed   = tick w
   pInv   = inventory pEntity
   pPot   = Map.findWithDefault 0 "Potion" pInv
-  heal   = eHP pEntity + pCon
-  mana   = eMP pEntity + pWis
+  hRoll  = DS.d4 seed     + DS.d4 (seed+1) + pCon
+  mRoll  = DS.d4 (seed+2) + DS.d4 (seed+3) + pWis
+  heal   = eHP pEntity + hRoll
+  mana   = eMP pEntity + mRoll
   pHp    = if heal > pMaxHp then pMaxHp else heal
   pMp    = if mana > pMaxMp then pMaxMp else mana
   pMaxHp = eMaxHP pEntity
   pMaxMp = eMaxMP pEntity
   pProp  = property pEntity
-  pCon   = read $ T.unpack $ Map.findWithDefault "1" "con" pProp
-  pWis   = read $ T.unpack $ Map.findWithDefault "1" "wis" pProp
+  pCon   = abilityMod $ read $ T.unpack $ Map.findWithDefault "1" "con" pProp
+  pWis   = abilityMod $ read $ T.unpack $ Map.findWithDefault "1" "wis" pProp
   newPlayer = if pPot > 0
     then pEntity { inventory = Map.insert "Potion" (pPot-1) pInv
                  , eHP = pHp, eMP = pMp }
     else pEntity
   entry = if pPot > 0
-    then T.pack "Drink a delicious :Potion:..."
+    then T.append "Drink a delicious :Potion:" $
+    T.pack $ " <+" ++ show hRoll ++ ", +" ++ show mRoll ++ ">, ..."
     else "No Drink..."
   in w { tick = newTick
        , entityT  = GP.updatePlayer newPlayer (entityT w)

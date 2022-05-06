@@ -34,21 +34,26 @@ Step 9 of the 15 Steps... The goal is to have fun!
 
 &mdash; bump `Monster` to attack
 
-&mdash; `c` to cast `Magic`
+&mdash; `a` to `Acquire`
 
-&mdash; `d` to drop `Coin` for `Arrow`
+&mdash; `c` to `Cast`
 
-&mdash; `e` to eat a `Mushroom`
+&mdash; `d` to `Drop`
 
-&mdash; `g` to get `Coin`, `Mushroom`, `Potion`, and `Item`
+&mdash; `e` to `Eat`
+
+&mdash; `g` to `Get`
 
 &mdash; `i` to show `Inventory`
 
-&mdash; `q` to drink a `Potion`
+&mdash; `q` to `Quaff`
 
-&mdash; `r` to reset the `World`
+&mdash; `r` to `Reset` the `World`
 
-&mdash; `t` to throw an `Arrow`
+&mdash; `t` to `Throw` an `Arrow`
+
+&mdash; `w` to `Wield` `Armor` and `Weapons`
+
 
 ## Requirements
 &mdash; [stack](https://haskellstack.org/)

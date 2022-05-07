@@ -44,13 +44,12 @@ mkAssetMap = let
        , mkItem "melee/Pick"            "|:1d8:6" pos
        , mkItem "melee/Quarterstaff"    "|:1d6:4" pos
        , mkItem "melee/Spear"           "|:1d6:3" pos
-       , mkItem "melee/Throwing Hammer" "|:1d6:2" pos
        -- melee martial
        , mkItem "melee/Battleaxe"       "|:1d8:4"  pos
        , mkItem "melee/Greataxe"        "|:1d12:7" pos
        , mkItem "melee/Halberd"         "|:1d10:6" pos
        , mkItem "melee/Longsword"       "|:1d8:3"  pos
-       , mkItem "melee/Maul"            "|:2d6:10"  pos
+       , mkItem "melee/Maul"            "|:2d6:10" pos
        , mkItem "melee/Military Flail"  "|:2d4:3"  pos
        , mkItem "melee/Pike"            "|:1d10:18" pos
        , mkItem "melee/Rapier"          "|:1d8:2"  pos
@@ -62,8 +61,13 @@ mkAssetMap = let
        , mkItem "shield/Shield"         "):2:6" pos
        , mkItem "shield/Kite Shield"    "):2:5" pos
        -- shoot
+       , mkItem "shoot/Bow"             "}:1d8:2"  pos
+       , mkItem "shoot/Elvish Bow"      "}:2d4:2"  pos
        , mkItem "shoot/Longbow"         "}:1d10:2" pos
        , mkItem "shoot/Shortbow"        "}:1d6:2"  pos
+       , mkItem "shoot/Throwing Knife"  "|:1d4:1" pos
+       , mkItem "shoot/Throwing Axe"    "|:1d6:2" pos
+       , mkItem "shoot/Javelin"         "|:1d6:2" pos
        -- armor
        , mkItem "armor/Leather Jerkin"  "[:11:8"  pos
        , mkItem "armor/Leather Jack"    "[:11:10" pos
@@ -93,7 +97,6 @@ mkAssetMap = let
        , mkItem "jewelry/Ring" "=" pos
        , mkItem "neck/Amulet"  "\"" pos
        , mkItem "cloak/Cloak" "(" pos
-       , mkItem "cloak/Cape"  "(" pos
        -- monsters
        , mkMonster "Cleric"  "Medium human (h)" pos
        , mkMonster "Fighter" "Medium human (h)" pos

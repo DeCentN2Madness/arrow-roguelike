@@ -49,7 +49,11 @@ abilityMod :: Int -> Int
 abilityMod n = (n-10) `div` 2
 
 -- | armorShield
--- Armor and Shields modify '@' stats: AC, AR, DR, MR...
+-- Armor and Shields modify '@' stats
+--   1. ArmorClass (AC)
+--   2. Weight (WT)
+--   3. Weapon WT (WWT)
+--   4. SHOOT, ATTACK die
 armorShield :: Properties -> AssetMap -> Properties
 armorShield pProp am = let
   descMap = Map.fromList $
@@ -89,7 +93,8 @@ armorShield pProp am = let
   -- '@' Combat Stats
   ac = Map.insert "AC" pAC pProp
   wt = Map.insert "WT" pWT ac
-  range  = Map.insert "SHOOT"  rDam wt
+  wwt = Map.insert "WWT" (T.pack $ show mWT) wt
+  range  = Map.insert "SHOOT"  rDam wwt
   attack = Map.insert "ATTACK" mDam range
   in attack
 
@@ -113,8 +118,12 @@ characterEquipment em _ = let
   wt     = T.append "Weight: " $ fromMaybe "0" (Map.lookup "WT" pProp)
   attack = T.append "Attack: " $ fromMaybe "0" (Map.lookup "ATTACK" pProp)
   range  = T.append "Shoot: "  $ fromMaybe "0" (Map.lookup "SHOOT" pProp)
+  -- Encumbered
+  pStr = read $ T.unpack $ Map.findWithDefault "1" "str" pProp :: Int
+  pWT  = read $ T.unpack $ Map.findWithDefault "0" "WT" pProp :: Int
+  pEnc = if pWT > 5 * pStr then "ENCUMBERED!" else " "
   in selection pInv
-  ++ [" ", ac, wt, attack, range, " "
+  ++ [" ", ac, attack, range, wt, pEnc
      , "Press [0-9] to Doff, (I)nventory. Press ESC to Continue..."]
 
 -- | @ Inventory

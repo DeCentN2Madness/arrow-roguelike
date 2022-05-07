@@ -29,7 +29,7 @@ type NameMap = Map Text EntityKind
 -- | insertRand all over the TileMap
 insertRand :: EntityKind -> Int -> Int -> [Coord] -> [(Int, EntityKind)]
 insertRand ek start end openList = let
-  sz = length openList - 1
+  sz = length openList
   randList = DS.rollList (end-start) (fromIntegral sz) (end*sz)
   ePos i = nth i openList
   entityList = [ e | ix <- randList, let e = updateEntitySpawn ek (ePos ix) ]

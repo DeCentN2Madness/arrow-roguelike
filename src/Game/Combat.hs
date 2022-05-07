@@ -100,11 +100,19 @@ mkCombat px mx w = if px == mx
     -- pAR, pDam, pMod
     pProp = property pEntity
     pName = Map.findWithDefault "P" "Name" pProp
-    pStr  = abilityMod $ read $ T.unpack $ Map.findWithDefault "1" "str" pProp
-    pMod  = read $ T.unpack $ Map.findWithDefault "1" "Proficiency" pProp
+    -- Dex weapons vs Str weapons
+    pStr  = read $ T.unpack $ Map.findWithDefault "1" "str" pProp :: Int
+    pDex  = read $ T.unpack $ Map.findWithDefault "1" "dex" pProp :: Int
+    pWWT  = read $ T.unpack $ Map.findWithDefault "0" "WWT" pProp :: Int
+    pStat = if pWWT > 2 then abilityMod pStr else abilityMod pDex
     pWeap = Map.findWithDefault "1d4" "ATTACK" pProp
-    pAR   = clamp $ DS.d20 pSeed + pStr + pMod
-    pDam  = clamp $ weapon pWeap pSeed pStr
+    -- Encumbered?
+    pWT   = read $ T.unpack $ Map.findWithDefault "0" "WT" pProp :: Int
+    pMod  = read $ T.unpack $ Map.findWithDefault "0" "Proficiency" pProp
+    pEnc  = if pWT > 5 * pStr then 0 else pMod
+    -- ATTACK Roll
+    pAR   = clamp $ DS.d20 pSeed + pStat + pEnc
+    pDam  = clamp $ weapon pWeap pSeed pStat
     -- mAC
     mProp = property mEntity
     mName = Map.findWithDefault "M" "Name" mProp
@@ -137,10 +145,16 @@ mkMagicCombat px mx w = if px == mx
     -- pAR, pDam, pMod
     pProp = property pEntity
     pName = Map.findWithDefault "P" "Name" pProp
+    -- MAGIC
     pInt  = abilityMod $ read $ T.unpack $ Map.findWithDefault "1" "int" pProp
-    pMod  = read $ T.unpack $ Map.findWithDefault "1" "Proficiency" pProp
     pWeap = Map.findWithDefault "1d4" "ATTACK" pProp
-    pAR   = clamp $ DS.d20 pSeed + pInt + pMod
+    -- Encumbered?
+    pStr  = read $ T.unpack $ Map.findWithDefault "1" "str" pProp :: Int
+    pWT   = read $ T.unpack $ Map.findWithDefault "0" "WT" pProp  :: Int
+    pMod  = read $ T.unpack $ Map.findWithDefault "0" "Proficiency" pProp
+    pEnc  = if pWT > 5 * pStr then 0 else pMod
+    -- CAST roll
+    pAR   = clamp $ DS.d20 pSeed + pInt + pEnc
     pDam  = clamp $ weapon pWeap pSeed pInt
     -- mAC
     mProp = property mEntity
@@ -178,11 +192,17 @@ mkRangeCombat px mx w = if px == mx
     -- pAR, pDam, pMod
     pProp = property pEntity
     pName = Map.findWithDefault "P" "Name" pProp
+    -- THROW
     pDex  = abilityMod $ read $ T.unpack $ Map.findWithDefault "1" "dex" pProp
-    pMod  = read $ T.unpack $ Map.findWithDefault "1" "Proficiency" pProp
     pWeap = Map.findWithDefault "1d4" "SHOOT" pProp
-    pAR   = clamp $ DS.d20 pSeed + pDex + pMod
-    pDam  = clamp $ weapon pWeap pSeed pDex
+    -- Encumbered?
+    pStr  = read $ T.unpack $ Map.findWithDefault "1" "str" pProp :: Int
+    pWT   = read $ T.unpack $ Map.findWithDefault "0" "WT" pProp  :: Int
+    pMod  = read $ T.unpack $ Map.findWithDefault "0" "Proficiency" pProp
+    pEnc  = if pWT > 5 * pStr then 0 else pMod
+    -- SHOOT roll
+    pAR   = clamp $ DS.d20 pSeed + pDex + pEnc
+    pDam  = clamp $ weapon pWeap pSeed pEnc
     -- mDR,  mAC
     mProp = property mEntity
     mName = Map.findWithDefault "M" "Name" mProp
@@ -219,8 +239,7 @@ scatter mEntity = let
   -- random around the target
   seed     = 1 + uncurry (*) mPos
   missList = moveT mEntity ++ [mPos]
-  sz       = length missList - 1
-  missRoll = head $ DS.rollList 1 (fromIntegral sz) seed
+  missRoll = head $ DS.rollList 1 (fromIntegral $ length missList) seed
   in nth missRoll missList
 
 -- | shoot verb

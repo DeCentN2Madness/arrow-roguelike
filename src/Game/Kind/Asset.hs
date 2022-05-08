@@ -69,13 +69,15 @@ mkAssetMap = let
        , mkItem "shoot/Throwing Axe"    "|:1d6:2" pos
        , mkItem "shoot/Javelin"         "|:1d6:2" pos
        -- armor
-       , mkItem "armor/Leather Jerkin"  "[:11:8"  pos
+       , mkItem "armor/Padded"          "[:11:8"  pos
        , mkItem "armor/Leather Jack"    "[:11:10" pos
-       , mkItem "armor/Boiled Leather"  "[:12:12" pos
+       , mkItem "armor/Boiled Leather"  "[:12:13" pos
+       , mkItem "armor/Hide"            "[:12:12" pos
        , mkItem "armor/Chain Shirt"     "[:13:20" pos
        , mkItem "armor/Scale Mail"      "[:14:45" pos
        , mkItem "armor/Breastplate"     "[:14:20" pos
        , mkItem "armor/Half Plate"      "[:15:40" pos
+       , mkItem "armor/Ring Mail"       "[:14:40" pos
        , mkItem "armor/Chain Mail"      "[:16:55" pos
        , mkItem "armor/Splint"          "[:17:60" pos
        , mkItem "armor/Plate"           "[:18:65" pos

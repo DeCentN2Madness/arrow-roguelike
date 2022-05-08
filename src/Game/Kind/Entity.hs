@@ -115,9 +115,9 @@ mkInventory n
   | n == "White Dragon" = [("Arrow",1),("Potion",1),("Mushroom",1),("Coin",1)]
   | n == "Orc"          = [("Arrow",0),("Potion",0),("Mushroom",1),("Item",1)]
   | n == "Orc Archer"   = [("Arrow",5),("Potion",0),("Mushroom",1),("Item",1)]
-  | n == "Orc Shaman"   = [("Arrow",1),("Potion",1),("Mushroom",1),("Item",1)]
-  | n == "Spider"       = [("Arrow",0),("Potion",0),("Mushroom",1),("Coin",1)]
-  | n == "Troll"        = [("Arrow",0),("Potion",0),("Mushroom",1),("Coin",1)]
+  | n == "Orc Shaman"   = [("Arrow",1),("Potion",0),("Mushroom",1),("Item",1)]
+  | n == "Spider"       = [("Arrow",1),("Potion",1),("Mushroom",1),("Item",1)]
+  | n == "Troll"        = [("Arrow",1),("Potion",1),("Mushroom",1),("Item",1)]
   | otherwise = [("Arrow",0),("Potion",0),("Mushroom",0),("Coin",0)]
 
 -- | mkItem
@@ -373,6 +373,7 @@ lgBeast = [ ("str", "14")
           , ("HP", "26")
           , ("XP", "200")
           , ("Proficiency", "2")
+          , ("Throw", "spits!")
           , ("AC", "14")
           , ("ATTACK", "1d8+3")
           ]
@@ -387,6 +388,7 @@ mdHumanoid = [ ("str", "16")
              , ("HP", "15")
              , ("XP", "100")
              , ("Proficiency", "2")
+             , ("Throw", "burps!")
              , ("AC", "13")
              , ("ATTACK", "1d12+3")
              ]
@@ -394,7 +396,7 @@ mdHumanoid = [ ("str", "16")
 -- | Orc Mage
 mdHumanoidM :: Prop
 mdHumanoidM = mdHumanoid
-  ++ [ ("Throw", "curses!"), ("MP", "10"), ("int", "11") ]
+  ++ [ ("Throw", "curses!"), ("MP", "10"), ("str", "11"), ("int", "11") ]
 
 -- | Troll
 gtHumanoid :: Prop

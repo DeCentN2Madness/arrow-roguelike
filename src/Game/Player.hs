@@ -137,8 +137,7 @@ characterEquipment em _ = let
 characterExamine :: [Coord] -> EntityMap -> AssetMap -> [Text]
 characterExamine fov em _ = let
   view = GE.fromEntityBy em
-  pFOV = filter (/="Corpse") $
-    [ name | (ek, _) <- filter (\(_, j) -> j `elem` fov) view,
+  pFOV = [ name | (ek, _) <- filter (\(_, j) -> j `elem` fov) view,
            let name = Map.findWithDefault "None" "Name" (property ek) ]
   in selection pFOV
   ++ [" ", "Press [0-9, A-J] to E(X)amine. ESC to Continue..."]
@@ -165,10 +164,9 @@ characterLook fov em = let
   groupF :: [Text] -> [(Text, Int)]
   groupF = map (head &&& length) . group . sort
   view = GE.fromEntityBy em
-  entities = groupF $ filter (/="Corpse")
+  entities = groupF $ filter (/="Player") $
     [ name | (ek, _) <- filter (\(_, j) -> j `elem` fov) view,
-      let label = snd $ T.breakOnEnd "/" $
-            Map.findWithDefault "None" "Name" (property ek)
+      let label = Map.findWithDefault "None" "Name" (property ek)
           mHP = eHP ek
           mMaxHP = eMaxHP ek
           status = condition label mHP mMaxHP

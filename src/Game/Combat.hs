@@ -100,10 +100,10 @@ mkCombat px mx w = if px == mx
     -- pAR, pDam, pMod
     pProp = property pEntity
     pName = Map.findWithDefault "P" "Name" pProp
-    -- Dex weapons vs Str weapons
+    -- Finesse, Dex vs Str Weapons
     pStr  = read $ T.unpack $ Map.findWithDefault "1" "str" pProp :: Int
     pDex  = read $ T.unpack $ Map.findWithDefault "1" "dex" pProp :: Int
-    pWWT  = read $ T.unpack $ Map.findWithDefault "0" "WWT" pProp :: Int
+    pWWT  = read $ T.unpack $ Map.findWithDefault "3" "WWT" pProp :: Int
     pStat = if pWWT > 2 then abilityMod pStr else abilityMod pDex
     pWeap = Map.findWithDefault "1d4" "ATTACK" pProp
     -- Encumbered?

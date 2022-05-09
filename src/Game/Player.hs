@@ -165,7 +165,7 @@ characterLook fov em = let
   groupF :: [Text] -> [(Text, Int)]
   groupF = map (head &&& length) . group . sort
   view = GE.fromEntityBy em
-  entities = groupF $ filter (/="Player")
+  entities = groupF $ filter (/="Corpse")
     [ name | (ek, _) <- filter (\(_, j) -> j `elem` fov) view,
       let label = snd $ T.breakOnEnd "/" $
             Map.findWithDefault "None" "Name" (property ek)

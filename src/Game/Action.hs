@@ -206,20 +206,35 @@ actionEat w = let
 -- if there is something to Examine...
 actionExamine :: Int -> World -> World
 actionExamine x w = let
+  -- description
   descMap = Map.fromList $
     [ (name, desc) | (_, v) <- Map.toList (assetT w),
       let name = Map.findWithDefault "None" "Name" (property v)
           desc = Map.findWithDefault "None" "Description" (property v) ]
+  -- properties
+  propMap = Map.fromList $
+    [ (name, prop) | (_, v) <- Map.toList (assetT w),
+      let name = Map.findWithDefault "None" "Name" (property v)
+          prop = property v ]
   view = GE.fromEntityBy (entityT w)
-  pFOV = filter (/="Corpse") $
-    [ name | (ek, _) <- filter (\(_, j) -> j `elem` fovT w) view,
+  pFOV = [ name | (ek, _) <- filter (\(_, j) -> j `elem` fovT w) view,
            let name = Map.findWithDefault "None" "Name" (property ek) ]
   sz   = length pFOV - 1
-  pSel = if x > sz then 0 else x
-  pName = pFOV!!pSel
-  pExamine = Map.findWithDefault "None" pName descMap
-  entry = if pExamine /= "None"
-    then T.concat [ pName, " = ", pExamine ]
+  mSel = if x > sz then 0 else x
+  mName = pFOV!!mSel
+  mExamine = Map.findWithDefault "None" mName descMap
+  mProp    = Map.findWithDefault Map.empty mName propMap
+  mStr     = Map.findWithDefault "0" "str" mProp
+  mDex     = Map.findWithDefault "0" "dex" mProp
+  mCon     = Map.findWithDefault "0" "con" mProp
+  mInt     = Map.findWithDefault "0" "int" mProp
+  mWis     = Map.findWithDefault "0" "wis" mProp
+  mStat    = if mStr /= "0"
+    then T.concat [ " (Str:", mStr, " Dex:", mDex, " Con:", mCon
+                  , " Int:", mInt, " Wis:", mWis, ")" ]
+    else ", ..."
+  entry = if mExamine /= "None"
+    then T.concat [ mName, " = ", mExamine, mStat ]
     else "No Examine..."
   in w { journalT = GJ.updateJournal [entry] (journalT w) }
 

@@ -60,8 +60,8 @@ condition hp xp = let
   dead  = if hp < 1
     then T.append " Dead!" $
     T.pack $ " You gain " ++ show xp ++ " experience."
-    else ", ..."
-  brave = if hp >= 1 && hp <= 5 then " *Critical* " else ""
+    else "."
+  brave = if hp >= 1 && hp <= 5 then " *Critical*" else ""
   in T.append brave dead
 
 -- | death
@@ -254,7 +254,7 @@ scatter mEntity = let
 -- | shoot verb
 shoot :: Int -> Int -> Int -> Text -> Text
 shoot ar dr dam name = if ar >= dr
-  then T.append " shoots -Arrow~ at " $
+  then T.append " shoots ~Arrow~ at " $
   T.append name $ T.pack $ " <" ++ show dam ++ ">"
   else T.append " ~Arrow~ misses the " name
 

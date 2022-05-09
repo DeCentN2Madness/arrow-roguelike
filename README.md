@@ -44,7 +44,7 @@ Step 9 of the 15 Steps... The goal is to have fun!
 
 &mdash; `g` to `Get`
 
-&mdash; `i` to show `Inventory`
+&mdash; `i` to `Inventory`
 
 &mdash; `q` to `Quaff`
 
@@ -53,6 +53,8 @@ Step 9 of the 15 Steps... The goal is to have fun!
 &mdash; `t` to `Throw` an `Arrow`
 
 &mdash; `w` to `Wield` `Armor` and `Weapons`
+
+&mdash; `x` to `Examine`
 
 
 ## Requirements

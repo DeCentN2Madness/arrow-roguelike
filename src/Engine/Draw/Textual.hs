@@ -23,17 +23,24 @@ import qualified Game.Player as GP
 
 drawLook :: SDL.Renderer -> World -> IO ()
 drawLook r w = do
-  let logs = zip [0..9] $ GP.characterLook (entityT w)
+  let view = zip [0..9] $ GP.characterLook (fovT w) (entityT w)
+      -- Color
+      color x
+        | T.any (==':') x = green
+        | T.any (=='~') x = yellow
+        | T.any (=='!') x = red
+        | T.any (=='*') x = purple
+        | otherwise = white
   fn <- SDL.Font.load "./assets/fonts/Hack-Regular.ttf" 14
   -- Journal
-  forM_ logs $ \(i, j) -> do
+  forM_ view $ \(i, j) -> do
     -- Text
-    tx <- SDL.Font.blended fn white j
+    tx <- SDL.Font.blended fn (color j) j
     sz <- SDL.Font.size fn j
     rt <- SDL.createTextureFromSurface r tx
     -- HUD
     let hudT = snd (screenXY w) - fromIntegral (snd sz + (i * snd sz))
-    renderText r rt sz (800, hudT)
+    renderText r rt sz (700, hudT)
     -- Cleanup
     SDL.freeSurface tx
     SDL.destroyTexture rt

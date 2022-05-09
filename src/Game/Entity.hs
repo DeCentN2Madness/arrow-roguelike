@@ -18,6 +18,7 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 -}
 module Game.Entity (EntityMap
                    , fromBlock
+                   , fromEntity
                    , fromEntityAt
                    , fromEntityStack
                    , getEntityAt
@@ -49,6 +50,10 @@ type EntityMap = Map Int EntityKind
 fromBlock :: EntityMap -> [(Int, Coord)]
 fromBlock em = [ (ix, xy) | (ek, ix) <- filter (\(i, _) -> block i) $
                  fromEntityAt em, let xy = coord ek ]
+
+-- | fromEntity
+fromEntity :: EntityMap -> [(EntityKind, Coord)]
+fromEntity em = [ (ek, xy) | (_, ek) <- Map.toList em, let xy = coord ek ]
 
 -- | fromEntityAt ix
 fromEntityAt :: EntityMap -> [(EntityKind, Int)]

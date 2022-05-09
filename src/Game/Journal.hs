@@ -18,7 +18,6 @@ import Data.Map (Map)
 import Data.Maybe
 import qualified Data.Map.Strict as Map
 import Data.Text (Text)
-import qualified Data.Text as T
 
 type TextMap = Map Int Text
 
@@ -31,7 +30,7 @@ fromJournal (x:xs) tm = let
 
 -- | getJournalAt
 getJournalAt :: Int -> TextMap -> Text
-getJournalAt ix tm = fromMaybe (T.pack "...") $ Map.lookup ix tm
+getJournalAt ix tm = fromMaybe "..." $ Map.lookup ix tm
 
 -- | mkTextMap starts the TextMap
 mkTextMap :: TextMap

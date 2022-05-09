@@ -104,12 +104,12 @@ characterEquipment em _ = let
   (pEntity, _) = getPlayer em
   pProp = property pEntity
   pInv = [melee, shoot, ring, neck, armor, cloak, shield, helmet, hands, feet]
-  melee  = T.append "Melee: " $ fromMaybe "None" (Map.lookup "melee" pProp)
-  shoot  = T.append "Shoot: " $ fromMaybe "None" (Map.lookup "shoot" pProp)
-  ring   = T.append "Ring:  " $ fromMaybe "None" (Map.lookup "jewelry" pProp)
-  neck   = T.append "Neck:  " $ fromMaybe "None" (Map.lookup "neck" pProp)
-  armor  = T.append "Armor: " $ fromMaybe "None" (Map.lookup "armor" pProp)
-  cloak  = T.append "Cloak: " $ fromMaybe "None" (Map.lookup "cloak" pProp)
+  melee  = T.append "Melee: "  $ fromMaybe "None" (Map.lookup "melee" pProp)
+  shoot  = T.append "Shoot: "  $ fromMaybe "None" (Map.lookup "shoot" pProp)
+  ring   = T.append "Ring:  "  $ fromMaybe "None" (Map.lookup "jewelry" pProp)
+  neck   = T.append "Neck:  "  $ fromMaybe "None" (Map.lookup "neck" pProp)
+  armor  = T.append "Armor: "  $ fromMaybe "None" (Map.lookup "armor" pProp)
+  cloak  = T.append "Cloak: "  $ fromMaybe "None" (Map.lookup "cloak" pProp)
   shield = T.append "Shield: " $ fromMaybe "None" (Map.lookup "shield" pProp)
   helmet = T.append "Head: "   $ fromMaybe "None" (Map.lookup "head" pProp)
   hands  = T.append "Hands: "  $ fromMaybe "None" (Map.lookup "hands" pProp)
@@ -118,12 +118,15 @@ characterEquipment em _ = let
   wt     = T.append "Weight: " $ fromMaybe "0" (Map.lookup "WT" pProp)
   attack = T.append "Attack: " $ fromMaybe "0" (Map.lookup "ATTACK" pProp)
   range  = T.append "Shoot: "  $ fromMaybe "0" (Map.lookup "SHOOT" pProp)
-  -- Encumbered
+  -- Encumbered, Finesse, Heavy weapons?
   pStr = read $ T.unpack $ Map.findWithDefault "1" "str" pProp :: Int
   pWT  = read $ T.unpack $ Map.findWithDefault "0" "WT" pProp :: Int
-  pEnc = if pWT > 5 * pStr then "ENCUMBERED!" else " "
+  pWWT = read $ T.unpack $ Map.findWithDefault "3" "WWT" pProp :: Int
+  pEnc = if pWT > 5 * pStr then "ENCUMBERED" else " "
+  pFinesse = if pWWT < 3 then "Finesse" else " "
+  pHeavy   = if pWWT > 4 then "Heavy" else " "
   in selection pInv
-  ++ [" ", ac, attack, range, wt, pEnc
+  ++ [" ", ac, attack, range, wt, pFinesse, pEnc, pHeavy
      , "Press [0-9] to Doff, (I)nventory. Press ESC to Continue..."]
 
 -- | @ Inventory
@@ -133,31 +136,36 @@ characterInventory em _ = let
   pItems = filter (\(i, j) -> j > 0 &&
                   i `notElem` ["Arrow", "Coin", "Mushroom", "Potion"]) $
            Map.toList (inventory pEntity)
-  pInv = filter (/="I") $
+  pInv = filter (/="None") $
     [ name | (k, v) <- pItems,
       let name = if v > 0
             then T.append k (T.pack $ " (" ++ show v ++ ")")
-            else "I" ]
+            else "None" ]
   in selection pInv
   ++ [" ", "Press [0-9, A-J] to Don/Drop, (W)ield. ESC to Continue..."]
 
 -- | @ Look
-characterLook :: EntityMap -> [Text]
-characterLook em = let
+-- What can @ see in FOV...
+characterLook :: [Coord] -> EntityMap -> [Text]
+characterLook fov em = let
   groupF :: [Text] -> [(Text, Int)]
   groupF = map (head &&& length) . group . sort
-  (_, pPos) = getPlayer em
-  view = GE.getEntityBy pPos em
-  -- items
-  items = groupF $ filter (/="Player") $
-    [ name | (ek, _) <- view,
-      let name = snd $ T.breakOnEnd "/" $
-            Map.findWithDefault "I" "Name" (property ek) ]
-  pInv = [ e | (i, j) <- items,
-           let e = if j > 1
+  view = GE.fromEntity em
+  entities = groupF $ filter (/="Player")
+    [ name | (ek, _) <- filter (\(_, j) -> j `elem` fov) view,
+      let label = snd $ T.breakOnEnd "/" $
+            Map.findWithDefault "None" "Name" (property ek)
+          mHP = eHP ek
+          mMaxHP = eMaxHP ek
+          status = condition label mHP mMaxHP
+          name = if mHP > 0
+                 then status
+                 else label ]
+  pFOV = [ seen | (i, j) <- entities,
+           let seen = if j > 1
                  then T.append i $ T.pack $ " <" ++ show j ++ ">"
                  else i ]
-  in selection pInv
+  in selection pFOV
 
 -- | @ Stats
 characterSheet :: EntityMap -> [Text]
@@ -190,13 +198,28 @@ characterSheet em = let
 characterStore :: EntityMap -> AssetMap -> [Text]
 characterStore em _ = let
   (pEntity, _) = getPlayer em
-  pInv = filter (/="I") $
+  pInv = filter (/="None") $
     [ name | (k, v) <- Map.toList (inventory pEntity),
       let name = if k `elem` ["Arrow", "Mushroom", "Potion"]
             then T.append k (T.pack $ " (" ++ show v ++ ")")
-            else "I" ]
+            else "None" ]
   in selection pInv
   ++ [" ", "Press [0-9, A-J] to Purchase. ESC to Continue..."]
+
+-- | M condition
+-- Green, Yellow, Red, Purple...
+condition :: Text -> Int -> Int -> Text
+condition label hp maxHP = let
+  status n
+    | n < 5 = "*"
+    | (maxHP `div` n) >  2 = "!"
+    | (maxHP `div` n) >= 4 = "~"
+    | otherwise = ":"
+  entry = if label == "Player"
+    then "Player"
+    else T.append label $
+    T.pack $ " (HP" ++ status hp ++ " " ++ show hp ++ "/" ++ show maxHP ++ ")"
+  in entry
 
 -- | @ equipment
 equip :: Text -> Text -> Properties -> Text

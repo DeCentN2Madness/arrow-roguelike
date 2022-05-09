@@ -13,6 +13,7 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 -}
 module Game.Player (armorShield
                    , characterEquipment
+                   , characterExamine
                    , characterInventory
                    , characterLook
                    , characterSheet
@@ -115,19 +116,32 @@ characterEquipment em _ = let
   hands  = T.append "Hands: "  $ fromMaybe "None" (Map.lookup "hands" pProp)
   feet   = T.append "Feet: "   $ fromMaybe "None" (Map.lookup "feet" pProp)
   ac     = T.append "AC: "     $ fromMaybe "0" (Map.lookup "AC" pProp)
-  wt     = T.append "Weight: " $ fromMaybe "0" (Map.lookup "WT" pProp)
   attack = T.append "Attack: " $ fromMaybe "0" (Map.lookup "ATTACK" pProp)
   range  = T.append "Shoot: "  $ fromMaybe "0" (Map.lookup "SHOOT" pProp)
   -- Encumbered, Finesse, Heavy weapons?
   pStr = read $ T.unpack $ Map.findWithDefault "1" "str" pProp :: Int
-  pWT  = read $ T.unpack $ Map.findWithDefault "0" "WT" pProp :: Int
+  pWT  = read $ T.unpack $ Map.findWithDefault "0" "WT"  pProp :: Int
   pWWT = read $ T.unpack $ Map.findWithDefault "3" "WWT" pProp :: Int
-  pEnc = if pWT > 5 * pStr then "ENCUMBERED" else " "
-  pFinesse = if pWWT < 3 then "Finesse" else " "
-  pHeavy   = if pWWT > 4 then "Heavy" else " "
+  pEnc = if pWT > 5 * pStr
+    then "Load: ENCUMBERED"
+    else T.pack $ "Load:  " ++ show pWT ++ "/" ++ show (5 * pStr) ++ " lbs."
+  pFinesse = if pWWT < 3 then "Combat: Finesse" else "Combat: Strength"
+  pHeavy   = if pWWT > 4
+    then "Weapon: Heavy"
+    else T.pack $ "Weapon: " ++ show pWWT ++ " lbs."
   in selection pInv
-  ++ [" ", ac, attack, range, wt, pFinesse, pEnc, pHeavy
+  ++ [ac, attack, range, pFinesse, pEnc, pHeavy
      , "Press [0-9] to Doff, (I)nventory. Press ESC to Continue..."]
+
+-- | @ Examine
+characterExamine :: [Coord] -> EntityMap -> AssetMap -> [Text]
+characterExamine fov em _ = let
+  view = GE.fromEntityBy em
+  pFOV = filter (/="Corpse") $
+    [ name | (ek, _) <- filter (\(_, j) -> j `elem` fov) view,
+           let name = Map.findWithDefault "None" "Name" (property ek) ]
+  in selection pFOV
+  ++ [" ", "Press [0-9, A-J] to E(X)amine. ESC to Continue..."]
 
 -- | @ Inventory
 characterInventory :: EntityMap -> AssetMap -> [Text]
@@ -150,7 +164,7 @@ characterLook :: [Coord] -> EntityMap -> [Text]
 characterLook fov em = let
   groupF :: [Text] -> [(Text, Int)]
   groupF = map (head &&& length) . group . sort
-  view = GE.fromEntity em
+  view = GE.fromEntityBy em
   entities = groupF $ filter (/="Player")
     [ name | (ek, _) <- filter (\(_, j) -> j `elem` fov) view,
       let label = snd $ T.breakOnEnd "/" $

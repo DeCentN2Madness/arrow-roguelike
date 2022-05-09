@@ -26,75 +26,76 @@ type EntityMap = Map Int EntityKind
 mkAssetMap :: AssetMap
 mkAssetMap = let
   pos = (0, 0)
-  em = [ mkMonster "Player" "The Hero (@)" pos
+  em = [ mkMonster "Player" "The Hero (@)"  pos
        -- generics
-       , mkItem "Arrow"     "~" pos
-       , mkItem "Coin"      "$" pos
-       , mkItem "Corpse"    "%" pos
-       , mkItem "Mushroom"  "," pos
-       , mkItem "Potion"    "!" pos
-       , mkItem "StairDown" ">" pos
-       , mkItem "StairUp"   "<" pos
-       , mkItem "Trap"      "^" pos
+       , mkItem "Arrow"     "Ammunition (~)"  pos
+       , mkItem "Coin"      "Gold Coins ($)"  pos
+       , mkItem "Corpse"    "Bones (%)"       pos
+       , mkItem "Mushroom"  "Tasty Food (,)"  pos
+       , mkItem "Potion"    "Yummy Drink (!)" pos
+       , mkItem "StairDown" "Exit (>)"        pos
+       , mkItem "StairUp"   "Exit (<)"        pos
+       , mkItem "Trap"      "Danger (^)"      pos
        --- melee basic
-       , mkItem "melee/Club"            "|:1d4:2" pos
-       , mkItem "melee/Dagger"          "|:1d4:1" pos
-       , mkItem "melee/Greatclub"       "|:1d8:10" pos
-       , mkItem "melee/Handaxe"         "|:1d6:2" pos
-       , mkItem "melee/Mace"            "|:1d6:4" pos
-       , mkItem "melee/Pick"            "|:1d8:6" pos
-       , mkItem "melee/Quarterstaff"    "|:1d6:4" pos
-       , mkItem "melee/Sickle"          "|:1d4:2" pos
-       , mkItem "melee/Spear"           "|:1d6:3" pos
-       , mkItem "melee/Whip"            "|:1d4:2" pos
+       , mkItem "melee/Club"            "|:1d4:2:Light"          pos
+       , mkItem "melee/Dagger"          "|:1d4:1:Finesse, Light" pos
+       , mkItem "melee/Greatclub"       "|:1d8:10:Heavy"         pos
+       , mkItem "melee/Handaxe"         "|:1d6:2:Light"          pos
+       , mkItem "melee/Mace"            "|:1d6:4:"               pos
+       , mkItem "melee/Pick"            "|:1d8:6:Digger"         pos
+       , mkItem "melee/Quarterstaff"    "|:1d6:4:"               pos
+       , mkItem "melee/Sickle"          "|:1d4:2:Light"          pos
+       , mkItem "melee/Spear"           "|:1d6:3:"               pos
+       , mkItem "melee/Whip"            "|:1d4:2:Finesse"        pos
        -- melee martial
-       , mkItem "melee/Battleaxe"       "|:1d8:4"  pos
-       , mkItem "melee/Flail"           "|:1d8:3"  pos
-       , mkItem "melee/Glaive"          "|:1d10:6" pos
-       , mkItem "melee/Greataxe"        "|:1d12:7" pos
-       , mkItem "melee/Halberd"         "|:1d10:6" pos
-       , mkItem "melee/Lance"           "|:1d12:6" pos
-       , mkItem "melee/Longsword"       "|:1d8:3"  pos
-       , mkItem "melee/Maul"            "|:2d6:10" pos
-       , mkItem "melee/Morningstar"     "|:1d8:4"  pos
-       , mkItem "melee/Military Flail"  "|:2d4:3"  pos
-       , mkItem "melee/Pike"            "|:1d10:18" pos
-       , mkItem "melee/Rapier"          "|:1d8:2"  pos
-       , mkItem "melee/Shortsword"      "|:1d6:2"  pos
-       , mkItem "melee/Trident"         "|:1d6:4"  pos
-       , mkItem "melee/Warhammer"       "|:1d12:6" pos
-       , mkItem "melee/Wizard Staff"    "|:2d4:4"  pos
-       , mkItem "melee/Zweihander"      "|:2d6:6"  pos
+       , mkItem "melee/Battleaxe"       "|:1d8:4:"               pos
+       , mkItem "melee/Flail"           "|:1d8:3:"               pos
+       , mkItem "melee/Glaive"          "|:1d10:6:Heavy"         pos
+       , mkItem "melee/Greataxe"        "|:1d12:7:Heavy"         pos
+       , mkItem "melee/Halberd"         "|:1d10:6:Heavy"         pos
+       , mkItem "melee/Lance"           "|:1d12:6:Heavy"         pos
+       , mkItem "melee/Longsword"       "|:1d8:3:"               pos
+       , mkItem "melee/Maul"            "|:2d6:10:Heavy"         pos
+       , mkItem "melee/Morningstar"     "|:1d8:4:"               pos
+       , mkItem "melee/Military Flail"  "|:2d4:3:"               pos
+       , mkItem "melee/Pike"            "|:1d10:18:Heavy"        pos
+       , mkItem "melee/Rapier"          "|:1d8:2:Finesse"        pos
+       , mkItem "melee/Scimitar"        "|:1d6:2:Finesse, Light" pos
+       , mkItem "melee/Shortsword"      "|:1d6:2:Finesse, Light" pos
+       , mkItem "melee/Trident"         "|:1d6:4:"               pos
+       , mkItem "melee/Warhammer"       "|:1d12:6:Heavy"         pos
+       , mkItem "melee/Wizard Staff"    "|:2d4:4:Magic"          pos
+       , mkItem "melee/Zweihander"      "|:2d6:6:Heavy"          pos
        -- shield
-       , mkItem "shield/Buckler"        "):1:2" pos
-       , mkItem "shield/Shield"         "):2:6" pos
-       , mkItem "shield/Kite Shield"    "):2:5" pos
+       , mkItem "shield/Buckler"        "):1:2:Light" pos
+       , mkItem "shield/Shield"         "):2:6:"      pos
+       , mkItem "shield/Kite Shield"    "):2:5:"      pos
        -- shoot
-       , mkItem "shoot/Blowgun"         "}:1d1:1"  pos
-       , mkItem "shoot/Crossbow, light" "}:1d8:5"  pos
-       , mkItem "shoot/Crossbow, hand"  "}:1d6:3"  pos
-       , mkItem "shoot/Crossbow, heavy" "}:1d10:18" pos
-       , mkItem "shoot/Dart"            "}:1d4:1"  pos
-       , mkItem "shoot/Elvish Bow"      "}:2d4:2"  pos
-       , mkItem "shoot/Javelin"         "|:1d6:2"  pos
-       , mkItem "shoot/Longbow"         "}:1d8:2"  pos
-       , mkItem "shoot/Sling"           "}:1d4:1"  pos
-       , mkItem "shoot/Shortbow"        "}:1d6:2"  pos
-       , mkItem "shoot/Throwing Knife"  "|:1d4:1"  pos
-       , mkItem "shoot/Throwing Axe"    "|:1d6:2"  pos
+       , mkItem "shoot/Blowgun"         "}:1d1:1:Ammo"          pos
+       , mkItem "shoot/Crossbow, light" "}:1d8:5:Ammo"          pos
+       , mkItem "shoot/Crossbow, hand"  "}:1d6:3:Ammo, Light"   pos
+       , mkItem "shoot/Crossbow, heavy" "}:1d10:18:Ammo, Heavy" pos
+       , mkItem "shoot/Dart"            "}:1d4:1:Ammo"          pos
+       , mkItem "shoot/Elvish Bow"      "}:2d4:2:Ammo, Magic"   pos
+       , mkItem "shoot/Javelin"         "|:1d6:2:Ammo"          pos
+       , mkItem "shoot/Longbow"         "}:1d8:2:Ammo, Heavy"   pos
+       , mkItem "shoot/Sling"           "}:1d4:0:Ammo"          pos
+       , mkItem "shoot/Shortbow"        "}:1d6:2:Ammo"          pos
+       , mkItem "shoot/Throwing Knife"  "|:1d4:1:Ammo"          pos
+       , mkItem "shoot/Throwing Axe"    "|:1d6:2:Ammo"          pos
        -- armor
-       , mkItem "armor/Padded"          "[:11:8"  pos
-       , mkItem "armor/Leather"         "[:11:10" pos
-       , mkItem "armor/Studded Leather" "[:12:13" pos
-       , mkItem "armor/Hide"            "[:12:12" pos
-       , mkItem "armor/Chain Shirt"     "[:13:20" pos
-       , mkItem "armor/Scale Mail"      "[:14:45" pos
-       , mkItem "armor/Breastplate"     "[:14:20" pos
-       , mkItem "armor/Half Plate"      "[:15:40" pos
-       , mkItem "armor/Ring Mail"       "[:14:40" pos
-       , mkItem "armor/Chain Mail"      "[:16:55" pos
-       , mkItem "armor/Splint"          "[:17:60" pos
-       , mkItem "armor/Plate"           "[:18:65" pos
+       , mkItem "armor/Padded"          "[:11:8:Light Armor"   pos
+       , mkItem "armor/Leather"         "[:11:10:Light Armor"  pos
+       , mkItem "armor/Studded Leather" "[:12:13:Light Armor"  pos
+       , mkItem "armor/Hide"            "[:12:12:Medium Armor" pos
+       , mkItem "armor/Chain Shirt"     "[:13:20:Medium Armor" pos
+       , mkItem "armor/Scale Mail"      "[:14:45:Medium Armor" pos
+       , mkItem "armor/Breastplate"     "[:14:20:Medium Armor" pos
+       , mkItem "armor/Half Plate"      "[:15:40:Medium Armor" pos
+       , mkItem "armor/Ring Mail"       "[:14:40:Heavy Armor"  pos
+       , mkItem "armor/Chain Mail"      "[:16:55:Heavy Armor"  pos
+       , mkItem "armor/Splint"          "[:17:60:Heavy Armor"  pos
+       , mkItem "armor/Plate"           "[:18:65:Heavy Armor"  pos
        -- head
        , mkItem "head/Leather Skullcap" "]" pos
        , mkItem "head/Mail Coif"        "]" pos

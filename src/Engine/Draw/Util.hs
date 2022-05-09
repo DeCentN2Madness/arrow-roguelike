@@ -67,8 +67,9 @@ draw r ts w = do
   _ <- case gameState w of
     GameDrop      -> EDI.drawInventory r w
     GameEquipment -> EDI.drawEquipment r w
+    GameExamine   -> EDI.drawExamine   r w
     GameInventory -> EDI.drawInventory r w
-    GameStore     -> EDI.drawStore r w
+    GameStore     -> EDI.drawStore     r w
     _ -> setColor r White
   -- Screen
   SDL.present r

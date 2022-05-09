@@ -147,6 +147,29 @@ applyIntent intent w = let
         Action I     -> invWorld w
         Quit -> escWorld w
         _ -> w
+    | n == GameExamine = case intent of
+        Action Zero  -> GA.actionExamine 0 w
+        Action One   -> GA.actionExamine 1 w
+        Action Two   -> GA.actionExamine 2 w
+        Action Three -> GA.actionExamine 3 w
+        Action Four  -> GA.actionExamine 4 w
+        Action Five  -> GA.actionExamine 5 w
+        Action Six   -> GA.actionExamine 6 w
+        Action Seven -> GA.actionExamine 7 w
+        Action Eight -> GA.actionExamine 8 w
+        Action Nine  -> GA.actionExamine 9 w
+        Action A  -> GA.actionExamine 10 w
+        Action B  -> GA.actionExamine 11 w
+        Action C  -> GA.actionExamine 12 w
+        Action D  -> GA.actionExamine 13 w
+        Action E  -> GA.actionExamine 14 w
+        Action F  -> GA.actionExamine 15 w
+        Action G  -> GA.actionExamine 16 w
+        Action H  -> GA.actionExamine 17 w
+        Action I  -> GA.actionExamine 18 w
+        Action J  -> GA.actionExamine 19 w
+        Quit -> escWorld w
+        _ -> w
     | n == GameInventory = case intent of
         Action Zero  -> GA.actionDon 0 w
         Action One   -> GA.actionDon 1 w
@@ -210,6 +233,7 @@ applyIntent intent w = let
         Action T -> actionMonster $ GA.actionThrow w
         Action U -> actionDirection NorthWest w
         Action W -> equipWorld w
+        Action X -> examineWorld w
         Action Y -> actionDirection NorthEast w
         Action Help -> helpWorld w
         Action Space -> actionMonster $ GA.actionRest w
@@ -241,6 +265,14 @@ equipWorld w = w { journalT = GJ.updateJournal ["W Pressed..."] (journalT w)
                    then GameRun
                    else GameEquipment }
 
+-- | examineWorld
+-- examineWorld mode
+examineWorld :: World -> World
+examineWorld w = w { journalT = GJ.updateJournal ["X Pressed..."] (journalT w)
+                 , gameState = if gameState w == GameExamine
+                   then GameRun
+                   else GameExamine }
+
 -- | escWorld
 -- ESC changes gameState
 escWorld :: World -> World
@@ -255,9 +287,10 @@ helpWorld :: World -> World
 helpWorld w = let
   help = [ "..."
          , "Movement: vi mode or Arrow keys, ESC to Continue/Quit..."
-         , "(T)hrow,   (W)ield,     (?)Help, (SPC)Rest,"
-         , "(G)et,     (I)nventory, (Q)uaff, (R)eset,"
-         , "(A)cquire, (C)ast,      (D)rop,  (E)at,"
+         , "(?)Help,   ..."
+         , "(T)hrow,   (W)ield,     E(X)amine, (SPC)Rest,"
+         , "(G)et,     (I)nventory, (Q)uaff,   (R)eset,"
+         , "(A)cquire, (C)ast,      (D)rop,    (E)at,"
          , "~Arrow~ Commands"
          ]
   in w { journalT = GJ.updateJournal help (journalT w)

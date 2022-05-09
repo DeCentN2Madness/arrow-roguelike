@@ -18,8 +18,8 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 -}
 module Game.Entity (EntityMap
                    , fromBlock
-                   , fromEntity
                    , fromEntityAt
+                   , fromEntityBy
                    , fromEntityStack
                    , getEntityAt
                    , getEntityBy
@@ -51,13 +51,13 @@ fromBlock :: EntityMap -> [(Int, Coord)]
 fromBlock em = [ (ix, xy) | (ek, ix) <- filter (\(i, _) -> block i) $
                  fromEntityAt em, let xy = coord ek ]
 
--- | fromEntity
-fromEntity :: EntityMap -> [(EntityKind, Coord)]
-fromEntity em = [ (ek, xy) | (_, ek) <- Map.toList em, let xy = coord ek ]
-
 -- | fromEntityAt ix
 fromEntityAt :: EntityMap -> [(EntityKind, Int)]
 fromEntityAt em = [ (ek, ix) | (ix, ek) <- Map.toList em ]
+
+-- | fromEntityBy
+fromEntityBy :: EntityMap -> [(EntityKind, Coord)]
+fromEntityBy em = [ (ek, xy) | (_, ek) <- Map.toList em, let xy = coord ek ]
 
 -- | fromEntityStack
 -- single entity per Coord for Engine.Draw.Visual

@@ -9,6 +9,7 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
 -}
 module Engine.Draw.Inventory (drawEquipment
+                             , drawExamine
                              , drawInventory
                              , drawStore) where
 
@@ -29,6 +30,26 @@ drawEquipment r w = do
   forM_ logs $ \(i, j) -> do
     -- Text
     tx <- SDL.Font.blended fn green j
+    sz <- SDL.Font.size fn j
+    rt <- SDL.createTextureFromSurface r tx
+    -- HUD
+    let hudT = fromIntegral $ snd sz + (i * snd sz) :: Double
+    EDT.renderText r rt sz (125, hudT)
+    -- Cleanup
+    SDL.freeSurface tx
+    SDL.destroyTexture rt
+  SDL.Font.free fn
+
+-- | drawExamine
+-- Show the Examine
+drawExamine :: SDL.Renderer -> World -> IO ()
+drawExamine r w = do
+  let logs = zip [0..] $ GP.characterExamine (fovT w) (entityT w) (assetT w)
+  fn <- SDL.Font.load "./assets/fonts/Hack-Regular.ttf" 14
+  -- Journal
+  forM_ logs $ \(i, j) -> do
+    -- Text
+    tx <- SDL.Font.blended fn white j
     sz <- SDL.Font.size fn j
     rt <- SDL.createTextureFromSurface r tx
     -- HUD

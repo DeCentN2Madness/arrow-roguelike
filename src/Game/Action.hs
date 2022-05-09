@@ -202,6 +202,27 @@ actionEat w = let
        , entityT  = GP.updatePlayer newPlayer (entityT w)
        , journalT = GJ.updateJournal [entry] (journalT w) }
 
+-- | actionExamine
+-- if there is something to Examine...
+actionExamine :: Int -> World -> World
+actionExamine x w = let
+  descMap = Map.fromList $
+    [ (name, desc) | (_, v) <- Map.toList (assetT w),
+      let name = Map.findWithDefault "None" "Name" (property v)
+          desc = Map.findWithDefault "None" "Description" (property v) ]
+  view = GE.fromEntityBy (entityT w)
+  pFOV = filter (/="Corpse") $
+    [ name | (ek, _) <- filter (\(_, j) -> j `elem` fovT w) view,
+           let name = Map.findWithDefault "None" "Name" (property ek) ]
+  sz   = length pFOV - 1
+  pSel = if x > sz then 0 else x
+  pName = pFOV!!pSel
+  pExamine = Map.findWithDefault "None" pName descMap
+  entry = if pExamine /= "None"
+    then T.concat [ pName, " = ", pExamine ]
+    else "No Examine..."
+  in w { journalT = GJ.updateJournal [entry] (journalT w) }
+
 -- | actionGet
 -- if there is something to Get...
 actionGet :: World -> World

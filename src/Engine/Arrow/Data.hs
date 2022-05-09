@@ -81,6 +81,7 @@ data GameState
   | GameDialog
   | GameDrop
   | GameEquipment
+  | GameExamine
   | GameInventory
   | GameStore
   deriving (Eq, Show, Generic)

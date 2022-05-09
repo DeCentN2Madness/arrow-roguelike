@@ -1,5 +1,5 @@
 name:          arrow
-version:       0.2.14.0
+version:       0.2.15.0
 license:       MIT
 synopsis:      Haskell
 description:   tiny roguelike for the Hero '@'

@@ -31,6 +31,7 @@ library
                     , Game.Action
                     , Game.AI
                     , Game.Arrow
+                    , Game.Birth
                     , Game.Combat
                     , Game.Compass
                     , Game.DiceSet
@@ -80,6 +81,7 @@ executable Arrow
                     , Game.Action
                     , Game.AI
                     , Game.Arrow
+                    , Game.Birth
                     , Game.Combat
                     , Game.Compass
                     , Game.DiceSet

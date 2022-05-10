@@ -35,7 +35,8 @@ import Data.List
 import Data.Map (Map)
 import qualified Data.Map.Strict as Map
 import Data.Ord (comparing)
-import Game.Kind.Asset (mkAssetMap)
+import qualified Game.Birth as GB
+import Game.Kind.Asset
 import Game.Kind.Entity
 import Game.Kind.Monster
 import Game.Tile (TileMap)
@@ -105,10 +106,12 @@ safeInsertEntity ix ek tm em = let
     then coord ek
     else head openList
   -- dead @... start in 1st vault
-  newEntity = if kind ek == Corpse
-    then mkMonster "Player" "The Hero (@)" (17,4)
+  newPlayer = if kind ek == Corpse
+    then let
+    player = mkMonster "Player" "The Hero (@)" (17,4)
+    in GB.mkPlayer (length openList) player
     else ek
-  in Map.insert ix (newEntity { coord = xy }) em
+  in Map.insert ix (newPlayer { coord = xy }) em
 
 -- | updateEntity
 updateEntity :: Int -> EntityKind -> EntityMap -> EntityMap

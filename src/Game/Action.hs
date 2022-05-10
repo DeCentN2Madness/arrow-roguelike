@@ -229,13 +229,13 @@ actionExamine x w = let
   mCon     = Map.findWithDefault "0" "con" mProp
   mInt     = Map.findWithDefault "0" "int" mProp
   mWis     = Map.findWithDefault "0" "wis" mProp
-  mClass   = Map.findWithDefault "Item"          "Class"  mProp
-  mArmor   = Map.findWithDefault "armor/Natural" "armor"  mProp
-  mAC      = Map.findWithDefault "0"             "AC"     mProp
-  mMelee   = Map.findWithDefault "melee/Natural" "melee"  mProp
-  mRange   = Map.findWithDefault "None"          "shoot"  mProp
-  mAttack  = Map.findWithDefault "1d4"           "ATTACK" mProp
-  mShoot   = Map.findWithDefault "0"             "SHOOT"  mProp
+  mClass   = Map.findWithDefault "Item" "Class"  mProp
+  mArmor   = Map.findWithDefault "None" "armor"  mProp
+  mAC      = Map.findWithDefault "0"    "AC"     mProp
+  mMelee   = Map.findWithDefault "None" "melee"  mProp
+  mRange   = Map.findWithDefault "None" "shoot"  mProp
+  mAttack  = Map.findWithDefault "1d4"  "ATTACK" mProp
+  mShoot   = Map.findWithDefault "0"    "SHOOT"  mProp
   mCls     = T.concat [ "Class: ", mClass ]
   mStat    = if mStr /= "0"
     then T.concat [ "Str:",   mStr

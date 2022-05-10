@@ -142,7 +142,7 @@ mkMonster name desc xy = let
     | n == "White Dragon" = mdDragon
     | n == "Mouse"        = smBeast
     | n == "Orc"          = mdHumanoid
-    | n == "Orc Archer"   = mdHumanoid
+    | n == "Orc Archer"   = mdHumanoidA
     | n == "Orc Shaman"   = mdHumanoidM
     | n == "Spider"       = lgBeast
     | n == "Troll"        = gtHumanoid
@@ -237,8 +237,8 @@ fighter = [ ("str", "15")
           , ("con", "13")
           , ("int", "12")
           , ("wis", "10")
-          , ("HP",  "10")
-          , ("MP", "1")
+          , ("HP", "10")
+          , ("MP", "2")
           , ("XP", "0")
           , ("Proficiency", "2")
           , ("AC", "11")
@@ -403,9 +403,24 @@ mdHumanoid = [ ("str", "16")
              , ("feet", "None")
              ]
 
--- | Orc Mage
+-- | Orc Archer
+mdHumanoidA :: Prop
+mdHumanoidA = mdHumanoid
+  ++ [ ("ATTACK", "1d4")
+     , ("melee", "melee/Dagger")
+     , ("WT", "15")
+     , ("WWT", "1")
+     ]
+
+-- | Orc Shaman
 mdHumanoidM :: Prop
-mdHumanoidM = mdHumanoid ++ [ ("Throw", "curses!"), ("MP", "10") ]
+mdHumanoidM = mdHumanoid
+  ++ [ ("ATTACK", "1d6")
+     , ("Throw", "curses!")
+     , ("melee", "melee/Quarterstaff")
+     , ("WT", "18")
+     , ("WWT", "4")
+     , ("MP", "10") ]
 
 -- | Troll
 gtHumanoid :: Prop

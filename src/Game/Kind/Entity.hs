@@ -102,30 +102,18 @@ defaultEK name desc pos =
 -- One lucky Mushroom
 mkInventory :: Text -> [(Text, Int)]
 mkInventory n
-  | n == "Cleric"  = [("Arrow",0),("Potion",1),("Mushroom",1),("Coin",1)
-                     ,("armor/Leather",1),("melee/Mace",1)]
-  | n == "Fighter" = [("Arrow",0),("Potion",0),("Mushroom",1),("Coin",1)
-                     ,("armor/Leather",1),("shoot/Sling",1)]
-  | n == "Mage"    = [("Arrow",0),("Potion",1),("Mushroom",1),("Coin",1)
-                     ,("armor/Leather",1),("melee/Dagger",1)]
-  | n == "Player"  = [("Arrow",0),("Potion",0),("Mushroom",1),("Coin",0)
-                     ,("armor/Leather",1),("shoot/Sling",1)]
-  | n == "Ranger"  = [("Arrow",1),("Potion",0),("Mushroom",1),("Coin",1)
-                     ,("armor/Leather",1),("shoot/Sling",1)]
-  | n == "Rogue"   = [("Arrow",0),("Potion",1),("Mushroom",1),("Coin",1)
-                     ,("armor/Leather",1),("shoot/Throwing Knife",1)
-                     ,("melee/Dagger",1)]
+  | n == "Player"       = [("Arrow",0),("Potion",0),("Mushroom",1),("Coin",0)]
   | n == "Red Dragon"   = [("Arrow",1),("Potion",1),("Mushroom",1),("Coin",1)]
   | n == "Green Dragon" = [("Arrow",1),("Potion",1),("Mushroom",1),("Coin",1)]
   | n == "Blue Dragon"  = [("Arrow",1),("Potion",1),("Mushroom",1),("Coin",1)]
   | n == "Black Dragon" = [("Arrow",1),("Potion",1),("Mushroom",1),("Coin",1)]
   | n == "White Dragon" = [("Arrow",1),("Potion",1),("Mushroom",1),("Coin",1)]
   | n == "Orc"          = [("Arrow",0),("Potion",0),("Mushroom",1),("Item",1)]
-  | n == "Orc Archer"   = [("Arrow",5),("Potion",0),("Mushroom",1),("Item",1)]
+  | n == "Orc Archer"   = [("Arrow",3),("Potion",0),("Mushroom",1),("Item",1)]
   | n == "Orc Shaman"   = [("Arrow",1),("Potion",0),("Mushroom",1),("Item",1)]
   | n == "Spider"       = [("Arrow",1),("Potion",1),("Mushroom",1),("Item",1)]
   | n == "Troll"        = [("Arrow",1),("Potion",1),("Mushroom",1),("Item",1)]
-  | otherwise = [("Arrow",0),("Potion",0),("Mushroom",0),("Coin",0)]
+  | otherwise           = [("Arrow",0),("Potion",0),("Mushroom",0),("Coin",0)]
 
 -- | mkItem
 mkItem :: Text -> Text -> Coord -> EntityKind
@@ -146,24 +134,19 @@ mkItem name desc xy = let
 mkMonster :: Text -> Text -> Coord -> EntityKind
 mkMonster name desc xy = let
   monster n
-    | n == "Cleric"  = cleric
-    | n == "Fighter" = fighter
-    | n == "Mage"    = mage
-    | n == "Player"  = fighter
-    | n == "Ranger"  = ranger
-    | n == "Rogue"   = rogue
+    | n == "Player"       = fighter
     | n == "Red Dragon"   = mdDragon
     | n == "Green Dragon" = mdDragon
     | n == "Blue Dragon"  = mdDragon
     | n == "Black Dragon" = mdDragon
     | n == "White Dragon" = mdDragon
-    | n == "Mouse"      = smBeast
-    | n == "Orc"        = mdHumanoid
-    | n == "Orc Archer" = mdHumanoid
-    | n == "Orc Shaman" = mdHumanoidM
-    | n == "Spider"     = lgBeast
-    | n == "Troll"      = gtHumanoid
-    | n == "Wolf"       = mdBeast
+    | n == "Mouse"        = smBeast
+    | n == "Orc"          = mdHumanoid
+    | n == "Orc Archer"   = mdHumanoid
+    | n == "Orc Shaman"   = mdHumanoidM
+    | n == "Spider"       = lgBeast
+    | n == "Troll"        = gtHumanoid
+    | n == "Wolf"         = mdBeast
     | otherwise = mdHumanoid
   mProp = mkProp name desc (monster name)
   mHP  = read $ T.unpack $ Map.findWithDefault "1" "HP" mProp
@@ -184,8 +167,8 @@ mkMonster name desc xy = let
 
 -- | mkProp
 mkProp :: Text -> Text -> Prop -> Properties
-mkProp name desc p = Map.fromList $
-  [ ("Name", name), ("Description", desc) ] ++ p
+mkProp name desc prop = Map.fromList $
+  [ ("Name", name), ("Description", desc) ] ++ prop
 
 -- | mkEntity
 mkEntity :: Entity -> Text -> Text -> Coord -> EntityKind
@@ -247,20 +230,6 @@ visualId name = let
     | otherwise = VMouse
   in visual name
 
--- | cleric
-cleric :: Prop
-cleric = [ ("str", "10")
-         , ("dex", "12")
-         , ("con", "13")
-         , ("int", "14")
-         , ("wis", "15")
-         , ("HP", "8")
-         , ("MP", "10")
-         , ("XP", "0")
-         , ("Proficiency", "2")
-         , ("AC", "10")
-         ]
-
 -- | fighter
 fighter :: Prop
 fighter = [ ("str", "15")
@@ -268,64 +237,26 @@ fighter = [ ("str", "15")
           , ("con", "13")
           , ("int", "12")
           , ("wis", "10")
-          , ("HP", "10")
+          , ("HP",  "10")
           , ("MP", "1")
           , ("XP", "0")
           , ("Proficiency", "2")
-          , ("AC", "10")
-          , ("melee", "None")
-          , ("shoot", "None")
+          , ("AC", "11")
+          , ("WT", "11")
+          , ("WWT", "1")
+          , ("ATTACK", "1d4")
+          , ("SHOOT",  "1d4")
+          , ("melee", "melee/Dagger")
+          , ("shoot", "shoot/Sling")
           , ("jewelry", "None")
           , ("neck", "None")
-          , ("armor", "None")
+          , ("armor", "armor/Leather")
           , ("cloak", "None")
           , ("shield", "None")
           , ("head", "None")
           , ("hands", "None")
           , ("feet", "None")
           ]
-
--- | mage
-mage :: Prop
-mage = [ ("str", "10")
-       , ("dex", "12")
-       , ("con", "13")
-       , ("int", "15")
-       , ("wis", "14")
-       , ("HP", "6")
-       , ("MP", "12")
-       , ("XP", "0")
-       , ("Proficiency", "2")
-       , ("AC", "10")
-       ]
-
--- | ranger
-ranger :: Prop
-ranger = [ ("str", "12")
-         , ("dex", "15")
-         , ("con", "13")
-         , ("int", "10")
-         , ("wis", "14")
-         , ("HP", "10")
-         , ("MP", "1")
-         , ("XP", "0")
-         , ("Proficiency", "2")
-         , ("AC", "10")
-         ]
-
--- | rogue
-rogue :: Prop
-rogue = [ ("str", "10")
-        , ("dex", "15")
-        , ("con", "13")
-        , ("int", "14")
-        , ("wis", "12")
-        , ("HP", "8")
-        , ("MP", "2")
-        , ("XP", "0")
-        , ("Proficiency", "2")
-        , ("AC", "10")
-        ]
 
 -- | Mouse
 smBeast :: Prop
@@ -335,10 +266,24 @@ smBeast = [ ("str", "7")
           , ("int", "2")
           , ("wis", "10")
           , ("HP", "7")
+          , ("MP", "0")
           , ("XP", "25")
           , ("Proficiency", "2")
           , ("AC", "12")
-          , ("ATTACK", "1d4")
+          , ("WT",  "0")
+          , ("WWT", "0")
+          , ("ATTACK", "1d4+1")
+          , ("SHOOT", "1d1")
+          , ("melee", "melee/Bite")
+          , ("shoot", "shoot/Squeak")
+          , ("jewelry", "None")
+          , ("neck", "None")
+          , ("armor", "armor/Hide")
+          , ("cloak", "None")
+          , ("shield", "None")
+          , ("head", "None")
+          , ("hands", "None")
+          , ("feet", "None")
           ]
 
 -- | Wolf
@@ -352,7 +297,20 @@ mdBeast = [ ("str", "12")
           , ("XP", "50")
           , ("Proficiency", "2")
           , ("AC", "13")
+          , ("WT",  "0")
+          , ("WWT", "0")
           , ("ATTACK", "2d4+2")
+          , ("SHOOT",  "1d2")
+          , ("melee", "melee/Bite")
+          , ("shoot", "shoot/Howl")
+          , ("jewelry", "None")
+          , ("neck", "None")
+          , ("armor", "armor/Hide")
+          , ("cloak", "None")
+          , ("shield", "None")
+          , ("head", "None")
+          , ("hands", "None")
+          , ("feet", "None")
           ]
 
 -- | Dragon Wyrmling
@@ -365,9 +323,22 @@ mdDragon = [ ("str", "15")
            , ("HP", "38")
            , ("XP", "450")
            , ("Proficiency", "2")
-           , ("Throw", "breathes!")
            , ("AC", "17")
+           , ("WT",  "0")
+           , ("WWT", "10")
            , ("ATTACK", "1d10+2")
+           , ("SHOOT",  "1d8+2")
+           , ("Throw", "breathes!")
+           , ("melee", "melee/Dragon Claws")
+           , ("shoot", "shoot/Dragon Breath")
+           , ("jewelry", "None")
+           , ("neck", "None")
+           , ("armor", "armor/Dragon Scales")
+           , ("cloak", "None")
+           , ("shield", "None")
+           , ("head", "None")
+           , ("hands", "None")
+           , ("feet", "None")
            ]
 
 -- | Spider
@@ -380,9 +351,22 @@ lgBeast = [ ("str", "14")
           , ("HP", "26")
           , ("XP", "200")
           , ("Proficiency", "2")
-          , ("Throw", "spits!")
           , ("AC", "14")
+          , ("WT",  "0")
+          , ("WWT", "0")
           , ("ATTACK", "1d8+3")
+          , ("SHOOT",  "1d6+1")
+          , ("Throw", "spits!")
+          , ("melee", "melee/Venom")
+          , ("shoot", "shoot/Web")
+          , ("jewelry", "None")
+          , ("neck", "None")
+          , ("armor", "armor/Hide")
+          , ("cloak", "None")
+          , ("shield", "None")
+          , ("head", "None")
+          , ("hands", "None")
+          , ("feet", "None")
           ]
 
 -- | Orc
@@ -393,16 +377,30 @@ mdHumanoid = [ ("str", "16")
              , ("int", "7")
              , ("wis", "11")
              , ("HP", "15")
+             , ("MP", "0")
              , ("XP", "100")
              , ("Proficiency", "2")
              , ("AC", "13")
+             , ("WT",  "21")
+             , ("WWT", "7")
              , ("ATTACK", "1d12+3")
+             , ("SHOOT", "1d6")
+             , ("Throw", "throws!")
+             , ("melee", "melee/Greataxe")
+             , ("shoot", "shoot/Javelin")
+             , ("jewelry", "None")
+             , ("neck", "None")
+             , ("armor", "armor/Hide")
+             , ("cloak", "None")
+             , ("shield", "None")
+             , ("head", "None")
+             , ("hands", "None")
+             , ("feet", "None")
              ]
 
 -- | Orc Mage
 mdHumanoidM :: Prop
-mdHumanoidM = mdHumanoid
-  ++ [ ("Throw", "curses!"), ("MP", "10"), ("str", "11"), ("int", "11") ]
+mdHumanoidM = mdHumanoid ++ [ ("Throw", "curses!"), ("MP", "10") ]
 
 -- | Troll
 gtHumanoid :: Prop
@@ -412,9 +410,23 @@ gtHumanoid = [ ("str", "18")
              , ("int", "7")
              , ("wis", "9")
              , ("HP", "84")
+             , ("HP", "0")
              , ("XP", "1800")
              , ("Proficiency", "3")
-             , ("Throw", "burps!")
              , ("AC", "15")
+             , ("WT", "21")
+             , ("WWT", "10")
              , ("ATTACK", "2d6+4")
+             , ("SHOOT", "1d4")
+             , ("Throw", "burps!")
+             , ("melee", "melee/Tree Trunk")
+             , ("shoot", "shoot/Spit")
+             , ("jewelry", "None")
+             , ("neck", "None")
+             , ("armor", "armor/Hide")
+             , ("cloak", "None")
+             , ("shield", "None")
+             , ("head", "None")
+             , ("hands", "None")
+             , ("feet", "None")
              ]

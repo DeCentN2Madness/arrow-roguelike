@@ -7,24 +7,27 @@ Game.DiceSet rolls dice
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
 -}
-module Game.DiceSet (d4
-                    , d6
-                    , d8
-                    , d10
-                    , d12
-                    , d20
-                    , d100
-                    , d1000
-                    , rollList
-                    , rollMod) where
+module Game.DiceSet where
 
 import Control.Monad.Random
 import Data.List
 import System.Random
 
 -- | bag of dice
+d1 :: Int -> Int
+d1 _ = 1
+
+d2 :: Int -> Int
+d2 s = fromIntegral $ rollMod 1 2 0 s
+
+d3 :: Int -> Int
+d3 s = fromIntegral $ rollMod 1 3 0 s
+
 d4 :: Int -> Int
 d4 s = fromIntegral $ rollMod 1 4 0 s
+
+d5 :: Int -> Int
+d5 s = fromIntegral $ rollMod 1 5 0 s
 
 d6 :: Int -> Int
 d6 s = fromIntegral $ rollMod 1 6 0 s

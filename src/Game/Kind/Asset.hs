@@ -114,23 +114,18 @@ mkAssetMap = let
        , mkItem "jewelry/Ring" "="  pos
        , mkItem "neck/Amulet"  "\"" pos
        , mkItem "cloak/Cloak"  "("  pos
-       -- monsters
-       , mkMonster "Cleric"  "Medium human (h)" pos
-       , mkMonster "Fighter" "Medium human (h)" pos
-       , mkMonster "Ranger"  "Medium human (h)" pos
-       , mkMonster "Rogue"   "Medium human (h)" pos
-       , mkMonster "Mage"    "Medium human (h)" pos
-       , mkMonster "Mouse"        "Small beast (r)" pos
+       -- Monsters
+       , mkMonster "Mouse"        "Small beast (r)"     pos
        , mkMonster "Orc"          "Medium humanoid (o)" pos
        , mkMonster "Orc Archer"   "Medium humanoid (o)" pos
        , mkMonster "Orc Shaman"   "Medium humanoid (o)" pos
-       , mkMonster "Spider"       "Large beast (S)" pos
-       , mkMonster "Troll"        "Large giant (T)" pos
-       , mkMonster "Wolf"         "Medium beast (c)" pos
-       , mkMonster "Red Dragon"   "Medium dragon (d)" pos
-       , mkMonster "Green Dragon" "Medium dragon (d)" pos
-       , mkMonster "Blue Dragon"  "Medium dragon (d)" pos
-       , mkMonster "Black Dragon" "Medium dragon (d)" pos
-       , mkMonster "White Dragon" "Medium dragon (d)" pos
+       , mkMonster "Spider"       "Large beast (S)"     pos
+       , mkMonster "Troll"        "Large giant (T)"     pos
+       , mkMonster "Wolf"         "Medium beast (c)"    pos
+       , mkMonster "Red Dragon"   "Medium dragon (d)"   pos
+       , mkMonster "Green Dragon" "Medium dragon (d)"   pos
+       , mkMonster "Blue Dragon"  "Medium dragon (d)"   pos
+       , mkMonster "Black Dragon" "Medium dragon (d)"   pos
+       , mkMonster "White Dragon" "Medium dragon (d)"   pos
        ]
   in Map.fromList $ zip [0..] em

@@ -164,7 +164,7 @@ characterLook fov em = let
   groupF :: [Text] -> [(Text, Int)]
   groupF = map (head &&& length) . group . sort
   view = GE.fromEntityBy em
-  entities = groupF $ filter (/="Player") $
+  entities = groupF $
     [ name | (ek, _) <- filter (\(_, j) -> j `elem` fov) view,
       let label = Map.findWithDefault "None" "Name" (property ek)
           mHP = eHP ek
@@ -218,18 +218,15 @@ characterStore em _ = let
   in selection pInv
   ++ [" ", "Press [0-9, A-J] to Purchase. ESC to Continue..."]
 
--- | M condition
--- Green, Yellow, Red, Purple...
+-- | P condition
+-- Green, Red, Purple...
 condition :: Text -> Int -> Int -> Text
 condition label hp maxHP = let
   status n
     | n < 5 = "*"
-    | (maxHP `div` n) >  2 = "!"
-    | (maxHP `div` n) >= 4 = "~"
+    | (maxHP `div` n) > 2 = "!"
     | otherwise = ":"
-  entry = if label == "Player"
-    then "Player"
-    else T.append label $
+  entry = T.append label $
     T.pack $ " (HP" ++ status hp ++ " " ++ show hp ++ "/" ++ show maxHP ++ ")"
   in entry
 

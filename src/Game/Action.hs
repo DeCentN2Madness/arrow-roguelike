@@ -213,7 +213,7 @@ actionExamine x w = let
           desc = Map.findWithDefault "None" "Description" (property v) ]
   -- properties
   propMap = Map.fromList $
-    [ (name, prop) | (_, v) <- Map.toList (assetT w),
+    [ (name, prop) | (_, v) <- Map.toList (entityT w),
       let name = Map.findWithDefault "None" "Name" (property v)
           prop = property v ]
   view = GE.fromEntityBy (entityT w)
@@ -229,14 +229,28 @@ actionExamine x w = let
   mCon     = Map.findWithDefault "0" "con" mProp
   mInt     = Map.findWithDefault "0" "int" mProp
   mWis     = Map.findWithDefault "0" "wis" mProp
+  mArmor   = Map.findWithDefault "armor/Natural" "armor"  mProp
+  mAC      = Map.findWithDefault "0"             "AC"     mProp
+  mMelee   = Map.findWithDefault "melee/Natural" "melee"  mProp
+  mRange   = Map.findWithDefault "None"          "shoot"  mProp
+  mAttack  = Map.findWithDefault "1d4"           "ATTACK" mProp
+  mShoot   = Map.findWithDefault "0"             "SHOOT"  mProp
   mStat    = if mStr /= "0"
-    then T.concat [ " (Str:", mStr, " Dex:", mDex, " Con:", mCon
-                  , " Int:", mInt, " Wis:", mWis, ")" ]
-    else ", ..."
+    then T.concat [ "Str:",   mStr
+                  , ", Dex:", mDex
+                  , ", Con:", mCon
+                  , ", Int:", mInt
+                  , ", Wis:", mWis ]
+    else "..."
+  mEquip   = if mAC /= "0"
+    then T.concat [ "AC:",  mArmor, " (", mAC, ")"
+                  , ", M:", mMelee, " (", mAttack, ")"
+                  , ", R:", mRange, " (", mShoot, ")" ]
+    else "..."
   entry = if mExamine /= "None"
-    then T.concat [ mName, " = ", mExamine, mStat ]
+    then T.concat [ mName,  ": ", mExamine ]
     else "No Examine..."
-  in w { journalT = GJ.updateJournal [entry] (journalT w) }
+  in w { journalT = GJ.updateJournal [mEquip, mStat, entry] (journalT w) }
 
 -- | actionGet
 -- if there is something to Get...

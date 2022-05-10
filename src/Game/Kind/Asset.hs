@@ -55,7 +55,7 @@ mkAssetMap = let
        , mkItem "melee/Halberd"         "|:1d10:6:Heavy"         pos
        , mkItem "melee/Lance"           "|:1d12:6:Heavy"         pos
        , mkItem "melee/Longsword"       "|:1d8:3:"               pos
-       , mkItem "melee/Maul"            "|:2d6:10:Heavy"         pos
+       , mkItem "melee/Maul"            "|:1d12:10:Heavy"        pos
        , mkItem "melee/Morningstar"     "|:1d8:4:"               pos
        , mkItem "melee/Military Flail"  "|:2d4:3:"               pos
        , mkItem "melee/Pike"            "|:1d10:18:Heavy"        pos
@@ -64,8 +64,12 @@ mkAssetMap = let
        , mkItem "melee/Shortsword"      "|:1d6:2:Finesse, Light" pos
        , mkItem "melee/Trident"         "|:1d6:4:"               pos
        , mkItem "melee/Warhammer"       "|:1d12:6:Heavy"         pos
-       , mkItem "melee/Wizard Staff"    "|:2d4:4:Magic"          pos
        , mkItem "melee/Zweihander"      "|:2d6:6:Heavy"          pos
+       -- melee Elvish
+       , mkItem "melee/Elvish Dagger"   "|:2d2:1:Magic"          pos
+       , mkItem "melee/Elvish Spear"    "|:2d3:3:Magic"          pos
+       , mkItem "melee/Elvish Sword"    "|:2d4:3:Magic"          pos
+       , mkItem "melee/Wizard Staff"    "|:2d5:4:Magic"          pos
        -- shield
        , mkItem "shield/Buckler"        "):1:2:Light" pos
        , mkItem "shield/Shield"         "):2:6:"      pos
@@ -76,13 +80,16 @@ mkAssetMap = let
        , mkItem "shoot/Crossbow, hand"  "}:1d6:3:Ammo, Light"   pos
        , mkItem "shoot/Crossbow, heavy" "}:1d10:18:Ammo, Heavy" pos
        , mkItem "shoot/Dart"            "}:1d4:1:Ammo"          pos
-       , mkItem "shoot/Elvish Bow"      "}:2d4:2:Ammo, Magic"   pos
        , mkItem "shoot/Javelin"         "|:1d6:2:Ammo"          pos
        , mkItem "shoot/Longbow"         "}:1d8:2:Ammo, Heavy"   pos
        , mkItem "shoot/Sling"           "}:1d4:0:Ammo"          pos
        , mkItem "shoot/Shortbow"        "}:1d6:2:Ammo"          pos
        , mkItem "shoot/Throwing Knife"  "|:1d4:1:Ammo"          pos
        , mkItem "shoot/Throwing Axe"    "|:1d6:2:Ammo"          pos
+       -- shoot Elvish
+       , mkItem "shoot/Elvish Bow"      "}:2d4:2:Ammo, Magic"   pos
+       , mkItem "shoot/Elvish Longbow"  "}:2d5:2:Ammo, Magic"   pos
+       , mkItem "shoot/Elvish Shortbow" "}:2d3:2:Ammo, Magic"   pos
        -- armor
        , mkItem "armor/Padded"          "[:11:8:Light Armor"   pos
        , mkItem "armor/Leather"         "[:11:10:Light Armor"  pos

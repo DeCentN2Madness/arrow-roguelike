@@ -105,27 +105,27 @@ characterEquipment em _ = let
   (pEntity, _) = getPlayer em
   pProp = property pEntity
   pInv = [melee, shoot, ring, neck, armor, cloak, shield, helmet, hands, feet]
-  melee  = T.append "Melee: "  $ fromMaybe "None" (Map.lookup "melee" pProp)
-  shoot  = T.append "Shoot: "  $ fromMaybe "None" (Map.lookup "shoot" pProp)
-  ring   = T.append "Ring:  "  $ fromMaybe "None" (Map.lookup "jewelry" pProp)
-  neck   = T.append "Neck:  "  $ fromMaybe "None" (Map.lookup "neck" pProp)
-  armor  = T.append "Armor: "  $ fromMaybe "None" (Map.lookup "armor" pProp)
-  cloak  = T.append "Cloak: "  $ fromMaybe "None" (Map.lookup "cloak" pProp)
+  melee  = T.append "Melee:  " $ fromMaybe "None" (Map.lookup "melee" pProp)
+  shoot  = T.append "Shoot:  " $ fromMaybe "None" (Map.lookup "shoot" pProp)
+  ring   = T.append "Ring:   " $ fromMaybe "None" (Map.lookup "jewelry" pProp)
+  neck   = T.append "Neck:   " $ fromMaybe "None" (Map.lookup "neck" pProp)
+  armor  = T.append "Armor:  " $ fromMaybe "None" (Map.lookup "armor" pProp)
+  cloak  = T.append "Cloak:  " $ fromMaybe "None" (Map.lookup "cloak" pProp)
   shield = T.append "Shield: " $ fromMaybe "None" (Map.lookup "shield" pProp)
-  helmet = T.append "Head: "   $ fromMaybe "None" (Map.lookup "head" pProp)
-  hands  = T.append "Hands: "  $ fromMaybe "None" (Map.lookup "hands" pProp)
-  feet   = T.append "Feet: "   $ fromMaybe "None" (Map.lookup "feet" pProp)
-  ac     = T.append "AC: "     $ fromMaybe "0" (Map.lookup "AC" pProp)
+  helmet = T.append "Head:   " $ fromMaybe "None" (Map.lookup "head" pProp)
+  hands  = T.append "Hands:  " $ fromMaybe "None" (Map.lookup "hands" pProp)
+  feet   = T.append "Feet:   " $ fromMaybe "None" (Map.lookup "feet" pProp)
+  ac     = T.append "AC:     " $ fromMaybe "0" (Map.lookup "AC" pProp)
   attack = T.append "Attack: " $ fromMaybe "0" (Map.lookup "ATTACK" pProp)
-  range  = T.append "Shoot: "  $ fromMaybe "0" (Map.lookup "SHOOT" pProp)
+  range  = T.append "Shoot:  " $ fromMaybe "0" (Map.lookup "SHOOT" pProp)
   -- Encumbered, Finesse, Heavy weapons?
   pStr = read $ T.unpack $ Map.findWithDefault "1" "str" pProp :: Int
   pWT  = read $ T.unpack $ Map.findWithDefault "0" "WT"  pProp :: Int
   pWWT = read $ T.unpack $ Map.findWithDefault "0" "WWT" pProp :: Int
   pEnc = if pWT > 5 * pStr
     then "Load: ENCUMBERED"
-    else T.pack $ "Load:  " ++ show pWT ++ "/" ++ show (5 * pStr) ++ " lbs."
-  pFinesse = if pWWT < 3 then "Combat: Finesse" else "Combat: Strength"
+    else T.pack $ "Load: " ++ show pWT ++ "/" ++ show (5 * pStr) ++ " lbs."
+  pFinesse = if pWWT < 3 then "Melee: Finesse" else "Melee: Strength"
   pHeavy   = if pWWT > 4
     then "Weapon: Heavy"
     else T.pack $ "Weapon: " ++ show pWWT ++ " lbs."

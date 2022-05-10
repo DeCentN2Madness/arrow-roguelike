@@ -273,12 +273,18 @@ weapon dice seed bonus = let
   (wDam, wMod) = T.breakOn "+" dice
   roll = case wDam of
     "1d1" -> 1
+    "1d2" -> DS.d2 seed
+    "1d3" -> DS.d3 seed
     "1d4" -> DS.d4 seed
+    "1d5" -> DS.d5 seed
     "1d6" -> DS.d6 seed
     "1d8" -> DS.d8 seed
     "1d10" -> DS.d10 seed
     "1d12" -> DS.d12 seed
+    "2d2" -> DS.d2 seed + DS.d2 (seed+1)
+    "2d3" -> DS.d3 seed + DS.d3 (seed+1)
     "2d4" -> DS.d4 seed + DS.d4 (seed+1)
+    "2d5" -> DS.d5 seed + DS.d5 (seed+1)
     "2d6" -> DS.d6 seed + DS.d6 (seed+1)
     _     -> DS.d4 seed
   wBonus n

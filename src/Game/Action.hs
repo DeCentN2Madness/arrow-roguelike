@@ -49,7 +49,7 @@ actionCast w = let
     xs -> fst $ head $ mySort [ (ix, d) | (ix, xy) <- xs,
                                 let d = distance xy pPos ]
   newPlayer = if pMana > 0 && mTarget > 0
-    then pEntity { eMP = if pMana - 1 > 0 then 0 else pMana - 1}
+    then pEntity { eMP = if pMana - 1 > 0 then pMana - 1 else 0 }
     else pEntity
   entry = if pMana > 0 && mTarget > 0
     then T.pack "Casts a Spell..."
@@ -229,12 +229,14 @@ actionExamine x w = let
   mCon     = Map.findWithDefault "0" "con" mProp
   mInt     = Map.findWithDefault "0" "int" mProp
   mWis     = Map.findWithDefault "0" "wis" mProp
+  mClass   = Map.findWithDefault "Item"          "Class"  mProp
   mArmor   = Map.findWithDefault "armor/Natural" "armor"  mProp
   mAC      = Map.findWithDefault "0"             "AC"     mProp
   mMelee   = Map.findWithDefault "melee/Natural" "melee"  mProp
   mRange   = Map.findWithDefault "None"          "shoot"  mProp
   mAttack  = Map.findWithDefault "1d4"           "ATTACK" mProp
   mShoot   = Map.findWithDefault "0"             "SHOOT"  mProp
+  mCls     = T.concat [ "Class: ", mClass ]
   mStat    = if mStr /= "0"
     then T.concat [ "Str:",   mStr
                   , ", Dex:", mDex
@@ -250,7 +252,7 @@ actionExamine x w = let
   entry = if mExamine /= "None"
     then T.concat [ mName,  ": ", mExamine ]
     else "No Examine..."
-  in w { journalT = GJ.updateJournal [mEquip, mStat, entry] (journalT w) }
+  in w { journalT = GJ.updateJournal [mEquip, mStat, mCls, entry] (journalT w) }
 
 -- | actionGet
 -- if there is something to Get...

@@ -121,7 +121,7 @@ characterEquipment em _ = let
   -- Encumbered, Finesse, Heavy weapons?
   pStr = read $ T.unpack $ Map.findWithDefault "1" "str" pProp :: Int
   pWT  = read $ T.unpack $ Map.findWithDefault "0" "WT"  pProp :: Int
-  pWWT = read $ T.unpack $ Map.findWithDefault "3" "WWT" pProp :: Int
+  pWWT = read $ T.unpack $ Map.findWithDefault "0" "WWT" pProp :: Int
   pEnc = if pWT > 5 * pStr
     then "Load: ENCUMBERED"
     else T.pack $ "Load:  " ++ show pWT ++ "/" ++ show (5 * pStr) ++ " lbs."

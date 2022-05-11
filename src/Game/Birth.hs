@@ -53,8 +53,8 @@ healthPool n
 -- | manaPool
 manaPool :: Text -> (Text, Text)
 manaPool n
-  | n == "Fighter" = ("MP", "2")
-  | n == "Rogue"   = ("MP", "4")
+  | n == "Fighter" = ("MP", "1")
+  | n == "Rogue"   = ("MP", "6")
   | n == "Mage"    = ("MP", "10")
   | n == "Cleric"  = ("MP", "8")
   | otherwise = ("MP", "0")

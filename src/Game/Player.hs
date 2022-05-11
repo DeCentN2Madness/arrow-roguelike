@@ -45,6 +45,17 @@ type Player = EntityKind
 type AssetMap = EntityMap
 type Properties = Map Text Text
 
+-- | abilityGain
+-- gain at levels 4, 8, 12, 16, 19
+abilityGain :: Int -> Int -> (Int, Int)
+abilityGain lvl curr
+  | lvl == 4  && lvl > curr = (2, 0)
+  | lvl == 8  && lvl > curr = (2, 0)
+  | lvl == 12 && lvl > curr = (0, 2)
+  | lvl == 16 && lvl > curr = (1, 1)
+  | lvl == 19 && lvl > curr = (1, 1)
+  | otherwise = (0,0)
+
 -- | abilityMod
 abilityMod :: Int -> Int
 abilityMod n = (n-10) `div` 2
@@ -324,6 +335,7 @@ updatePlayerXP :: Int -> EntityMap -> EntityMap
 updatePlayerXP xp em = let
   (pEntity, _ ) = getPlayer em
   pProp     = property pEntity
+  pCls      = Map.findWithDefault "None" "Class" pProp
   pStr      = read $ T.unpack $ Map.findWithDefault "1" "str" pProp
   pDex      = read $ T.unpack $ Map.findWithDefault "1" "dex" pProp
   pCon      = read $ T.unpack $ Map.findWithDefault "1" "con" pProp
@@ -333,18 +345,34 @@ updatePlayerXP xp em = let
   cMP       = read $ T.unpack $ Map.findWithDefault "1" "MP" pProp
   pTot      = eXP pEntity + xp
   pLvl      = xpLevel pTot
-  pHP       = if pLvl > eLvl pEntity then pMaxHP else eHP pEntity
+  current   = eLvl pEntity
+  pHP       = if pLvl > current then pMaxHP else eHP pEntity
   pMaxHP    = pLvl * (cHP + abilityMod pCon)
-  pMP       = if pLvl > eLvl pEntity then pMaxMP else eMP pEntity
-  pMaxMP    = pLvl * (cMP + abilityMod pWis)
-  newProp   = Map.insert "Proficiency" (T.pack $ show $ proficiency pLvl) pProp
-  newPlayer = pEntity { property=newProp
-                      , eLvl=pLvl
-                      , eHP=pHP
-                      , eMaxHP=pMaxHP
-                      , eMP=pMP
-                      , eMaxMP=pMaxMP
-                      , eXP=pTot }
+  -- Fighter
+  (fStr, fDex) = if pCls == "Fighter" then abilityGain pLvl current else (0,0)
+  -- Rogue
+  (rDex, rStr) = if pCls == "Rogue" then abilityGain pLvl current else (0,0)
+  -- Mage
+  (mInt, mWis) = if pCls == "Mage"  then abilityGain pLvl current else (0,0)
+  -- Cleric
+  (cWis, cInt) = if pCls == "Cleric" then abilityGain pLvl current else (0,0)
+  -- Mana
+  pMP     = if pLvl > current then pMaxMP else eMP pEntity
+  newWis  = pWis + mWis + cWis
+  pMaxMP  = pLvl * (cMP + abilityMod newWis)
+  -- Properties
+  newProp = Map.fromList [ ("str", T.pack $ show $ pStr + fStr + rStr)
+                         , ("dex", T.pack $ show $ pDex + fDex + rDex)
+                         , ("int", T.pack $ show $ pInt + mInt + cInt)
+                         , ("wis", T.pack $ show $ pWis + mWis + cWis)
+                         , ("Proficiency", T.pack $ show $ proficiency pLvl) ]
+  newPlayer = pEntity { property = Map.union newProp pProp
+                      , eLvl     = pLvl
+                      , eHP      = pHP
+                      , eMaxHP   = pMaxHP
+                      , eMP      = pMP
+                      , eMaxMP   = pMaxMP
+                      , eXP      = pTot }
   in updatePlayer newPlayer em
 
 -- | xpLevel simple

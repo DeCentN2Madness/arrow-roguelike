@@ -52,13 +52,13 @@ draw r ts w = do
       -- Draw Visual Map
       drawMap r ts w
       -- '@' Stats
-      renderHpBar r (5, 10)  100.0 160.0 Gray Gray 1.0
+      renderHpBar r (5, 10)  100.0 180.0 Gray Gray 1.0
       -- '@' Vitals
-      renderHpBar r (5, 170) 100.0 10.0 Red   Green  pHp
-      renderHpBar r (5, 180) 100.0 10.0 White Blue   pMp
-      renderHpBar r (5, 190) 100.0 10.0 Gray  Yellow pArrow
-      renderHpBar r (5, 200) 100.0 10.0 Gray  Brown  pMush
-      renderHpBar r (5, 210) 100.0 10.0 Gray  Purple pPot
+      renderHpBar r (5, 190) 100.0 10.0 Red   Green  pHp
+      renderHpBar r (5, 200) 100.0 10.0 White Blue   pMp
+      renderHpBar r (5, 210) 100.0 10.0 Gray  Yellow pArrow
+      renderHpBar r (5, 220) 100.0 10.0 Gray  Brown  pMush
+      renderHpBar r (5, 230) 100.0 10.0 Gray  Purple pPot
       -- HUD Text
       EDT.drawText r w
       -- Look Text

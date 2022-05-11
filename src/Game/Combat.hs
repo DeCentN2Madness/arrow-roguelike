@@ -41,18 +41,51 @@ abilityMod :: Int -> Int
 abilityMod n = (n-10) `div` 2
 
 -- | attack verb
-attack :: Int -> Int -> Int -> Text -> Text
-attack ar dr dam name = if ar >= dr
-  then T.append " hits the " $
-  T.append name $ T.pack $ " <" ++ show dam ++ ">"
-  else T.append " misses " name
+attack :: Int -> Int -> Int -> Int -> Text -> Text
+attack roll ar dr damage name
+  | roll == 1 = T.append " ~fumbles~ attack at " name
+  | roll == 20 && ar >= dr = T.concat [ " Critical Strikes the ", name
+                                      , T.pack $ " <" ++ show damage ++ ">" ]
+  | ar >= dr  = T.concat [ " hits the ", name
+                         , T.pack $ " <" ++ show damage ++ ">" ]
+  | otherwise = T.append " attack misses " name
 
--- | clamp crits on > 20
-clamp :: Int -> Int
-clamp n
-  | n < 1 = 1
-  | n > 20 = 2*n
-  | otherwise = n
+-- | shoot verb
+attackM :: Int -> Int -> Int -> Int -> Text -> Text
+attackM roll ar dr damage name
+  | roll == 1 = T.append " ~fizzles~ cast at " name
+  | roll == 20 && ar >= dr = T.concat [ " Critical -Spell- casts at ", name
+                                      , T.pack $ " <" ++ show damage ++ ">" ]
+  | ar >= dr = T.concat [ " -Spell- casts at ", name
+                        , T.pack $ " <" ++ show damage ++ ">" ]
+  | otherwise = T.append " -Spell- cast misses " name
+
+-- | shoot verb
+attackR :: Int -> Int -> Int -> Int -> Text -> Text
+attackR roll ar dr damage name
+  | roll == 1 = T.append " ~fumbles~ shoot at " name
+  | roll == 20 && ar >= dr = T.concat [ " Critical ~Arrow~ shoots the", name
+                                      , T.pack $ " <" ++ show damage ++ ">" ]
+  | ar >= dr = T.concat [ " ~Arrow~ shoots the ", name
+                        , T.pack $ " <" ++ show damage ++ ">" ]
+  | otherwise = T.append " ~Arrow~ shoot misses " name
+
+-- | criticalDamage
+-- @ can Crit!
+criticalDamage :: Int -> Int -> Text -> Int -> Int -> Int
+criticalDamage px roll pWeap s modifier
+  | px == 0 && roll == 20 = weapon pWeap s modifier + weapon pWeap (s+1) 0
+  | otherwise = weapon pWeap s modifier
+
+-- | criticalRoll
+-- One or Twenty
+--   a. 1 is always miss
+--   b. 20 is always hit for '@'
+criticalRoll :: Int -> Int -> Int -> Int -> Int -> Int
+criticalRoll px roll modifier proficiency target
+  | roll == 1             = 1
+  | px == 0 && roll == 20 = target
+  | otherwise             = roll + modifier + proficiency
 
 -- | condition of Monster
 condition :: Int -> Int -> Text
@@ -118,8 +151,9 @@ mkCombat px mx w = if px == mx
     pMod  = read $ T.unpack $ Map.findWithDefault "0" "Proficiency" pProp
     pEnc  = if pWT > 5 * pStr then 0 else pMod
     -- ATTACK roll
-    pAR   = clamp $ DS.d20 pSeed + pStat + pEnc
-    pDam  = clamp $ weapon pWeap pSeed pStat
+    pD20  = DS.d20 pSeed
+    pAR   = criticalRoll   px pD20 pStat pEnc mAC
+    pDam  = criticalDamage px pD20 pWeap (pSeed+1) pStat
     -- mAC
     mProp = property mEntity
     mName = Map.findWithDefault "M" "Name" mProp
@@ -130,7 +164,7 @@ mkCombat px mx w = if px == mx
     pAttack = if pAR >= mAC then mHP - pDam else mHP -- Miss
     -- journal
     pEntry = T.concat [ pName
-                      , attack pAR mAC pDam mName
+                      , attack pD20 pAR mAC pDam mName
                       , condition pAttack mExp ]
     -- newEntity with damages and deaths and Exp awards
     newEntity = if pAttack < 1
@@ -153,8 +187,11 @@ mkMagicCombat px mx w = if px == mx
     pProp = property pEntity
     pName = Map.findWithDefault "P" "Name" pProp
     -- MAGIC
-    pInt  = abilityMod $ read $ T.unpack $ Map.findWithDefault "1" "int" pProp
-    pWeap = Map.findWithDefault "1d4" "ATTACK" pProp
+    pInt   = abilityMod $ read $ T.unpack $ Map.findWithDefault "1" "int" pProp
+    pWis   = abilityMod $ read $ T.unpack $ Map.findWithDefault "1" "wis" pProp
+    pClass = T.unpack $ Map.findWithDefault "None" "Class" pProp
+    pStat  = if pClass == "Cleric" then pWis else pInt
+    pWeap  = Map.findWithDefault "1d4" "ATTACK" pProp
     -- Encumbered, Heavy weapons?
     pStr  = read $ T.unpack $ Map.findWithDefault "1" "str" pProp :: Int
     pMod  = read $ T.unpack $ Map.findWithDefault "0" "Proficiency" pProp
@@ -162,8 +199,9 @@ mkMagicCombat px mx w = if px == mx
     pWWT  = read $ T.unpack $ Map.findWithDefault "0" "WWT" pProp :: Int
     pEnc  = if pWT < 5 * pStr && pWWT < 5 then pMod else 0
     -- CAST roll
-    pAR   = clamp $ DS.d20 pSeed + pInt + pEnc
-    pDam  = clamp $ weapon pWeap pSeed pInt
+    pD20  = DS.d20 pSeed
+    pAR   = criticalRoll   px pD20 pStat pEnc mAC
+    pDam  = criticalDamage px pD20 pWeap (pSeed+1) pStat
     -- mAC
     mProp = property mEntity
     mName = Map.findWithDefault "M" "Name" mProp
@@ -178,7 +216,7 @@ mkMagicCombat px mx w = if px == mx
       else entityT w
     -- journal
     pEntry = T.concat [ pName
-                      , shootM pAR mAC pDam mName
+                      , attackM pD20 pAR mAC pDam mName
                       , condition pAttack mExp ]
     -- newEntity with damages and deaths and Exp awards
     newEntity = if pAttack < 1
@@ -202,6 +240,7 @@ mkRangeCombat px mx w = if px == mx
     pName = Map.findWithDefault "P" "Name" pProp
     -- THROW
     pDex  = abilityMod $ read $ T.unpack $ Map.findWithDefault "1" "dex" pProp
+    pStat = pDex
     pWeap = Map.findWithDefault "1d4" "SHOOT" pProp
     -- Encumbered, Heavy weapons?
     pStr  = read $ T.unpack $ Map.findWithDefault "1" "str" pProp :: Int
@@ -210,8 +249,9 @@ mkRangeCombat px mx w = if px == mx
     pWWT  = read $ T.unpack $ Map.findWithDefault "0" "WWT" pProp :: Int
     pEnc  = if pWT < 5 * pStr && pWWT < 5 then pMod else 0
     -- SHOOT roll
-    pAR   = clamp $ DS.d20 pSeed + pDex + pEnc
-    pDam  = clamp $ weapon pWeap pSeed pEnc
+    pD20  = DS.d20 pSeed
+    pAR   = criticalRoll   px pD20 pStat pEnc mAC
+    pDam  = criticalDamage px pD20 pWeap (pSeed+1) pStat
     -- mAC
     mProp = property mEntity
     mName = Map.findWithDefault "M" "Name" mProp
@@ -226,7 +266,7 @@ mkRangeCombat px mx w = if px == mx
       else entityT w
     -- journal
     pEntry = T.concat [ pName
-                      , shoot pAR mAC pDam mName
+                      , attackR pD20 pAR mAC pDam mName
                       , condition pAttack mExp ]
     -- newEntity with damages and deaths and Exp awards
     newEntity = if pAttack < 1
@@ -251,19 +291,6 @@ scatter mEntity = let
   missRoll = head $ DS.rollList 1 (fromIntegral $ length missList) seed
   in nth missRoll missList
 
--- | shoot verb
-shoot :: Int -> Int -> Int -> Text -> Text
-shoot ar dr dam name = if ar >= dr
-  then T.append " shoots ~Arrow~ at " $
-  T.append name $ T.pack $ " <" ++ show dam ++ ">"
-  else T.append " ~Arrow~ misses the " name
-
--- | shoot verb
-shootM :: Int -> Int -> Int -> Text -> Text
-shootM ar dr dam name = if ar >= dr
-  then T.append " casts -Spell- at " $
-  T.append name $ T.pack $ " <" ++ show dam ++ ">"
-  else T.append " -Spell- misses the " name
 
 -- | weapon
 -- Damage roll for Weapons...

@@ -54,7 +54,7 @@ abilityMod n = (n-10) `div` 2
 --   1. ArmorClass (AC)
 --   2. Weight (WT)
 --   3. Weapon WT (WWT)
---   4. SHOOT, ATTACK die
+--   4. ATTACK, SHOOT Damage
 armorShield :: Properties -> AssetMap -> Properties
 armorShield pProp am = let
   descMap = Map.fromList $
@@ -87,17 +87,18 @@ armorShield pProp am = let
     | n > 40 = 0
     | n > 20 && n <= 40 = if abilityMod pDex > 2 then 2 else abilityMod pDex
     | otherwise = abilityMod pDex
-  -- AC
-  pAC = T.pack $ show $ aAC + sAC + pDR aWT
-  -- WT
-  pWT = T.pack $ show $ aWT + sWT + mWT + rWT
+  -- ArmorClass (AC)
+  pAC = aAC + sAC + pDR aWT
+  -- Weight (WT)
+  pWT = aWT + sWT + mWT + rWT
   -- '@' Combat Stats
-  ac = Map.insert "AC" pAC pProp
-  wt = Map.insert "WT" pWT ac
-  wwt = Map.insert "WWT" (T.pack $ show mWT) wt
-  range  = Map.insert "SHOOT"  rDam wwt
-  attack = Map.insert "ATTACK" mDam range
-  in attack
+  newProp = Map.fromList [ ("AC", T.pack $ show pAC)
+                         , ("WT", T.pack $ show pWT)
+                         , ("WWT", T.pack $ show mWT)
+                         , ("ATTACK", mDam)
+                         , ("SHOOT", rDam)
+                         ]
+  in Map.union newProp pProp
 
 -- | @ Equipment
 characterEquipment :: EntityMap -> AssetMap -> [Text]
@@ -131,7 +132,7 @@ characterEquipment em _ = let
     else T.pack $ "Weapon: " ++ show pWWT ++ " lbs."
   in selection pInv
   ++ [ac, attack, range, pFinesse, pEnc, pHeavy
-     , "Press [0-9] to Doff, (I)nventory. Press ESC to Continue..."]
+     , "Press [0-9] to Doff. (I)nventory. Press ESC to Continue."]
 
 -- | @ Examine
 characterExamine :: [Coord] -> EntityMap -> AssetMap -> [Text]
@@ -140,7 +141,7 @@ characterExamine fov em _ = let
   pFOV = [ name | (ek, _) <- filter (\(_, j) -> j `elem` fov) view,
            let name = Map.findWithDefault "None" "Name" (property ek) ]
   in selection pFOV
-  ++ [" ", "Press [0-9, A-J] to E(X)amine. ESC to Continue..."]
+  ++ [" ", "Press [0-9, A-J] to E(X)amine. ESC to Continue."]
 
 -- | @ Inventory
 characterInventory :: EntityMap -> AssetMap -> [Text]
@@ -155,7 +156,7 @@ characterInventory em _ = let
             then T.append k (T.pack $ " (" ++ show v ++ ")")
             else "None" ]
   in selection pInv
-  ++ [" ", "Press [0-9, A-J] to Don/Drop, (W)ield. ESC to Continue..."]
+  ++ [" ", "Press [0-9, A-J] to Don. (D)rop. (W)ield. ESC to Continue."]
 
 -- | @ Look
 -- What can @ see in FOV...
@@ -197,6 +198,7 @@ characterSheet em = let
     , equip "hands"   "]" pProp
     , equip "feet"    "]" pProp
     ]
+  pCls  = Map.findWithDefault "Player" "Class" pProp
   pStr  = T.append "Str: " (Map.findWithDefault "1" "str" pProp)
   pDex  = T.append "Dex: " (Map.findWithDefault "1" "dex" pProp)
   pCon  = T.append "Con: " (Map.findWithDefault "1" "con" pProp)
@@ -204,19 +206,24 @@ characterSheet em = let
   pWis  = T.append "Wis: " (Map.findWithDefault "1" "wis" pProp)
   pLvl  = T.pack $ "Level: " ++ show (eLvl pEntity)
   pExp  = T.pack $ "EXP: " ++ show (eXP pEntity)
-  in [ pLvl, pExp, pCoin, pEquip, pStr, pDex, pCon, pInt, pWis ]
+  in [ pCls, pLvl, pExp, pCoin, pEquip, pStr, pDex, pCon, pInt, pWis ]
 
 -- | @ Store
 characterStore :: EntityMap -> AssetMap -> [Text]
-characterStore em _ = let
+characterStore em am = let
   (pEntity, _) = getPlayer em
+  descMap = Map.fromList $
+    [ (name, desc) | (_, v) <- Map.toList am,
+      let name = Map.findWithDefault "None" "Name" (property v)
+          desc = Map.findWithDefault "None" "Description" (property v) ]
   pInv = filter (/="None") $
     [ name | (k, v) <- Map.toList (inventory pEntity),
       let name = if k `elem` ["Arrow", "Mushroom", "Potion"]
-            then T.append k (T.pack $ " (" ++ show v ++ ")")
-            else "None" ]
+            then T.append k (T.pack $ " (" ++ show v ++ ") " ++ T.unpack item)
+            else "None"
+          item = Map.findWithDefault "--" k descMap ]
   in selection pInv
-  ++ [" ", "Press [0-9, A-J] to Purchase. ESC to Continue..."]
+  ++ [" ", "Press [0-9, A-J] to Purchase. ESC to Continue."]
 
 -- | P condition
 -- Green, Red, Purple...
@@ -317,7 +324,10 @@ updatePlayerXP :: Int -> EntityMap -> EntityMap
 updatePlayerXP xp em = let
   (pEntity, _ ) = getPlayer em
   pProp     = property pEntity
+  pStr      = read $ T.unpack $ Map.findWithDefault "1" "str" pProp
+  pDex      = read $ T.unpack $ Map.findWithDefault "1" "dex" pProp
   pCon      = read $ T.unpack $ Map.findWithDefault "1" "con" pProp
+  pInt      = read $ T.unpack $ Map.findWithDefault "1" "int" pProp
   pWis      = read $ T.unpack $ Map.findWithDefault "1" "wis" pProp
   cHP       = read $ T.unpack $ Map.findWithDefault "1" "HP" pProp
   cMP       = read $ T.unpack $ Map.findWithDefault "1" "MP" pProp

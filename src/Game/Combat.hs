@@ -64,7 +64,7 @@ attackM roll ar dr damage name
 attackR :: Int -> Int -> Int -> Int -> Text -> Text
 attackR roll ar dr damage name
   | roll == 1 = T.append " ~fumbles~ shoot at " name
-  | roll == 20 && ar >= dr = T.concat [ " Critical ~Arrow~ shoots the", name
+  | roll == 20 && ar >= dr = T.concat [ " Critical ~Arrow~ shoots the ", name
                                       , T.pack $ " <" ++ show damage ++ ">" ]
   | ar >= dr = T.concat [ " ~Arrow~ shoots the ", name
                         , T.pack $ " <" ++ show damage ++ ">" ]

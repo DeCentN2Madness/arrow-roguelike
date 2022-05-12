@@ -54,4 +54,5 @@ mainLoop world render ts = do
     modifyIORef world (GA.applyIntent i)
     d <- readIORef world
     EDU.draw render ts d
+  SDL.delay 10
   unless (gameState q == GameStop) $ mainLoop world render ts

@@ -285,7 +285,7 @@ actionHear em listen = let
                    d = distance (coord ek) listen ]
   total = sum hearList :: Int
   hear n
-    | n > 1  = T.pack $ "Something moved " ++ " <" ++ show n ++ ">"
+    | n > 1  = T.pack $ "Something moved " ++ "<" ++ show n ++ ">"
     | n == 1 = "Something moved"
     | otherwise = ""
   in T.append (hear total) "..."

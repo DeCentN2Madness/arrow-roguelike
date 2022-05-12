@@ -90,7 +90,7 @@ actionPlayer pos w = let
   listen    = GA.actionHear (entityT moveWorld) newCoord
   -- Combat event
   world     = if bump > 0 then GC.mkCombat 0 bump moveWorld else moveWorld
-  -- XP event
+  -- @ Status
   (newPlayer, _) = GP.getPlayer (entityT world)
   learn = if eLvl newPlayer > eLvl pEntity
     then T.pack $ "Welcome to Level " ++ show (eLvl newPlayer) ++ "..."
@@ -98,9 +98,8 @@ actionPlayer pos w = let
   alive = if eHP newPlayer < 1
     then "Player is Dead! Press r to Restart..."
     else "..."
-  entry = [listen, learn, alive]
   in world { tick     = newTick
-           , journalT = GJ.updateJournal entry (journalT world) }
+           , journalT = GJ.updateJournal [listen, learn, alive] (journalT world) }
 
 -- | applyIntent
 -- Events applied to the World

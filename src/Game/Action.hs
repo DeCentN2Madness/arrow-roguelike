@@ -371,10 +371,17 @@ actionThrow :: World -> World
 actionThrow w = let
   newTick         = tick w + 1
   (pEntity, pPos) = GP.getPlayer (entityT w)
-  pInv            = inventory pEntity
-  pArrow          = Map.findWithDefault 0 "Arrow" pInv
-  mySort          = sortBy (compare `on` snd)
+  -- Rogue can also use Coin
+  pProp  = property pEntity
+  pCls   = Map.findWithDefault "Player" "Class" pProp
+  pCoin  = if pCls == "Rogue" then Map.findWithDefault 0 "Coin" pInv else 0
+  -- Everyone else Arrow
+  pInv   = inventory pEntity
+  pArrow = Map.findWithDefault 0 "Arrow" pInv
+  -- Arrow vs Coin
+  (ammo, count) = if pCoin > 0 then ("Coin", pCoin-1) else ("Arrow", pArrow-1)
   -- pick closest target
+  mySort  = sortBy (compare `on` snd)
   mTargets = filter (\(_, j) -> j `elem` fovT w) $
     [ (ix, xy) | (ix, pos) <- GE.fromBlock (entityT w),
       let xy = if ix > 0 then pos else (0,0) ]
@@ -382,8 +389,8 @@ actionThrow w = let
     [] -> 0
     xs -> fst $ head $ mySort [ (ix, d) | (ix, xy) <- xs,
                                 let d = distance xy pPos ]
-  newPlayer = if pArrow > 0 && mTarget > 0
-    then pEntity { inventory = Map.insert "Arrow" (pArrow-1) pInv }
+  newPlayer = if (pArrow > 0 || pCoin > 0) && mTarget > 0
+    then pEntity { inventory = Map.insert ammo count pInv }
     else pEntity
   entry = if pArrow > 0 && mTarget > 0
     then T.pack "Shoots an Arrow..."

@@ -392,14 +392,14 @@ actionThrow w = let
   newPlayer = if (pArrow > 0 || pCoin > 0) && mTarget > 0
     then pEntity { inventory = Map.insert ammo count pInv }
     else pEntity
-  entry = if pArrow > 0 && mTarget > 0
+  entry = if (pArrow > 0 || pCoin > 0) && mTarget > 0
     then T.pack "Shoots an Arrow..."
     else "No Shoot..."
   -- throwWorld
   throwWorld = w { entityT  = GP.updatePlayer newPlayer (entityT w)
                  , journalT = GJ.updateJournal [entry] (journalT w) }
   -- Combat event
-  world = if pArrow > 0 && mTarget > 0
+  world = if (pArrow > 0 || pCoin > 0) && mTarget > 0
     then GC.mkRangeCombat 0 mTarget throwWorld
     else throwWorld
   in world { tick = newTick }

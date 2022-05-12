@@ -355,15 +355,15 @@ updatePlayerXP xp em = let
   -- Mage
   (mInt, mWis) = if pCls == "Mage"  then abilityGain pLvl current else (0,0)
   -- Cleric
-  (cWis, cInt) = if pCls == "Cleric" then abilityGain pLvl current else (0,0)
+  (cWis, cStr) = if pCls == "Cleric" then abilityGain pLvl current else (0,0)
   -- Mana
   pMP     = if pLvl > current then pMaxMP else eMP pEntity
   newWis  = pWis + mWis + cWis
   pMaxMP  = pLvl * (cMP + abilityMod newWis)
   -- Properties
-  newProp = Map.fromList [ ("str", T.pack $ show $ pStr + fStr + rStr)
+  newProp = Map.fromList [ ("str", T.pack $ show $ pStr + fStr + rStr + cStr)
                          , ("dex", T.pack $ show $ pDex + fDex + rDex)
-                         , ("int", T.pack $ show $ pInt + mInt + cInt)
+                         , ("int", T.pack $ show $ pInt + mInt)
                          , ("wis", T.pack $ show $ pWis + mWis + cWis)
                          , ("Proficiency", T.pack $ show $ proficiency pLvl) ]
   newPlayer = pEntity { property = Map.union newProp pProp

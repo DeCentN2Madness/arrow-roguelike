@@ -49,7 +49,7 @@ actionCast w = let
     then pEntity { eMP = pMana - 1 }
     else pEntity
   entry = if pMana > 0 && mTarget > 0
-    then T.pack "Casts a Spell..."
+    then T.pack "Cast a Spell..."
     else T.pack "No Cast..."
   -- throwWorld
   throwWorld = w { entityT  = GP.updatePlayer newPlayer (entityT w)
@@ -237,23 +237,35 @@ actionExamine x w = let
   mRange   = Map.findWithDefault "None" "shoot"  mProp
   mAttack  = Map.findWithDefault "1d4"  "ATTACK" mProp
   mShoot   = Map.findWithDefault "0"    "SHOOT"  mProp
-  mCls     = T.concat [ "Class: ", mClass ]
-  mStat    = if mStr /= "0"
+  mCls     = T.append "Class: " mClass
+  -- Stats
+  mStat = if mStr /= "0"
     then T.concat [ "Str:",   mStr
                   , ", Dex:", mDex
                   , ", Con:", mCon
                   , ", Int:", mInt
                   , ", Wis:", mWis ]
     else "..."
-  mEquip   = if mAC /= "0"
+  -- Equipment
+  mEquip = if mAC /= "0"
     then T.concat [ "AC:",  mArmor, " (", mAC, ")"
                   , ", M:", mMelee, " (", mAttack, ")"
                   , ", R:", mRange, " (", mShoot, ")" ]
     else "..."
+  -- Special
+  mRules = T.append "Special: " mSpecial
+  mSpecial
+    | mClass == "Fighter" = "Item"
+    | mClass == "Rogue"   = "Coin"
+    | mClass == "Mage"    = "Potion"
+    | mClass == "Cleric"  = "Mushroom"
+    | mClass == "Item"    = "..."
+    | otherwise           = "Coin"
+  -- Name
   entry = if mExamine /= "None"
     then T.concat [ mName,  ": ", mExamine ]
     else "No Examine..."
-  in w { journalT = GJ.updateJournal [mEquip, mStat, mCls, entry] (journalT w) }
+  in w { journalT = GJ.updateJournal [mRules, mEquip, mStat, mCls, entry] (journalT w) }
 
 -- | actionGet
 -- if there is something to Get...

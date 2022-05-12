@@ -81,8 +81,11 @@ abilityResult2 resultA resultB rollA rollB modA modB prof =
 criticalDamage :: Int -> Text -> Int -> Int -> Int
 criticalDamage roll pWeap s modifier
   | roll == 1   = 0
-  | roll == 100 = weapon pWeap s modifier + weapon pWeap (s+1) 0
-  | otherwise   = weapon pWeap s modifier
+  | roll == 100 = result + crit
+  | otherwise   = if result < 1 then 0 else result
+  where
+    result = weapon pWeap (s+1) modifier
+    crit   = weapon pWeap (s+2) 0
 
 -- | criticalRoll
 -- One or Twenty

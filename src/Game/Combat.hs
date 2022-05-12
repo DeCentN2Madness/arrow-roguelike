@@ -33,53 +33,30 @@ import qualified Game.Inventory as GI
 import qualified Game.Journal as GJ
 import Game.Kind.Entity (EntityKind(..))
 import qualified Game.Player as GP
+import Game.Rules
 
 type AssetMap = EntityMap
 
--- | abilityMod
-abilityMod :: Int -> Int
-abilityMod n = (n-10) `div` 2
-
 -- | attack verb
-attack :: Int -> Int -> Int -> Text -> Text
-attack ar dr damage name
+attack :: Int -> Int -> Text -> Text
+attack ar dr name
   | ar == 1   = T.append " ~fumbles~ attack at " name
-  | ar >= dr  = T.concat [ " hits the ", name
-                         , T.pack $ " <" ++ show damage ++ ">" ]
+  | ar >= dr  = T.append " hits the " name
   | otherwise = T.append " attack misses " name
 
 -- | shoot verb
-attackM :: Int -> Int -> Int -> Text -> Text
-attackM ar dr damage name
-  | ar == 1  = T.append " ~fizzles~ cast at " name
-  | ar >= dr = T.concat [ " -Spell- casts at ", name
-                        , T.pack $ " <" ++ show damage ++ ">" ]
+attackM :: Int -> Int -> Text -> Text
+attackM ar dr name
+  | ar == 1   = T.append " ~fizzles~ cast at " name
+  | ar >= dr  = T.append " -Spell- casts at " name
   | otherwise = T.append " -Spell- cast misses " name
 
 -- | shoot verb
-attackR :: Int -> Int -> Int -> Text -> Text
-attackR ar dr damage name
-  | ar == 1  = T.append " ~fumbles~ shoot at " name
-  | ar >= dr = T.concat [ " ~Arrow~ shoots the ", name
-                        , T.pack $ " <" ++ show damage ++ ">" ]
+attackR :: Int -> Int -> Text -> Text
+attackR ar dr name
+  | ar == 1   = T.append " ~fumbles~ shoot at " name
+  | ar >= dr  = T.append " ~Arrow~ shoots the " name
   | otherwise = T.append " ~Arrow~ shoot misses " name
-
--- | criticalDamage
--- @ can Crit!
-criticalDamage :: Int -> Text -> Int -> Int -> Int
-criticalDamage roll pWeap s modifier
-  | roll == 100 = weapon pWeap s modifier + weapon pWeap (s+1) 0
-  | otherwise = weapon pWeap s modifier
-
--- | criticalRoll
--- One or Twenty
---   a. 1 is always miss
---   b. 20 is always hit
-criticalRoll :: Int -> Int -> Int -> Int
-criticalRoll roll modifier proficiency
-  | roll == 1  = 1
-  | roll == 20 = 100
-  | otherwise  = roll + modifier + proficiency
 
 -- | condition of Monster
 condition :: Int -> Int -> Text
@@ -145,7 +122,7 @@ mkCombat px mx w = if px == mx
     -- ATTACK roll
     pD20  = DS.d20 pSeed
     pAR   = criticalRoll   pD20 pStat pEnc
-    pDam  = criticalDamage pD20 pWeap (pSeed+1) pStat
+    pDam  = criticalDamage pAR  pWeap (pSeed+1) pStat
     -- mAC
     mProp = property mEntity
     mName = Map.findWithDefault "M" "Name" mProp
@@ -156,7 +133,8 @@ mkCombat px mx w = if px == mx
     pAttack = if pAR >= mAC then mHP - pDam else mHP -- Miss
     -- journal
     pEntry = T.concat [ pName
-                      , attack pAR mAC pDam mName
+                      , attack pAR mAC mName
+                      , abilityResult pDam pAR pStat pEnc
                       , condition pAttack mExp ]
     -- newEntity with damages and deaths and Exp awards
     newEntity = if pAttack < 1
@@ -193,7 +171,7 @@ mkMagicCombat px mx w = if px == mx
     -- CAST roll
     pD20  = DS.d20 pSeed
     pAR   = criticalRoll   pD20 pStat pEnc
-    pDam  = criticalDamage pD20 pWeap (pSeed+1) pStat
+    pDam  = criticalDamage pAR  pWeap (pSeed+1) pStat
     -- mAC
     mProp = property mEntity
     mName = Map.findWithDefault "M" "Name" mProp
@@ -208,7 +186,8 @@ mkMagicCombat px mx w = if px == mx
       else entityT w
     -- journal
     pEntry = T.concat [ pName
-                      , attackM pAR mAC pDam mName
+                      , attackM pAR mAC mName
+                      , abilityResult pDam pAR pStat pEnc
                       , condition pAttack mExp ]
     -- newEntity with damages and deaths and Exp awards
     newEntity = if pAttack < 1
@@ -243,7 +222,7 @@ mkRangeCombat px mx w = if px == mx
     -- SHOOT roll
     pD20  = DS.d20 pSeed
     pAR   = criticalRoll   pD20 pStat pEnc
-    pDam  = criticalDamage pD20 pWeap (pSeed+1) pStat
+    pDam  = criticalDamage pAR  pWeap (pSeed+1) pStat
     -- mAC
     mProp = property mEntity
     mName = Map.findWithDefault "M" "Name" mProp
@@ -258,7 +237,8 @@ mkRangeCombat px mx w = if px == mx
       else entityT w
     -- journal
     pEntry = T.concat [ pName
-                      , attackR pAR mAC pDam mName
+                      , attackR pAR mAC mName
+                      , abilityResult pDam pAR pStat pEnc
                       , condition pAttack mExp ]
     -- newEntity with damages and deaths and Exp awards
     newEntity = if pAttack < 1
@@ -282,33 +262,3 @@ scatter mEntity = let
   missList = moveT mEntity
   missRoll = head $ DS.rollList 1 (fromIntegral $ length missList) seed
   in nth missRoll missList
-
--- | weapon
--- Damage roll for Weapons...
--- Example: 1d4+1
-weapon :: Text -> Int -> Int -> Int
-weapon dice seed bonus = let
-  (wDam, wMod) = T.breakOn "+" dice
-  roll = case wDam of
-    "1d1" -> 1
-    "1d2" -> DS.d2 seed
-    "1d3" -> DS.d3 seed
-    "1d4" -> DS.d4 seed
-    "1d5" -> DS.d5 seed
-    "1d6" -> DS.d6 seed
-    "1d8" -> DS.d8 seed
-    "1d10" -> DS.d10 seed
-    "1d12" -> DS.d12 seed
-    "2d2" -> DS.d2 seed + DS.d2 (seed+1)
-    "2d3" -> DS.d3 seed + DS.d3 (seed+1)
-    "2d4" -> DS.d4 seed + DS.d4 (seed+1)
-    "2d5" -> DS.d5 seed + DS.d5 (seed+1)
-    "2d6" -> DS.d6 seed + DS.d6 (seed+1)
-    _     -> DS.d4 seed
-  wBonus n
-    | n == "+1" = 1
-    | n == "+2" = 2
-    | n == "+3" = 3
-    | n == "+4" = 4
-    | otherwise = 0
-  in roll + bonus + wBonus wMod

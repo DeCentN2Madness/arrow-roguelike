@@ -46,6 +46,7 @@ library
                     , Game.Kind.Tile
                     , Game.Kind.Visual
                     , Game.Player
+                    , Game.Rules
                     , Game.Tile
                     , Game.Vault
   build-depends:    base
@@ -96,6 +97,7 @@ executable Arrow
                     , Game.Kind.Tile
                     , Game.Kind.Visual
                     , Game.Player
+                    , Game.Rules
                     , Game.Tile
                     , Game.Vault
   hs-source-dirs:   app

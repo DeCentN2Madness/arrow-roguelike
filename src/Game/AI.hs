@@ -22,6 +22,7 @@ import qualified Game.Inventory as GI
 import qualified Game.Journal as GJ
 import Game.Kind.Entity (Entity(..), EntityKind(..))
 import qualified Game.Player as GP
+import Game.Rules
 
 data AI
   = Attack
@@ -34,10 +35,6 @@ data AI
   | Throw
   | Wait
   deriving (Show, Eq)
-
--- | abilityMod
-abilityMod :: Int -> Int
-abilityMod n = (n-10) `div` 2
 
 -- | aiAction
 -- AI actions based on goal, HP, position...
@@ -115,10 +112,12 @@ monsterDrink mx mEntity w = let
   seed   = tick w
   mInv   = inventory mEntity
   mPot   = Map.findWithDefault 0 "Potion" mInv
-  hRoll  = DS.d4 seed     + DS.d4 (seed+1) + mCon
-  mRoll  = DS.d4 (seed+2) + DS.d4 (seed+3) + mWis
-  heal   = eHP mEntity + hRoll
-  mana   = eMP mEntity + mRoll
+  hRoll  = DS.d4 seed     + DS.d4 (seed+1)
+  mRoll  = DS.d4 (seed+2) + DS.d4 (seed+3)
+  heal   = eHP mEntity + hDelta
+  mana   = eMP mEntity + mDelta
+  hDelta = hRoll + mCon
+  mDelta = mRoll + mWis
   mHp    = if heal > mMaxHp then mMaxHp else heal
   mMp    = if mana > mMaxMp then mMaxMp else mana
   mMaxHp = eMaxHP mEntity
@@ -132,8 +131,9 @@ monsterDrink mx mEntity w = let
                  , eHP = mHp, eMP = mMp }
     else mEntity
   entry = if mPot > 0
-    then T.append mName $ T.pack $ " is Thirsty:"
-    ++  "<+" ++ show hRoll ++ ", +" ++ show mRoll ++ ">, ..."
+    then T.concat [ mName
+                  , " is Thirsty:"
+                  , abilityResult2 hDelta mDelta hRoll mRoll mCon mWis 0 ]
     else "..."
   in w { entityT  = GE.updateEntity mx newMonster (entityT w)
        , journalT = GJ.updateJournal [entry] (journalT w) }
@@ -144,8 +144,9 @@ monsterEat :: Int -> EntityKind -> World -> World
 monsterEat mx mEntity w = let
   mInv   = inventory mEntity
   mMush  = Map.findWithDefault 0 "Mushroom" mInv
-  hRoll  = DS.d4 (tick w) + mCon
-  heal   = eHP mEntity + hRoll
+  hRoll  = DS.d4 (tick w)
+  heal   = eHP mEntity + hDelta
+  hDelta = hRoll + mCon
   mHp    = if heal > mMaxHp then mMaxHp else heal
   mMaxHp = eMaxHP mEntity
   mProp  = property mEntity
@@ -155,8 +156,9 @@ monsterEat mx mEntity w = let
     then mEntity { inventory = Map.insert "Mushroom" (mMush-1) mInv, eHP = mHp }
     else mEntity
   entry = if mMush > 0
-    then T.append mName $ T.pack $ " is :Hungry:"
-    ++ " <+" ++ show hRoll ++ ">, ..."
+    then T.concat [ mName
+                  , " is :Hungry:"
+                  , abilityResult hDelta hRoll mCon 0 ]
     else "..."
   in w { entityT  = GE.updateEntity mx newMonster (entityT w)
        , journalT = GJ.updateJournal [entry] (journalT w) }

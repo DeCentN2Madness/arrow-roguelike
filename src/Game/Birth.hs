@@ -16,13 +16,10 @@ import Data.Text (Text)
 import qualified Data.Text as T
 import qualified Game.DiceSet as DS
 import Game.Kind.Entity (EntityKind(..))
+import Game.Rules
 
 type Player = EntityKind
 type Seed = Int
-
--- | abilityMod
-abilityMod :: Int -> Int
-abilityMod n = (n-10) `div` 2
 
 -- | archtype
 archtype :: Int -> Int -> Int -> Int -> Text

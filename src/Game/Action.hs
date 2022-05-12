@@ -27,10 +27,7 @@ import qualified Game.Inventory as GI
 import qualified Game.Journal as GJ
 import Game.Kind.Entity (EntityKind(..))
 import qualified Game.Player as GP
-
--- | abilityMod
-abilityMod :: Int -> Int
-abilityMod n = (n-10) `div` 2
+import Game.Rules
 
 -- | actionCast
 -- if there is something to Cast...
@@ -185,18 +182,22 @@ actionEat w = let
   -- Mushroom
   pInv   = inventory pEntity
   pMush  = Map.findWithDefault 0 "Mushroom" pInv
-  hRoll  = DS.d4 newTick + pCon
-  heal   = eHP pEntity + hRoll
+  hRoll  = DS.d4 newTick
+  heal   = eHP pEntity + hDelta
+  hDelta = hRoll + pCon + prof
   pHp    = if heal > pMaxHp then pMaxHp else heal
   pMaxHp = eMaxHP pEntity
   pProp  = property pEntity
   pCon   = abilityMod $ read $ T.unpack $ Map.findWithDefault "1" "con" pProp
+  pProf  = read $ T.unpack $ Map.findWithDefault "0" "Proficiency" pProp
+  pCls   = Map.findWithDefault "Player" "Class" pProp
+  prof   = if pCls == "Cleric" then pProf else 0
   newPlayer = if pMush > 0
     then pEntity { inventory = Map.insert "Mushroom" (pMush-1) pInv, eHP = pHp }
     else pEntity
   entry = if pMush > 0
-    then T.append "Eat a tasty :Mushroom:" $
-    T.pack $ " <+" ++ show hRoll ++ ">, ..."
+    then T.concat [ "Eat a tasty :Mushroom:"
+                  , abilityResult hDelta hRoll pCon prof ]
     else "No Eat..."
   in w { tick = newTick
        , entityT  = GP.updatePlayer newPlayer (entityT w)
@@ -284,8 +285,8 @@ actionHear em listen = let
                    d = distance (coord ek) listen ]
   total = sum hearList :: Int
   hear n
-    | n > 1  = T.pack $ "Something moved " ++ " <" ++ show n ++ ">, "
-    | n == 1 = T.pack "Something moved, "
+    | n > 1  = T.pack $ "Something moved " ++ " <" ++ show n ++ ">"
+    | n == 1 = "Something moved"
     | otherwise = ""
   in T.append (hear total) "..."
 
@@ -317,10 +318,12 @@ actionQuaff w = let
   seed   = tick w
   pInv   = inventory pEntity
   pPot   = Map.findWithDefault 0 "Potion" pInv
-  hRoll  = DS.d4 seed     + DS.d4 (seed+1) + pCon
-  mRoll  = DS.d4 (seed+2) + DS.d4 (seed+3) + pWis
-  heal   = eHP pEntity + hRoll
-  mana   = eMP pEntity + mRoll
+  hRoll  = DS.d4 seed     + DS.d4 (seed+1)
+  mRoll  = DS.d4 (seed+2) + DS.d4 (seed+3)
+  heal   = eHP pEntity + hDelta
+  mana   = eMP pEntity + mDelta
+  hDelta = hRoll + pCon + prof
+  mDelta = mRoll + pWis + prof
   pHp    = if heal > pMaxHp then pMaxHp else heal
   pMp    = if mana > pMaxMp then pMaxMp else mana
   pMaxHp = eMaxHP pEntity
@@ -328,13 +331,16 @@ actionQuaff w = let
   pProp  = property pEntity
   pCon   = abilityMod $ read $ T.unpack $ Map.findWithDefault "1" "con" pProp
   pWis   = abilityMod $ read $ T.unpack $ Map.findWithDefault "1" "wis" pProp
+  pProf  = read $ T.unpack $ Map.findWithDefault "0" "Proficiency" pProp
+  pCls   = Map.findWithDefault "Player" "Class" pProp
+  prof   = if pCls == "Mage" then pProf else 0
   newPlayer = if pPot > 0
     then pEntity { inventory = Map.insert "Potion" (pPot-1) pInv
                  , eHP = pHp, eMP = pMp }
     else pEntity
   entry = if pPot > 0
-    then T.append "Drink a delicious :Potion:" $
-    T.pack $ " <+" ++ show hRoll ++ ", +" ++ show mRoll ++ ">, ..."
+    then T.concat [ "Drink a delicious :Potion:"
+                  , abilityResult2 hDelta mDelta hRoll mRoll pCon pWis prof ]
     else "No Drink..."
   in w { tick = newTick
        , entityT  = GP.updatePlayer newPlayer (entityT w)
@@ -342,7 +348,6 @@ actionQuaff w = let
 
 -- | actionRest
 -- if there is time to Rest...
--- TODO regeneration
 actionRest :: World -> World
 actionRest w = let
   newTick      = tick w + 1

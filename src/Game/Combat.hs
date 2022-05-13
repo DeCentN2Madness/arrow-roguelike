@@ -103,9 +103,9 @@ mkCombat px mx w = if px == mx
   then w
   else let
     (pEntity, pPos) = GE.getEntityAt px (entityT w)
-    (mEntity, mPos) = GE.getEntityAt mx (entityT w)
+    (mEntity, _)    = GE.getEntityAt mx (entityT w)
     -- random seed
-    pSeed = tick w + (uncurry (*) mPos * uncurry (*) pPos) :: Int
+    pSeed = tick w + uncurry (*) pPos :: Int
     -- pAR, pDam, pMod
     pProp = property pEntity
     pName = Map.findWithDefault "P" "Name" pProp
@@ -114,7 +114,7 @@ mkCombat px mx w = if px == mx
     pDex  = read $ T.unpack $ Map.findWithDefault "1" "dex" pProp :: Int
     pWWT  = read $ T.unpack $ Map.findWithDefault "3" "WWT" pProp :: Int
     pStat = if pWWT < 3 then abilityMod pDex else abilityMod pStr
-    pWeap = Map.findWithDefault "1d4" "ATTACK" pProp
+    pWeap = Map.findWithDefault "1d1" "ATTACK" pProp
     -- Encumbered?
     pWT   = read $ T.unpack $ Map.findWithDefault "0" "WT" pProp :: Int
     pMod  = read $ T.unpack $ Map.findWithDefault "0" "Proficiency" pProp
@@ -150,9 +150,9 @@ mkMagicCombat px mx w = if px == mx
   then w
   else let
     (pEntity, pPos) = GE.getEntityAt px (entityT w)
-    (mEntity, mPos) = GE.getEntityAt mx (entityT w)
+    (mEntity, _)    = GE.getEntityAt mx (entityT w)
     -- random seed
-    pSeed = tick w + (uncurry (*) mPos * uncurry (*) pPos) :: Int
+    pSeed = tick w + uncurry (*) pPos :: Int
     -- pAR, pDam, pMod
     pProp = property pEntity
     pName = Map.findWithDefault "P" "Name" pProp
@@ -161,7 +161,7 @@ mkMagicCombat px mx w = if px == mx
     pWis   = abilityMod $ read $ T.unpack $ Map.findWithDefault "1" "wis" pProp
     pClass = T.unpack $ Map.findWithDefault "None" "Class" pProp
     pStat  = if pClass == "Cleric" then pWis else pInt
-    pWeap  = Map.findWithDefault "1d4" "ATTACK" pProp
+    pWeap  = Map.findWithDefault "1d1" "ATTACK" pProp
     -- Encumbered, Heavy weapons?
     pStr  = read $ T.unpack $ Map.findWithDefault "1" "str" pProp :: Int
     pMod  = read $ T.unpack $ Map.findWithDefault "0" "Proficiency" pProp
@@ -203,16 +203,16 @@ mkRangeCombat px mx w = if px == mx
   then w
   else let
     (pEntity, pPos) = GE.getEntityAt px (entityT w)
-    (mEntity, mPos) = GE.getEntityAt mx (entityT w)
+    (mEntity, _)    = GE.getEntityAt mx (entityT w)
     -- random seed
-    pSeed = tick w + (uncurry (*) mPos * uncurry (*) pPos) :: Int
+    pSeed = tick w + uncurry (*) pPos :: Int
     -- pAR, pDam, pMod
     pProp = property pEntity
     pName = Map.findWithDefault "P" "Name" pProp
     -- THROW
     pDex  = abilityMod $ read $ T.unpack $ Map.findWithDefault "1" "dex" pProp
     pStat = pDex
-    pWeap = Map.findWithDefault "1d4" "SHOOT" pProp
+    pWeap = Map.findWithDefault "1d1" "SHOOT" pProp
     -- Encumbered, Heavy weapons?
     pStr  = read $ T.unpack $ Map.findWithDefault "1" "str" pProp :: Int
     pMod  = read $ T.unpack $ Map.findWithDefault "0" "Proficiency" pProp

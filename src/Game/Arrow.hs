@@ -119,17 +119,17 @@ applyIntent intent w = let
         Action Seven -> GA.actionDrop 7 w
         Action Eight -> GA.actionDrop 8 w
         Action Nine  -> GA.actionDrop 9 w
-        Action A  -> GA.actionDrop 10 w
-        Action B  -> GA.actionDrop 11 w
-        Action C  -> GA.actionDrop 12 w
-        Action D  -> GA.actionDrop 13 w
-        Action E  -> GA.actionDrop 14 w
-        Action F  -> GA.actionDrop 15 w
-        Action G  -> GA.actionDrop 16 w
-        Action H  -> GA.actionDrop 17 w
-        Action I  -> GA.actionDrop 18 w
-        Action J  -> GA.actionDrop 19 w
-        Action W  -> equipWorld w
+        Action A -> GA.actionDrop 10 w
+        Action B -> GA.actionDrop 11 w
+        Action C -> GA.actionDrop 12 w
+        Action D -> GA.actionDrop 13 w
+        Action E -> GA.actionDrop 14 w
+        Action F -> GA.actionDrop 15 w
+        Action G -> GA.actionDrop 16 w
+        Action H -> GA.actionDrop 17 w
+        Action I -> GA.actionDrop 18 w
+        Action J -> GA.actionDrop 19 w
+        Action W -> equipWorld w
         Quit -> escWorld w
         _ -> w
     | n == GameEquipment = case intent of
@@ -157,16 +157,16 @@ applyIntent intent w = let
         Action Seven -> GA.actionExamine 7 w
         Action Eight -> GA.actionExamine 8 w
         Action Nine  -> GA.actionExamine 9 w
-        Action A  -> GA.actionExamine 10 w
-        Action B  -> GA.actionExamine 11 w
-        Action C  -> GA.actionExamine 12 w
-        Action D  -> GA.actionExamine 13 w
-        Action E  -> GA.actionExamine 14 w
-        Action F  -> GA.actionExamine 15 w
-        Action G  -> GA.actionExamine 16 w
-        Action H  -> GA.actionExamine 17 w
-        Action I  -> GA.actionExamine 18 w
-        Action J  -> GA.actionExamine 19 w
+        Action A -> GA.actionExamine 10 w
+        Action B -> GA.actionExamine 11 w
+        Action C -> GA.actionExamine 12 w
+        Action D -> GA.actionExamine 13 w
+        Action E -> GA.actionExamine 14 w
+        Action F -> GA.actionExamine 15 w
+        Action G -> GA.actionExamine 16 w
+        Action H -> GA.actionExamine 17 w
+        Action I -> GA.actionExamine 18 w
+        Action J -> GA.actionExamine 19 w
         Quit -> escWorld w
         _ -> w
     | n == GameInventory = case intent of
@@ -180,17 +180,41 @@ applyIntent intent w = let
         Action Seven -> GA.actionDon 7 w
         Action Eight -> GA.actionDon 8 w
         Action Nine  -> GA.actionDon 9 w
-        Action A  -> GA.actionDon 10 w
-        Action B  -> GA.actionDon 11 w
-        Action C  -> GA.actionDon 12 w
-        Action D  -> GA.actionDon 13 w
-        Action E  -> GA.actionDon 14 w
-        Action F  -> GA.actionDon 15 w
-        Action G  -> GA.actionDon 16 w
-        Action H  -> GA.actionDon 17 w
-        Action I  -> GA.actionDon 18 w
-        Action J  -> GA.actionDon 19 w
-        Action W  -> equipWorld w
+        Action A -> GA.actionDon 10 w
+        Action B -> GA.actionDon 11 w
+        Action C -> GA.actionDon 12 w
+        Action D -> GA.actionDon 13 w
+        Action E -> GA.actionDon 14 w
+        Action F -> GA.actionDon 15 w
+        Action G -> GA.actionDon 16 w
+        Action H -> GA.actionDon 17 w
+        Action I -> GA.actionDon 18 w
+        Action J -> GA.actionDon 19 w
+        Action W -> equipWorld w
+        Quit -> escWorld w
+        _ -> w
+    | n == GameSell = case intent of
+        Action Zero  -> GA.actionSell 0 w
+        Action One   -> GA.actionSell 1 w
+        Action Two   -> GA.actionSell 2 w
+        Action Three -> GA.actionSell 3 w
+        Action Four  -> GA.actionSell 4 w
+        Action Five  -> GA.actionSell 5 w
+        Action Six   -> GA.actionSell 6 w
+        Action Seven -> GA.actionSell 7 w
+        Action Eight -> GA.actionSell 8 w
+        Action Nine  -> GA.actionSell 9 w
+        Action A -> GA.actionSell 10 w
+        Action B -> GA.actionSell 11 w
+        Action C -> GA.actionSell 12 w
+        Action D -> GA.actionSell 13 w
+        Action E -> GA.actionSell 14 w
+        Action F -> GA.actionSell 15 w
+        Action G -> GA.actionSell 16 w
+        Action H -> GA.actionSell 17 w
+        Action I -> GA.actionSell 18 w
+        Action J -> GA.actionSell 19 w
+        Action W -> equipWorld w
         Quit -> escWorld w
         _ -> w
     | n == GameStore = case intent of
@@ -204,6 +228,7 @@ applyIntent intent w = let
         Action Seven -> GA.actionCoin 7 w
         Action Eight -> GA.actionCoin 8 w
         Action Nine  -> GA.actionCoin 9 w
+        Action S     -> sellWorld w
         Quit -> escWorld w
         _ -> w
     | otherwise = case intent of
@@ -316,3 +341,11 @@ resetWorld w = let
   entry        = T.pack $ "Depth " ++ show (50 * eLvl p) ++ "'..."
   in world { entityT  = GE.safeInsertEntity 0 p (gameT world) (entityT world)
            , journalT = GJ.updateJournal ["R pressed...", entry] (journalT w) }
+
+-- | sellWorld
+-- Sell mode
+sellWorld :: World -> World
+sellWorld w = w { journalT = GJ.updateJournal ["S Pressed..."] (journalT w)
+                 , gameState = if gameState w == GameSell
+                   then GameRun
+                   else GameSell }

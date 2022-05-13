@@ -3,10 +3,7 @@
 
 Game.Player.hs
 
-Game.Player is the engine for the Actor EntityKind. This is used
-as interchangable helper functions for id=0
-
-Example: getPlayer returns the Player from the EntityMap
+Game.Player is the Player rules for Equipment, Inventory, etc...
 
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
@@ -98,6 +95,9 @@ armorShield pProp am = let
   in Map.union newProp pProp
 
 -- | @ Equipment
+-- Actions:
+--   (I)nventory mode
+--   (W)ield to Doff
 characterEquipment :: EntityMap -> AssetMap -> [Text]
 characterEquipment em _ = let
   (pEntity, _) = getPlayer em
@@ -113,7 +113,7 @@ characterEquipment em _ = let
   helmet = T.append "Head:   " $ fromMaybe "None" (Map.lookup "head" pProp)
   hands  = T.append "Hands:  " $ fromMaybe "None" (Map.lookup "hands" pProp)
   feet   = T.append "Feet:   " $ fromMaybe "None" (Map.lookup "feet" pProp)
-  ac     = T.append "AC:     " $ fromMaybe "0" (Map.lookup "AC" pProp)
+  armorClass = T.append "AC:     " $ fromMaybe "0" (Map.lookup "AC" pProp)
   attack = T.append "Attack: " $ fromMaybe "0" (Map.lookup "ATTACK" pProp)
   range  = T.append "Shoot:  " $ fromMaybe "0" (Map.lookup "SHOOT" pProp)
   -- Encumbered, Finesse, Heavy weapons?
@@ -128,19 +128,25 @@ characterEquipment em _ = let
     then "Weapon: Heavy"
     else T.pack $ "Weapon: " ++ show pWWT ++ " lbs."
   in selection pInv
-  ++ [ac, attack, range, pFinesse, pEnc, pHeavy
-     , "Press [0-9] to Doff. (I)nventory. Press ESC to Continue."]
+  ++ [ armorClass, attack, range, pFinesse, pEnc, pHeavy
+     , "Press [0-9] to Doff. (I)nventory. Press ESC to Continue." ]
 
 -- | @ Examine
+-- Actions:
+--   E(X)amine mode
 characterExamine :: [Coord] -> EntityMap -> AssetMap -> [Text]
 characterExamine fov em _ = let
   view = GE.fromEntityBy em
   pFOV = [ name | (ek, _) <- filter (\(_, j) -> j `elem` fov) view,
            let name = Map.findWithDefault "None" "Name" (property ek) ]
   in selection pFOV
-  ++ [" ", "Press [0-9, A-J] to E(X)amine. ESC to Continue."]
+  ++ [ " ", "Press [0-9, A-J] to E(X)amine. ESC to Continue." ]
 
 -- | @ Inventory
+-- Actions:
+--   (I)nventory to Don
+--   (D)rop mode
+--   (S)ell in (A)cquire mode
 characterInventory :: EntityMap -> AssetMap -> [Text]
 characterInventory em _ = let
   (pEntity, _) = getPlayer em
@@ -153,7 +159,7 @@ characterInventory em _ = let
             then T.append k (T.pack $ " (" ++ show v ++ ")")
             else "None" ]
   in selection pInv
-  ++ [" ", "Press [0-9, A-J] to Don. (D)rop. (W)ield. ESC to Continue."]
+  ++ [ " ", "Press [0-9, A-J] to Don. (D)rop/(S)ell/(W)ield. ESC to Continue." ]
 
 -- | @ Look
 -- What can @ see in FOV...
@@ -206,6 +212,9 @@ characterSheet em = let
   in [ pCls, pLvl, pExp, pCoin, pEquip, pStr, pDex, pCon, pInt, pWis ]
 
 -- | @ Store
+-- Actions:
+--   Purchase
+--   (S)ell mode
 characterStore :: EntityMap -> AssetMap -> [Text]
 characterStore em am = let
   (pEntity, _) = getPlayer em
@@ -220,7 +229,7 @@ characterStore em am = let
             else "None"
           item = Map.findWithDefault "--" k descMap ]
   in selection pInv
-  ++ [" ", "Press [0-9, A-J] to Purchase. ESC to Continue."]
+  ++ [ " ", "Press [0-9, A-J] to Purchase. (S)ell. ESC to Continue." ]
 
 -- | P condition
 -- Green, Red, Purple...
@@ -230,9 +239,8 @@ condition label hp maxHP = let
     | n < 5 = "*"
     | (maxHP `div` n) > 2 = "!"
     | otherwise = ":"
-  entry = T.append label $
+  in T.append label $
     T.pack $ " (HP" ++ status hp ++ " " ++ show hp ++ "/" ++ show maxHP ++ ")"
-  in entry
 
 -- | @ equipment
 equip :: Text -> Text -> Properties -> Text

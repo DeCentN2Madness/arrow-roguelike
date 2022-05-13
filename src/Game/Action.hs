@@ -49,8 +49,8 @@ actionCast w = let
     then pEntity { eMP = pMana - 1 }
     else pEntity
   entry = if pMana > 0 && mTarget > 0
-    then T.pack "Cast a Spell..."
-    else T.pack "No Cast..."
+    then "Cast a Spell..."
+    else "No Cast..."
   -- throwWorld
   throwWorld = w { entityT  = GP.updatePlayer newPlayer (entityT w)
                  , journalT = GJ.updateJournal [entry] (journalT w) }
@@ -81,9 +81,9 @@ actionCoin ix w = let
     in pEntity { inventory = Map.insert (fst pItem) (snd pItem+1) newInv }
     else pEntity
   entry = if pCoin >= 1 && fst pItem /= "None" && snd pItem < 20
-    then T.concat [fst pItem, " +1, ..."]
-    else "No Spend... "
-  in w { tick = newTick
+    then T.concat [ fst pItem, " +1, Coin -1..." ]
+    else "No Deal... "
+  in w { tick     = newTick
        , entityT  = GP.updatePlayer newPlayer (entityT w)
        , journalT = GJ.updateJournal [entry] (journalT w) }
 
@@ -105,9 +105,9 @@ actionDoff item w = let
                , property  = GP.armorShield newProp (assetT w) }
     else pEntity
   entry = if not (null pItems)
-    then T.concat ["Doff ", fst pItem, "..."]
+    then T.concat [ "Doff ", fst pItem, "..." ]
     else "No Doff..."
-  in w { tick = newTick
+  in w { tick     = newTick
        , entityT  = GP.updatePlayer newPlayer (entityT w)
        , journalT = GJ.updateJournal [entry] (journalT w) }
 
@@ -138,10 +138,10 @@ actionDon ix w = let
     else pEntity
   entry = if fst pItem /= "None"
     then if equip /= "None"
-    then T.concat ["Doff ", equip, ", Don ", fst pItem, "..."]
-    else T.concat ["Don ", fst pItem, "..."]
+    then T.concat [ "Doff ", equip, ", Don ", fst pItem, "..." ]
+    else T.concat [ "Don ", fst pItem, "..." ]
     else "No Don..."
-  in w { tick = newTick
+  in w { tick     = newTick
        , entityT  = GP.updatePlayer newPlayer (entityT w)
        , journalT = GJ.updateJournal [entry] (journalT w) }
 
@@ -169,7 +169,7 @@ actionDrop ix w = let
   entry = if count > 0
     then T.append "Drop " (actionLook [(item, pPos)])
     else "No Drop..."
-  in w { tick = newTick
+  in w { tick     = newTick
        , entityT  = GP.updatePlayer newPlayer newEntity
        , journalT = GJ.updateJournal [entry] (journalT w) }
 
@@ -199,7 +199,7 @@ actionEat w = let
     then T.concat [ "Eat a tasty :Mushroom:"
                   , abilityResult hDelta hRoll pCon prof ]
     else "No Eat..."
-  in w { tick = newTick
+  in w { tick     = newTick
        , entityT  = GP.updatePlayer newPlayer (entityT w)
        , journalT = GJ.updateJournal [entry] (journalT w) }
 
@@ -253,14 +253,13 @@ actionExamine x w = let
                   , ", R:", mRange, " (", mShoot, ")" ]
     else "..."
   -- Special
-  mRules = T.append "Special: " mSpecial
-  mSpecial
-    | mClass == "Fighter" = "Item"
-    | mClass == "Rogue"   = "Coin"
-    | mClass == "Mage"    = "Potion"
-    | mClass == "Cleric"  = "Mushroom"
+  mRules
+    | mClass == "Fighter" = "Special: Item"
+    | mClass == "Rogue"   = "Special: Coin"
+    | mClass == "Mage"    = "Special: Potion"
+    | mClass == "Cleric"  = "Special: Mushroom"
     | mClass == "Item"    = "..."
-    | otherwise           = "Coin"
+    | otherwise           = "Special: Coin"
   -- Name
   entry = if mExamine /= "None"
     then T.concat [ mName,  ": ", mExamine ]
@@ -284,7 +283,7 @@ actionGet w = let
   entry = if pickedItems /= Map.empty
     then T.append "Get " (actionLook items)
     else "No Get..."
-  in w { tick = newTick
+  in w { tick     = newTick
        , entityT  = GP.updatePlayer newPlayer newEntity
        , journalT = GJ.updateJournal [entry] (journalT w) }
 
@@ -354,7 +353,7 @@ actionQuaff w = let
     then T.concat [ "Drink a delicious :Potion:"
                   , abilityResult2 hDelta mDelta hRoll mRoll pCon pWis prof ]
     else "No Drink..."
-  in w { tick = newTick
+  in w { tick     = newTick
        , entityT  = GP.updatePlayer newPlayer (entityT w)
        , journalT = GJ.updateJournal [entry] (journalT w) }
 
@@ -372,7 +371,34 @@ actionRest w = let
   pMaxMp = eMaxMP pEntity
   newPlayer = pEntity { eHP = pHp, eMP = pMp }
   entry = T.append "Rest... tick=" (T.pack $ show newTick)
-  in w { tick = newTick
+  in w { tick     = newTick
+       , entityT  = GP.updatePlayer newPlayer (entityT w)
+       , journalT = GJ.updateJournal [entry] (journalT w) }
+
+-- | actionSell
+-- if there is Item to Sell...
+actionSell :: Int -> World -> World
+actionSell ix w = let
+  newTick      = tick w + 1
+  (pEntity, _) = GP.getPlayer (entityT w)
+  pInv = inventory pEntity
+  pCoin = Map.findWithDefault 0 "Coin" pInv
+  pItems = filter (\(i, j) -> j > 0 &&
+                  i `notElem` ["Arrow", "Coin", "Mushroom", "Potion"]) $
+           Map.toList pInv
+  pItem = if ix < length pItems
+    then pItems!!ix
+    else ("None", 0)
+  newInv = if fst pItem /= "None" && snd pItem > 0
+    then Map.insert "Coin" (pCoin+1) pInv
+    else pInv
+  newPlayer = if fst pItem /= "None" && snd pItem > 0
+    then pEntity { inventory = Map.insert (fst pItem) (snd pItem-1) newInv }
+    else pEntity
+  entry = if fst pItem /= "None" && snd pItem > 0
+    then T.concat [ fst pItem, " -1, Coin +1..." ]
+    else T.concat [ "No Deal... ", fst pItem ]
+  in w { tick     = newTick
        , entityT  = GP.updatePlayer newPlayer (entityT w)
        , journalT = GJ.updateJournal [entry] (journalT w) }
 
@@ -383,12 +409,12 @@ actionThrow :: World -> World
 actionThrow w = let
   newTick         = tick w + 1
   (pEntity, pPos) = GP.getPlayer (entityT w)
-  -- Rogue can also use Coin
+  -- Rogue uses Coin and Arrow
+  -- Everyone else Arrow
   pProp  = property pEntity
   pCls   = Map.findWithDefault "Player" "Class" pProp
-  pCoin  = if pCls == "Rogue" then Map.findWithDefault 0 "Coin" pInv else 0
-  -- Everyone else Arrow
   pInv   = inventory pEntity
+  pCoin  = if pCls == "Rogue" then Map.findWithDefault 0 "Coin" pInv else 0
   pArrow = Map.findWithDefault 0 "Arrow" pInv
   -- Arrow vs Coin
   (ammo, count) = if pCoin > 0 then ("Coin", pCoin-1) else ("Arrow", pArrow-1)
@@ -405,7 +431,7 @@ actionThrow w = let
     then pEntity { inventory = Map.insert ammo count pInv }
     else pEntity
   entry = if (pArrow > 0 || pCoin > 0) && mTarget > 0
-    then T.pack "Shoots an Arrow..."
+    then "Shoot an Arrow..."
     else "No Shoot..."
   -- throwWorld
   throwWorld = w { entityT  = GP.updatePlayer newPlayer (entityT w)

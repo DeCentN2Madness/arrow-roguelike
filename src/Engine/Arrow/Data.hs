@@ -83,6 +83,7 @@ data GameState
   | GameEquipment
   | GameExamine
   | GameInventory
+  | GameSell
   | GameStore
   deriving (Eq, Show, Generic)
 

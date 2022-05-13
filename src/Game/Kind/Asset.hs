@@ -117,18 +117,36 @@ mkAssetMap = let
        , mkItem "hands/Gloves"          "]" pos
        , mkItem "hands/Bracers"         "]" pos
        , mkItem "hands/Gauntlets"       "]" pos
-       -- Items
+       -- Rings
        , mkItem "jewelry/Ring" "="  pos
-       , mkItem "neck/Amulet"  "\"" pos
+       , mkItem "jewelry/Ring of Dwarves" "=" pos
+       , mkItem "jewelry/Ring of Elves"   "=" pos
+       , mkItem "jewelry/Ring of West"    "=" pos
+       , mkItem "jewelry/Ring of Warrior" "=" pos
+       , mkItem "jewelry/Ring of Thief"   "=" pos
+       , mkItem "jewelry/Ring of Magi"    "=" pos
+       , mkItem "jewelry/Ring of Priest"  "=" pos
+       -- Amulets
+       , mkItem "neck/Amulet"             "\"" pos
+       , mkItem "neck/Amulet of Arms"     "\"" pos
+       , mkItem "neck/Amulet of Archery"  "\"" pos
+       , mkItem "neck/Amulet of Dwarves"  "\"" pos
+       , mkItem "neck/Amulet of Elves"    "\"" pos
+       , mkItem "neck/Amulet of West"     "\"" pos
+       , mkItem "neck/Amulet of Wizardry" "\"" pos
+       , mkItem "neck/Amulet of Devotion" "\"" pos
+       -- Items
        , mkItem "cloak/Cloak"  "("  pos
        -- Monsters
        , mkMonster "Mouse"        "Small beast (r)"     pos
        , mkMonster "Orc"          "Medium humanoid (o)" pos
        , mkMonster "Orc Archer"   "Medium humanoid (o)" pos
        , mkMonster "Orc Shaman"   "Medium humanoid (o)" pos
+       , mkMonster "Ogre"         "Large giant (O)"     pos
        , mkMonster "Spider"       "Large beast (S)"     pos
        , mkMonster "Troll"        "Large giant (T)"     pos
        , mkMonster "Wolf"         "Medium beast (c)"    pos
+       , mkMonster "Dire Wolf"    "Large beast (C)"     pos
        , mkMonster "Red Dragon"   "Medium dragon (d)"   pos
        , mkMonster "Green Dragon" "Medium dragon (d)"   pos
        , mkMonster "Blue Dragon"  "Medium dragon (d)"   pos

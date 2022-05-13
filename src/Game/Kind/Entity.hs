@@ -144,9 +144,11 @@ mkMonster name desc xy = let
     | n == "Orc"          = mdHumanoid
     | n == "Orc Archer"   = mdHumanoidA
     | n == "Orc Shaman"   = mdHumanoidM
-    | n == "Spider"       = lgBeast
+    | n == "Ogre"         = lgHumanoid
+    | n == "Spider"       = lgSpider
     | n == "Troll"        = gtHumanoid
     | n == "Wolf"         = mdBeast
+    | n == "Dire Wolf"    = lgBeast
     | otherwise = mdHumanoid
   mProp = mkProp name desc (monster name)
   mHP  = read $ T.unpack $ Map.findWithDefault "1" "HP" mProp
@@ -154,15 +156,15 @@ mkMonster name desc xy = let
   mXP  = read $ T.unpack $ Map.findWithDefault "1" "XP" mProp
   mInv = Map.fromList $ mkInventory name
   ek = defaultEK name desc xy
-  in ek { block=True
-        , kind=if name == "Player" then Actor else Monster
-        , glyph=visualId name
-        , property=mProp
-        , inventory=mInv
-        , eHP=mHP
-        , eMaxHP=mHP
-        , eMP=mMP
-        , eXP=mXP
+  in ek { block     = True
+        , kind      = if name == "Player" then Actor else Monster
+        , glyph     = visualId name
+        , property  = mProp
+        , inventory = mInv
+        , eHP       = if mHP > 1 then mHP else 1
+        , eMaxHP    = if mHP > 1 then mHP else 1
+        , eMP       = mMP
+        , eXP       = mXP
         }
 
 -- | mkProp
@@ -211,9 +213,11 @@ visualId name = let
   visual n
     | count "Actor"   n > 0 = VActor
     | count "Player"  n > 0 = VActor
+    | count "Dire"    n > 0 = VDire
     | count "Dragon"  n > 0 = VDragon
     | count "Mouse"   n > 0 = VMouse
     | count "Orc"     n > 0 = VOrc
+    | count "Ogre"    n > 0 = VOgre
     | count "Spider"  n > 0 = VSpider
     | count "Troll"   n > 0 = VTroll
     | count "Wolf"    n > 0 = VWolf
@@ -316,6 +320,34 @@ mdBeast = [ ("str", "12")
           , ("feet", "None")
           ]
 
+-- | Dire Wolf
+lgBeast :: Prop
+lgBeast = [ ("str", "17")
+          , ("dex", "15")
+          , ("con", "15")
+          , ("int", "3")
+          , ("wis", "12")
+          , ("HP", "37")
+          , ("XP", "200")
+          , ("Proficiency", "2")
+          , ("Class", "Beast")
+          , ("AC", "14")
+          , ("WT", "0")
+          , ("WWT", "10")
+          , ("ATTACK", "2d6")
+          , ("SHOOT",  "1d1")
+          , ("melee", "melee/Bite")
+          , ("shoot", "shoot/Howl")
+          , ("jewelry", "None")
+          , ("neck", "None")
+          , ("armor", "armor/Natural Armor")
+          , ("cloak", "None")
+          , ("shield", "None")
+          , ("head", "None")
+          , ("hands", "None")
+          , ("feet", "None")
+          ]
+
 -- | Dragon Wyrmling
 mdDragon :: Prop
 mdDragon = [ ("str", "15")
@@ -346,8 +378,8 @@ mdDragon = [ ("str", "15")
            ]
 
 -- | Spider
-lgBeast :: Prop
-lgBeast = [ ("str", "14")
+lgSpider :: Prop
+lgSpider = [ ("str", "14")
           , ("dex", "16")
           , ("con", "12")
           , ("int", "2")
@@ -431,6 +463,36 @@ mdHumanoidM = mdHumanoid
      , ("WWT", "4")
      , ("MP", "10") ]
 
+-- | Ogre
+lgHumanoid :: Prop
+lgHumanoid = [ ("str", "19")
+             , ("dex", "8")
+             , ("con", "16")
+             , ("int", "5")
+             , ("wis", "7")
+             , ("HP", "59")
+             , ("MP", "0")
+             , ("XP", "450")
+             , ("Proficiency", "2")
+             , ("Class", "Giant")
+             , ("AC", "13")
+             , ("WT", "24")
+             , ("WWT", "10")
+             , ("ATTACK", "2d8")
+             , ("SHOOT", "1d6")
+             , ("Throw", "hurls!")
+             , ("melee", "melee/Greatclub")
+             , ("shoot", "shoot/Javelin")
+             , ("jewelry", "None")
+             , ("neck", "None")
+             , ("armor", "armor/Hide")
+             , ("cloak", "None")
+             , ("shield", "None")
+             , ("head", "None")
+             , ("hands", "None")
+             , ("feet", "None")
+             ]
+
 -- | Troll
 gtHumanoid :: Prop
 gtHumanoid = [ ("str", "18")
@@ -447,7 +509,7 @@ gtHumanoid = [ ("str", "18")
              , ("WT", "21")
              , ("WWT", "10")
              , ("ATTACK", "2d6")
-             , ("SHOOT", "1d4")
+             , ("SHOOT", "1d8")
              , ("Throw", "burps!")
              , ("melee", "melee/Claw")
              , ("shoot", "shoot/Spit")

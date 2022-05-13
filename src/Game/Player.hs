@@ -231,7 +231,7 @@ characterStore em am = let
   in selection pInv
   ++ [ " ", "Press [0-9, A-J] to Purchase. (S)ell. ESC to Continue." ]
 
--- | P condition
+-- | @ condition
 -- Green, Red, Purple...
 condition :: Text -> Int -> Int -> Text
 condition label hp maxHP = let
@@ -251,16 +251,14 @@ equip name desc prop = let
     | otherwise = desc
   in equipped item
 
--- | @ lives at 0
--- Arrow for Player
+-- | @ Arrow
 getArrow :: EntityMap -> Double
 getArrow em = let
   (pEntity, _) = getPlayer em
   pArrow = fromIntegral $ Map.findWithDefault 0 "Arrow" (inventory pEntity)
   in pArrow / 20.0
 
--- | @ lives at 0
--- Health for Player
+-- | @ Health
 getHealth :: EntityMap -> Double
 getHealth em = let
   (pEntity, _) = getPlayer em
@@ -268,16 +266,14 @@ getHealth em = let
   maxHp = fromIntegral $ eMaxHP pEntity
   in hp / maxHp
 
--- | @ lives at 0
--- Mushroom for Player
+-- | @ Mushroom
 getMushroom :: EntityMap -> Double
 getMushroom em = let
   (pEntity, _) = getPlayer em
   pMush = fromIntegral $ Map.findWithDefault 0 "Mushroom" (inventory pEntity)
   in pMush / 20.0
 
--- | @ lives at 0
--- Mana for Player
+-- | @ Mana
 getMana :: EntityMap -> Double
 getMana em = let
   (pEntity, _) = getPlayer em
@@ -290,21 +286,19 @@ getMana em = let
 getPlayer :: EntityMap -> (Player, Coord)
 getPlayer = GE.getEntityAt 0
 
--- | @ lives at 0
--- Potion for Player
+-- | @ Potion
 getPotion :: EntityMap -> Double
 getPotion em = let
   (pEntity, _) = getPlayer em
   pPot = fromIntegral $ Map.findWithDefault 0 "Potion" (inventory pEntity)
   in pPot / 20.0
 
--- | @ selection
+-- | @ Selection
 selection :: [Text] -> [Text]
 selection xs = let
   pSel = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"
         , "a", "b", "c", "d", "e", "f", "g", "h", "i", "j"]
-  pInv = [ name | (k, v) <- zip pSel xs, let name = T.concat [k, ") ", v] ]
-  in pInv
+  in [ name | (k, v) <- zip pSel xs, let name = T.concat [k, ") ", v] ]
 
 -- | update @ properties
 updatePlayer :: Player -> EntityMap -> EntityMap
@@ -314,7 +308,7 @@ updatePlayer = Map.insert 0
 updatePlayerBy :: Coord -> EntityMap -> EntityMap
 updatePlayerBy = GE.updateEntityPos 0
 
--- | updateEntityXP at ix
+-- | updateEntityXP
 updatePlayerXP :: Int -> EntityMap -> EntityMap
 updatePlayerXP xp em = let
   (pEntity, _ ) = getPlayer em

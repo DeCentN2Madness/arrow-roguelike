@@ -49,8 +49,8 @@ data VisualKind
   | VTroll
   | VHuman
   | VDoor
-  | V1
-  | V2
+  | VOgre
+  | VDire
   | VDagger
   | VBow
   | VRing

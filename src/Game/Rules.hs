@@ -137,6 +137,9 @@ weapon dice seed bonus = let
     "2d4" -> DS.d4 seed + DS.d4 (seed+1)
     "2d5" -> DS.d5 seed + DS.d5 (seed+1)
     "2d6" -> DS.d6 seed + DS.d6 (seed+1)
+    "2d8" -> DS.d8 seed + DS.d8 (seed+1)
+    "2d10" -> DS.d10 seed + DS.d10 (seed+1)
+    "2d12" -> DS.d12 seed + DS.d12 (seed+1)
     _     -> DS.d4 seed
   wBonus n
     | n == "-10" = -10

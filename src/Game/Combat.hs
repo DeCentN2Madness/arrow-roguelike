@@ -44,19 +44,19 @@ attack ar dr name
   | ar >= dr  = T.append " hits the " name
   | otherwise = T.append " attack misses " name
 
--- | shoot verb
+-- | cast verb
 attackM :: Int -> Int -> Text -> Text
 attackM ar dr name
   | ar == 1   = T.append " ~fizzles~ cast at " name
-  | ar >= dr  = T.append " -Spell- casts at " name
-  | otherwise = T.append " -Spell- cast misses " name
+  | ar >= dr  = T.append " -Spell- hits the " name
+  | otherwise = T.append " -Spell- misses " name
 
 -- | shoot verb
 attackR :: Int -> Int -> Text -> Text
 attackR ar dr name
   | ar == 1   = T.append " ~fumbles~ shoot at " name
-  | ar >= dr  = T.append " ~Arrow~ shoots the " name
-  | otherwise = T.append " ~Arrow~ shoot misses " name
+  | ar >= dr  = T.append " ~Arrow~ hits the " name
+  | otherwise = T.append " ~Arrow~ misses " name
 
 -- | condition of Monster
 condition :: Int -> Int -> Text

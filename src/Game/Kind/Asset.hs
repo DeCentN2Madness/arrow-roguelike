@@ -118,23 +118,23 @@ mkAssetMap = let
        , mkItem "hands/Bracers"         "]" pos
        , mkItem "hands/Gauntlets"       "]" pos
        -- Rings
-       , mkItem "jewelry/Ring" "="  pos
-       , mkItem "jewelry/Ring of Dwarves" "=" pos
-       , mkItem "jewelry/Ring of Elves"   "=" pos
-       , mkItem "jewelry/Ring of West"    "=" pos
-       , mkItem "jewelry/Ring of Warrior" "=" pos
-       , mkItem "jewelry/Ring of Thief"   "=" pos
-       , mkItem "jewelry/Ring of Magi"    "=" pos
-       , mkItem "jewelry/Ring of Priest"  "=" pos
+       , mkItem "jewelry/Ring"            "=:10:"  pos
+       , mkItem "jewelry/Ring of Dwarves" "=:100:con+2" pos
+       , mkItem "jewelry/Ring of Elves"   "=:100:dex+1,int+1" pos
+       , mkItem "jewelry/Ring of Magi"    "=:100:int+2" pos
+       , mkItem "jewelry/Ring of Priest"  "=:100:wis+2" pos
+       , mkItem "jewelry/Ring of Thief"   "=:100:dex:+2" pos
+       , mkItem "jewelry/Ring of West"    "=:100:str+1,dex+1,int+1,wis+1" pos
+       , mkItem "jewelry/Ring of Warrior" "=:100:str+2" pos
        -- Amulets
-       , mkItem "neck/Amulet"             "\"" pos
-       , mkItem "neck/Amulet of Arms"     "\"" pos
-       , mkItem "neck/Amulet of Archery"  "\"" pos
-       , mkItem "neck/Amulet of Dwarves"  "\"" pos
-       , mkItem "neck/Amulet of Elves"    "\"" pos
-       , mkItem "neck/Amulet of West"     "\"" pos
-       , mkItem "neck/Amulet of Wizardry" "\"" pos
-       , mkItem "neck/Amulet of Devotion" "\"" pos
+       , mkItem "neck/Amulet"               "\":10:" pos
+       , mkItem "neck/Amulet of Arms"       "\":100:str+2" pos
+       , mkItem "neck/Amulet of Archery"    "\":100:dex+1,int+1" pos
+       , mkItem "neck/Amulet of Dwarves"    "\":100:str+1,con+1" pos
+       , mkItem "neck/Amulet of Elves"      "\":100:int+1,wis+1" pos
+       , mkItem "neck/Amulet of Protection" "\":100:con+1,ac+1" pos
+       , mkItem "neck/Amulet of Wizardry"   "\":100:int+2" pos
+       , mkItem "neck/Amulet of Devotion"   "\":100:wis+2" pos
        -- Items
        , mkItem "cloak/Cloak"  "("  pos
        -- Monsters

@@ -50,7 +50,7 @@ healthPool n
 -- | manaPool
 manaPool :: Text -> (Text, Text)
 manaPool n
-  | n == "Fighter" = ("MP", "1")
+  | n == "Fighter" = ("MP", "0")
   | n == "Rogue"   = ("MP", "6")
   | n == "Mage"    = ("MP", "10")
   | n == "Cleric"  = ("MP", "8")
@@ -79,6 +79,7 @@ mkPlayer s pEntity = let
             , healthPool pClass
             , manaPool pClass
             , weaponAttack pClass
+            , weaponAttacks pClass
             , weaponClass pClass
             , weaponWT pClass
             ]
@@ -92,6 +93,16 @@ weaponAttack n
   | n == "Mage"    = ("ATTACK", "1d6")
   | n == "Cleric"  = ("ATTACK", "1d6")
   | otherwise      = ("ATTACK", "1d4")
+
+-- | @ Weapons
+-- Extra damage based on level
+weaponAttacks :: Text -> (Text,Text)
+weaponAttacks n
+  | n == "Fighter" = ("ATTACKS", "1d6")
+  | n == "Rogue"   = ("ATTACKS", "1d6")
+  | n == "Mage"    = ("CAST", "1d6")
+  | n == "Cleric"  = ("CAST", "1d6")
+  | otherwise      = ("ATTACKS", "0")
 
 -- | @ Weapons
 weaponClass :: Text -> (Text,Text)

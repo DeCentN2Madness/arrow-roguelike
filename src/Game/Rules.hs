@@ -27,7 +27,6 @@ abilityGain lvl curr
 abilityMod :: Int -> Int
 abilityMod n = (n-10) `div` 2
 
-
 -- | abilityResult
 abilityResult :: Int -> Int -> Int -> Int -> Text
 abilityResult result roll modifier prof =
@@ -76,6 +75,32 @@ abilityResult2 resultA resultB rollA rollB modA modB prof =
            , "]"
            ]
 
+-- | checkEncumberance
+-- @ loses proficiency based on WT
+checkEncumberance :: Int -> Int -> Int -> Int
+checkEncumberance str wt prof
+  | wt > 10 * str = -5
+  | wt > 9 * str  = -4
+  | wt > 8 * str  = -3
+  | wt > 7 * str  = -2
+  | wt > 6 * str  = -1
+  | wt > 5 * str  = 0
+  | otherwise = prof
+
+-- | checkFinesse
+-- @ loses Throw, Sneak Extra Damage based on WWT
+checkFinesse :: Int -> Text -> Text
+checkFinesse wwt prof
+  | wwt < 3   = prof
+  | otherwise = "0"
+
+-- | checkFinessMagic
+-- @ loses Cast Extra Damage based on WWT
+checkFinesseMagic :: Int -> Text -> Text
+checkFinesseMagic wwt prof
+  | wwt < 5   = prof
+  | otherwise = "0"
+
 -- | criticalDamage
 -- @ can Crit!
 criticalDamage :: Int -> Text -> Int -> Int -> Int
@@ -123,6 +148,7 @@ weapon :: Text -> Int -> Int -> Int
 weapon dice seed bonus = let
   (wDam, wMod) = T.breakOn "+" dice
   roll = case wDam of
+    "0"   -> 0
     "1d1" -> 1
     "1d2" -> DS.d2 seed
     "1d3" -> DS.d3 seed
@@ -140,6 +166,32 @@ weapon dice seed bonus = let
     "2d8" -> DS.d8 seed + DS.d8 (seed+1)
     "2d10" -> DS.d10 seed + DS.d10 (seed+1)
     "2d12" -> DS.d12 seed + DS.d12 (seed+1)
+    "3d6" -> DS.d6 seed + DS.d6 (seed+1) + DS.d6 (seed+2)
+    "4d6" -> do
+      DS.d6 seed + DS.d6 (seed+1) + DS.d6 (seed+2) + DS.d6 (seed+3)
+    "5d6" -> do
+      DS.d6 seed + DS.d6 (seed+1) + DS.d6 (seed+2) +
+        DS.d6 (seed+3) + DS.d6 (seed+4)
+    "6d6" -> do
+      DS.d6 seed + DS.d6 (seed+1) + DS.d6 (seed+2) +
+        DS.d6 (seed+3) + DS.d6 (seed+4) + DS.d6 (seed+5)
+    "7d6" -> do
+      DS.d6 seed + DS.d6 (seed+1) + DS.d6 (seed+2) +
+        DS.d6 (seed+3) + DS.d6 (seed+4) + DS.d6 (seed+5) +
+        DS.d6 (seed+6)
+    "8d6" -> do
+      DS.d6 seed + DS.d6 (seed+1) + DS.d6 (seed+2) +
+        DS.d6 (seed+3) + DS.d6 (seed+4) + DS.d6 (seed+5) +
+        DS.d6 (seed+6) + DS.d6 (seed+7)
+    "9d6" -> do
+      DS.d6 seed + DS.d6 (seed+1) + DS.d6 (seed+2) +
+        DS.d6 (seed+3) + DS.d6 (seed+4) + DS.d6 (seed+5) +
+        DS.d6 (seed+6) + DS.d6 (seed+7) + DS.d6 (seed+8)
+    "10d6" -> do
+      DS.d6 seed + DS.d6 (seed+1) + DS.d6 (seed+2) +
+        DS.d6 (seed+3) + DS.d6 (seed+4) + DS.d6 (seed+5) +
+        DS.d6 (seed+6) + DS.d6 (seed+7) + DS.d6 (seed+8) +
+        DS.d6 (seed+9)
     _     -> DS.d4 seed
   wBonus n
     | n == "-10" = -10

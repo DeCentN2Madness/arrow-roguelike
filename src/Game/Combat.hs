@@ -109,20 +109,26 @@ mkCombat px mx w = if px == mx
     -- pAR, pDam, pMod
     pProp = property pEntity
     pName = Map.findWithDefault "P" "Name" pProp
-    -- Finesse?
+    -- COMBAT
     pStr  = read $ T.unpack $ Map.findWithDefault "1" "str" pProp :: Int
     pDex  = read $ T.unpack $ Map.findWithDefault "1" "dex" pProp :: Int
     pWWT  = read $ T.unpack $ Map.findWithDefault "3" "WWT" pProp :: Int
     pStat = if pWWT < 3 then abilityMod pDex else abilityMod pStr
-    pWeap = Map.findWithDefault "1d1" "ATTACK" pProp
+    -- Fighter or Rogue
+    pWeap  = Map.findWithDefault "1d1" "ATTACK" pProp
+    pClass = Map.findWithDefault "None" "Class" pProp
+    pExtra = if pClass == "Rogue"
+      then checkFinesse pWWT (Map.findWithDefault "0" "ATTACKS" pProp)
+      else Map.findWithDefault "0" "ATTACKS" pProp
     -- Encumbered?
-    pWT   = read $ T.unpack $ Map.findWithDefault "0" "WT" pProp :: Int
-    pMod  = read $ T.unpack $ Map.findWithDefault "0" "Proficiency" pProp
-    pEnc  = if pWT > 5 * pStr then 0 else pMod
+    pWT  = read $ T.unpack $ Map.findWithDefault "0" "WT" pProp :: Int
+    pMod = read $ T.unpack $ Map.findWithDefault "0" "Proficiency" pProp
+    pEnc = checkEncumberance pStr pWT pMod
     -- ATTACK roll
-    pD20  = DS.d20 pSeed
-    pAR   = criticalRoll   pD20 pStat pEnc
-    pDam  = criticalDamage pAR  pWeap (pSeed+1) pStat
+    pD20    = DS.d20 pSeed
+    pAR     = criticalRoll   pD20 pStat pEnc
+    pDam    = criticalDamage pAR  pWeap (pSeed+1) pStat
+    pDamage = pDam + weapon pExtra (pSeed+2) 0
     -- mAC
     mProp = property mEntity
     mName = Map.findWithDefault "M" "Name" mProp
@@ -130,11 +136,11 @@ mkCombat px mx w = if px == mx
     mHP   = eHP mEntity
     mExp  = eXP mEntity
     -- p v m
-    pAttack = if pAR >= mAC then mHP - pDam else mHP -- Miss
+    pAttack = if pAR >= mAC then mHP - pDamage else mHP -- Miss
     -- journal
     pEntry = T.concat [ pName
                       , attack pAR mAC mName
-                      , abilityResult pDam pAR pStat pEnc
+                      , abilityResult pDamage pAR pStat pEnc
                       , condition pAttack mExp ]
     -- newEntity with damages and deaths and Exp awards
     newEntity = if pAttack < 1
@@ -157,21 +163,24 @@ mkMagicCombat px mx w = if px == mx
     pProp = property pEntity
     pName = Map.findWithDefault "P" "Name" pProp
     -- MAGIC
-    pInt   = abilityMod $ read $ T.unpack $ Map.findWithDefault "1" "int" pProp
-    pWis   = abilityMod $ read $ T.unpack $ Map.findWithDefault "1" "wis" pProp
-    pClass = T.unpack $ Map.findWithDefault "None" "Class" pProp
+    pStr = read $ T.unpack $ Map.findWithDefault "1" "str" pProp :: Int
+    pInt = abilityMod $ read $ T.unpack $ Map.findWithDefault "1" "int" pProp
+    pWis = abilityMod $ read $ T.unpack $ Map.findWithDefault "1" "wis" pProp
+    pWWT = read $ T.unpack $ Map.findWithDefault "0" "WWT" pProp :: Int
+    -- Mage or Cleric
+    pWeap  = Map.findWithDefault "1d4" "ATTACK" pProp
+    pClass = Map.findWithDefault "None" "Class" pProp
     pStat  = if pClass == "Cleric" then pWis else pInt
-    pWeap  = Map.findWithDefault "1d1" "ATTACK" pProp
-    -- Encumbered, Heavy weapons?
-    pStr  = read $ T.unpack $ Map.findWithDefault "1" "str" pProp :: Int
-    pMod  = read $ T.unpack $ Map.findWithDefault "0" "Proficiency" pProp
-    pWT   = read $ T.unpack $ Map.findWithDefault "0" "WT" pProp  :: Int
-    pWWT  = read $ T.unpack $ Map.findWithDefault "0" "WWT" pProp :: Int
-    pEnc  = if pWT < 5 * pStr && pWWT < 5 then pMod else 0
+    pExtra = checkFinesseMagic pWWT (Map.findWithDefault "0" "CAST" pProp)
+    -- Encumbered?
+    pWT  = read $ T.unpack $ Map.findWithDefault "0" "WT" pProp  :: Int
+    pMod = read $ T.unpack $ Map.findWithDefault "0" "Proficiency" pProp
+    pEnc = checkEncumberance pStr pWT pMod
     -- CAST roll
-    pD20  = DS.d20 pSeed
-    pAR   = criticalRoll   pD20 pStat pEnc
-    pDam  = criticalDamage pAR  pWeap (pSeed+1) pStat
+    pD20    = DS.d20 pSeed
+    pAR     = criticalRoll   pD20 pStat pEnc
+    pDam    = criticalDamage pAR  pWeap (pSeed+1) pStat
+    pDamage = pDam + weapon pExtra (pSeed+2) 0
     -- mAC
     mProp = property mEntity
     mName = Map.findWithDefault "M" "Name" mProp
@@ -179,7 +188,7 @@ mkMagicCombat px mx w = if px == mx
     mHP   = eHP mEntity
     mExp  = eXP mEntity
     -- p v m
-    pAttack = if pAR >= mAC then mHP - pDam else mHP -- Miss
+    pAttack = if pAR >= mAC then mHP - pDamage else mHP -- Miss
     -- miscast
     shotEntity = if pAR < mAC
       then misFire mEntity (assetT w) (entityT w)
@@ -187,7 +196,7 @@ mkMagicCombat px mx w = if px == mx
     -- journal
     pEntry = T.concat [ pName
                       , attackM pAR mAC mName
-                      , abilityResult pDam pAR pStat pEnc
+                      , abilityResult pDamage pAR pStat pEnc
                       , condition pAttack mExp ]
     -- newEntity with damages and deaths and Exp awards
     newEntity = if pAttack < 1
@@ -210,19 +219,21 @@ mkRangeCombat px mx w = if px == mx
     pProp = property pEntity
     pName = Map.findWithDefault "P" "Name" pProp
     -- THROW
-    pDex  = abilityMod $ read $ T.unpack $ Map.findWithDefault "1" "dex" pProp
-    pStat = pDex
-    pWeap = Map.findWithDefault "1d1" "SHOOT" pProp
+    pStr   = read $ T.unpack $ Map.findWithDefault "1" "str" pProp :: Int
+    pDex   = abilityMod $ read $ T.unpack $ Map.findWithDefault "1" "dex" pProp
+    pStat  = pDex
+    pWWT   = read $ T.unpack $ Map.findWithDefault "0" "WWT" pProp :: Int
+    pWeap  = Map.findWithDefault "1d1" "SHOOT" pProp
+    pExtra = checkFinesse pWWT (Map.findWithDefault "0" "ATTACKS" pProp)
     -- Encumbered, Heavy weapons?
-    pStr  = read $ T.unpack $ Map.findWithDefault "1" "str" pProp :: Int
-    pMod  = read $ T.unpack $ Map.findWithDefault "0" "Proficiency" pProp
     pWT   = read $ T.unpack $ Map.findWithDefault "0" "WT" pProp  :: Int
-    pWWT  = read $ T.unpack $ Map.findWithDefault "0" "WWT" pProp :: Int
-    pEnc  = if pWT < 5 * pStr && pWWT < 5 then pMod else 0
+    pMod  = read $ T.unpack $ Map.findWithDefault "0" "Proficiency" pProp
+    pEnc  = if pWWT < 5 then checkEncumberance pStr pWT pMod else 0
     -- SHOOT roll
     pD20  = DS.d20 pSeed
     pAR   = criticalRoll   pD20 pStat pEnc
     pDam  = criticalDamage pAR  pWeap (pSeed+1) pStat
+    pDamage = pDam + weapon pExtra (pSeed+2) 0
     -- mAC
     mProp = property mEntity
     mName = Map.findWithDefault "M" "Name" mProp
@@ -230,7 +241,7 @@ mkRangeCombat px mx w = if px == mx
     mHP   = eHP mEntity
     mExp  = eXP mEntity
     -- p v m
-    pAttack = if pAR >= mAC then mHP - pDam else mHP -- Miss
+    pAttack = if pAR >= mAC then mHP - pDamage else mHP -- Miss
     -- misfire
     shotEntity = if pAR < mAC
       then misFire mEntity (assetT w) (entityT w)
@@ -238,7 +249,7 @@ mkRangeCombat px mx w = if px == mx
     -- journal
     pEntry = T.concat [ pName
                       , attackR pAR mAC mName
-                      , abilityResult pDam pAR pStat pEnc
+                      , abilityResult pDamage pAR pStat pEnc
                       , condition pAttack mExp ]
     -- newEntity with damages and deaths and Exp awards
     newEntity = if pAttack < 1

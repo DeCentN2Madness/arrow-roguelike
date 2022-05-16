@@ -320,7 +320,7 @@ updatePlayerXP xp em = let
   pInt  = read $ T.unpack $ Map.findWithDefault "1" "int" pProp
   pWis  = read $ T.unpack $ Map.findWithDefault "1" "wis" pProp
   cHP   = read $ T.unpack $ Map.findWithDefault "1" "HP" pProp
-  cMP   = read $ T.unpack $ Map.findWithDefault "1" "MP" pProp
+  cMP   = read $ T.unpack $ Map.findWithDefault "0" "MP" pProp
   cAttacks = Map.findWithDefault "0" "ATTACKS" pProp
   cCast    = Map.findWithDefault "0" "CAST" pProp
   -- EXP

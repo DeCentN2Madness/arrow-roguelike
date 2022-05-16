@@ -171,7 +171,7 @@ mkMagicCombat px mx w = if px == mx
     pStat  = if pClass == "Cleric" then pWis else pInt
     -- Heavy Weapons?
     pWWT = read $ T.unpack $ Map.findWithDefault "0" "WWT" pProp :: Int
-    pWeap = checkFinesseMagic pWWT $ Map.findWithDefault "0" "CAST" pProp
+    pWeap = checkFinesseMagic pWWT $ Map.findWithDefault "1d1" "CAST" pProp
     -- Encumbered?
     pWT  = read $ T.unpack $ Map.findWithDefault "0" "WT" pProp  :: Int
     pMod = read $ T.unpack $ Map.findWithDefault "0" "Proficiency" pProp

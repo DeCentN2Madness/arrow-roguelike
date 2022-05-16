@@ -157,7 +157,7 @@ monsterEat mx mEntity w = let
     else mEntity
   entry = if mMush > 0
     then T.concat [ mName
-                  , " is :Hungry:"
+                  , " is Hungry:"
                   , abilityResult hDelta hRoll mCon 0 ]
     else "..."
   in w { entityT  = GE.updateEntity mx newMonster (entityT w)

@@ -13,7 +13,7 @@ import qualified Data.Text as T
 import qualified Game.DiceSet as DS
 
 -- | abilityGain
--- @ stat gain at levels 4, 8, 12, 16, 19
+-- @ stats gain w/ lvl
 abilityGain :: Int -> Int -> (Int, Int)
 abilityGain lvl curr
   | lvl == 4  && lvl > curr = (2, 0)
@@ -81,28 +81,40 @@ attacksGain :: Text -> Int -> Int -> Text -> Text
 attacksGain pCls lvl curr attacks
   | pCls == "Fighter" && lvl == 5  && lvl > curr = "2d8"
   | pCls == "Fighter" && lvl == 11 && lvl > curr = "3d8"
-  | pCls == "Fighter" && lvl == 20 && lvl > curr = "4d8"
-  | pCls == "Rogue" && lvl == 5  && lvl > curr = "2d6"
-  | pCls == "Rogue" && lvl == 11 && lvl > curr = "3d6"
-  | pCls == "Rogue" && lvl == 20 && lvl > curr = "4d6"
+  | pCls == "Fighter" && lvl == 17 && lvl > curr = "4d8"
+  | pCls == "Fighter" && lvl == 18 && lvl > curr = "4d8+4"
+  | pCls == "Fighter" && lvl == 19 && lvl > curr = "4d8+6"
+  | pCls == "Fighter" && lvl == 20 && lvl > curr = "4d8+8"
+  | pCls == "Rogue"   && lvl == 5  && lvl > curr = "2d6"
+  | pCls == "Rogue"   && lvl == 11 && lvl > curr = "3d6"
+  | pCls == "Rogue"   && lvl == 17 && lvl > curr = "4d6"
+  | pCls == "Rogue"   && lvl == 18 && lvl > curr = "4d6+2"
+  | pCls == "Rogue"   && lvl == 19 && lvl > curr = "4d6+4"
+  | pCls == "Rogue"   && lvl == 20 && lvl > curr = "4d6+6"
   | otherwise = attacks
 
 -- | castGain
 -- @ gains CAST w/ lvl
 castGain :: Text -> Int -> Int -> Text -> Text
 castGain pCls lvl curr cast
-  | pCls == "Rogue" && lvl == 3  && lvl > curr = "2d4"
-  | pCls == "Rogue" && lvl == 9  && lvl > curr = "3d4"
-  | pCls == "Rogue" && lvl == 13 && lvl > curr = "4d4"
-  | pCls == "Rogue" && lvl == 17 && lvl > curr = "4d4+4"
-  | pCls == "Mage" && lvl == 3  && lvl > curr = "2d10"
-  | pCls == "Mage" && lvl == 9  && lvl > curr = "3d10"
-  | pCls == "Mage" && lvl == 13 && lvl > curr = "4d10"
-  | pCls == "Mage" && lvl == 17 && lvl > curr = "4d10+10"
-  | pCls == "Cleric" && lvl == 3  && lvl > curr = "2d8"
-  | pCls == "Cleric" && lvl == 9  && lvl > curr = "3d8"
-  | pCls == "Cleric" && lvl == 13 && lvl > curr = "4d8"
-  | pCls == "Cleric" && lvl == 17 && lvl > curr = "4d8+8"
+  | pCls == "Rogue"  && lvl == 5  && lvl > curr = "2d4"
+  | pCls == "Rogue"  && lvl == 11 && lvl > curr = "3d4"
+  | pCls == "Rogue"  && lvl == 17 && lvl > curr = "4d4"
+  | pCls == "Rogue"  && lvl == 18 && lvl > curr = "4d4+2"
+  | pCls == "Rogue"  && lvl == 19 && lvl > curr = "4d4+3"
+  | pCls == "Rogue"  && lvl == 20 && lvl > curr = "4d4+4"
+  | pCls == "Mage"   && lvl == 5  && lvl > curr = "2d10"
+  | pCls == "Mage"   && lvl == 11 && lvl > curr = "3d10"
+  | pCls == "Mage"   && lvl == 17 && lvl > curr = "4d10"
+  | pCls == "Mage"   && lvl == 18 && lvl > curr = "4d10+6"
+  | pCls == "Mage"   && lvl == 19 && lvl > curr = "4d10+8"
+  | pCls == "Mage"   && lvl == 20 && lvl > curr = "4d10+10"
+  | pCls == "Cleric" && lvl == 5  && lvl > curr = "2d8"
+  | pCls == "Cleric" && lvl == 11 && lvl > curr = "3d8"
+  | pCls == "Cleric" && lvl == 17 && lvl > curr = "4d8"
+  | pCls == "Cleric" && lvl == 18 && lvl > curr = "4d8+4"
+  | pCls == "Cleric" && lvl == 19 && lvl > curr = "4d8+6"
+  | pCls == "Cleric" && lvl == 20 && lvl > curr = "4d8+8"
   | otherwise = cast
 
 -- | checkEncumberance
@@ -118,14 +130,14 @@ checkEncumberance str wt prof
   | otherwise = prof
 
 -- | checkFinesse
--- @ loses Throw, Sneak Extra Damage based on WWT
+-- @ Rogue loses Attacks if Heavy WWT
 checkFinesse :: Int -> Text -> Text
 checkFinesse wwt prof
   | wwt < 3   = prof
   | otherwise = "0"
 
 -- | checkFinessMagic
--- @ loses Cast Extra Damage based on WWT
+-- @ Magic User loses Cast if Heavy WWT
 checkFinesseMagic :: Int -> Text -> Text
 checkFinesseMagic wwt prof
   | wwt < 5   = prof
@@ -154,11 +166,11 @@ criticalRoll roll modifier prof
   where
     result = roll + modifier + prof
 
--- | @ gets better with level
+-- | @ gets Proficient w/ lvl
 proficiency :: Int -> Int
 proficiency lvl
-  | lvl >= 1  && lvl <= 4 = 2
-  | lvl >= 5  && lvl <= 8 = 3
+  | lvl >= 1  && lvl <= 4  = 2
+  | lvl >= 5  && lvl <= 8  = 3
   | lvl >= 9  && lvl <= 12 = 4
   | lvl >= 13 && lvl <= 16 = 5
   | lvl >= 17 && lvl <= 20 = 6
@@ -188,25 +200,34 @@ weapon dice seed bonus = let
     "1d8" -> DS.d8 seed
     "1d10" -> DS.d10 seed
     "1d12" -> DS.d12 seed
+    -- d2, d3, d5
     "2d2" -> DS.d2 seed + DS.d2 (seed+1)
     "2d3" -> DS.d3 seed + DS.d3 (seed+1)
     "2d5" -> DS.d5 seed + DS.d5 (seed+1)
+    "3d2" -> DS.d2 seed + DS.d2 (seed+1) + DS.d2 (seed+2)
+    "3d3" -> DS.d3 seed + DS.d3 (seed+1) + DS.d3 (seed+2)
+    "3d5" -> DS.d5 seed + DS.d5 (seed+1) + DS.d5 (seed+2)
+    -- d4
     "2d4" -> DS.d4 seed + DS.d4 (seed+1)
     "3d4" -> DS.d4 seed + DS.d4 (seed+1) + DS.d4 (seed+2)
     "4d4" -> DS.d4 seed + DS.d4 (seed+1) + DS.d4 (seed+2) + DS.d4 (seed+3)
+    -- d6
     "2d6" -> DS.d6 seed + DS.d6 (seed+1)
     "3d6" -> DS.d6 seed + DS.d6 (seed+1) + DS.d6 (seed+2)
     "4d6" -> DS.d6 seed + DS.d6 (seed+1) + DS.d6 (seed+2) + DS.d6 (seed+3)
+    -- d8
     "2d8" -> DS.d8 seed + DS.d8 (seed+1)
     "3d8" -> DS.d8 seed + DS.d8 (seed+1) + DS.d8 (seed+2)
     "4d8" -> DS.d8 seed + DS.d8 (seed+1) + DS.d8 (seed+2) + DS.d8 (seed+3)
+    -- d10
     "2d10" -> DS.d10 seed + DS.d10 (seed+1)
     "3d10" -> DS.d10 seed + DS.d10 (seed+1) + DS.d10 (seed+2)
     "4d10" -> DS.d10 seed + DS.d10 (seed+1) + DS.d10 (seed+2) + DS.d10 (seed+3)
+    -- d12
     "2d12" -> DS.d12 seed + DS.d12 (seed+1)
     "3d12" -> DS.d12 seed + DS.d12 (seed+1) + DS.d12 (seed+2)
     "4d12" -> DS.d12 seed + DS.d12 (seed+1) + DS.d12 (seed+2) + DS.d12 (seed+3)
-    _     -> DS.d4 seed
+    _ -> DS.d4 seed
   wBonus n
     | n == "-10" = -10
     | n == "-9" = -9
@@ -235,24 +256,24 @@ weapon dice seed bonus = let
 -- | xpLevel simple
 xpLevel :: Int -> Int
 xpLevel x
-  | x > 0    && x <= 35  = 1
-  | x > 35   && x <= 100 = 2
-  | x > 100  && x <= 200 = 3
-  | x > 200  && x <= 300 = 4
-  | x > 300  && x <= 400 = 5
-  | x > 400  && x <= 600 = 6
-  | x > 600  && x <= 800 = 7
-  | x > 800  && x <= 1000 = 8
-  | x > 1000 && x <= 1200 = 9
-  | x > 1200 && x <= 1400 = 10
-  | x > 1400 && x <= 1600 = 11
-  | x > 1600 && x <= 2000 = 12
-  | x > 2000 && x <= 3000 = 13
-  | x > 3000 && x <= 4600 = 14
-  | x > 4000 && x <= 5000 = 15
-  | x > 5000 && x <= 6000 = 16
-  | x > 6000 && x <= 7000 = 17
-  | x > 7000 && x <= 8000 = 18
-  | x > 8000 && x <= 10000 = 19
-  | x > 10000              = 20
+  | x > 0     && x <= 35  = 1
+  | x > 35    && x <= 100 = 2
+  | x > 100   && x <= 200 = 3
+  | x > 200   && x <= 300 = 4
+  | x > 300   && x <= 800 = 5
+  | x > 800   && x <= 1300 = 6
+  | x > 1300  && x <= 1800 = 7
+  | x > 1800  && x <= 2300 = 8
+  | x > 2300  && x <= 3300 = 9
+  | x > 3300  && x <= 4300 = 10
+  | x > 4300  && x <= 5300 = 11
+  | x > 5300  && x <= 6300 = 12
+  | x > 6300  && x <= 7300 = 13
+  | x > 7300  && x <= 8300 = 14
+  | x > 8300  && x <= 10000 = 15
+  | x > 10000 && x <= 12000 = 16
+  | x > 12000 && x <= 14000 = 17
+  | x > 14000 && x <= 16000 = 18
+  | x > 16000 && x <= 18000 = 19
+  | x > 18000 = 20
   | otherwise = 1

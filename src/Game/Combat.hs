@@ -118,7 +118,7 @@ mkCombat px mx w = if px == mx
     pWeap  = Map.findWithDefault "1d1" "ATTACK" pProp
     pClass = Map.findWithDefault "None" "Class" pProp
     pExtra = if pClass == "Rogue"
-      then checkFinesse pWWT (Map.findWithDefault "0" "ATTACKS" pProp)
+      then checkFinesse pWWT $ Map.findWithDefault "0" "ATTACKS" pProp
       else Map.findWithDefault "0" "ATTACKS" pProp
     -- Encumbered?
     pWT  = read $ T.unpack $ Map.findWithDefault "0" "WT" pProp :: Int
@@ -166,12 +166,12 @@ mkMagicCombat px mx w = if px == mx
     pStr = read $ T.unpack $ Map.findWithDefault "1" "str" pProp :: Int
     pInt = abilityMod $ read $ T.unpack $ Map.findWithDefault "1" "int" pProp
     pWis = abilityMod $ read $ T.unpack $ Map.findWithDefault "1" "wis" pProp
-    pWWT = read $ T.unpack $ Map.findWithDefault "0" "WWT" pProp :: Int
     -- Mage or Cleric
-    pWeap  = Map.findWithDefault "1d4" "ATTACK" pProp
     pClass = Map.findWithDefault "None" "Class" pProp
     pStat  = if pClass == "Cleric" then pWis else pInt
-    pExtra = checkFinesseMagic pWWT (Map.findWithDefault "0" "CAST" pProp)
+    -- Heavy Weapons?
+    pWWT = read $ T.unpack $ Map.findWithDefault "0" "WWT" pProp :: Int
+    pWeap = checkFinesseMagic pWWT $ Map.findWithDefault "0" "CAST" pProp
     -- Encumbered?
     pWT  = read $ T.unpack $ Map.findWithDefault "0" "WT" pProp  :: Int
     pMod = read $ T.unpack $ Map.findWithDefault "0" "Proficiency" pProp
@@ -180,7 +180,7 @@ mkMagicCombat px mx w = if px == mx
     pD20    = DS.d20 pSeed
     pAR     = criticalRoll   pD20 pStat pEnc
     pDam    = criticalDamage pAR  pWeap (pSeed+1) pStat
-    pDamage = pDam + weapon pExtra (pSeed+2) 0
+    pDamage = pDam + weapon pWeap (pSeed+2) 0
     -- mAC
     mProp = property mEntity
     mName = Map.findWithDefault "M" "Name" mProp
@@ -222,13 +222,14 @@ mkRangeCombat px mx w = if px == mx
     pStr   = read $ T.unpack $ Map.findWithDefault "1" "str" pProp :: Int
     pDex   = abilityMod $ read $ T.unpack $ Map.findWithDefault "1" "dex" pProp
     pStat  = pDex
-    pWWT   = read $ T.unpack $ Map.findWithDefault "0" "WWT" pProp :: Int
+    -- Heavy Weapons?
     pWeap  = Map.findWithDefault "1d1" "SHOOT" pProp
-    pExtra = checkFinesse pWWT (Map.findWithDefault "0" "ATTACKS" pProp)
-    -- Encumbered, Heavy weapons?
+    pWWT   = read $ T.unpack $ Map.findWithDefault "0" "WWT" pProp :: Int
+    pExtra = checkFinesse pWWT $ Map.findWithDefault "0" "ATTACKS" pProp
+    -- Encumbered?
     pWT   = read $ T.unpack $ Map.findWithDefault "0" "WT" pProp  :: Int
     pMod  = read $ T.unpack $ Map.findWithDefault "0" "Proficiency" pProp
-    pEnc  = if pWWT < 5 then checkEncumberance pStr pWT pMod else 0
+    pEnc  = checkEncumberance pStr pWT pMod
     -- SHOOT roll
     pD20  = DS.d20 pSeed
     pAR   = criticalRoll   pD20 pStat pEnc

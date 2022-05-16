@@ -188,15 +188,18 @@ actionEat w = let
   pHp    = if heal > pMaxHp then pMaxHp else heal
   pMaxHp = eMaxHP pEntity
   pProp  = property pEntity
+  pStr   = read $ T.unpack $ Map.findWithDefault "1" "str" pProp :: Int
   pCon   = abilityMod $ read $ T.unpack $ Map.findWithDefault "1" "con" pProp
+  -- Encumbered?
+  pWT    = read $ T.unpack $ Map.findWithDefault "0" "WT" pProp  :: Int
   pProf  = read $ T.unpack $ Map.findWithDefault "0" "Proficiency" pProp
   pCls   = Map.findWithDefault "Player" "Class" pProp
-  prof   = if pCls == "Cleric" then pProf else 0
+  prof   = if pCls == "Cleric" then checkEncumberance pStr pWT pProf else 0
   newPlayer = if pMush > 0
     then pEntity { inventory = Map.insert "Mushroom" (pMush-1) pInv, eHP = pHp }
     else pEntity
   entry = if pMush > 0
-    then T.concat [ "Eat a tasty :Mushroom:"
+    then T.concat [ "Eat a tasty Mushroom:"
                   , abilityResult hDelta hRoll pCon prof ]
     else "No Eat..."
   in w { tick     = newTick
@@ -348,17 +351,20 @@ actionQuaff w = let
   pMaxHp = eMaxHP pEntity
   pMaxMp = eMaxMP pEntity
   pProp  = property pEntity
+  pStr   = read $ T.unpack $ Map.findWithDefault "1" "str" pProp :: Int
   pCon   = abilityMod $ read $ T.unpack $ Map.findWithDefault "1" "con" pProp
   pWis   = abilityMod $ read $ T.unpack $ Map.findWithDefault "1" "wis" pProp
+  -- Encumbered?
+  pWT    = read $ T.unpack $ Map.findWithDefault "0" "WT" pProp  :: Int
   pProf  = read $ T.unpack $ Map.findWithDefault "0" "Proficiency" pProp
   pCls   = Map.findWithDefault "Player" "Class" pProp
-  prof   = if pCls == "Mage" then pProf else 0
+  prof   = if pCls == "Mage" then checkEncumberance pStr pWT pProf else 0
   newPlayer = if pPot > 0
     then pEntity { inventory = Map.insert "Potion" (pPot-1) pInv
                  , eHP = pHp, eMP = pMp }
     else pEntity
   entry = if pPot > 0
-    then T.concat [ "Drink a delicious :Potion:"
+    then T.concat [ "Drink a delicious Potion:"
                   , abilityResult2 hDelta mDelta hRoll mRoll pCon pWis prof ]
     else "No Drink..."
   in w { tick     = newTick

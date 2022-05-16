@@ -180,9 +180,10 @@ actionEat w = let
   newTick      = tick w + 1
   (pEntity, _) = GP.getPlayer (entityT w)
   -- Mushroom
+  seed   = tick w
   pInv   = inventory pEntity
   pMush  = Map.findWithDefault 0 "Mushroom" pInv
-  hRoll  = DS.d4 newTick
+  hRoll  = DS.d8 seed
   heal   = eHP pEntity + hDelta
   hDelta = hRoll + pCon + prof
   pHp    = if heal > pMaxHp then pMaxHp else heal

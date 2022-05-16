@@ -142,9 +142,10 @@ monsterDrink mx mEntity w = let
 -- M eats...
 monsterEat :: Int -> EntityKind -> World -> World
 monsterEat mx mEntity w = let
+  seed   = tick w
   mInv   = inventory mEntity
   mMush  = Map.findWithDefault 0 "Mushroom" mInv
-  hRoll  = DS.d4 (tick w)
+  hRoll  = DS.d8 seed
   heal   = eHP mEntity + hDelta
   hDelta = hRoll + mCon
   mHp    = if heal > mMaxHp then mMaxHp else heal

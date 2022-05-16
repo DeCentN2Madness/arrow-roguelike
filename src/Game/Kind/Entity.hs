@@ -102,16 +102,17 @@ defaultEK name desc pos =
 -- One lucky Mushroom
 mkInventory :: Text -> [(Text, Int)]
 mkInventory n
-  | n == "Player"       = [("Arrow",0),("Potion",0),("Mushroom",1),("Coin",0)]
+  | n == "Player"       = [("Arrow",1),("Potion",1),("Mushroom",1),("Coin",1)]
   | n == "Red Dragon"   = [("Arrow",1),("Potion",1),("Mushroom",1),("Coin",1)]
   | n == "Green Dragon" = [("Arrow",1),("Potion",1),("Mushroom",1),("Coin",1)]
   | n == "Blue Dragon"  = [("Arrow",1),("Potion",1),("Mushroom",1),("Coin",1)]
   | n == "Black Dragon" = [("Arrow",1),("Potion",1),("Mushroom",1),("Coin",1)]
   | n == "White Dragon" = [("Arrow",1),("Potion",1),("Mushroom",1),("Coin",1)]
   | n == "Orc"          = [("Arrow",0),("Potion",0),("Mushroom",1),("Item",1)]
-  | n == "Orc Archer"   = [("Arrow",3),("Potion",0),("Mushroom",1),("Item",1)]
+  | n == "Orc Archer"   = [("Arrow",5),("Potion",0),("Mushroom",1),("Item",1)]
   | n == "Orc Shaman"   = [("Arrow",1),("Potion",0),("Mushroom",1),("Item",1)]
-  | n == "Spider"       = [("Arrow",1),("Potion",1),("Mushroom",1),("Item",1)]
+  | n == "Ogre"         = [("Arrow",0),("Potion",0),("Mushroom",1),("Item",1)]
+  | n == "Spider"       = [("Arrow",1),("Potion",1),("Mushroom",1),("Coin",1)]
   | n == "Troll"        = [("Arrow",1),("Potion",1),("Mushroom",1),("Item",1)]
   | otherwise           = [("Arrow",0),("Potion",0),("Mushroom",0),("Coin",0)]
 

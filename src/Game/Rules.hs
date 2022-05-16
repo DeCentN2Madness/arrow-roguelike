@@ -75,6 +75,36 @@ abilityResult2 resultA resultB rollA rollB modA modB prof =
            , "]"
            ]
 
+-- | attacksGain
+-- @ gains ATTACKS w/ lvl
+attacksGain :: Text -> Int -> Int -> Text -> Text
+attacksGain pCls lvl curr attacks
+  | pCls == "Fighter" && lvl == 5  && lvl > curr = "2d8"
+  | pCls == "Fighter" && lvl == 11 && lvl > curr = "3d8"
+  | pCls == "Fighter" && lvl == 20 && lvl > curr = "4d8"
+  | pCls == "Rogue" && lvl == 5  && lvl > curr = "2d6"
+  | pCls == "Rogue" && lvl == 11 && lvl > curr = "3d6"
+  | pCls == "Rogue" && lvl == 20 && lvl > curr = "4d6"
+  | otherwise = attacks
+
+-- | castGain
+-- @ gains CAST w/ lvl
+castGain :: Text -> Int -> Int -> Text -> Text
+castGain pCls lvl curr cast
+  | pCls == "Rogue" && lvl == 3  && lvl > curr = "2d4"
+  | pCls == "Rogue" && lvl == 9  && lvl > curr = "3d4"
+  | pCls == "Rogue" && lvl == 13 && lvl > curr = "4d4"
+  | pCls == "Rogue" && lvl == 17 && lvl > curr = "4d4+4"
+  | pCls == "Mage" && lvl == 3  && lvl > curr = "2d10"
+  | pCls == "Mage" && lvl == 9  && lvl > curr = "3d10"
+  | pCls == "Mage" && lvl == 13 && lvl > curr = "4d10"
+  | pCls == "Mage" && lvl == 17 && lvl > curr = "4d10+10"
+  | pCls == "Cleric" && lvl == 3  && lvl > curr = "2d8"
+  | pCls == "Cleric" && lvl == 9  && lvl > curr = "3d8"
+  | pCls == "Cleric" && lvl == 13 && lvl > curr = "4d8"
+  | pCls == "Cleric" && lvl == 17 && lvl > curr = "4d8+8"
+  | otherwise = cast
+
 -- | checkEncumberance
 -- @ loses proficiency based on WT
 checkEncumberance :: Int -> Int -> Int -> Int
@@ -160,38 +190,22 @@ weapon dice seed bonus = let
     "1d12" -> DS.d12 seed
     "2d2" -> DS.d2 seed + DS.d2 (seed+1)
     "2d3" -> DS.d3 seed + DS.d3 (seed+1)
-    "2d4" -> DS.d4 seed + DS.d4 (seed+1)
     "2d5" -> DS.d5 seed + DS.d5 (seed+1)
+    "2d4" -> DS.d4 seed + DS.d4 (seed+1)
+    "3d4" -> DS.d4 seed + DS.d4 (seed+1) + DS.d4 (seed+2)
+    "4d4" -> DS.d4 seed + DS.d4 (seed+1) + DS.d4 (seed+2) + DS.d4 (seed+3)
     "2d6" -> DS.d6 seed + DS.d6 (seed+1)
-    "2d8" -> DS.d8 seed + DS.d8 (seed+1)
-    "2d10" -> DS.d10 seed + DS.d10 (seed+1)
-    "2d12" -> DS.d12 seed + DS.d12 (seed+1)
     "3d6" -> DS.d6 seed + DS.d6 (seed+1) + DS.d6 (seed+2)
-    "4d6" -> do
-      DS.d6 seed + DS.d6 (seed+1) + DS.d6 (seed+2) + DS.d6 (seed+3)
-    "5d6" -> do
-      DS.d6 seed + DS.d6 (seed+1) + DS.d6 (seed+2) +
-        DS.d6 (seed+3) + DS.d6 (seed+4)
-    "6d6" -> do
-      DS.d6 seed + DS.d6 (seed+1) + DS.d6 (seed+2) +
-        DS.d6 (seed+3) + DS.d6 (seed+4) + DS.d6 (seed+5)
-    "7d6" -> do
-      DS.d6 seed + DS.d6 (seed+1) + DS.d6 (seed+2) +
-        DS.d6 (seed+3) + DS.d6 (seed+4) + DS.d6 (seed+5) +
-        DS.d6 (seed+6)
-    "8d6" -> do
-      DS.d6 seed + DS.d6 (seed+1) + DS.d6 (seed+2) +
-        DS.d6 (seed+3) + DS.d6 (seed+4) + DS.d6 (seed+5) +
-        DS.d6 (seed+6) + DS.d6 (seed+7)
-    "9d6" -> do
-      DS.d6 seed + DS.d6 (seed+1) + DS.d6 (seed+2) +
-        DS.d6 (seed+3) + DS.d6 (seed+4) + DS.d6 (seed+5) +
-        DS.d6 (seed+6) + DS.d6 (seed+7) + DS.d6 (seed+8)
-    "10d6" -> do
-      DS.d6 seed + DS.d6 (seed+1) + DS.d6 (seed+2) +
-        DS.d6 (seed+3) + DS.d6 (seed+4) + DS.d6 (seed+5) +
-        DS.d6 (seed+6) + DS.d6 (seed+7) + DS.d6 (seed+8) +
-        DS.d6 (seed+9)
+    "4d6" -> DS.d6 seed + DS.d6 (seed+1) + DS.d6 (seed+2) + DS.d6 (seed+3)
+    "2d8" -> DS.d8 seed + DS.d8 (seed+1)
+    "3d8" -> DS.d8 seed + DS.d8 (seed+1) + DS.d8 (seed+2)
+    "4d8" -> DS.d8 seed + DS.d8 (seed+1) + DS.d8 (seed+2) + DS.d8 (seed+3)
+    "2d10" -> DS.d10 seed + DS.d10 (seed+1)
+    "3d10" -> DS.d10 seed + DS.d10 (seed+1) + DS.d10 (seed+2)
+    "4d10" -> DS.d10 seed + DS.d10 (seed+1) + DS.d10 (seed+2) + DS.d10 (seed+3)
+    "2d12" -> DS.d12 seed + DS.d12 (seed+1)
+    "3d12" -> DS.d12 seed + DS.d12 (seed+1) + DS.d12 (seed+2)
+    "4d12" -> DS.d12 seed + DS.d12 (seed+1) + DS.d12 (seed+2) + DS.d12 (seed+3)
     _     -> DS.d4 seed
   wBonus n
     | n == "-10" = -10

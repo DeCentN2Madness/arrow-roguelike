@@ -113,7 +113,7 @@ characterEquipment em _ = let
   helmet = T.append "Head:   " $ fromMaybe "None" (Map.lookup "head" pProp)
   hands  = T.append "Hands:  " $ fromMaybe "None" (Map.lookup "hands" pProp)
   feet   = T.append "Feet:   " $ fromMaybe "None" (Map.lookup "feet" pProp)
-  armorClass = T.append "AC:     " $ fromMaybe "0" (Map.lookup "AC" pProp)
+  armorClass = T.append "AC: " $ fromMaybe "0" (Map.lookup "AC" pProp)
   attack = T.append "Attack: " $ fromMaybe "0" (Map.lookup "ATTACK" pProp)
   range  = T.append "Shoot:  " $ fromMaybe "0" (Map.lookup "SHOOT" pProp)
   -- Encumbered, Finesse, Heavy weapons?
@@ -312,38 +312,48 @@ updatePlayerBy = GE.updateEntityPos 0
 updatePlayerXP :: Int -> EntityMap -> EntityMap
 updatePlayerXP xp em = let
   (pEntity, _ ) = getPlayer em
-  pProp     = property pEntity
-  pCls      = Map.findWithDefault "None" "Class" pProp
-  pStr      = read $ T.unpack $ Map.findWithDefault "1" "str" pProp
-  pDex      = read $ T.unpack $ Map.findWithDefault "1" "dex" pProp
-  pCon      = read $ T.unpack $ Map.findWithDefault "1" "con" pProp
-  pInt      = read $ T.unpack $ Map.findWithDefault "1" "int" pProp
-  pWis      = read $ T.unpack $ Map.findWithDefault "1" "wis" pProp
-  cHP       = read $ T.unpack $ Map.findWithDefault "1" "HP" pProp
-  cMP       = read $ T.unpack $ Map.findWithDefault "1" "MP" pProp
-  pTot      = eXP pEntity + xp
-  pLvl      = xpLevel pTot
-  current   = eLvl pEntity
-  pHP       = if pLvl > current then pMaxHP else eHP pEntity
-  pMaxHP    = pLvl * (cHP + abilityMod pCon)
+  pProp = property pEntity
+  pCls  = Map.findWithDefault "None" "Class" pProp
+  pStr  = read $ T.unpack $ Map.findWithDefault "1" "str" pProp
+  pDex  = read $ T.unpack $ Map.findWithDefault "1" "dex" pProp
+  pCon  = read $ T.unpack $ Map.findWithDefault "1" "con" pProp
+  pInt  = read $ T.unpack $ Map.findWithDefault "1" "int" pProp
+  pWis  = read $ T.unpack $ Map.findWithDefault "1" "wis" pProp
+  cHP   = read $ T.unpack $ Map.findWithDefault "1" "HP" pProp
+  cMP   = read $ T.unpack $ Map.findWithDefault "1" "MP" pProp
+  cAttacks = Map.findWithDefault "0" "ATTACKS" pProp
+  cCast    = Map.findWithDefault "0" "CAST" pProp
+  -- EXP
+  pTot    = eXP pEntity + xp
+  pLvl    = xpLevel pTot
+  current = eLvl pEntity
+  -- HP
+  pHP    = if pLvl > current then pMaxHP else eHP pEntity
+  pMaxHP = pLvl * (cHP + abilityMod pCon)
   -- Fighter
   (fStr, fDex) = if pCls == "Fighter" then abilityGain pLvl current else (0,0)
   -- Rogue
-  (rDex, rStr) = if pCls == "Rogue" then abilityGain pLvl current else (0,0)
+  (rDex, rInt) = if pCls == "Rogue" then abilityGain pLvl current else (0,0)
   -- Mage
   (mInt, mWis) = if pCls == "Mage"  then abilityGain pLvl current else (0,0)
   -- Cleric
   (cWis, cStr) = if pCls == "Cleric" then abilityGain pLvl current else (0,0)
   -- Mana
-  pMP     = if pLvl > current then pMaxMP else eMP pEntity
-  newWis  = pWis + mWis + cWis
-  pMaxMP  = pLvl * (cMP + abilityMod newWis)
+  pMP    = if pLvl > current then pMaxMP else eMP pEntity
+  newWis = pWis + mWis + cWis
+  pMaxMP = pLvl * (cMP + abilityMod newWis)
+  -- ATTACKS, CAST
+  pAttacks = attacksGain pCls pLvl current cAttacks
+  pCast    = castGain pCls pLvl current cCast
   -- Properties
-  newProp = Map.fromList [ ("str", T.pack $ show $ pStr + fStr + rStr + cStr)
+  newProp = Map.fromList [ ("str", T.pack $ show $ pStr + fStr + cStr)
                          , ("dex", T.pack $ show $ pDex + fDex + rDex)
-                         , ("int", T.pack $ show $ pInt + mInt)
+                         , ("int", T.pack $ show $ pInt + mInt + rInt)
                          , ("wis", T.pack $ show $ pWis + mWis + cWis)
-                         , ("Proficiency", T.pack $ show $ proficiency pLvl) ]
+                         , ("Proficiency", T.pack $ show $ proficiency pLvl)
+                         , ("ATTACKS", pAttacks)
+                         , ("CAST", pCast)
+                         ]
   newPlayer = pEntity { property = Map.union newProp pProp
                       , eLvl     = pLvl
                       , eHP      = pHP

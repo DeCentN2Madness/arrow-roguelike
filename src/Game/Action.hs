@@ -237,6 +237,8 @@ actionExamine x w = let
   mRange   = Map.findWithDefault "None" "shoot"  mProp
   mAttack  = Map.findWithDefault "1d4"  "ATTACK" mProp
   mShoot   = Map.findWithDefault "0"    "SHOOT"  mProp
+  mAttacks = Map.findWithDefault "0" "ATTACKS" mProp
+  mCast    = Map.findWithDefault "0" "CAST" mProp
   mCls     = T.append "Class: " mClass
   -- Stats
   mStat = if mStr /= "0"
@@ -254,12 +256,18 @@ actionExamine x w = let
     else "..."
   -- Special
   mRules
-    | mClass == "Fighter" = "Special: Item"
-    | mClass == "Rogue"   = "Special: Coin"
-    | mClass == "Mage"    = "Special: Potion"
-    | mClass == "Cleric"  = "Special: Mushroom"
+    | mClass == "Fighter" = T.concat [ "Special: Item, Attacks: ", mAttacks ]
+    | mClass == "Rogue"   = T.concat [ "Special: Coin, Attacks: "
+                                     , mAttacks
+                                     , ", Cast: "
+                                     , mCast ]
+    | mClass == "Mage"    = T.concat [ "Special: Potion, Cast: ", mCast ]
+    | mClass == "Cleric"  = T.concat [ "Special: Mushroom, Cast: ", mCast ]
     | mClass == "Item"    = "..."
-    | otherwise           = "Special: Coin"
+    | otherwise           = T.concat [ "Special: Coin, Attacks: "
+                                     , mAttacks
+                                     , ", Cast: "
+                                     , mCast ]
   -- Name
   entry = if mExamine /= "None"
     then T.concat [ mName,  ": ", mExamine ]

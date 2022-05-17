@@ -36,6 +36,7 @@ actionCast w = let
   newTick         = tick w + 1
   (pEntity, pPos) = GP.getPlayer (entityT w)
   pMana           = eMP pEntity
+  pMaxMP          = eMaxMP pEntity
   mySort          = sortBy (compare `on` snd)
   -- pick closest target
   mTargets = filter (\(_, j) -> j `elem` fovT w) $
@@ -45,17 +46,17 @@ actionCast w = let
     [] -> 0
     xs -> fst $ head $ mySort [ (ix, d) | (ix, xy) <- xs,
                                 let d = distance xy pPos ]
-  newPlayer = if pMana > 0 && mTarget > 0
+  newPlayer = if pMana > 0 && pMaxMP > 0 && mTarget > 0
     then pEntity { eMP = pMana - 1 }
     else pEntity
-  entry = if pMana > 0 && mTarget > 0
+  entry = if pMana > 0 && pMaxMP > 0 && mTarget > 0
     then "Cast a Spell..."
     else "No Cast..."
   -- throwWorld
   throwWorld = w { entityT  = GP.updatePlayer newPlayer (entityT w)
                  , journalT = GJ.updateJournal [entry] (journalT w) }
   -- Combat event
-  world = if pMana > 0 && mTarget > 0
+  world = if pMana > 0 && pMaxMP > 0 && mTarget > 0
     then GC.mkMagicCombat 0 mTarget throwWorld
     else throwWorld
   in world { tick = newTick }

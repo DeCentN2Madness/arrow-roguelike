@@ -112,11 +112,14 @@ mkCombat px mx w = if px == mx
     -- COMBAT
     pStr  = read $ T.unpack $ Map.findWithDefault "1" "str" pProp :: Int
     pDex  = read $ T.unpack $ Map.findWithDefault "1" "dex" pProp :: Int
-    pWWT  = read $ T.unpack $ Map.findWithDefault "3" "WWT" pProp :: Int
-    pStat = if pWWT < 3 then abilityMod pDex else abilityMod pStr
     -- Fighter or Rogue
     pWeap  = Map.findWithDefault "1d1" "ATTACK" pProp
+    pStat = if pWWT < 3
+      then abilityMod pDex
+      else abilityMod pStr
+    -- Finesse?
     pClass = Map.findWithDefault "None" "Class" pProp
+    pWWT  = read $ T.unpack $ Map.findWithDefault "3" "WWT" pProp :: Int
     pExtra = if pClass == "Rogue"
       then checkFinesse pWWT $ Map.findWithDefault "0" "ATTACKS" pProp
       else Map.findWithDefault "0" "ATTACKS" pProp
@@ -164,14 +167,17 @@ mkMagicCombat px mx w = if px == mx
     pName = Map.findWithDefault "P" "Name" pProp
     -- MAGIC
     pStr = read $ T.unpack $ Map.findWithDefault "1" "str" pProp :: Int
-    pInt = abilityMod $ read $ T.unpack $ Map.findWithDefault "1" "int" pProp
-    pWis = abilityMod $ read $ T.unpack $ Map.findWithDefault "1" "wis" pProp
+    pInt = read $ T.unpack $ Map.findWithDefault "1" "int" pProp
+    pWis = read $ T.unpack $ Map.findWithDefault "1" "wis" pProp
     -- Mage or Cleric
     pClass = Map.findWithDefault "None" "Class" pProp
-    pStat  = if pClass == "Cleric" then pWis else pInt
-    -- Heavy Weapons?
-    pWWT = read $ T.unpack $ Map.findWithDefault "0" "WWT" pProp :: Int
-    pWeap = checkFinesseMagic pWWT $ Map.findWithDefault "1d1" "CAST" pProp
+    pStat  = if pClass == "Cleric"
+      then abilityMod pWis
+      else abilityMod pInt
+    -- Finesse?
+    pWeap  = checkFinesseMagic pWWT $ Map.findWithDefault "1d1" "ATTACK" pProp
+    pWWT   = read $ T.unpack $ Map.findWithDefault "0" "WWT" pProp :: Int
+    pExtra = checkFinesseMagic pWWT $ Map.findWithDefault "0" "CAST" pProp
     -- Encumbered?
     pWT  = read $ T.unpack $ Map.findWithDefault "0" "WT" pProp  :: Int
     pMod = read $ T.unpack $ Map.findWithDefault "0" "Proficiency" pProp
@@ -180,7 +186,7 @@ mkMagicCombat px mx w = if px == mx
     pD20    = DS.d20 pSeed
     pAR     = criticalRoll   pD20 pStat pEnc
     pDam    = criticalDamage pAR  pWeap (pSeed+1) pStat
-    pDamage = pDam + weapon pWeap (pSeed+2) 0
+    pDamage = pDam + weapon pExtra (pSeed+2) 0
     -- mAC
     mProp = property mEntity
     mName = Map.findWithDefault "M" "Name" mProp
@@ -220,9 +226,9 @@ mkRangeCombat px mx w = if px == mx
     pName = Map.findWithDefault "P" "Name" pProp
     -- THROW
     pStr   = read $ T.unpack $ Map.findWithDefault "1" "str" pProp :: Int
-    pDex   = abilityMod $ read $ T.unpack $ Map.findWithDefault "1" "dex" pProp
-    pStat  = pDex
-    -- Heavy Weapons?
+    pDex   = read $ T.unpack $ Map.findWithDefault "1" "dex" pProp
+    pStat  = abilityMod pDex
+    -- Finesse?
     pWeap  = Map.findWithDefault "1d1" "SHOOT" pProp
     pWWT   = read $ T.unpack $ Map.findWithDefault "0" "WWT" pProp :: Int
     pExtra = checkFinesse pWWT $ Map.findWithDefault "0" "ATTACKS" pProp

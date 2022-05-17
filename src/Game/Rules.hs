@@ -152,7 +152,7 @@ criticalDamage roll pWeap s modifier
   | otherwise   = if result < 1 then 0 else result
   where
     result = weapon pWeap (s+1) modifier
-    crit   = weapon pWeap (s+2) 0
+    crit   = weapon pWeap (s+2) modifier
 
 -- | criticalRoll
 -- One or Twenty

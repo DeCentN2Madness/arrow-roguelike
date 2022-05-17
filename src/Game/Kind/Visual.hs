@@ -61,6 +61,7 @@ data VisualKind
   | VHelmet
   | VGloves
   | VBoots
+  | VLDragon
   deriving (Ord, Show, Eq, Generic)
 
 instance FromJSON VisualKind

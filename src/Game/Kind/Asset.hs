@@ -152,5 +152,6 @@ mkAssetMap = let
        , mkMonster "Blue Dragon"  "Medium dragon (d)"   pos
        , mkMonster "Black Dragon" "Medium dragon (d)"   pos
        , mkMonster "White Dragon" "Medium dragon (d)"   pos
+       , mkMonster "Wyvern"       "Large dragon (D)"    pos
        ]
   in Map.fromList $ zip [0..] em

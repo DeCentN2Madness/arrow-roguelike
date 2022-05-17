@@ -141,6 +141,7 @@ mkMonster name desc xy = let
     | n == "Blue Dragon"  = mdDragon
     | n == "Black Dragon" = mdDragon
     | n == "White Dragon" = mdDragon
+    | n == "Wyvern"       = lgDragon
     | n == "Mouse"        = smBeast
     | n == "Orc"          = mdHumanoid
     | n == "Orc Archer"   = mdHumanoidA
@@ -222,6 +223,7 @@ visualId name = let
     | count "Spider"  n > 0 = VSpider
     | count "Troll"   n > 0 = VTroll
     | count "Wolf"    n > 0 = VWolf
+    | count "Wyvern"  n > 0 = VLDragon
     | count "melee"   n > 0 = VDagger
     | count "shoot"   n > 0 = VBow
     | count "jewelry" n > 0 = VRing
@@ -381,6 +383,38 @@ mdDragon = [ ("str", "15")
            , ("Throw", "breathes!")
            , ("melee", "melee/Bite")
            , ("shoot", "shoot/Breath")
+           , ("jewelry", "None")
+           , ("neck", "None")
+           , ("armor", "armor/Natural Armor")
+           , ("cloak", "None")
+           , ("shield", "None")
+           , ("head", "None")
+           , ("hands", "None")
+           , ("feet", "None")
+           ]
+
+-- | Wyvern
+lgDragon :: Prop
+lgDragon = [ ("str", "19")
+           , ("dex", "10")
+           , ("con", "16")
+           , ("int", "5")
+           , ("wis", "12")
+           , ("HP", "110")
+           , ("MP", "0")
+           , ("XP", "2300")
+           , ("Proficiency", "2")
+           , ("Class", "Dragon")
+           , ("AC", "13")
+           , ("WT", "0")
+           , ("WWT", "10")
+           , ("ATTACK", "2d8")
+           , ("SHOOT", "2d6")
+           , ("ATTACKS", "2d8")
+           , ("CAST", "0")
+           , ("Throw", "breathes!")
+           , ("melee", "melee/Bite")
+           , ("shoot", "shoot/Sting")
            , ("jewelry", "None")
            , ("neck", "None")
            , ("armor", "armor/Natural Armor")

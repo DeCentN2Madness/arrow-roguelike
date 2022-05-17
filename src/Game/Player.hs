@@ -30,7 +30,6 @@ import Control.Arrow ((&&&))
 import Data.List
 import Data.Map (Map)
 import qualified Data.Map.Strict as Map
-import Data.Maybe
 import Data.Text (Text)
 import qualified Data.Text as T
 import Game.Entity (EntityMap)
@@ -56,24 +55,24 @@ armorShield pProp am = let
       let name = Map.findWithDefault "None" "Name" (property v)
           desc = Map.findWithDefault "None" "Description" (property v) ]
   -- melee
-  melee = fromMaybe "None" (Map.lookup "melee" pProp)
+  melee = Map.findWithDefault "None" "melee" pProp
   meleeStat = map T.unpack $ T.splitOn ":" $
-    fromMaybe "I:1d4:0" (Map.lookup melee descMap)
+    Map.findWithDefault "I:1d1:0" melee descMap
   (mDam, mWT) = (T.pack (meleeStat!!1), read $ meleeStat!!2) :: (Text, Int)
   -- shoot
-  shoot = fromMaybe "None" (Map.lookup "shoot" pProp)
+  shoot = Map.findWithDefault "None" "shoot" pProp
   shootStat = map T.unpack $ T.splitOn ":" $
-    fromMaybe "I:1d4:0" (Map.lookup shoot descMap)
+    Map.findWithDefault "I:1d1:0" shoot descMap
   (rDam, rWT) = (T.pack (shootStat!!1), read $ shootStat!!2) :: (Text, Int)
   -- shield
-  shield = fromMaybe "None" (Map.lookup "shield" pProp)
+  shield = Map.findWithDefault "None" "shield" pProp
   shieldStat = map T.unpack $ T.splitOn ":" $
-    fromMaybe "I:0:0" (Map.lookup shield descMap)
+    Map.findWithDefault "I:0:0" shield descMap
   (sAC, sWT) = (read $ shieldStat!!1, read $ shieldStat!!2) :: (Int, Int)
   -- armor
-  armor = fromMaybe "None" (Map.lookup "armor" pProp)
+  armor = Map.findWithDefault "None" "armor" pProp
   armorStat = map T.unpack $ T.splitOn ":" $
-    fromMaybe "I:10:0" (Map.lookup armor descMap)
+    Map.findWithDefault "I:10:0" armor descMap
   (aAC, aWT) = (read $ armorStat!!1, read $ armorStat!!2) :: (Int, Int)
   -- Dex modifier
   pDex = read $ T.unpack $ Map.findWithDefault "1" "dex" pProp :: Int
@@ -103,25 +102,25 @@ characterEquipment em _ = let
   (pEntity, _) = getPlayer em
   pProp = property pEntity
   pInv = [melee, shoot, ring, neck, armor, cloak, shield, helmet, hands, feet]
-  melee  = T.append "Melee:  " $ fromMaybe "None" (Map.lookup "melee" pProp)
-  shoot  = T.append "Shoot:  " $ fromMaybe "None" (Map.lookup "shoot" pProp)
-  ring   = T.append "Ring:   " $ fromMaybe "None" (Map.lookup "jewelry" pProp)
-  neck   = T.append "Neck:   " $ fromMaybe "None" (Map.lookup "neck" pProp)
-  armor  = T.append "Armor:  " $ fromMaybe "None" (Map.lookup "armor" pProp)
-  cloak  = T.append "Cloak:  " $ fromMaybe "None" (Map.lookup "cloak" pProp)
-  shield = T.append "Shield: " $ fromMaybe "None" (Map.lookup "shield" pProp)
-  helmet = T.append "Head:   " $ fromMaybe "None" (Map.lookup "head" pProp)
-  hands  = T.append "Hands:  " $ fromMaybe "None" (Map.lookup "hands" pProp)
-  feet   = T.append "Feet:   " $ fromMaybe "None" (Map.lookup "feet" pProp)
-  armorClass = T.append "AC: " $ fromMaybe "0" (Map.lookup "AC" pProp)
-  attack = T.append "Attack: " $ fromMaybe "0" (Map.lookup "ATTACK" pProp)
-  range  = T.append "Shoot:  " $ fromMaybe "0" (Map.lookup "SHOOT" pProp)
+  melee  = T.append "Melee:  " $ Map.findWithDefault "None" "melee" pProp
+  shoot  = T.append "Shoot:  " $ Map.findWithDefault "None" "shoot" pProp
+  ring   = T.append "Ring:   " $ Map.findWithDefault "None" "jewelry" pProp
+  neck   = T.append "Neck:   " $ Map.findWithDefault "None" "neck" pProp
+  armor  = T.append "Armor:  " $ Map.findWithDefault "None" "armor" pProp
+  cloak  = T.append "Cloak:  " $ Map.findWithDefault "None" "cloak" pProp
+  shield = T.append "Shield: " $ Map.findWithDefault "None" "shield" pProp
+  helmet = T.append "Head:   " $ Map.findWithDefault "None" "head" pProp
+  hands  = T.append "Hands:  " $ Map.findWithDefault "None" "hands" pProp
+  feet   = T.append "Feet:   " $ Map.findWithDefault "None" "feet" pProp
+  armorClass = T.append "AC: " $ Map.findWithDefault "0" "AC" pProp
+  attack = T.append "Attack: " $ Map.findWithDefault "0" "ATTACK" pProp
+  range  = T.append "Shoot:  " $ Map.findWithDefault "0" "SHOOT" pProp
   -- Encumbered, Finesse, Heavy weapons?
   pStr = read $ T.unpack $ Map.findWithDefault "1" "str" pProp :: Int
   pWT  = read $ T.unpack $ Map.findWithDefault "0" "WT"  pProp :: Int
   pWWT = read $ T.unpack $ Map.findWithDefault "0" "WWT" pProp :: Int
   pEnc = if pWT > 5 * pStr
-    then "Load: ENCUMBERED"
+    then "Load: ENCUMBERED! Neg. Proficiency, ATTACKS, and CAST."
     else T.pack $ "Load: " ++ show pWT ++ "/" ++ show (5 * pStr) ++ " lbs."
   pFinesse = if pWWT < 3 then "Melee: Finesse" else "Melee: Strength"
   pHeavy   = if pWWT > 4
@@ -202,11 +201,11 @@ characterSheet em = let
     , equip "feet"    "]" pProp
     ]
   pCls  = Map.findWithDefault "Player" "Class" pProp
-  pStr  = T.append "Str: " (Map.findWithDefault "1" "str" pProp)
-  pDex  = T.append "Dex: " (Map.findWithDefault "1" "dex" pProp)
-  pCon  = T.append "Con: " (Map.findWithDefault "1" "con" pProp)
-  pInt  = T.append "Int: " (Map.findWithDefault "1" "int" pProp)
-  pWis  = T.append "Wis: " (Map.findWithDefault "1" "wis" pProp)
+  pStr  = T.append "Str: " $ Map.findWithDefault "1" "str" pProp
+  pDex  = T.append "Dex: " $ Map.findWithDefault "1" "dex" pProp
+  pCon  = T.append "Con: " $ Map.findWithDefault "1" "con" pProp
+  pInt  = T.append "Int: " $ Map.findWithDefault "1" "int" pProp
+  pWis  = T.append "Wis: " $ Map.findWithDefault "1" "wis" pProp
   pLvl  = T.pack $ "Level: " ++ show (eLvl pEntity)
   pExp  = T.pack $ "EXP: " ++ show (eXP pEntity)
   in [ pCls, pLvl, pExp, pCoin, pEquip, pStr, pDex, pCon, pInt, pWis ]
@@ -244,8 +243,8 @@ condition label hp maxHP = let
 
 -- | @ equipment
 equip :: Text -> Text -> Properties -> Text
-equip name desc prop = let
-  item = fromMaybe "None" (Map.lookup name prop)
+equip name desc pProp = let
+  item = Map.findWithDefault "None" name pProp
   equipped n
     | n == "None" = "."
     | otherwise = desc
@@ -264,7 +263,7 @@ getHealth em = let
   (pEntity, _) = getPlayer em
   hp    = fromIntegral $ eHP pEntity
   maxHp = fromIntegral $ eMaxHP pEntity
-  in hp / maxHp
+  in if maxHp > 0.0 then hp / maxHp else 0.0
 
 -- | @ Mushroom
 getMushroom :: EntityMap -> Double
@@ -279,7 +278,7 @@ getMana em = let
   (pEntity, _) = getPlayer em
   mp    = fromIntegral $ eMP pEntity
   maxMp = fromIntegral $ eMaxMP pEntity
-  in mp / maxMp
+  in if maxMp > 0.0 then mp / maxMp else 0.0
 
 -- | @ lives at 0
 -- getPlayer
@@ -342,15 +341,16 @@ updatePlayerXP xp em = let
   pMP    = if pLvl > current then pMaxMP else eMP pEntity
   newWis = pWis + mWis + cWis
   pMaxMP = pLvl * (cMP + abilityMod newWis)
-  -- ATTACKS, CAST
+  -- ATTACKS, CAST, PROFICIENCY
   pAttacks = attacksGain pCls pLvl current cAttacks
   pCast    = castGain pCls pLvl current cCast
+  pProf    = proficiencyGain pLvl
   -- Properties
   newProp = Map.fromList [ ("str", T.pack $ show $ pStr + fStr + cStr)
                          , ("dex", T.pack $ show $ pDex + fDex + rDex)
                          , ("int", T.pack $ show $ pInt + mInt + rInt)
                          , ("wis", T.pack $ show $ pWis + mWis + cWis)
-                         , ("Proficiency", T.pack $ show $ proficiency pLvl)
+                         , ("Proficiency", pProf)
                          , ("ATTACKS", pAttacks)
                          , ("CAST", pCast)
                          ]

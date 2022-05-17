@@ -117,6 +117,16 @@ castGain pCls lvl curr cast
   | pCls == "Cleric" && lvl == 20 && lvl > curr = "4d8+8"
   | otherwise = cast
 
+-- | @ gets Proficient w/ lvl
+proficiencyGain :: Int -> Text
+proficiencyGain lvl
+  | lvl >= 1  && lvl <= 4  = "2"
+  | lvl >= 5  && lvl <= 8  = "3"
+  | lvl >= 9  && lvl <= 12 = "4"
+  | lvl >= 13 && lvl <= 16 = "5"
+  | lvl >= 17 && lvl <= 20 = "6"
+  | otherwise = "1"
+
 -- | checkEncumberance
 -- @ loses proficiency based on WT
 checkEncumberance :: Int -> Int -> Int -> Int
@@ -165,16 +175,6 @@ criticalRoll roll modifier prof
   | otherwise  = if result < 1 then 1 else result
   where
     result = roll + modifier + prof
-
--- | @ gets Proficient w/ lvl
-proficiency :: Int -> Int
-proficiency lvl
-  | lvl >= 1  && lvl <= 4  = 2
-  | lvl >= 5  && lvl <= 8  = 3
-  | lvl >= 9  && lvl <= 12 = 4
-  | lvl >= 13 && lvl <= 16 = 5
-  | lvl >= 17 && lvl <= 20 = 6
-  | otherwise = 2
 
 -- | resultFmt
 resultFmt :: Int -> Text

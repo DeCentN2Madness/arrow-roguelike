@@ -15,7 +15,6 @@ module Game.Journal (fromJournal
 
 import Prelude hiding (lookup)
 import Data.Map (Map)
-import Data.Maybe
 import qualified Data.Map.Strict as Map
 import Data.Text (Text)
 
@@ -30,7 +29,7 @@ fromJournal (x:xs) tm = let
 
 -- | getJournalAt
 getJournalAt :: Int -> TextMap -> Text
-getJournalAt ix tm = fromMaybe "..." $ Map.lookup ix tm
+getJournalAt = Map.findWithDefault "..."
 
 -- | mkTextMap starts the TextMap
 mkTextMap :: TextMap
@@ -41,6 +40,6 @@ mkTextMap = Map.empty
 updateJournal :: [Text] -> TextMap -> TextMap
 updateJournal xs tm = let
   entry = zip [0..] $ filter (/="...") xs
-  newJournal = take 20 $ [(k, t) | (i, t) <- Map.toList tm,
-                          let k = i + length entry]
+  newJournal = take 20 $ [ (k, t) | (i, t) <- Map.toList tm,
+                          let k = i + length entry ]
   in Map.fromList (entry ++ newJournal)

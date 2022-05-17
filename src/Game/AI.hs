@@ -63,9 +63,11 @@ aiAction ((mx, mEntity):xs) w = if mx == 0 || not (block mEntity)
     | (mHp <= 5)   && C.adjacent mPos mSpawn = Rest
     | (mArrow > 0) && (C.chessDist mPos pPos <= 4) = Throw
     | (mMp > 0)    && (C.chessDist mPos pPos <= 4) = Cast
-    | (mMush > 0)  && (mMaxHp - mHp > 4) = Eat
-    | (mPot > 0)   && (mMaxHp - mHp > 8) = Drink
+    | (mMush > 0)  && (mMaxHp - mHp > 5) = Eat
+    | (mPot > 0)   && (mMaxHp - mHp > 10) = Drink
     | (mInt > 6)   && any (\(i, _) -> kind i == Coin) mItems = Get
+    | (mInt < 6)   && any (\(i, _) -> kind i == Mushroom) mItems = Get
+    | (mMp > 0)    && any (\(i, _) -> kind i == Potion) mItems = Get
     | (mHp > 0) = Move
     | otherwise = Wait
   world = case action of
@@ -165,7 +167,7 @@ monsterEat mx mEntity w = let
        , journalT = GJ.updateJournal [entry] (journalT w) }
 
 -- | monsterGet
--- M loves Coin...
+-- M loves Coin, M beast loves Mushroom...
 monsterGet :: Int -> EntityKind -> World -> World
 monsterGet mx mEntity w = let
   mPos        = coord mEntity

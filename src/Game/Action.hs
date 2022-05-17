@@ -78,8 +78,7 @@ actionCoin ix w = let
     then Map.insert "Coin" (pCoin-1) pInv
     else pInv
   newPlayer = if pCoin >= 1 && fst pItem /= "None" && snd pItem < 20
-    then let
-    in pEntity { inventory = Map.insert (fst pItem) (snd pItem+1) newInv }
+    then pEntity { inventory = Map.insert (fst pItem) (snd pItem+1) newInv }
     else pEntity
   entry = if pCoin >= 1 && fst pItem /= "None" && snd pItem < 20
     then T.concat [ fst pItem, " +1, Coin -1..." ]
@@ -244,6 +243,7 @@ actionExamine x w = let
   mShoot   = Map.findWithDefault "0"    "SHOOT"  mProp
   mAttacks = Map.findWithDefault "0" "ATTACKS" mProp
   mCast    = Map.findWithDefault "0" "CAST" mProp
+  mProf    = Map.findWithDefault "0" "Proficiency" mProp
   mCls     = T.append "Class: " mClass
   -- Stats
   mStat = if mStr /= "0"
@@ -259,20 +259,17 @@ actionExamine x w = let
                   , ", M:", mMelee, " (", mAttack, ")"
                   , ", R:", mRange, " (", mShoot, ")" ]
     else "..."
-  -- Special
+  -- Special, Extra
+  mExtra = T.concat [ ", Attacks: +", mAttacks
+                    , ", Cast: +", mCast
+                    , ", Proficiency: +", mProf ]
   mRules
-    | mClass == "Fighter" = T.concat [ "Special: Item, Attacks: ", mAttacks ]
-    | mClass == "Rogue"   = T.concat [ "Special: Coin, Attacks: "
-                                     , mAttacks
-                                     , ", Cast: "
-                                     , mCast ]
-    | mClass == "Mage"    = T.concat [ "Special: Potion, Cast: ", mCast ]
-    | mClass == "Cleric"  = T.concat [ "Special: Mushroom, Cast: ", mCast ]
+    | mClass == "Fighter" = T.append "Special: Item" mExtra
+    | mClass == "Rogue"   = T.append "Special: Coin" mExtra
+    | mClass == "Mage"    = T.append "Special: Potion" mExtra
+    | mClass == "Cleric"  = T.append "Special: Mushroom" mExtra
     | mClass == "Item"    = "..."
-    | otherwise           = T.concat [ "Special: Coin, Attacks: "
-                                     , mAttacks
-                                     , ", Cast: "
-                                     , mCast ]
+    | otherwise           = T.append "Special: Coin" mExtra
   -- Name
   entry = if mExamine /= "None"
     then T.concat [ mName,  ": ", mExamine ]

@@ -139,6 +139,7 @@ mkAssetMap = let
        , mkItem "cloak/Cloak"  "("  pos
        -- Monsters
        , mkMonster "Mouse"        "Small beast (r)"     pos
+       , mkMonster "3 Hydra"      "Large monster (M)"   pos
        , mkMonster "Orc"          "Medium humanoid (o)" pos
        , mkMonster "Orc Archer"   "Medium humanoid (o)" pos
        , mkMonster "Orc Shaman"   "Medium humanoid (o)" pos

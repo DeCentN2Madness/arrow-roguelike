@@ -156,13 +156,13 @@ checkFinesseMagic wwt prof
 -- | criticalDamage
 -- @ can Crit!
 criticalDamage :: Int -> Text -> Int -> Int -> Int
-criticalDamage roll pWeap s modifier
+criticalDamage roll pWeap pSeed modifier
   | roll == 1   = 0
   | roll == 100 = result + crit
   | otherwise   = if result < 1 then 0 else result
   where
-    result = weapon pWeap (s+1) modifier
-    crit   = weapon pWeap (s+2) modifier
+    result = weapon pWeap (pSeed+1) modifier
+    crit   = weapon pWeap (pSeed+2) 0
 
 -- | criticalRoll
 -- One or Twenty

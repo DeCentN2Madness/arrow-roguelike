@@ -31,8 +31,8 @@ type Inventory = Map Text Int
 data Entity
   = Actor
   | Monster
-  | Coin
   | Item
+  | Coin
   | Corpse
   | Arrow
   | Mushroom
@@ -103,33 +103,33 @@ defaultEK name desc pos =
 mkInventory :: Text -> [(Text, Int)]
 mkInventory n
   | n == "Player"       = [("Arrow",1),("Potion",1),("Mushroom",1),("Coin",1)]
-  | n == "Red Dragon"   = [("Arrow",1),("Potion",1),("Mushroom",1),("Coin",1)]
-  | n == "Green Dragon" = [("Arrow",1),("Potion",1),("Mushroom",1),("Coin",1)]
-  | n == "Blue Dragon"  = [("Arrow",1),("Potion",1),("Mushroom",1),("Coin",1)]
-  | n == "Black Dragon" = [("Arrow",1),("Potion",1),("Mushroom",1),("Coin",1)]
-  | n == "White Dragon" = [("Arrow",1),("Potion",1),("Mushroom",1),("Coin",1)]
+  | n == "Red Dragon"   = [("Arrow",1),("Potion",0),("Mushroom",1),("Coin",1)]
+  | n == "Green Dragon" = [("Arrow",1),("Potion",0),("Mushroom",1),("Coin",1)]
+  | n == "Blue Dragon"  = [("Arrow",1),("Potion",0),("Mushroom",1),("Coin",1)]
+  | n == "Black Dragon" = [("Arrow",1),("Potion",0),("Mushroom",1),("Coin",1)]
+  | n == "White Dragon" = [("Arrow",1),("Potion",0),("Mushroom",1),("Coin",1)]
+  | n == "3 Hydra"      = [("Arrow",0),("Potion",0),("Mushroom",1),("Coin",1)]
   | n == "Orc"          = [("Arrow",0),("Potion",0),("Mushroom",1),("Item",1)]
-  | n == "Orc Archer"   = [("Arrow",5),("Potion",0),("Mushroom",1),("Item",1)]
-  | n == "Orc Shaman"   = [("Arrow",1),("Potion",0),("Mushroom",1),("Item",1)]
+  | n == "Orc Archer"   = [("Arrow",3),("Potion",0),("Mushroom",1),("Item",1)]
+  | n == "Orc Shaman"   = [("Arrow",1),("Potion",1),("Mushroom",1),("Item",1)]
   | n == "Ogre"         = [("Arrow",0),("Potion",0),("Mushroom",1),("Item",1)]
-  | n == "Spider"       = [("Arrow",1),("Potion",1),("Mushroom",1),("Coin",1)]
-  | n == "Troll"        = [("Arrow",1),("Potion",1),("Mushroom",1),("Item",1)]
+  | n == "Spider"       = [("Arrow",1),("Potion",0),("Mushroom",1),("Coin",1)]
+  | n == "Troll"        = [("Arrow",1),("Potion",0),("Mushroom",1),("Item",1)]
+  | n == "Wyvern"       = [("Arrow",1),("Potion",0),("Mushroom",1),("Coin",1)]
   | otherwise           = [("Arrow",0),("Potion",0),("Mushroom",0),("Coin",0)]
 
 -- | mkItem
 mkItem :: Text -> Text -> Coord -> EntityKind
-mkItem name desc xy = let
-  item n
-    | n == "Arrow"     = mkEntity Arrow name desc xy
-    | n == "Coin"      = mkEntity Coin name desc xy
-    | n == "Corpse"    = mkEntity Corpse name desc xy
-    | n == "Mushroom"  = mkEntity Mushroom name desc xy
-    | n == "Potion"    = mkEntity Potion name desc xy
-    | n == "StairDown" = mkEntity StairDown name desc xy
-    | n == "StairUp"   = mkEntity StairUp name desc xy
-    | n == "Trap"      = mkEntity Trap name desc xy
-    | otherwise        = mkEntity Item name desc xy
-  in item name
+mkItem n desc xy
+  | n == "Arrow"     = mkEntity Arrow n desc xy
+  | n == "Coin"      = mkEntity Coin n desc xy
+  | n == "Corpse"    = mkEntity Corpse n desc xy
+  | n == "Mushroom"  = mkEntity Mushroom n desc xy
+  | n == "Potion"    = mkEntity Potion n desc xy
+  | n == "StairDown" = mkEntity StairDown n desc xy
+  | n == "StairUp"   = mkEntity StairUp n desc xy
+  | n == "Trap"      = mkEntity Trap n desc xy
+  | otherwise        = mkEntity Item n desc xy
 
 -- | mkMonster
 mkMonster :: Text -> Text -> Coord -> EntityKind
@@ -141,7 +141,7 @@ mkMonster name desc xy = let
     | n == "Blue Dragon"  = mdDragon
     | n == "Black Dragon" = mdDragon
     | n == "White Dragon" = mdDragon
-    | n == "Wyvern"       = lgDragon
+    | n == "3 Hydra"      = lgMonster
     | n == "Mouse"        = smBeast
     | n == "Orc"          = mdHumanoid
     | n == "Orc Archer"   = mdHumanoidA
@@ -151,6 +151,7 @@ mkMonster name desc xy = let
     | n == "Troll"        = gtHumanoid
     | n == "Wolf"         = mdBeast
     | n == "Dire Wolf"    = lgBeast
+    | n == "Wyvern"       = lgDragon
     | otherwise = mdHumanoid
   mProp = mkProp name desc (monster name)
   mHP  = read $ T.unpack $ Map.findWithDefault "1" "HP" mProp
@@ -217,6 +218,7 @@ visualId name = let
     | count "Player"  n > 0 = VActor
     | count "Dire"    n > 0 = VDire
     | count "Dragon"  n > 0 = VDragon
+    | count "Hydra"   n > 0 = VHydra
     | count "Mouse"   n > 0 = VMouse
     | count "Orc"     n > 0 = VOrc
     | count "Ogre"    n > 0 = VOgre
@@ -403,7 +405,7 @@ lgDragon = [ ("str", "19")
            , ("HP", "110")
            , ("MP", "0")
            , ("XP", "2300")
-           , ("Proficiency", "2")
+           , ("Proficiency", "3")
            , ("Class", "Dragon")
            , ("AC", "13")
            , ("WT", "0")
@@ -415,6 +417,38 @@ lgDragon = [ ("str", "19")
            , ("Throw", "breathes!")
            , ("melee", "melee/Bite")
            , ("shoot", "shoot/Sting")
+           , ("jewelry", "None")
+           , ("neck", "None")
+           , ("armor", "armor/Natural Armor")
+           , ("cloak", "None")
+           , ("shield", "None")
+           , ("head", "None")
+           , ("hands", "None")
+           , ("feet", "None")
+           ]
+
+-- | Hydra
+lgMonster :: Prop
+lgMonster = [ ("str", "20")
+           , ("dex", "12")
+           , ("con", "20")
+           , ("int", "2")
+           , ("wis", "10")
+           , ("HP", "172")
+           , ("MP", "0")
+           , ("XP", "3900")
+           , ("Proficiency", "2")
+           , ("Class", "Monster")
+           , ("AC", "15")
+           , ("WT", "0")
+           , ("WWT", "10")
+           , ("ATTACK", "1d10")
+           , ("SHOOT", "0")
+           , ("ATTACKS", "3d10")
+           , ("CAST", "0")
+           , ("Throw", "breathes!")
+           , ("melee", "melee/Bite")
+           , ("shoot", "None")
            , ("jewelry", "None")
            , ("neck", "None")
            , ("armor", "armor/Natural Armor")
@@ -559,7 +593,7 @@ gtHumanoid = [ ("str", "18")
              , ("HP", "84")
              , ("MP", "0")
              , ("XP", "1800")
-             , ("Proficiency", "3")
+             , ("Proficiency", "2")
              , ("Class", "Giant")
              , ("AC", "15")
              , ("WT", "21")

@@ -131,3 +131,4 @@ mkVisual VHelmet ts = Visual (224, 2*height) (style ts) width height
 mkVisual VGloves ts = Visual (256, 2*height) (style ts) width height
 mkVisual VBoots ts = Visual (288, 2*height) (style ts) width height
 mkVisual VLDragon ts = Visual (320, 2*height) (style ts) width height
+mkVisual VHydra ts = Visual (352, 2*height) (style ts) width height

@@ -67,7 +67,8 @@ mkMonsterMap depth tm am = let
   whiteDragon = Map.findWithDefault arr "White Dragon" assets
   spiders     = Map.findWithDefault arr "Spider"       assets
   trolls      = Map.findWithDefault arr "Troll"        assets
-  wyverns     = Map.findWithDefault arr "Wyvern"        assets
+  wyverns     = Map.findWithDefault arr "Wyvern"       assets
+  hydras      = Map.findWithDefault arr "3 Hydra"      assets
   -- fill the dungeon...
   monsters
     | depth >= 20 =
@@ -79,9 +80,10 @@ mkMonsterMap depth tm am = let
              , insertRand redDragon   51 60 openList
              , insertRand greenDragon 61 70 openList
              , insertRand blueDragon  71 80 openList
-             , insertRand blackDragon 81 90 openList
-             , insertRand whiteDragon 91 100 openList
-             , insertRand wyverns     101 110 bottomRight
+             , insertRand blackDragon 81 90 bottomLeft
+             , insertRand whiteDragon 91 100 bottomLeft
+             , insertRand wyverns     101 105 bottomLeft
+             , insertRand hydras      106 110 bottomRight
              ]
     | depth >= 18 && depth < 20 =
       concat [ insertRand shrooms 1  10 openList

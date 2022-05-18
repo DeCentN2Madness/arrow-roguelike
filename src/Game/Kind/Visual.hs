@@ -62,6 +62,7 @@ data VisualKind
   | VGloves
   | VBoots
   | VLDragon
+  | VHydra
   deriving (Ord, Show, Eq, Generic)
 
 instance FromJSON VisualKind

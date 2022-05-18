@@ -35,6 +35,8 @@ actionCast :: World -> World
 actionCast w = let
   newTick         = tick w + 1
   (pEntity, pPos) = GP.getPlayer (entityT w)
+  -- Spells cost more per Lvl
+  pLvl            = eLvl pEntity
   pMana           = eMP pEntity
   pMaxMP          = eMaxMP pEntity
   mySort          = sortBy (compare `on` snd)
@@ -47,7 +49,7 @@ actionCast w = let
     xs -> fst $ head $ mySort [ (ix, d) | (ix, xy) <- xs,
                                 let d = distance xy pPos ]
   newPlayer = if pMana > 0 && pMaxMP > 0 && mTarget > 0
-    then pEntity { eMP = pMana - 1 }
+    then pEntity { eMP = pMana - pLvl }
     else pEntity
   entry = if pMana > 0 && pMaxMP > 0 && mTarget > 0
     then "Cast a Spell..."

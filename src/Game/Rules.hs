@@ -91,6 +91,12 @@ attacksGain pCls lvl curr attacks
   | pCls == "Rogue"   && lvl == 18 && lvl > curr = "4d6+2"
   | pCls == "Rogue"   && lvl == 19 && lvl > curr = "4d6+4"
   | pCls == "Rogue"   && lvl == 20 && lvl > curr = "4d6+6"
+  | pCls == "Cleric"  && lvl == 5  && lvl > curr = "1d6"
+  | pCls == "Cleric"  && lvl == 11 && lvl > curr = "2d6"
+  | pCls == "Cleric"  && lvl == 17 && lvl > curr = "3d6"
+  | pCls == "Cleric"  && lvl == 18 && lvl > curr = "4d6"
+  | pCls == "Cleric"  && lvl == 19 && lvl > curr = "4d6+2"
+  | pCls == "Cleric"  && lvl == 20 && lvl > curr = "4d6+4"
   | otherwise = attacks
 
 -- | castGain
@@ -130,10 +136,10 @@ proficiencyGain lvl
 -- | @ gets Search w/ lvl
 searchGain :: Int -> Text
 searchGain lvl
-  | lvl >= 5  && lvl < 10 = "5"
-  | lvl >= 10 && lvl < 15 = "6"
-  | lvl >= 15 = "7"
-  | otherwise = "4"
+  | lvl >= 5  && lvl < 10 = "4"
+  | lvl >= 10 && lvl < 15 = "5"
+  | lvl >= 15 = "6"
+  | otherwise = "0"
 
 -- | checkEncumberance
 -- @ loses proficiency based on WT

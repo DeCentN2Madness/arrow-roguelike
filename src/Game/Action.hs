@@ -405,9 +405,10 @@ actionSearch w = let
       let xy = if distance pos pPos < mSearch then pos else pPos ]
   entry = if not (null mTargets)
     then "You are -Aware- of Monsters..."
-    else "No Search..."
+    else "No Monsters..."
   in w { tick = newTick
        , fovT = fovT w ++ mTargets
+       , gameState = GameExamine
        , journalT = GJ.updateJournal [entry] (journalT w) }
 
 -- | actionSell

@@ -254,6 +254,7 @@ applyIntent intent w = let
         Action N -> actionDirection SouthEast w
         Action Q -> actionMonster $ GA.actionQuaff w
         Action R -> resetWorld w
+        Action S -> GA.actionSearch w
         Action T -> actionMonster $ GA.actionThrow w
         Action U -> actionDirection NorthWest w
         Action W -> equipWorld w
@@ -311,10 +312,10 @@ helpWorld :: World -> World
 helpWorld w = let
   help = [ "..."
          , "Movement: vi mode or Arrow keys, ESC to Continue/Quit..."
-         , "(?)Help,   ..."
-         , "(T)hrow,   (W)ield,     E(X)amine, (SPC)Rest,"
-         , "(G)et,     (I)nventory, (Q)uaff,   (R)eset,"
-         , "(A)cquire, (C)ast,      (D)rop,    (E)at,"
+         , "(SPC)Rest, (?)Help,     ..."
+         , "(S)earch,  (T)hrow,     (W)ield, E(X)amine,"
+         , "(G)et,     (I)nventory, (Q)uaff, (R)eset,"
+         , "(A)cquire, (C)ast,      (D)rop,  (E)at,"
          , "~Arrow~ Commands"
          ]
   in w { journalT = GJ.updateJournal help (journalT w)

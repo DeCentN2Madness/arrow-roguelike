@@ -120,12 +120,20 @@ castGain pCls lvl curr cast
 -- | @ gets Proficient w/ lvl
 proficiencyGain :: Int -> Text
 proficiencyGain lvl
-  | lvl >= 1  && lvl <= 4  = "2"
-  | lvl >= 5  && lvl <= 8  = "3"
-  | lvl >= 9  && lvl <= 12 = "4"
-  | lvl >= 13 && lvl <= 16 = "5"
-  | lvl >= 17 && lvl <= 20 = "6"
+  | lvl >= 1  && lvl < 5  = "2"
+  | lvl >= 5  && lvl < 9  = "3"
+  | lvl >= 9  && lvl < 13 = "4"
+  | lvl >= 13 && lvl < 17 = "5"
+  | lvl >= 17 = "6"
   | otherwise = "1"
+
+-- | @ gets Search w/ lvl
+searchGain :: Int -> Text
+searchGain lvl
+  | lvl >= 5  && lvl < 10 = "5"
+  | lvl >= 10 && lvl < 15 = "6"
+  | lvl >= 15 = "7"
+  | otherwise = "4"
 
 -- | checkEncumberance
 -- @ loses proficiency based on WT

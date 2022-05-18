@@ -50,11 +50,13 @@ Step 9 of the 15 Steps... The goal is to have fun!
 
 &mdash; `r` to `Reset` the `World`
 
+&mdash; `s` to `Search` the `World`
+
 &mdash; `t` to `Throw` an `Arrow`
 
-&mdash; `w` to `Wield` `Armor` and `Weapons`
+&mdash; `w` to `Wield` `Armor`, `Weapons`, `Shields`, and more...
 
-&mdash; `x` to `Examine`
+&mdash; `x` to `Examine` the `World`
 
 
 ## Requirements

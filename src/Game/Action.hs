@@ -67,8 +67,8 @@ actionCoin :: Int -> World -> World
 actionCoin ix w = let
   newTick      = tick w + 1
   (pEntity, _) = GP.getPlayer (entityT w)
-  pInv = inventory pEntity
-  pCoin = Map.findWithDefault 0 "Coin" pInv
+  pInv   = inventory pEntity
+  pCoin  = Map.findWithDefault 0 "Coin" pInv
   pItems = filter (\(i, _) -> i `elem` ["Arrow", "Mushroom", "Potion"]) $
            Map.toList pInv
   pItem = if ix < length pItems
@@ -239,11 +239,12 @@ actionExamine x w = let
   mAC      = Map.findWithDefault "0"    "AC"     mProp
   mMelee   = Map.findWithDefault "None" "melee"  mProp
   mRange   = Map.findWithDefault "None" "shoot"  mProp
-  mAttack  = Map.findWithDefault "1d4"  "ATTACK" mProp
-  mShoot   = Map.findWithDefault "0"    "SHOOT"  mProp
+  mAttack  = Map.findWithDefault "1d1"  "ATTACK" mProp
+  mShoot   = Map.findWithDefault "1d1"  "SHOOT"  mProp
   mAttacks = Map.findWithDefault "0" "ATTACKS" mProp
   mCast    = Map.findWithDefault "0" "CAST" mProp
   mProf    = Map.findWithDefault "0" "Proficiency" mProp
+  mSearch  = Map.findWithDefault "0" "SEARCH" mProp
   mCls     = T.append "Class: " mClass
   -- Stats
   mStat = if mStr /= "0"
@@ -260,9 +261,10 @@ actionExamine x w = let
                   , ", R:", mRange, " (", mShoot, ")" ]
     else "..."
   -- Special, Extra
-  mExtra = T.concat [ ", Attacks: +", mAttacks
-                    , ", Cast: +", mCast
-                    , ", Proficiency: +", mProf ]
+  mExtra = T.concat [ ", Attacks: ", mAttacks
+                    , ", Cast: ", mCast
+                    , ", Proficiency: +", mProf
+                    , ", Search: +", mSearch ]
   mRules
     | mClass == "Fighter" = T.append "Special: Item" mExtra
     | mClass == "Rogue"   = T.append "Special: Coin" mExtra
@@ -388,14 +390,34 @@ actionRest w = let
        , entityT  = GP.updatePlayer newPlayer (entityT w)
        , journalT = GJ.updateJournal [entry] (journalT w) }
 
+-- | actionSearch
+-- if there is something to Search...
+actionSearch :: World -> World
+actionSearch w = let
+  newTick         = tick w + 1
+  (pEntity, pPos) = GP.getPlayer (entityT w)
+  pProp   = property pEntity
+  pWis    = abilityMod $ read $ T.unpack $ Map.findWithDefault "1" "wis" pProp
+  pSearch = read $ T.unpack $ Map.findWithDefault "0" "SEARCH" pProp
+  mSearch = fromIntegral $ pWis + pSearch
+  mTargets = filter (/=pPos) $
+    [ xy | (_, pos) <- GE.fromBlock (entityT w),
+      let xy = if distance pos pPos < mSearch then pos else pPos ]
+  entry = if not (null mTargets)
+    then "You are -Aware- of Monsters..."
+    else "No Search..."
+  in w { tick = newTick
+       , fovT = fovT w ++ mTargets
+       , journalT = GJ.updateJournal [entry] (journalT w) }
+
 -- | actionSell
 -- if there is Item to Sell...
 actionSell :: Int -> World -> World
 actionSell ix w = let
   newTick      = tick w + 1
   (pEntity, _) = GP.getPlayer (entityT w)
-  pInv = inventory pEntity
-  pCoin = Map.findWithDefault 0 "Coin" pInv
+  pInv   = inventory pEntity
+  pCoin  = Map.findWithDefault 0 "Coin" pInv
   pItems = filter (\(i, j) -> j > 0 &&
                   i `notElem` ["Arrow", "Coin", "Mushroom", "Potion"]) $
            Map.toList pInv

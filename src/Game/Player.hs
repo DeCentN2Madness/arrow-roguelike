@@ -341,10 +341,11 @@ updatePlayerXP xp em = let
   pMP    = if pLvl > current then pMaxMP else eMP pEntity
   newWis = pWis + mWis + cWis
   pMaxMP = pLvl * (cMP + abilityMod newWis)
-  -- ATTACKS, CAST, PROFICIENCY
+  -- ATTACKS, CAST, PROFICIENCY, SEARCH
   pAttacks = attacksGain pCls pLvl current cAttacks
   pCast    = castGain pCls pLvl current cCast
   pProf    = proficiencyGain pLvl
+  pSearch  = searchGain pLvl
   -- Properties
   newProp = Map.fromList [ ("str", T.pack $ show $ pStr + fStr + cStr)
                          , ("dex", T.pack $ show $ pDex + fDex + rDex)
@@ -353,6 +354,7 @@ updatePlayerXP xp em = let
                          , ("Proficiency", pProf)
                          , ("ATTACKS", pAttacks)
                          , ("CAST", pCast)
+                         , ("SEARCH", pSearch)
                          ]
   newPlayer = pEntity { property = Map.union newProp pProp
                       , eLvl     = pLvl

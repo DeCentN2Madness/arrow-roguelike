@@ -99,7 +99,7 @@ actionPlayer pos w = let
     then "Player is Dead! Press r to Restart..."
     else "..."
   in world { tick     = newTick
-           , journalT = GJ.updateJournal [listen, learn, alive] (journalT world) }
+           , journalT = GJ.updateJournal [listen,learn,alive] (journalT world) }
 
 -- | applyIntent
 -- Events applied to the World
@@ -269,7 +269,7 @@ applyIntent intent w = let
 -- | coinWorld
 -- Acquire mode
 coinWorld :: World -> World
-coinWorld w = w { journalT = GJ.updateJournal ["A Pressed..."] (journalT w)
+coinWorld w = w { journalT = GJ.updateJournal ["Acquire..."] (journalT w)
                  , gameState = if gameState w == GameStore
                    then GameRun
                    else GameStore }
@@ -277,7 +277,7 @@ coinWorld w = w { journalT = GJ.updateJournal ["A Pressed..."] (journalT w)
 -- | dropWorld
 -- Drop mode
 dropWorld :: World -> World
-dropWorld w = w { journalT = GJ.updateJournal ["D Pressed..."] (journalT w)
+dropWorld w = w { journalT = GJ.updateJournal ["Drop..."] (journalT w)
                  , gameState = if gameState w == GameDrop
                    then GameRun
                    else GameDrop }
@@ -285,7 +285,7 @@ dropWorld w = w { journalT = GJ.updateJournal ["D Pressed..."] (journalT w)
 -- | equipWorld
 -- Equipment mode
 equipWorld :: World -> World
-equipWorld w = w { journalT = GJ.updateJournal ["W Pressed..."] (journalT w)
+equipWorld w = w { journalT = GJ.updateJournal ["Wield..."] (journalT w)
                  , gameState = if gameState w == GameEquipment
                    then GameRun
                    else GameEquipment }
@@ -293,7 +293,7 @@ equipWorld w = w { journalT = GJ.updateJournal ["W Pressed..."] (journalT w)
 -- | examineWorld
 -- examineWorld mode
 examineWorld :: World -> World
-examineWorld w = w { journalT = GJ.updateJournal ["X Pressed..."] (journalT w)
+examineWorld w = w { journalT = GJ.updateJournal ["Examine..."] (journalT w)
                  , gameState = if gameState w == GameExamine
                    then GameRun
                    else GameExamine }
@@ -326,7 +326,7 @@ helpWorld w = let
 -- | invWorld
 -- Inventory mode
 invWorld :: World -> World
-invWorld w = w { journalT = GJ.updateJournal ["I Pressed..."] (journalT w)
+invWorld w = w { journalT = GJ.updateJournal ["Inventory..."] (journalT w)
                , gameState = if gameState w == GameInventory
                  then GameRun
                  else GameInventory }
@@ -341,12 +341,12 @@ resetWorld w = let
   world        = mkWorld (tick w) (floor maxX, floor maxY) (eLvl p) row col
   entry        = T.pack $ "Depth " ++ show (50 * eLvl p) ++ "'..."
   in world { entityT  = GE.safeInsertEntity 0 p (gameT world) (entityT world)
-           , journalT = GJ.updateJournal ["R pressed...", entry] (journalT w) }
+           , journalT = GJ.updateJournal ["Reset...", entry] (journalT w) }
 
 -- | sellWorld
 -- Sell mode
 sellWorld :: World -> World
-sellWorld w = w { journalT = GJ.updateJournal ["S Pressed..."] (journalT w)
+sellWorld w = w { journalT = GJ.updateJournal ["Sell..."] (journalT w)
                  , gameState = if gameState w == GameSell
                    then GameRun
                    else GameSell }

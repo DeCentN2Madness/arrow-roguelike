@@ -301,10 +301,13 @@ examineWorld w = w { journalT = GJ.updateJournal ["Examine..."] (journalT w)
 -- | escWorld
 -- ESC changes gameState
 escWorld :: World -> World
-escWorld w = w { journalT = GJ.updateJournal ["ESC Pressed..."] (journalT w)
-               , gameState = if gameState w == GameRun
-                 then GameStop
-                 else GameRun }
+escWorld w = let
+  (_, pPos) = GP.getPlayer (entityT w)
+  in w { journalT = GJ.updateJournal ["ESC Pressed..."] (journalT w)
+       , fovT = EAV.mkView pPos (gameT w)
+       , gameState = if gameState w == GameRun
+         then GameStop
+         else GameRun }
 
 -- | helpWorld
 -- Help mode

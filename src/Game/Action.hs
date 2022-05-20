@@ -469,7 +469,7 @@ actionThrow w = let
     then pEntity { inventory = Map.insert ammo count pInv }
     else pEntity
   entry = if (pArrow > 0 || pCoin > 0) && mTarget > 0
-    then "Shoot an Arrow..."
+    then "Shoot an ~Arrow~..."
     else "No Shoot..."
   -- throwWorld
   throwWorld = w { entityT  = GP.updatePlayer newPlayer (entityT w)

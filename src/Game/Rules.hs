@@ -79,24 +79,16 @@ abilityResult2 resultA resultB rollA rollB modA modB prof =
 -- @ gains ATTACKS w/ lvl
 attacksGain :: Text -> Int -> Int -> Text -> Text
 attacksGain pCls lvl curr attacks
-  | pCls == "Fighter" && lvl == 5  && lvl > curr = "2d8"
-  | pCls == "Fighter" && lvl == 11 && lvl > curr = "3d8"
-  | pCls == "Fighter" && lvl == 17 && lvl > curr = "4d8"
-  | pCls == "Fighter" && lvl == 18 && lvl > curr = "4d8+4"
-  | pCls == "Fighter" && lvl == 19 && lvl > curr = "4d8+6"
-  | pCls == "Fighter" && lvl == 20 && lvl > curr = "4d8+8"
-  | pCls == "Rogue"   && lvl == 5  && lvl > curr = "2d6"
-  | pCls == "Rogue"   && lvl == 11 && lvl > curr = "3d6"
-  | pCls == "Rogue"   && lvl == 17 && lvl > curr = "4d6"
-  | pCls == "Rogue"   && lvl == 18 && lvl > curr = "4d6+2"
-  | pCls == "Rogue"   && lvl == 19 && lvl > curr = "4d6+4"
-  | pCls == "Rogue"   && lvl == 20 && lvl > curr = "4d6+6"
-  | pCls == "Cleric"  && lvl == 5  && lvl > curr = "1d6"
-  | pCls == "Cleric"  && lvl == 11 && lvl > curr = "2d6"
-  | pCls == "Cleric"  && lvl == 17 && lvl > curr = "3d6"
-  | pCls == "Cleric"  && lvl == 18 && lvl > curr = "4d6"
-  | pCls == "Cleric"  && lvl == 19 && lvl > curr = "4d6+2"
-  | pCls == "Cleric"  && lvl == 20 && lvl > curr = "4d6+4"
+  | pCls == "Fighter" && lvl == 5  && lvl > curr = "2"
+  | pCls == "Fighter" && lvl == 11 && lvl > curr = "3"
+  | pCls == "Fighter" && lvl == 17 && lvl > curr = "4"
+  | pCls == "Fighter" && lvl == 20 && lvl > curr = "5"
+  | pCls == "Rogue"   && lvl == 5  && lvl > curr = "2"
+  | pCls == "Rogue"   && lvl == 11 && lvl > curr = "2"
+  | pCls == "Rogue"   && lvl == 17 && lvl > curr = "3"
+  | pCls == "Cleric"  && lvl == 5  && lvl > curr = "2"
+  | pCls == "Cleric"  && lvl == 11 && lvl > curr = "2"
+  | pCls == "Cleric"  && lvl == 17 && lvl > curr = "3"
   | otherwise = attacks
 
 -- | castGain

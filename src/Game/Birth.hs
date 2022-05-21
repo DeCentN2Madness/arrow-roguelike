@@ -79,7 +79,7 @@ mkPlayer s pEntity = let
             , healthPool pClass
             , manaPool pClass
             , weaponAttack pClass
-            , weaponAttacks pClass
+            , ("Attacks", "1")
             , weaponCast pClass
             , weaponClass pClass
             , weaponWT pClass
@@ -94,16 +94,6 @@ weaponAttack n
   | n == "Mage"    = ("ATTACK", "1d6")
   | n == "Cleric"  = ("ATTACK", "1d6")
   | otherwise      = ("ATTACK", "1d4")
-
--- | @ Weapons
--- Extra Weapon Damage based on level
-weaponAttacks :: Text -> (Text,Text)
-weaponAttacks n
-  | n == "Fighter" = ("ATTACKS", "0")
-  | n == "Rogue"   = ("ATTACKS", "1d6")
-  | n == "Mage"    = ("ATTACKS", "0")
-  | n == "Cleric"  = ("ATTACKS", "0")
-  | otherwise      = ("ATTACKS", "0")
 
 -- | @ Weapons
 -- Extra Cast Damage based on level

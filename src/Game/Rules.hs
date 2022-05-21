@@ -76,23 +76,19 @@ abilityResult2 resultA resultB rollA rollB modA modB prof =
            ]
 
 -- | attacksGain
--- @ gains ATTACKS w/ lvl
+-- @ Fighters gain ATTACKS w/ lvl
 attacksGain :: Text -> Int -> Int -> Text -> Text
 attacksGain pCls lvl curr attacks
   | pCls == "Fighter" && lvl == 5  && lvl > curr = "2"
   | pCls == "Fighter" && lvl == 11 && lvl > curr = "3"
   | pCls == "Fighter" && lvl == 17 && lvl > curr = "4"
-  | pCls == "Fighter" && lvl == 20 && lvl > curr = "5"
   | pCls == "Rogue"   && lvl == 5  && lvl > curr = "2"
-  | pCls == "Rogue"   && lvl == 11 && lvl > curr = "2"
-  | pCls == "Rogue"   && lvl == 17 && lvl > curr = "3"
+  | pCls == "Rogue"   && lvl == 11 && lvl > curr = "3"
   | pCls == "Cleric"  && lvl == 5  && lvl > curr = "2"
-  | pCls == "Cleric"  && lvl == 11 && lvl > curr = "2"
-  | pCls == "Cleric"  && lvl == 17 && lvl > curr = "3"
   | otherwise = attacks
 
 -- | castGain
--- @ gains CAST w/ lvl
+-- @ Magic Users gain CAST w/ lvl
 castGain :: Text -> Int -> Int -> Text -> Text
 castGain pCls lvl curr cast
   | pCls == "Rogue"  && lvl == 5  && lvl > curr = "2d4"
@@ -137,12 +133,10 @@ searchGain lvl
 -- @ loses proficiency based on WT
 checkEncumberance :: Int -> Int -> Int -> Int
 checkEncumberance str wt prof
-  | wt > 10 * str = -5
-  | wt > 9 * str  = -4
-  | wt > 8 * str  = -3
-  | wt > 7 * str  = -2
-  | wt > 6 * str  = -1
-  | wt > 5 * str  = 0
+  | wt > 8 * str = -5
+  | wt > 7 * str = -3
+  | wt > 6 * str = -1
+  | wt > 5 * str = 0
   | otherwise = prof
 
 -- | checkFinesse
@@ -235,11 +229,6 @@ weapon dice seed bonus = let
     "4d12" -> DS.d12 seed + DS.d12 (seed+1) + DS.d12 (seed+2) + DS.d12 (seed+3)
     _ -> DS.d4 seed
   wBonus n
-    | n == "-10" = -10
-    | n == "-9" = -9
-    | n == "-8" = -8
-    | n == "-7" = -7
-    | n == "-6" = -6
     | n == "-5" = -5
     | n == "-4" = -4
     | n == "-3" = -3

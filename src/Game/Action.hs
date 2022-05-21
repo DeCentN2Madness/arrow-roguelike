@@ -52,7 +52,7 @@ actionCast w = let
     then pEntity { eMP = pMana - pLvl }
     else pEntity
   entry = if pMana > 0 && pMaxMP > 0 && mTarget > 0
-    then "Cast a Spell..."
+    then "Cast a -Spell-..."
     else "No Cast..."
   -- throwWorld
   throwWorld = w { entityT  = GP.updatePlayer newPlayer (entityT w)

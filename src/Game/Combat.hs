@@ -38,18 +38,19 @@ import Game.Rules
 type AssetMap = EntityMap
 type Seed = Int
 type Attacks = Text
+type Name = Text
 type Weapon = Text
 type AC = Int
 
 -- | attackAction
 -- handle many attacks
 attackAction :: Seed
-  -> Text
+  -> Name
   -> Attacks
   -> Weapon
   -> Int
   -> Int
-  -> Text
+  -> Name
   -> AC
   -> ([Text], Int)
 attackAction pSeed pName atk pWeap pStat pEnc mName mDR = let
@@ -58,11 +59,11 @@ attackAction pSeed pName atk pWeap pStat pEnc mName mDR = let
     pHits = [ (result, pDam) | r <- pD20, let
                   pAR = criticalRoll r pStat pEnc
                   pDam = if pAR >= mDR
-                    then criticalDamage pAR pWeap (pSeed+2) pStat
+                    then criticalDamage pAR pWeap (pSeed+r) pStat
                     else 0
                   hit = attack pAR mDR mName
                   det = abilityResult pDam pAR pStat pEnc
-                  result = T.concat [ pName, hit, det ] ]
+                  result = T.concat [ pName, hit, det, "." ] ]
     pDamage = sum $ [ v | (_,v) <- pHits ]
     pEntry = [ k | (k,_) <- pHits ]
   in (pEntry, pDamage)
@@ -74,20 +75,13 @@ attack ar dr name
   | ar >= dr  = T.append " hits the " name
   | otherwise = T.append " attack misses " name
 
--- | cast verb
-attackM :: Int -> Int -> Text -> Text
-attackM ar dr name
-  | ar == 1   = T.append " ~fizzles~ cast at " name
-  | ar >= dr  = T.append " -Spell- hits the " name
-  | otherwise = T.append " -Spell- misses " name
-
 -- | condition of Monster
 condition :: Int -> Int -> Text
 condition hp xp
   | hp < 1 = T.concat [ " Dead!"
                       , T.pack $ " You gain " ++ show xp ++ " experience." ]
-  | hp >= 1 && hp <= 5 = " *Critical*"
-  | hp > 5 && hp <= 10 = " Hurt."
+  | hp >= 1 && hp <= 5 = " *Critical*."
+  | hp > 5  && hp <= 10 = " Hurt."
   | otherwise = " Ok."
 
 -- | death
@@ -191,41 +185,33 @@ mkMagicCombat px mx w = if px == mx
       then abilityMod pWis
       else abilityMod pInt
     -- Finesse?
-    pWeap  = checkFinesseMagic pWWT $ Map.findWithDefault "1d1" "ATTACK" pProp
-    pWWT   = read $ T.unpack $ Map.findWithDefault "0" "WWT" pProp :: Int
-    pExtra = checkFinesseMagic pWWT $ Map.findWithDefault "0" "CAST" pProp
+    pWeap = checkFinesseMagic pWWT $ Map.findWithDefault "0" "CAST" pProp
+    pWWT  = read $ T.unpack $ Map.findWithDefault "0" "WWT" pProp :: Int
+    pAtk  = "1"
     -- Encumbered?
     pWT  = read $ T.unpack $ Map.findWithDefault "0" "WT" pProp  :: Int
     pMod = read $ T.unpack $ Map.findWithDefault "0" "Proficiency" pProp
     pEnc = checkEncumberance pStr pWT pMod
     -- CAST roll
-    pD20    = DS.d20 pSeed
-    pAR     = criticalRoll   pD20 pStat pEnc
-    pDam    = criticalDamage pAR  pWeap (pSeed+1) pStat
-    pDamage = pDam + weapon pExtra (pSeed+2) 0
+    (pEntry, pDamage) = attackAction pSeed pName pAtk pWeap pStat pEnc mName mAC
+    pAttack = mHP - pDamage
     -- mAC
     mProp = property mEntity
     mName = Map.findWithDefault "M" "Name" mProp
     mAC   = read $ T.unpack $ Map.findWithDefault "1" "AC" mProp
     mHP   = eHP mEntity
     mExp  = eXP mEntity
-    -- p v m
-    pAttack = if pAR >= mAC then mHP - pDamage else mHP -- Miss
+    mCond = T.concat [ mName, " is", condition pAttack mExp ]
     -- miscast
-    shotEntity = if pAR < mAC
+    shotEntity = if pDamage < 5
       then misFire mEntity (assetT w) (entityT w)
       else entityT w
-    -- journal
-    pEntry = T.concat [ pName
-                      , attackM pAR mAC mName
-                      , abilityResult pDamage pAR pStat pEnc
-                      , condition pAttack mExp ]
     -- newEntity with damages and deaths and Exp awards
     newEntity = if pAttack < 1
       then death mx mEntity (assetT w) $ GP.updatePlayerXP mExp (entityT w)
       else GE.updateEntityHp mx pAttack shotEntity
   in w { entityT  = newEntity
-       , journalT = GJ.updateJournal [pEntry] (journalT w) }
+       , journalT = GJ.updateJournal (mCond:pEntry) (journalT w) }
 
 -- | mkRangeCombat
 -- Shoot, Throw, Ranged Combat...

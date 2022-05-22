@@ -128,17 +128,17 @@ mkCombat px mx w = if px == mx
     pProp = property pEntity
     pName = Map.findWithDefault "P" "Name" pProp
     -- COMBAT
-    pStr  = read $ T.unpack $ Map.findWithDefault "1" "str" pProp :: Int
-    pDex  = read $ T.unpack $ Map.findWithDefault "1" "dex" pProp :: Int
+    pStr = read $ T.unpack $ Map.findWithDefault "1" "str" pProp :: Int
+    pDex = read $ T.unpack $ Map.findWithDefault "1" "dex" pProp :: Int
     -- Fighter or Rogue
-    pWeap  = Map.findWithDefault "1d1" "ATTACK" pProp
+    pWeap = Map.findWithDefault "1d1" "ATTACK" pProp
     pStat = if pWWT < 3
       then abilityMod pDex
       else abilityMod pStr
     -- Finesse?
     pClass = Map.findWithDefault "None" "Class" pProp
-    pWWT  = read $ T.unpack $ Map.findWithDefault "3" "WWT" pProp :: Int
-    pAtk = if pClass == "Rogue"
+    pWWT   = read $ T.unpack $ Map.findWithDefault "3" "WWT" pProp :: Int
+    pAtk   = if pClass == "Rogue"
       then checkFinesse pWWT $ Map.findWithDefault "1" "ATTACKS" pProp
       else Map.findWithDefault "1" "ATTACKS" pProp
     -- Encumbered?
@@ -227,17 +227,17 @@ mkRangeCombat px mx w = if px == mx
     pProp = property pEntity
     pName = Map.findWithDefault "P" "Name" pProp
     -- THROW
-    pStr   = read $ T.unpack $ Map.findWithDefault "1" "str" pProp :: Int
-    pDex   = read $ T.unpack $ Map.findWithDefault "1" "dex" pProp
-    pStat  = abilityMod pDex
+    pStr  = read $ T.unpack $ Map.findWithDefault "1" "str" pProp :: Int
+    pDex  = read $ T.unpack $ Map.findWithDefault "1" "dex" pProp
+    pStat = abilityMod pDex
     -- Finesse?
     pWeap = Map.findWithDefault "1d1" "SHOOT" pProp
     pWWT  = read $ T.unpack $ Map.findWithDefault "0" "WWT" pProp :: Int
     pAtk  = checkFinesse pWWT $ Map.findWithDefault "1" "ATTACKS" pProp
     -- Encumbered?
-    pWT   = read $ T.unpack $ Map.findWithDefault "0" "WT" pProp  :: Int
-    pMod  = read $ T.unpack $ Map.findWithDefault "0" "Proficiency" pProp
-    pEnc  = checkEncumberance pStr pWT pMod
+    pWT  = read $ T.unpack $ Map.findWithDefault "0" "WT" pProp  :: Int
+    pMod = read $ T.unpack $ Map.findWithDefault "0" "Proficiency" pProp
+    pEnc = checkEncumberance pStr pWT pMod
     -- SHOOT roll
     (pEntry, pDamage) = attackAction pSeed pName pAtk pWeap pStat pEnc mName mAC
     pAttack = mHP - pDamage

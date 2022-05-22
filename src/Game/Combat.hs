@@ -135,12 +135,8 @@ mkCombat px mx w = if px == mx
       then abilityMod pDex
       else abilityMod pStr
     -- Finesse?
-    pClass = Map.findWithDefault "None" "Class" pProp
-    pWWT   = read $ T.unpack $ Map.findWithDefault "3" "WWT" pProp :: Int
-    pAtk   = if pClass == "Rogue"
-      then read $ T.unpack $
-      checkFinesse pWWT $ Map.findWithDefault "1" "ATTACKS" pProp
-      else read $ T.unpack $ Map.findWithDefault "1" "ATTACKS" pProp
+    pWWT = read $ T.unpack $ Map.findWithDefault "3" "WWT" pProp :: Int
+    pAtk = read $ T.unpack $  Map.findWithDefault "1" "ATTACKS" pProp
     -- Encumbered?
     pWT  = read $ T.unpack $ Map.findWithDefault "0" "WT" pProp :: Int
     pMod = read $ T.unpack $ Map.findWithDefault "0" "Proficiency" pProp
@@ -185,7 +181,7 @@ mkMagicCombat px mx w = if px == mx
       then abilityMod pWis
       else abilityMod pInt
     -- Finesse?
-    pWeap = checkFinesseMagic pWWT $ Map.findWithDefault "0" "CAST" pProp
+    pWeap = checkFinesse pWWT $ Map.findWithDefault "0" "CAST" pProp
     pWWT  = read $ T.unpack $ Map.findWithDefault "0" "WWT" pProp :: Int
     pAtk  = 1
     -- Encumbered?

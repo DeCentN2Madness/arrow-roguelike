@@ -140,16 +140,9 @@ checkEncumberance str wt prof
   | otherwise = prof
 
 -- | checkFinesse
--- @ Rogue loses Attacks if Heavy WWT
+-- @ Magic User loses Proficiency if Heavy WWT
 checkFinesse :: Int -> Text -> Text
 checkFinesse wwt prof
-  | wwt < 3   = prof
-  | otherwise = "0"
-
--- | checkFinessMagic
--- @ Magic User loses Cast if Heavy WWT
-checkFinesseMagic :: Int -> Text -> Text
-checkFinesseMagic wwt prof
   | wwt < 5   = prof
   | otherwise = "0"
 

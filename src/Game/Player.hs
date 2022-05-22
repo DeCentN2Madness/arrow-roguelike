@@ -120,7 +120,7 @@ characterEquipment em _ = let
   pWT  = read $ T.unpack $ Map.findWithDefault "0" "WT"  pProp :: Int
   pWWT = read $ T.unpack $ Map.findWithDefault "0" "WWT" pProp :: Int
   pEnc = if pWT > 5 * pStr
-    then "Load: ENCUMBERED! Neg. Proficiency, ATTACKS, and CAST."
+    then "Load: ENCUMBERED!"
     else T.pack $ "Load: " ++ show pWT ++ "/" ++ show (5 * pStr) ++ " lbs."
   pFinesse = if pWWT < 3 then "Melee: Finesse" else "Melee: Strength"
   pHeavy   = if pWWT > 4

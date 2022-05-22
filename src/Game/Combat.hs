@@ -37,7 +37,7 @@ import Game.Rules
 
 type AssetMap = EntityMap
 type Seed = Int
-type Attacks = Text
+type Attacks = Int
 type Name = Text
 type Weapon = Text
 type AC = Int
@@ -53,8 +53,7 @@ attackAction :: Seed
   -> Name
   -> AC
   -> ([Text], Int)
-attackAction pSeed pName atk pWeap pStat pEnc mName mDR = let
-    pAtk  = read $ T.unpack atk
+attackAction pSeed pName pAtk pWeap pStat pEnc mName mDR = let
     pD20  = take pAtk $ DS.rollList 10 20 (pSeed+1)
     pHits = [ (result, pDam) | r <- pD20, let
                   pAR = criticalRoll r pStat pEnc
@@ -139,8 +138,9 @@ mkCombat px mx w = if px == mx
     pClass = Map.findWithDefault "None" "Class" pProp
     pWWT   = read $ T.unpack $ Map.findWithDefault "3" "WWT" pProp :: Int
     pAtk   = if pClass == "Rogue"
-      then checkFinesse pWWT $ Map.findWithDefault "1" "ATTACKS" pProp
-      else Map.findWithDefault "1" "ATTACKS" pProp
+      then read $ T.unpack $
+      checkFinesse pWWT $ Map.findWithDefault "1" "ATTACKS" pProp
+      else read $ T.unpack $ Map.findWithDefault "1" "ATTACKS" pProp
     -- Encumbered?
     pWT  = read $ T.unpack $ Map.findWithDefault "0" "WT" pProp :: Int
     pMod = read $ T.unpack $ Map.findWithDefault "0" "Proficiency" pProp
@@ -187,7 +187,7 @@ mkMagicCombat px mx w = if px == mx
     -- Finesse?
     pWeap = checkFinesseMagic pWWT $ Map.findWithDefault "0" "CAST" pProp
     pWWT  = read $ T.unpack $ Map.findWithDefault "0" "WWT" pProp :: Int
-    pAtk  = "1"
+    pAtk  = 1
     -- Encumbered?
     pWT  = read $ T.unpack $ Map.findWithDefault "0" "WT" pProp  :: Int
     pMod = read $ T.unpack $ Map.findWithDefault "0" "Proficiency" pProp
@@ -232,8 +232,7 @@ mkRangeCombat px mx w = if px == mx
     pStat = abilityMod pDex
     -- Finesse?
     pWeap = Map.findWithDefault "1d1" "SHOOT" pProp
-    pWWT  = read $ T.unpack $ Map.findWithDefault "0" "WWT" pProp :: Int
-    pAtk  = checkFinesse pWWT $ Map.findWithDefault "1" "ATTACKS" pProp
+    pAtk  = read $ T.unpack $ Map.findWithDefault "1" "ATTACKS" pProp
     -- Encumbered?
     pWT  = read $ T.unpack $ Map.findWithDefault "0" "WT" pProp  :: Int
     pMod = read $ T.unpack $ Map.findWithDefault "0" "Proficiency" pProp

@@ -141,7 +141,7 @@ mkMonsterMap depth tm am = let
             , insertRand potions 21 30 openList
             , insertRand coins   31 40 openList
             , insertRand arrows  41 50 openList
-            , insertRand mice    51 60 openList
+            , insertRand mice    51 60 bottomLeft
             , insertRand wolves  61 70 bottomRight
             ]
    | otherwise =
@@ -150,7 +150,7 @@ mkMonsterMap depth tm am = let
             , insertRand potions 21 30 openList
             , insertRand coins   31 40 openList
             , insertRand arrows  41 50 openList
-            , insertRand mice    51 60 openList
+            , insertRand mice    51 60 bottomRight
             ]
   in Map.fromList monsters
 

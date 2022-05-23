@@ -322,6 +322,8 @@ updatePlayerXP xp em = let
   cMP   = read $ T.unpack $ Map.findWithDefault "0" "MP" pProp
   cAttacks = Map.findWithDefault "0" "ATTACKS" pProp
   cCast    = Map.findWithDefault "0" "CAST" pProp
+  cProf    = Map.findWithDefault "0" "Proficiency" pProp
+  cSearch  = Map.findWithDefault "0" "SEARCH" pProp
   -- EXP
   pTot    = eXP pEntity + xp
   pLvl    = xpLevel pTot
@@ -342,18 +344,18 @@ updatePlayerXP xp em = let
   newWis = pWis + mWis + cWis
   pMaxMP = pLvl * (cMP + abilityMod newWis)
   -- ATTACKS, CAST, PROFICIENCY, SEARCH
-  pAttacks = attacksGain pCls pLvl current cAttacks
-  pCast    = castGain pCls pLvl current cCast
-  pProf    = proficiencyGain pLvl
-  pSearch  = searchGain pLvl
+  pAttacks = attacksGain pCls pLvl cAttacks
+  pCast    = castGain pCls pLvl cCast
+  pProf    = proficiencyGain pLvl cProf
+  pSearch  = searchGain pLvl cSearch
   -- Properties
   newProp = Map.fromList [ ("str", T.pack $ show $ pStr + fStr + cStr)
                          , ("dex", T.pack $ show $ pDex + fDex + rDex)
                          , ("int", T.pack $ show $ pInt + mInt + rInt)
                          , ("wis", T.pack $ show $ pWis + mWis + cWis)
-                         , ("Proficiency", pProf)
                          , ("ATTACKS", pAttacks)
                          , ("CAST", pCast)
+                         , ("Proficiency", pProf)
                          , ("SEARCH", pSearch)
                          ]
   newPlayer = pEntity { property = Map.union newProp pProp

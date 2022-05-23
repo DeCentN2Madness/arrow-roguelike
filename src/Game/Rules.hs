@@ -13,12 +13,14 @@ import qualified Data.Text as T
 import qualified Game.DiceSet as DS
 
 -- | abilityGain
--- @ stats gain w/ lvl
+-- @ Primary+8, Secondary+6 stats gain w/ lvl
 abilityGain :: Int -> Int -> (Int, Int)
 abilityGain lvl curr
   | lvl == 4  && lvl > curr = (2, 0)
+  | lvl == 6  && lvl > curr = (2, 0)
   | lvl == 8  && lvl > curr = (2, 0)
   | lvl == 12 && lvl > curr = (0, 2)
+  | lvl == 14 && lvl > curr = (0, 2)
   | lvl == 16 && lvl > curr = (1, 1)
   | lvl == 19 && lvl > curr = (1, 1)
   | otherwise = (0,0)
@@ -77,60 +79,60 @@ abilityResult2 resultA resultB rollA rollB modA modB prof =
 
 -- | attacksGain
 -- @ Fighters gain ATTACKS w/ lvl
-attacksGain :: Text -> Int -> Int -> Text -> Text
-attacksGain pCls lvl curr attacks
-  | pCls == "Fighter" && lvl == 5  && lvl > curr = "2"
-  | pCls == "Fighter" && lvl == 11 && lvl > curr = "3"
-  | pCls == "Fighter" && lvl == 17 && lvl > curr = "4"
-  | pCls == "Rogue"   && lvl == 5  && lvl > curr = "2"
-  | pCls == "Rogue"   && lvl == 11 && lvl > curr = "2"
-  | pCls == "Rogue"   && lvl == 17 && lvl > curr = "3"
-  | pCls == "Cleric"  && lvl == 5  && lvl > curr = "2"
-  | pCls == "Cleric"  && lvl == 11 && lvl > curr = "2"
-  | pCls == "Cleric"  && lvl == 17 && lvl > curr = "3"
+attacksGain :: Text -> Int -> Text -> Text
+attacksGain pCls lvl attacks
+  | pCls == "Fighter" && lvl == 5  = "2"
+  | pCls == "Fighter" && lvl == 11 = "3"
+  | pCls == "Fighter" && lvl == 17 = "4"
+  | pCls == "Rogue"   && lvl == 5  = "2"
+  | pCls == "Rogue"   && lvl == 11 = "2"
+  | pCls == "Rogue"   && lvl == 17 = "3"
+  | pCls == "Cleric"  && lvl == 5  = "2"
+  | pCls == "Cleric"  && lvl == 11 = "2"
+  | pCls == "Cleric"  && lvl == 17 = "3"
   | otherwise = attacks
 
 -- | castGain
 -- @ Magic Users gain CAST w/ lvl
-castGain :: Text -> Int -> Int -> Text -> Text
-castGain pCls lvl curr cast
-  | pCls == "Rogue"  && lvl == 5  && lvl > curr = "2d6"
-  | pCls == "Rogue"  && lvl == 11 && lvl > curr = "3d6"
-  | pCls == "Rogue"  && lvl == 17 && lvl > curr = "4d6"
-  | pCls == "Rogue"  && lvl == 18 && lvl > curr = "5d6"
-  | pCls == "Rogue"  && lvl == 19 && lvl > curr = "5d6+3"
-  | pCls == "Rogue"  && lvl == 20 && lvl > curr = "5d6+6"
-  | pCls == "Mage"   && lvl == 5  && lvl > curr = "2d10"
-  | pCls == "Mage"   && lvl == 11 && lvl > curr = "3d10"
-  | pCls == "Mage"   && lvl == 17 && lvl > curr = "4d10"
-  | pCls == "Mage"   && lvl == 18 && lvl > curr = "5d10"
-  | pCls == "Mage"   && lvl == 19 && lvl > curr = "5d10+5"
-  | pCls == "Mage"   && lvl == 20 && lvl > curr = "5d10+10"
-  | pCls == "Cleric" && lvl == 5  && lvl > curr = "2d8"
-  | pCls == "Cleric" && lvl == 11 && lvl > curr = "3d8"
-  | pCls == "Cleric" && lvl == 17 && lvl > curr = "4d8"
-  | pCls == "Cleric" && lvl == 18 && lvl > curr = "5d8"
-  | pCls == "Cleric" && lvl == 19 && lvl > curr = "5d8+4"
-  | pCls == "Cleric" && lvl == 20 && lvl > curr = "5d8+8"
+castGain :: Text -> Int -> Text -> Text
+castGain pCls lvl cast
+  | pCls == "Rogue"  && lvl == 5  = "2d6"
+  | pCls == "Rogue"  && lvl == 11 = "3d6"
+  | pCls == "Rogue"  && lvl == 17 = "4d6"
+  | pCls == "Rogue"  && lvl == 18 = "5d6"
+  | pCls == "Rogue"  && lvl == 19 = "5d6+3"
+  | pCls == "Rogue"  && lvl == 20 = "5d6+6"
+  | pCls == "Mage"   && lvl == 5  = "2d10"
+  | pCls == "Mage"   && lvl == 11 = "3d10"
+  | pCls == "Mage"   && lvl == 17 = "4d10"
+  | pCls == "Mage"   && lvl == 18 = "5d10"
+  | pCls == "Mage"   && lvl == 19 = "5d10+5"
+  | pCls == "Mage"   && lvl == 20 = "5d10+10"
+  | pCls == "Cleric" && lvl == 5  = "2d8"
+  | pCls == "Cleric" && lvl == 11 = "3d8"
+  | pCls == "Cleric" && lvl == 17 = "4d8"
+  | pCls == "Cleric" && lvl == 18 = "5d8"
+  | pCls == "Cleric" && lvl == 19 = "5d8+4"
+  | pCls == "Cleric" && lvl == 20 = "5d8+8"
   | otherwise = cast
 
 -- | @ gets Proficient w/ lvl
-proficiencyGain :: Int -> Text
-proficiencyGain lvl
-  | lvl >= 1  && lvl < 5  = "2"
-  | lvl >= 5  && lvl < 9  = "3"
-  | lvl >= 9  && lvl < 13 = "4"
-  | lvl >= 13 && lvl < 17 = "5"
-  | lvl >= 17 = "6"
-  | otherwise = "1"
+proficiencyGain :: Int -> Text -> Text
+proficiencyGain lvl prof
+  | lvl == 1  = "2"
+  | lvl == 5  = "3"
+  | lvl == 9  = "4"
+  | lvl == 13 = "5"
+  | lvl == 17 = "6"
+  | otherwise = prof
 
 -- | @ gets Search w/ lvl
-searchGain :: Int -> Text
-searchGain lvl
-  | lvl >= 5  && lvl < 10 = "4"
-  | lvl >= 10 && lvl < 15 = "5"
-  | lvl >= 15 = "6"
-  | otherwise = "0"
+searchGain :: Int -> Text -> Text
+searchGain lvl search
+  | lvl == 5  = "4"
+  | lvl == 10 = "5"
+  | lvl == 15 = "6"
+  | otherwise = search
 
 -- | checkEncumberance
 -- @ loses Proficiency based on WT
@@ -152,13 +154,13 @@ checkFinesse wwt prof
 -- | criticalDamage
 -- @ can Crit!
 criticalDamage :: Int -> Text -> Int -> Int -> Int
-criticalDamage roll pWeap pSeed modifier
+criticalDamage roll pWeap pSeed pStat
   | roll == 1   = 0
   | roll == 100 = result + crit
   | otherwise   = if result < 1 then 0 else result
   where
-    result = weapon pWeap (pSeed+1) modifier
-    crit   = weapon pWeap (pSeed+2) 0
+    result = weapon pWeap (pSeed+1) pStat
+    crit   = weapon pWeap (pSeed+2) pStat
 
 -- | criticalRoll
 -- One or Twenty

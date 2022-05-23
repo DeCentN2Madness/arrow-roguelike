@@ -36,6 +36,8 @@ import qualified Game.Player as GP
 import Game.Rules
 
 type AssetMap = EntityMap
+
+-- types for clarity...
 type Seed = Int
 type Attacks = Int
 type Name = Text
@@ -74,7 +76,7 @@ attackAction pSeed pName pAtk pWeap pStat pEnc mName mDR = let
 attack :: AR -> AC -> Name -> Text
 attack ar ac name
   | ar == 1   = T.append " ~fumbles~ attack at " name
-  | ar == 100 = T.append " !Critical hits the " name
+  | ar == 100 = T.append " Critical hits the " name
   | ar >= ac  = T.append " hits the " name
   | otherwise = T.append " attack misses " name
 
@@ -85,7 +87,7 @@ condition hp xp
                        , T.pack $ " You gain " ++ show xp ++ " experience." ]
   | hp < 6  = " *Critical*."
   | hp < 10 = " Hurt."
-  | otherwise = " :Ok."
+  | otherwise = " Ok."
 
 -- | death
 -- Inventory drop around the Corpse...

@@ -41,6 +41,9 @@ type Attacks = Int
 type Name = Text
 type Weapon = Text
 type AC = Int
+type AR = Int
+type HP = Int
+type EXP = Int
 
 -- | attackAction
 -- handle many attacks
@@ -54,34 +57,35 @@ attackAction :: Seed
   -> AC
   -> ([Text], Int)
 attackAction pSeed pName pAtk pWeap pStat pEnc mName mDR = let
-    pD20  = take pAtk $ DS.rollList 10 20 (pSeed+1)
-    pHits = [ (result, pDam) | r <- pD20, let
+    pD20  = take pAtk $ DS.rollList 11 20 (pSeed+1)
+    pHits = [ (pHit, pDam) | r <- pD20, let
                   pAR = criticalRoll r pStat pEnc
                   pDam = if pAR >= mDR
                     then criticalDamage pAR pWeap (pSeed+r) pStat
                     else 0
-                  hit = attack pAR mDR mName
-                  det = abilityResult pDam pAR pStat pEnc
-                  result = T.concat [ pName, hit, det, "." ] ]
+                  hit    = attack pAR mDR mName
+                  result = abilityResult pDam pAR pStat pEnc
+                  pHit   = T.concat [ pName, hit, result, "." ] ]
     pDamage = sum $ [ v | (_,v) <- pHits ]
-    pEntry = [ k | (k,_) <- pHits ]
+    pEntry  = [ k | (k,_) <- pHits ]
   in (pEntry, pDamage)
 
 -- | attack verb
-attack :: Int -> Int -> Text -> Text
-attack ar dr name
+attack :: AR -> AC -> Name -> Text
+attack ar ac name
   | ar == 1   = T.append " ~fumbles~ attack at " name
-  | ar >= dr  = T.append " hits the " name
+  | ar == 100 = T.append " !Critical hits the " name
+  | ar >= ac  = T.append " hits the " name
   | otherwise = T.append " attack misses " name
 
 -- | condition of Monster
-condition :: Int -> Int -> Text
+condition :: HP -> EXP -> Text
 condition hp xp
-  | hp < 1 = T.concat [ " Dead!"
-                      , T.pack $ " You gain " ++ show xp ++ " experience." ]
-  | hp >= 1 && hp <= 5 = " *Critical*."
-  | hp > 5  && hp <= 10 = " Hurt."
-  | otherwise = " Ok."
+  | hp < 1  = T.concat [ " Dead!"
+                       , T.pack $ " You gain " ++ show xp ++ " experience." ]
+  | hp < 6  = " *Critical*."
+  | hp < 10 = " Hurt."
+  | otherwise = " :Ok."
 
 -- | death
 -- Inventory drop around the Corpse...
@@ -94,7 +98,7 @@ death mx mEntity am em = let
   mMush  = Map.findWithDefault 0 "Mushroom" mInv
   mPot   = Map.findWithDefault 0 "Potion"   mInv
   loc    = scatter mEntity
-  -- item mostly Coin
+  -- Item mostly Coin
   item
     | mItem   > 0 = GI.mkRandItem loc am
     | mPot    > 0 = GI.mkDropItem "Potion"   loc am
@@ -127,16 +131,15 @@ mkCombat px mx w = if px == mx
     pProp = property pEntity
     pName = Map.findWithDefault "P" "Name" pProp
     -- COMBAT
-    pStr = read $ T.unpack $ Map.findWithDefault "1" "str" pProp :: Int
-    pDex = read $ T.unpack $ Map.findWithDefault "1" "dex" pProp :: Int
-    -- Fighter or Rogue
+    pStr  = read $ T.unpack $ Map.findWithDefault "1" "str" pProp :: Int
+    pDex  = read $ T.unpack $ Map.findWithDefault "1" "dex" pProp :: Int
+    pAtk  = read $ T.unpack $ Map.findWithDefault "1" "ATTACKS" pProp :: Int
     pWeap = Map.findWithDefault "1d1" "ATTACK" pProp
+    -- Fighter or Rogue, Finesse?
+    pWWT  = read $ T.unpack $ Map.findWithDefault "3" "WWT" pProp :: Int
     pStat = if pWWT < 3
       then abilityMod pDex
       else abilityMod pStr
-    -- Finesse?
-    pWWT = read $ T.unpack $ Map.findWithDefault "3" "WWT" pProp :: Int
-    pAtk = read $ T.unpack $  Map.findWithDefault "1" "ATTACKS" pProp
     -- Encumbered?
     pWT  = read $ T.unpack $ Map.findWithDefault "0" "WT" pProp :: Int
     pMod = read $ T.unpack $ Map.findWithDefault "0" "Proficiency" pProp
@@ -172,18 +175,17 @@ mkMagicCombat px mx w = if px == mx
     pProp = property pEntity
     pName = Map.findWithDefault "P" "Name" pProp
     -- MAGIC
-    pStr = read $ T.unpack $ Map.findWithDefault "1" "str" pProp :: Int
-    pInt = read $ T.unpack $ Map.findWithDefault "1" "int" pProp
-    pWis = read $ T.unpack $ Map.findWithDefault "1" "wis" pProp
-    -- Mage or Cleric
+    pStr  = read $ T.unpack $ Map.findWithDefault "1" "str" pProp :: Int
+    pInt  = read $ T.unpack $ Map.findWithDefault "1" "int" pProp :: Int
+    pWis  = read $ T.unpack $ Map.findWithDefault "1" "wis" pProp :: Int
+    pAtk  = 1
+    pWeap = checkFinesse pWWT $ Map.findWithDefault "0" "CAST" pProp
+    -- Mage or Cleric, Finesse?
+    pWWT   = read $ T.unpack $ Map.findWithDefault "0" "WWT" pProp :: Int
     pClass = Map.findWithDefault "None" "Class" pProp
     pStat  = if pClass == "Cleric"
       then abilityMod pWis
       else abilityMod pInt
-    -- Finesse?
-    pWeap = checkFinesse pWWT $ Map.findWithDefault "0" "CAST" pProp
-    pWWT  = read $ T.unpack $ Map.findWithDefault "0" "WWT" pProp :: Int
-    pAtk  = 1
     -- Encumbered?
     pWT  = read $ T.unpack $ Map.findWithDefault "0" "WT" pProp  :: Int
     pMod = read $ T.unpack $ Map.findWithDefault "0" "Proficiency" pProp
@@ -198,7 +200,7 @@ mkMagicCombat px mx w = if px == mx
     mHP   = eHP mEntity
     mExp  = eXP mEntity
     mCond = T.concat [ mName, " is", condition pAttack mExp ]
-    -- miscast
+    -- misFire
     shotEntity = if pDamage < 5
       then misFire mEntity (assetT w) (entityT w)
       else entityT w
@@ -224,11 +226,10 @@ mkRangeCombat px mx w = if px == mx
     pName = Map.findWithDefault "P" "Name" pProp
     -- THROW
     pStr  = read $ T.unpack $ Map.findWithDefault "1" "str" pProp :: Int
-    pDex  = read $ T.unpack $ Map.findWithDefault "1" "dex" pProp
-    pStat = abilityMod pDex
-    -- Finesse?
+    pDex  = read $ T.unpack $ Map.findWithDefault "1" "dex" pProp :: Int
+    pAtk  = read $ T.unpack $ Map.findWithDefault "1" "ATTACKS" pProp :: Int
     pWeap = Map.findWithDefault "1d1" "SHOOT" pProp
-    pAtk  = read $ T.unpack $ Map.findWithDefault "1" "ATTACKS" pProp
+    pStat = abilityMod pDex
     -- Encumbered?
     pWT  = read $ T.unpack $ Map.findWithDefault "0" "WT" pProp  :: Int
     pMod = read $ T.unpack $ Map.findWithDefault "0" "Proficiency" pProp
@@ -243,7 +244,7 @@ mkRangeCombat px mx w = if px == mx
     mHP   = eHP mEntity
     mExp  = eXP mEntity
     mCond = T.concat [ mName, " is", condition pAttack mExp ]
-    -- misfire
+    -- misFire
     shotEntity = if pDamage < 5
       then misFire mEntity (assetT w) (entityT w)
       else entityT w

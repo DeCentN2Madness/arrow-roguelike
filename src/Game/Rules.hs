@@ -83,32 +83,35 @@ attacksGain pCls lvl curr attacks
   | pCls == "Fighter" && lvl == 11 && lvl > curr = "3"
   | pCls == "Fighter" && lvl == 17 && lvl > curr = "4"
   | pCls == "Rogue"   && lvl == 5  && lvl > curr = "2"
-  | pCls == "Rogue"   && lvl == 11 && lvl > curr = "3"
+  | pCls == "Rogue"   && lvl == 11 && lvl > curr = "2"
+  | pCls == "Rogue"   && lvl == 17 && lvl > curr = "3"
   | pCls == "Cleric"  && lvl == 5  && lvl > curr = "2"
+  | pCls == "Cleric"  && lvl == 11 && lvl > curr = "2"
+  | pCls == "Cleric"  && lvl == 17 && lvl > curr = "3"
   | otherwise = attacks
 
 -- | castGain
 -- @ Magic Users gain CAST w/ lvl
 castGain :: Text -> Int -> Int -> Text -> Text
 castGain pCls lvl curr cast
-  | pCls == "Rogue"  && lvl == 5  && lvl > curr = "2d4"
-  | pCls == "Rogue"  && lvl == 11 && lvl > curr = "3d4"
-  | pCls == "Rogue"  && lvl == 17 && lvl > curr = "4d4"
-  | pCls == "Rogue"  && lvl == 18 && lvl > curr = "4d4+2"
-  | pCls == "Rogue"  && lvl == 19 && lvl > curr = "4d4+3"
-  | pCls == "Rogue"  && lvl == 20 && lvl > curr = "4d4+4"
+  | pCls == "Rogue"  && lvl == 5  && lvl > curr = "2d6"
+  | pCls == "Rogue"  && lvl == 11 && lvl > curr = "3d6"
+  | pCls == "Rogue"  && lvl == 17 && lvl > curr = "4d6"
+  | pCls == "Rogue"  && lvl == 18 && lvl > curr = "5d6"
+  | pCls == "Rogue"  && lvl == 19 && lvl > curr = "5d6+3"
+  | pCls == "Rogue"  && lvl == 20 && lvl > curr = "5d6+6"
   | pCls == "Mage"   && lvl == 5  && lvl > curr = "2d10"
   | pCls == "Mage"   && lvl == 11 && lvl > curr = "3d10"
   | pCls == "Mage"   && lvl == 17 && lvl > curr = "4d10"
-  | pCls == "Mage"   && lvl == 18 && lvl > curr = "4d10+6"
-  | pCls == "Mage"   && lvl == 19 && lvl > curr = "4d10+8"
-  | pCls == "Mage"   && lvl == 20 && lvl > curr = "4d10+10"
+  | pCls == "Mage"   && lvl == 18 && lvl > curr = "5d10"
+  | pCls == "Mage"   && lvl == 19 && lvl > curr = "5d10+5"
+  | pCls == "Mage"   && lvl == 20 && lvl > curr = "5d10+10"
   | pCls == "Cleric" && lvl == 5  && lvl > curr = "2d8"
   | pCls == "Cleric" && lvl == 11 && lvl > curr = "3d8"
   | pCls == "Cleric" && lvl == 17 && lvl > curr = "4d8"
-  | pCls == "Cleric" && lvl == 18 && lvl > curr = "4d8+4"
-  | pCls == "Cleric" && lvl == 19 && lvl > curr = "4d8+6"
-  | pCls == "Cleric" && lvl == 20 && lvl > curr = "4d8+8"
+  | pCls == "Cleric" && lvl == 18 && lvl > curr = "5d8"
+  | pCls == "Cleric" && lvl == 19 && lvl > curr = "5d8+4"
+  | pCls == "Cleric" && lvl == 20 && lvl > curr = "5d8+8"
   | otherwise = cast
 
 -- | @ gets Proficient w/ lvl
@@ -130,7 +133,7 @@ searchGain lvl
   | otherwise = "0"
 
 -- | checkEncumberance
--- @ loses proficiency based on WT
+-- @ loses Proficiency based on WT
 checkEncumberance :: Int -> Int -> Int -> Int
 checkEncumberance str wt prof
   | wt > 8 * str = -5
@@ -140,7 +143,7 @@ checkEncumberance str wt prof
   | otherwise = prof
 
 -- | checkFinesse
--- @ Magic User loses Proficiency if Heavy WWT
+-- @ Magic User loses CAST, Proficiency if Heavy WWT
 checkFinesse :: Int -> Text -> Text
 checkFinesse wwt prof
   | wwt < 5   = prof
@@ -204,22 +207,27 @@ weapon dice seed bonus = let
     "2d4" -> DS.d4 seed + DS.d4 (seed+1)
     "3d4" -> DS.d4 seed + DS.d4 (seed+1) + DS.d4 (seed+2)
     "4d4" -> DS.d4 seed + DS.d4 (seed+1) + DS.d4 (seed+2) + DS.d4 (seed+3)
+    "5d4" -> DS.d4 seed + DS.d4 (seed+1) + DS.d4 (seed+2) + DS.d4 (seed+3) + DS.d4 (seed+4)
     -- d6
     "2d6" -> DS.d6 seed + DS.d6 (seed+1)
     "3d6" -> DS.d6 seed + DS.d6 (seed+1) + DS.d6 (seed+2)
     "4d6" -> DS.d6 seed + DS.d6 (seed+1) + DS.d6 (seed+2) + DS.d6 (seed+3)
+    "5d6" -> DS.d6 seed + DS.d6 (seed+1) + DS.d6 (seed+2) + DS.d6 (seed+3) + DS.d6 (seed+4)
     -- d8
     "2d8" -> DS.d8 seed + DS.d8 (seed+1)
     "3d8" -> DS.d8 seed + DS.d8 (seed+1) + DS.d8 (seed+2)
     "4d8" -> DS.d8 seed + DS.d8 (seed+1) + DS.d8 (seed+2) + DS.d8 (seed+3)
+    "5d8" -> DS.d8 seed + DS.d8 (seed+1) + DS.d8 (seed+2) + DS.d8 (seed+3) + DS.d8 (seed+4)
     -- d10
     "2d10" -> DS.d10 seed + DS.d10 (seed+1)
     "3d10" -> DS.d10 seed + DS.d10 (seed+1) + DS.d10 (seed+2)
     "4d10" -> DS.d10 seed + DS.d10 (seed+1) + DS.d10 (seed+2) + DS.d10 (seed+3)
+    "5d10" -> DS.d10 seed + DS.d10 (seed+1) + DS.d10 (seed+2) + DS.d10 (seed+3) + DS.d10 (seed+4)
     -- d12
     "2d12" -> DS.d12 seed + DS.d12 (seed+1)
     "3d12" -> DS.d12 seed + DS.d12 (seed+1) + DS.d12 (seed+2)
     "4d12" -> DS.d12 seed + DS.d12 (seed+1) + DS.d12 (seed+2) + DS.d12 (seed+3)
+    "5d12" -> DS.d12 seed + DS.d12 (seed+1) + DS.d12 (seed+2) + DS.d12 (seed+3) + DS.d12 (seed+4)
     _ -> DS.d4 seed
   wBonus n
     | n == "-5" = -5

@@ -79,7 +79,8 @@ mkPlayer s pEntity = let
             , healthPool pClass
             , manaPool pClass
             , weaponAttack pClass
-            , ("Attacks", "1")
+            , ("ATTACKS", "1")
+            , ("SEARCH", "0")
             , weaponCast pClass
             , weaponClass pClass
             , weaponWT pClass

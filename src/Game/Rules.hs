@@ -13,14 +13,15 @@ import qualified Data.Text as T
 import qualified Game.DiceSet as DS
 
 -- | abilityGain
--- @ Primary+8, Secondary+6 stats gain w/ lvl
+-- @ Primary+9, Secondary+7 stats gain w/ lvl
 abilityGain :: Int -> Int -> (Int, Int)
 abilityGain lvl curr
   | lvl == 4  && lvl > curr = (2, 0)
   | lvl == 6  && lvl > curr = (2, 0)
   | lvl == 8  && lvl > curr = (2, 0)
+  | lvl == 10 && lvl > curr = (0, 2)
   | lvl == 12 && lvl > curr = (0, 2)
-  | lvl == 14 && lvl > curr = (0, 2)
+  | lvl == 14 && lvl > curr = (1, 1)
   | lvl == 16 && lvl > curr = (1, 1)
   | lvl == 19 && lvl > curr = (1, 1)
   | otherwise = (0,0)
@@ -100,20 +101,20 @@ castGain pCls lvl cast
   | pCls == "Rogue"  && lvl == 11 = "3d6"
   | pCls == "Rogue"  && lvl == 17 = "4d6"
   | pCls == "Rogue"  && lvl == 18 = "5d6"
-  | pCls == "Rogue"  && lvl == 19 = "5d6+3"
-  | pCls == "Rogue"  && lvl == 20 = "5d6+6"
+  | pCls == "Rogue"  && lvl == 19 = "6d6"
+  | pCls == "Rogue"  && lvl == 20 = "7d6"
   | pCls == "Mage"   && lvl == 5  = "2d10"
   | pCls == "Mage"   && lvl == 11 = "3d10"
   | pCls == "Mage"   && lvl == 17 = "4d10"
   | pCls == "Mage"   && lvl == 18 = "5d10"
-  | pCls == "Mage"   && lvl == 19 = "5d10+5"
-  | pCls == "Mage"   && lvl == 20 = "5d10+10"
+  | pCls == "Mage"   && lvl == 19 = "6d10"
+  | pCls == "Mage"   && lvl == 20 = "7d10"
   | pCls == "Cleric" && lvl == 5  = "2d8"
   | pCls == "Cleric" && lvl == 11 = "3d8"
   | pCls == "Cleric" && lvl == 17 = "4d8"
   | pCls == "Cleric" && lvl == 18 = "5d8"
-  | pCls == "Cleric" && lvl == 19 = "5d8+4"
-  | pCls == "Cleric" && lvl == 20 = "5d8+8"
+  | pCls == "Cleric" && lvl == 19 = "6d8"
+  | pCls == "Cleric" && lvl == 20 = "7d8"
   | otherwise = cast
 
 -- | @ gets Proficient w/ lvl
@@ -185,51 +186,61 @@ resultFmt n
 -- Damage roll for Weapons...
 -- Example: 1d4+1
 weapon :: Text -> Int -> Int -> Int
-weapon dice seed bonus = let
-  (wDam, wMod) = T.breakOn "+" dice
+weapon pWeap seed bonus = let
+  (wDam, wMod) = T.breakOn "+" pWeap
   roll = case wDam of
     "0"   -> 0
+    "1"   -> 1
     "1d1" -> 1
-    "1d2" -> DS.d2 seed
-    "1d3" -> DS.d3 seed
+    -- d4, d6, d8, d10, d12, d20
     "1d4" -> DS.d4 seed
-    "1d5" -> DS.d5 seed
     "1d6" -> DS.d6 seed
     "1d8" -> DS.d8 seed
     "1d10" -> DS.d10 seed
     "1d12" -> DS.d12 seed
+    "1d20" -> DS.d20 seed
     -- d2, d3, d5
+    "1d2" -> DS.d2 seed
     "2d2" -> DS.d2 seed + DS.d2 (seed+1)
-    "2d3" -> DS.d3 seed + DS.d3 (seed+1)
-    "2d5" -> DS.d5 seed + DS.d5 (seed+1)
     "3d2" -> DS.d2 seed + DS.d2 (seed+1) + DS.d2 (seed+2)
+    "1d3" -> DS.d3 seed
+    "2d3" -> DS.d3 seed + DS.d3 (seed+1)
     "3d3" -> DS.d3 seed + DS.d3 (seed+1) + DS.d3 (seed+2)
+    "1d5" -> DS.d5 seed
+    "2d5" -> DS.d5 seed + DS.d5 (seed+1)
     "3d5" -> DS.d5 seed + DS.d5 (seed+1) + DS.d5 (seed+2)
     -- d4
     "2d4" -> DS.d4 seed + DS.d4 (seed+1)
     "3d4" -> DS.d4 seed + DS.d4 (seed+1) + DS.d4 (seed+2)
     "4d4" -> DS.d4 seed + DS.d4 (seed+1) + DS.d4 (seed+2) + DS.d4 (seed+3)
-    "5d4" -> DS.d4 seed + DS.d4 (seed+1) + DS.d4 (seed+2) + DS.d4 (seed+3) + DS.d4 (seed+4)
     -- d6
     "2d6" -> DS.d6 seed + DS.d6 (seed+1)
     "3d6" -> DS.d6 seed + DS.d6 (seed+1) + DS.d6 (seed+2)
     "4d6" -> DS.d6 seed + DS.d6 (seed+1) + DS.d6 (seed+2) + DS.d6 (seed+3)
     "5d6" -> DS.d6 seed + DS.d6 (seed+1) + DS.d6 (seed+2) + DS.d6 (seed+3) + DS.d6 (seed+4)
+    "6d6" -> DS.d6 seed + DS.d6 (seed+1) + DS.d6 (seed+2) + DS.d6 (seed+3) + DS.d6 (seed+4) + DS.d6 (seed+5)
+    "7d6" -> DS.d6 seed + DS.d6 (seed+1) + DS.d6 (seed+2) + DS.d6 (seed+3) + DS.d6 (seed+4)+ DS.d6 (seed+5) + DS.d6 (seed+6)
     -- d8
     "2d8" -> DS.d8 seed + DS.d8 (seed+1)
     "3d8" -> DS.d8 seed + DS.d8 (seed+1) + DS.d8 (seed+2)
     "4d8" -> DS.d8 seed + DS.d8 (seed+1) + DS.d8 (seed+2) + DS.d8 (seed+3)
     "5d8" -> DS.d8 seed + DS.d8 (seed+1) + DS.d8 (seed+2) + DS.d8 (seed+3) + DS.d8 (seed+4)
+    "6d8" -> DS.d8 seed + DS.d8 (seed+1) + DS.d8 (seed+2) + DS.d8 (seed+3) + DS.d8 (seed+4) + DS.d8 (seed+5)
+    "7d8" -> DS.d8 seed + DS.d8 (seed+1) + DS.d8 (seed+2) + DS.d8 (seed+3) + DS.d8 (seed+4) + DS.d8 (seed+5) + DS.d8 (seed+6)
     -- d10
     "2d10" -> DS.d10 seed + DS.d10 (seed+1)
     "3d10" -> DS.d10 seed + DS.d10 (seed+1) + DS.d10 (seed+2)
     "4d10" -> DS.d10 seed + DS.d10 (seed+1) + DS.d10 (seed+2) + DS.d10 (seed+3)
     "5d10" -> DS.d10 seed + DS.d10 (seed+1) + DS.d10 (seed+2) + DS.d10 (seed+3) + DS.d10 (seed+4)
+    "6d10" -> DS.d10 seed + DS.d10 (seed+1) + DS.d10 (seed+2) + DS.d10 (seed+3) + DS.d10 (seed+4) + DS.d10 (seed+5)
+    "7d10" -> DS.d10 seed + DS.d10 (seed+1) + DS.d10 (seed+2) + DS.d10 (seed+3) + DS.d10 (seed+4) + DS.d10 (seed+5) + DS.d10 (seed+6)
     -- d12
     "2d12" -> DS.d12 seed + DS.d12 (seed+1)
     "3d12" -> DS.d12 seed + DS.d12 (seed+1) + DS.d12 (seed+2)
     "4d12" -> DS.d12 seed + DS.d12 (seed+1) + DS.d12 (seed+2) + DS.d12 (seed+3)
     "5d12" -> DS.d12 seed + DS.d12 (seed+1) + DS.d12 (seed+2) + DS.d12 (seed+3) + DS.d12 (seed+4)
+    "6d12" -> DS.d12 seed + DS.d12 (seed+1) + DS.d12 (seed+2) + DS.d12 (seed+3) + DS.d12 (seed+4) + DS.d12 (seed+5)
+    "7d12" -> DS.d12 seed + DS.d12 (seed+1) + DS.d12 (seed+2) + DS.d12 (seed+3) + DS.d12 (seed+4) + DS.d12 (seed+5) + DS.d12 (seed+6)
     _ -> DS.d4 seed
   wBonus n
     | n == "-5" = -5

@@ -36,10 +36,10 @@ mkTextMap :: TextMap
 mkTextMap = Map.empty
 
 -- | updateJournal
--- keep 20 entries in a round-robin
+-- keep entries in a round-robin
 updateJournal :: [Text] -> TextMap -> TextMap
 updateJournal xs tm = let
   entry = zip [0..] $ filter (/="...") xs
-  newJournal = take 20 $ [ (k, t) | (i, t) <- Map.toList tm,
+  newJournal = take 100 $ [ (k, t) | (i, t) <- Map.toList tm,
                           let k = i + length entry ]
   in Map.fromList (entry ++ newJournal)

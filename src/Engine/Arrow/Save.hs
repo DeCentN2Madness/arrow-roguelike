@@ -86,29 +86,34 @@ saveFile :: World -> IO ()
 saveFile w = do
   let (pEntity, _) = GP.getPlayer (entityT w)
   homeDir <- getHomeDirectory
-  encodeFile (homeDir ++ saveWorld) w
-  encodeFile (homeDir ++ savePlayer) pEntity
-  encodeFile (homeDir ++ saveAsset) (assetT w)
-  encodeFile (homeDir ++ saveEntity) (entityT w)
-  encodeFile (homeDir ++ saveGame) (gameT w)
+  encodeFile (homeDir ++ saveWorld)   w
+  encodeFile (homeDir ++ saveAsset)   (assetT w)
+  encodeFile (homeDir ++ saveEntity)  (entityT w)
+  encodeFile (homeDir ++ saveGame)    (gameT w)
+  encodeFile (homeDir ++ saveJournal) (journalT w)
+  encodeFile (homeDir ++ savePlayer)  pEntity
 
 -- | saveAsset
 saveAsset :: FilePath
 saveAsset = "/Documents/Arrow/asset.json"
 
--- | saveAsset
+-- | saveEntity
 saveEntity :: FilePath
 saveEntity = "/Documents/Arrow/entity.json"
 
--- | saveAsset
+-- | saveGame
 saveGame :: FilePath
 saveGame = "/Documents/Arrow/game.json"
+
+-- | saveJournal
+saveJournal :: FilePath
+saveJournal = "/Documents/Arrow/journal.json"
 
 -- | savePlayer
 savePlayer :: FilePath
 savePlayer = "/Documents/Arrow/player.json"
 
--- | saveGame
+-- | saveWorld
 saveWorld :: FilePath
 saveWorld = "/Documents/Arrow/world.json"
 

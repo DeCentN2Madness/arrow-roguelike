@@ -236,13 +236,18 @@ actionExamine x w = let
   mCon     = Map.findWithDefault "0" "con" mProp
   mInt     = Map.findWithDefault "0" "int" mProp
   mWis     = Map.findWithDefault "0" "wis" mProp
+  bStr     = abilityBonus mStr
+  bDex     = abilityBonus mDex
+  bCon     = abilityBonus mCon
+  bInt     = abilityBonus mInt
+  bWis     = abilityBonus mWis
   mClass   = Map.findWithDefault "Item" "Class"  mProp
   mArmor   = Map.findWithDefault "None" "armor"  mProp
   mAC      = Map.findWithDefault "0"    "AC"     mProp
   mMelee   = Map.findWithDefault "None" "melee"  mProp
   mRange   = Map.findWithDefault "None" "shoot"  mProp
-  mAttack  = Map.findWithDefault "1d1"  "ATTACK" mProp
-  mShoot   = Map.findWithDefault "1d1"  "SHOOT"  mProp
+  mAttack  = Map.findWithDefault "0" "ATTACK" mProp
+  mShoot   = Map.findWithDefault "0" "SHOOT"  mProp
   mAttacks = Map.findWithDefault "0" "ATTACKS" mProp
   mCast    = Map.findWithDefault "0" "CAST" mProp
   mProf    = Map.findWithDefault "0" "Proficiency" mProp
@@ -250,11 +255,11 @@ actionExamine x w = let
   mCls     = T.append "Class: " mClass
   -- Stats
   mStat = if mStr /= "0"
-    then T.concat [ "Str:",   mStr
-                  , ", Dex:", mDex
-                  , ", Con:", mCon
-                  , ", Int:", mInt
-                  , ", Wis:", mWis ]
+    then T.concat [ "Str:",   mStr, " (", bStr, ")"
+                  , ", Dex:", mDex, " (", bDex, ")"
+                  , ", Con:", mCon, " (", bCon, ")"
+                  , ", Int:", mInt, " (", bInt, ")"
+                  , ", Wis:", mWis, " (", bWis, ")" ]
     else "..."
   -- Equipment
   mEquip = if mAC /= "0"

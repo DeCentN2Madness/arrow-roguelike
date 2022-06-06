@@ -12,6 +12,11 @@ import Data.Text (Text)
 import qualified Data.Text as T
 import qualified Game.DiceSet as DS
 
+-- | abilityBonus
+-- Formatted bonus
+abilityBonus :: Text -> Text
+abilityBonus n = resultFmt $ abilityMod $ read $ T.unpack n
+
 -- | abilityGain
 -- @ Primary+9, Secondary+7 stats gain w/ lvl
 abilityGain :: Int -> Int -> (Int, Int)

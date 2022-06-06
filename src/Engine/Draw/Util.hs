@@ -13,8 +13,8 @@ import Prelude hiding (lookup)
 import Control.Monad (forM_)
 import Control.Monad.IO.Class (MonadIO)
 import qualified Data.Map.Strict as Map
-import qualified SDL
 import SDL (($=))
+import qualified SDL
 import Engine.Arrow.Data (GameState(..), World(..))
 import Engine.Draw.Visual (AssetMap(..), TextureMap, Visual(..))
 import qualified Engine.Draw.Visual as EDV

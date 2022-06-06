@@ -55,12 +55,11 @@ drawText r w = do
       sheet = zip [0..] $ GP.characterSheet (entityT w)
       -- Color
       color x
-        | T.any (=='@') x = green
+        | T.any (==':') x = green
+        | T.any (=='~') x = yellow
         | T.any (=='!') x = red
         | T.any (=='*') x = purple
         | T.any (=='-') x = blue
-        | T.any (=='~') x = yellow
-        | T.any (==':') x = green
         | otherwise = white
   fn <- SDL.Font.load "./assets/fonts/Hack-Regular.ttf" 14
   -- Journal

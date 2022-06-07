@@ -121,11 +121,13 @@ characterEquipment em _ = let
   pWWT = read $ T.unpack $ Map.findWithDefault "0" "WWT" pProp :: Int
   pEnc = if pWT > 5 * pStr
     then "Load: ENCUMBERED!"
-    else T.pack $ "Load: " ++ show pWT ++ "/" ++ show (5 * pStr) ++ " lbs."
+    else T.concat [ "Load: "
+                  , T.pack $ show pWT, "/"
+                  , T.pack $ show (5 * pStr), " lbs." ]
   pFinesse = if pWWT < 3 then "Melee: Finesse" else "Melee: Strength"
   pHeavy   = if pWWT > 4
     then "Weapon: Heavy"
-    else T.pack $ "Weapon: " ++ show pWWT ++ " lbs."
+    else T.concat [ "Weapon: ", T.pack $ show pWWT, " lbs." ]
   in selection pInv
   ++ [ armorClass, attack, range, pFinesse, pEnc, pHeavy
      , "Press [0-9] to Doff. (I)nventory. Press ESC to Continue." ]
@@ -135,9 +137,11 @@ characterEquipment em _ = let
 --   E(X)amine mode
 characterExamine :: [Coord] -> EntityMap -> AssetMap -> [Text]
 characterExamine fov em _ = let
+  (_, gPos) = getPlayer em
   view = GE.fromEntityBy em
-  pFOV = [ name | (ek, _) <- filter (\(_, j) -> j `elem` fov) view,
-           let name = Map.findWithDefault "None" "Name" (property ek) ]
+  pFOV = [ loc | (ek, _) <- filter (\(_, j) -> j `elem` fov) view,
+           let name = Map.findWithDefault "None" "Name" (property ek)
+               loc  = characterLocator name gPos (coord ek) ]
   in selection pFOV
   ++ [ " ", "Press [0-9, A-J] to E(X)amine. ESC to Continue." ]
 
@@ -155,10 +159,26 @@ characterInventory em _ = let
   pInv = filter (/="None") $
     [ name | (k, v) <- pItems,
       let name = if v > 0
-            then T.append k (T.pack $ " (" ++ show v ++ ")")
+            then T.concat [ k, " (", T.pack $ show v, ")" ]
             else "None" ]
   in selection pInv
   ++ [ " ", "Press [0-9, A-J] to Don. (D)rop/(S)ell/(W)ield. ESC to Continue." ]
+
+-- | @ Locator
+-- Track with N/S/E/W
+characterLocator :: Text -> Coord -> Coord -> Text
+characterLocator name (x1,y1) (x2,y2) = let
+  north :: Int -> Text
+  north n = if n < 0
+    then T.append (T.pack $ show $ abs n) " S"
+    else T.append (T.pack $ show n) " N"
+  west :: Int -> Text
+  west n = if n < 0
+    then T.append (T.pack $ show $ abs n) " E"
+    else T.append (T.pack $ show n) " W"
+  dX = x1 - x2
+  dY = y1 - y2
+  in T.concat [ name, " (", north dY, ", ", west dX, ")" ]
 
 -- | @ Look
 -- What can @ see in FOV...
@@ -178,7 +198,7 @@ characterLook fov em = let
                  else label ]
   pFOV = [ seen | (i, j) <- entities,
            let seen = if j > 1
-                 then T.append i $ T.pack $ " <" ++ show j ++ ">"
+                 then T.concat [ i," <", T.pack $ show j, ">" ]
                  else i ]
   in selection pFOV
 
@@ -224,7 +244,7 @@ characterStore em am = let
   pInv = filter (/="None") $
     [ name | (k, v) <- Map.toList (inventory pEntity),
       let name = if k `elem` ["Arrow", "Mushroom", "Potion"]
-            then T.append k (T.pack $ " (" ++ show v ++ ") " ++ T.unpack item)
+            then T.concat [ k, " (", T.pack $ show v, ") ", item ]
             else "None"
           item = Map.findWithDefault "--" k descMap ]
   in selection pInv
@@ -238,8 +258,8 @@ condition label hp maxHP = let
     | n < 5 = "*"
     | (maxHP `div` n) > 2 = "!"
     | otherwise = ":"
-  in T.append label $
-    T.pack $ " (HP" ++ status hp ++ " " ++ show hp ++ "/" ++ show maxHP ++ ")"
+  in T.concat [ label, " (HP", status hp, " "
+              , T.pack $ show hp, "/", T.pack $ show maxHP, ")" ]
 
 -- | @ equipment
 equip :: Text -> Text -> Properties -> Text
@@ -297,7 +317,7 @@ selection :: [Text] -> [Text]
 selection xs = let
   pSel = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"
         , "a", "b", "c", "d", "e", "f", "g", "h", "i", "j"]
-  in [ name | (k, v) <- zip pSel xs, let name = T.concat [k, ") ", v] ]
+  in [ loc | (k, v) <- zip pSel xs, let loc = T.concat [ k, ") ", v ] ]
 
 -- | update @ properties
 updatePlayer :: Player -> EntityMap -> EntityMap

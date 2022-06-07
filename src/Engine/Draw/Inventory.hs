@@ -50,7 +50,6 @@ drawEquipment r w = do
 drawExamine :: SDL.Renderer -> World -> IO ()
 drawExamine r w = do
   let logs = zip [0..] $ GP.characterExamine (fovT w) (entityT w) (assetT w)
-  renderDialog r (120, 10)
   fn <- SDL.Font.load "./assets/fonts/Hack-Regular.ttf" 14
   -- Journal
   forM_ logs $ \(i, j) -> do

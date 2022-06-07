@@ -10,6 +10,7 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 module Engine.Draw.Util where
 
 import Prelude hiding (lookup)
+import Control.Concurrent (threadDelay)
 import Control.Monad (forM_)
 import Control.Monad.IO.Class (MonadIO)
 import qualified Data.Map.Strict as Map
@@ -51,14 +52,13 @@ draw r ts w = do
     else do
       -- Draw Visual Map
       drawMap r ts w
-      -- '@' Stats
-      renderHpBar r (5, 10)  100.0 180.0 Gray Gray 1.0
-      -- '@' Vitals
-      renderHpBar r (5, 190) 100.0 10.0 Red   Green  pHp
-      renderHpBar r (5, 200) 100.0 10.0 White Blue   pMp
-      renderHpBar r (5, 210) 100.0 10.0 Gray  Yellow pArrow
-      renderHpBar r (5, 220) 100.0 10.0 Gray  Brown  pMush
-      renderHpBar r (5, 230) 100.0 10.0 Gray  Purple pPot
+      -- '@' Stats and Vitals
+      renderHpBar r (5, 10)  100.0 180.0 Gray  Gray   1.0
+      renderHpBar r (5, 190) 100.0 10.0  Red   Green  pHp
+      renderHpBar r (5, 200) 100.0 10.0  White Blue   pMp
+      renderHpBar r (5, 210) 100.0 10.0  Gray  Yellow pArrow
+      renderHpBar r (5, 220) 100.0 10.0  Gray  Brown  pMush
+      renderHpBar r (5, 230) 100.0 10.0  Gray  Purple pPot
       -- HUD Text
       EDT.drawText r w
       -- Look Text
@@ -74,6 +74,8 @@ draw r ts w = do
     _ -> setColor r White
   -- Screen
   SDL.present r
+  -- Use `threadDelay` to take advantage of the Haskell runtime.
+  threadDelay 10000
 
 -- | drawCamera draws Visual in relation to Camera
 --- Coord is then translated into the screen with scaleXY and

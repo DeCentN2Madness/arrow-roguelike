@@ -9,7 +9,6 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 module Main (main) where
 
 import Data.IORef
-import Control.Concurrent (threadDelay)
 import Control.Monad (forM_)
 import Control.Monad.Extra (unless)
 import qualified SDL
@@ -55,5 +54,4 @@ mainLoop world render ts = do
     modifyIORef world (GA.applyIntent i)
     d <- readIORef world
     EDU.draw render ts d
-  threadDelay 10000
   unless (gameState q == GameStop) $ mainLoop world render ts

@@ -36,10 +36,10 @@ actionCast w = let
   newTick         = tick w + 1
   (pEntity, pPos) = GP.getPlayer (entityT w)
   -- Spells cost more per Lvl
-  pLvl            = eLvl pEntity
-  pMana           = eMP pEntity
-  pMaxMP          = eMaxMP pEntity
-  mySort          = sortBy (compare `on` snd)
+  pLvl   = eLvl pEntity
+  pMana  = eMP pEntity
+  pMaxMP = eMaxMP pEntity
+  mySort = sortBy (compare `on` snd)
   -- pick closest target
   mTargets = filter (\(_, j) -> j `elem` fovT w) $
     [ (ix, xy) | (ix, pos) <- GE.fromBlock (entityT w),
@@ -69,6 +69,7 @@ actionCoin :: Int -> World -> World
 actionCoin ix w = let
   newTick      = tick w + 1
   (pEntity, _) = GP.getPlayer (entityT w)
+  -- Coin
   pInv   = inventory pEntity
   pCoin  = Map.findWithDefault 0 "Coin" pInv
   pItems = filter (\(i, _) -> i `elem` ["Arrow", "Mushroom", "Potion"]) $
@@ -95,15 +96,19 @@ actionDoff :: Text -> World -> World
 actionDoff item w = let
   newTick      = tick w + 1
   (pEntity, _) = GP.getPlayer (entityT w)
+  -- Doff
+  pProp  = property pEntity
+  pInv   = inventory pEntity
   pEquip = fst $ T.breakOn "/" item
-  pItems = filter ((==item).fst) $ Map.toList (property pEntity)
+  pItems = filter ((==item).fst) $ Map.toList pProp
   pItem = if not (null pItems)
     then head pItems
     else ("None", "None")
   newPlayer = if snd pItem /= "None"
     then let
-    newProp = Map.insert pEquip "None" (property pEntity)
-    in pEntity { inventory = Map.insert (snd pItem) 1 (inventory pEntity)
+    newProp = Map.insert pEquip "None" pProp
+    pCnt = Map.findWithDefault 0 (snd pItem) pInv
+    in pEntity { inventory = Map.insert (snd pItem) (pCnt+1) pInv
                , property  = GP.armorShield newProp (assetT w) }
     else pEntity
   entry = if not (null pItems)
@@ -119,7 +124,8 @@ actionDon :: Int -> World -> World
 actionDon ix w = let
   newTick      = tick w + 1
   (pEntity, _) = GP.getPlayer (entityT w)
-  pInv = inventory pEntity
+  -- Don
+  pInv   = inventory pEntity
   pItems = filter (\(i, j) -> j > 0 &&
                      i `notElem` ["Arrow", "Coin", "Mushroom", "Potion"]) $
            Map.toList pInv
@@ -153,7 +159,8 @@ actionDrop :: Int -> World -> World
 actionDrop ix w = let
   newTick         = tick w + 1
   (pEntity, pPos) = GP.getPlayer (entityT w)
-  pInv = inventory pEntity
+  -- Drop
+  pInv   = inventory pEntity
   pItems = filter (\(i, j) -> j > 0 &&
                      i `notElem` ["Arrow", "Coin", "Mushroom", "Potion"]) $
            Map.toList pInv
@@ -291,6 +298,7 @@ actionGet :: World -> World
 actionGet w = let
   newTick         = tick w + 1
   (pEntity, pPos) = GP.getPlayer (entityT w)
+  -- Get
   items           = GE.getEntityBy pPos (entityT w)
   pickedItems     = GI.checkPickUp (inventory newPlayer) (inventory pEntity)
   newPlayer = if not (null items)
@@ -385,6 +393,7 @@ actionRest :: World -> World
 actionRest w = let
   newTick      = tick w + 1
   (pEntity, _) = GP.getPlayer (entityT w)
+  -- Rest
   heal   = eHP pEntity + 1
   mana   = eMP pEntity + 1
   pHp    = if heal > pMaxHp then pMaxHp else heal
@@ -403,6 +412,7 @@ actionSearch :: World -> World
 actionSearch w = let
   newTick         = tick w + 1
   (pEntity, pPos) = GP.getPlayer (entityT w)
+  -- Search
   pProp   = property pEntity
   pWis    = abilityMod $ read $ T.unpack $ Map.findWithDefault "1" "wis" pProp
   pSearch = read $ T.unpack $ Map.findWithDefault "0" "SEARCH" pProp
@@ -424,6 +434,7 @@ actionSell :: Int -> World -> World
 actionSell ix w = let
   newTick      = tick w + 1
   (pEntity, _) = GP.getPlayer (entityT w)
+  -- Sell
   pInv   = inventory pEntity
   pCoin  = Map.findWithDefault 0 "Coin" pInv
   pItems = filter (\(i, j) -> j > 0 &&

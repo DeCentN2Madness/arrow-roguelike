@@ -67,7 +67,7 @@ aiAction ((mx, mEntity):xs) w = if mx == 0 || not (block mEntity)
     | (mPot > 0)   && (mMaxHp - mHp > 10) = Drink
     | (mInt > 6)   && any (\(i, _) -> kind i == Coin) mItems = Get
     | (mInt < 6)   && any (\(i, _) -> kind i == Mushroom) mItems = Get
-    | (mMp > 0)    && any (\(i, _) -> kind i == Potion) mItems = Get
+    | (mInt > 9)   && any (\(i, _) -> kind i == Potion) mItems = Get
     | (mHp > 0) = Move
     | otherwise = Wait
   world = case action of

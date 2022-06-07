@@ -54,12 +54,13 @@ mkMonsterMap depth tm am = let
   potions = Map.findWithDefault arr "Potion"   assets
   shrooms = Map.findWithDefault arr "Mushroom" assets
   -- add powerful monsters deeper to level...
-  wolves     = Map.findWithDefault arr "Wolf"         assets
-  dires      = Map.findWithDefault arr "Dire Wolf"    assets
-  orc        = Map.findWithDefault arr "Orc"          assets
-  orcArcher  = Map.findWithDefault arr "Orc Archer"   assets
-  orcShaman  = Map.findWithDefault arr "Orc Shaman"   assets
-  ogres      = Map.findWithDefault arr "Ogre"         assets
+  wolves      = Map.findWithDefault arr "Wolf"         assets
+  dires       = Map.findWithDefault arr "Dire Wolf"    assets
+  goblins     = Map.findWithDefault arr "Goblin"       assets
+  orc         = Map.findWithDefault arr "Orc"          assets
+  orcArcher   = Map.findWithDefault arr "Orc Archer"   assets
+  orcShaman   = Map.findWithDefault arr "Orc Shaman"   assets
+  ogres       = Map.findWithDefault arr "Ogre"         assets
   redDragon   = Map.findWithDefault arr "Red Dragon"   assets
   greenDragon = Map.findWithDefault arr "Green Dragon" assets
   blueDragon  = Map.findWithDefault arr "Blue Dragon"  assets
@@ -71,34 +72,35 @@ mkMonsterMap depth tm am = let
   hydras      = Map.findWithDefault arr "3 Hydra"      assets
   -- fill the dungeon...
   monsters
-    | depth >= 20 =
+    | depth >= 19 =
       concat [ insertRand shrooms 1  10 openList
              , insertRand corpses 11 20 openList
              , insertRand potions 21 30 openList
              , insertRand coins   31 40 openList
              , insertRand arrows  41 50 openList
-             , insertRand redDragon   51 60 openList
-             , insertRand greenDragon 61 70 openList
-             , insertRand blueDragon  71 80 openList
-             , insertRand blackDragon 81 90 bottomLeft
-             , insertRand whiteDragon 91 100 bottomLeft
-             , insertRand wyverns     101 105 bottomLeft
-             , insertRand hydras      106 110 bottomRight
+             , insertRand redDragon   51 60   openList
+             , insertRand greenDragon 61 70   openList
+             , insertRand blueDragon  71 80   openList
+             , insertRand blackDragon 81 90   openList
+             , insertRand whiteDragon 91 100  openList
+             , insertRand wyverns     101 110 bottomLeft
+             , insertRand hydras      110 120 bottomRight
              ]
-    | depth >= 18 && depth < 20 =
+    | depth >= 15 && depth < 19 =
       concat [ insertRand shrooms 1  10 openList
              , insertRand corpses 11 20 openList
              , insertRand potions 21 30 openList
              , insertRand coins   31 40 openList
              , insertRand arrows  41 50 openList
-             , insertRand orc       51 60 openList
-             , insertRand orcArcher 61 70 openList
-             , insertRand orcShaman 71 80 openList
-             , insertRand dires     81 90 openList
-             , insertRand ogres     91 100 openList
-             , insertRand trolls    101 110 openList
+             , insertRand orc         51 60   openList
+             , insertRand orcArcher   61 70   openList
+             , insertRand orcShaman   71 80   openList
+             , insertRand dires       81 90   openList
+             , insertRand ogres       91 100  openList
+             , insertRand trolls      101 110 bottomLeft
+             , insertRand greenDragon 111 120 bottomRight
              ]
-    | depth >= 15 && depth < 18 =
+    | depth >= 11 && depth < 15 =
       concat [ insertRand shrooms 1  10 openList
              , insertRand corpses 11 20 openList
              , insertRand potions 21 30 openList
@@ -110,32 +112,34 @@ mkMonsterMap depth tm am = let
              , insertRand dires     81 90   openList
              , insertRand spiders   91 100  openList
              , insertRand ogres     101 110 bottomLeft
-             , insertRand trolls    111 115 bottomRight
+             , insertRand trolls    111 120 bottomRight
              ]
-    | depth >= 10 && depth < 15 =
+    | depth >= 8 && depth < 11 =
       concat [ insertRand shrooms 1  10 openList
              , insertRand corpses 11 20 openList
              , insertRand potions 21 30 openList
              , insertRand coins   31 40 openList
              , insertRand arrows  41 50 openList
-             , insertRand dires     51 60 openList
-             , insertRand orc       61 70 openList
-             , insertRand orcArcher 71 80 openList
-             , insertRand orcShaman 81 90 bottomLeft
-             , insertRand spiders   91 95 bottomRight
+             , insertRand dires     51 60   openList
+             , insertRand goblins   61 70   openList
+             , insertRand orc       71 80   openList
+             , insertRand orcArcher 81 90   openList
+             , insertRand orcShaman 91 100  bottomLeft
+             , insertRand spiders   101 110 bottomRight
              ]
-    | depth >= 5 && depth < 10 =
-      concat [ insertRand shrooms 1  10 openList
-             , insertRand corpses 11 20 openList
-             , insertRand potions 21 30 openList
-             , insertRand coins   31 40 openList
-             , insertRand arrows  41 50 openList
-             , insertRand mice    51 60 openList
-             , insertRand wolves  61 70 openList
-             , insertRand dires   71 75 bottomLeft
-             , insertRand orc     76 80 bottomRight
+    | depth >= 5 && depth < 8 =
+      concat [ insertRand shrooms 1  10  openList
+             , insertRand corpses 11 20  openList
+             , insertRand potions 21 30  openList
+             , insertRand coins   31 40  openList
+             , insertRand arrows  41 50  openList
+             , insertRand mice    51 60  openList
+             , insertRand wolves  61 70  openList
+             , insertRand dires   71 80  bottomLeft
+             , insertRand goblins 81 90  bottomLeft
+             , insertRand orc     91 100 bottomRight
              ]
-   | depth >= 3  && depth < 5 =
+   | depth >= 2  && depth < 5 =
      concat [ insertRand shrooms 1  10 openList
             , insertRand corpses 11 20 openList
             , insertRand potions 21 30 openList
@@ -143,6 +147,7 @@ mkMonsterMap depth tm am = let
             , insertRand arrows  41 50 openList
             , insertRand mice    51 60 bottomLeft
             , insertRand wolves  61 70 bottomRight
+            , insertRand goblins 71 80 bottomRight
             ]
    | otherwise =
      concat [ insertRand shrooms 1  10 openList

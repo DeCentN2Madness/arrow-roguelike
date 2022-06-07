@@ -124,22 +124,23 @@ mkAssetMap = let
        , mkItem "jewelry/Ring of Magi"    "=:100:int+2" pos
        , mkItem "jewelry/Ring of Priest"  "=:100:wis+2" pos
        , mkItem "jewelry/Ring of Thief"   "=:100:dex:+2" pos
-       , mkItem "jewelry/Ring of West"    "=:100:str+1,dex+1,int+1,wis+1" pos
+       , mkItem "jewelry/Ring of West"    "=:100:str+1,dex+1,con+1,int+1,wis+1" pos
        , mkItem "jewelry/Ring of Warrior" "=:100:str+2" pos
        -- Amulets
        , mkItem "neck/Amulet"               "\":10:" pos
+       , mkItem "neck/Amulet of Archery"    "\":100:dex+2" pos
        , mkItem "neck/Amulet of Arms"       "\":100:str+2" pos
-       , mkItem "neck/Amulet of Archery"    "\":100:dex+1,int+1" pos
+       , mkItem "neck/Amulet of Devotion"   "\":100:wis+2" pos
        , mkItem "neck/Amulet of Dwarves"    "\":100:str+1,con+1" pos
        , mkItem "neck/Amulet of Elves"      "\":100:int+1,wis+1" pos
-       , mkItem "neck/Amulet of Protection" "\":100:con+1,ac+1" pos
+       , mkItem "neck/Amulet of Protection" "\":100:ac+2" pos
        , mkItem "neck/Amulet of Wizardry"   "\":100:int+2" pos
-       , mkItem "neck/Amulet of Devotion"   "\":100:wis+2" pos
        -- Items
        , mkItem "cloak/Cloak"  "("  pos
        -- Monsters
        , mkMonster "Mouse"        "Small beast (r)"     pos
        , mkMonster "3 Hydra"      "Large monster (M)"   pos
+       , mkMonster "Goblin"       "Small humanoid (o)"  pos
        , mkMonster "Orc"          "Medium humanoid (o)" pos
        , mkMonster "Orc Archer"   "Medium humanoid (o)" pos
        , mkMonster "Orc Shaman"   "Medium humanoid (o)" pos

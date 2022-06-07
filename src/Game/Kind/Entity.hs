@@ -103,19 +103,20 @@ defaultEK name desc pos =
 mkInventory :: Text -> [(Text, Int)]
 mkInventory n
   | n == "Player"       = [("Arrow",1),("Potion",1),("Mushroom",1),("Coin",1)]
-  | n == "Red Dragon"   = [("Arrow",1),("Potion",0),("Mushroom",1),("Coin",1)]
-  | n == "Green Dragon" = [("Arrow",1),("Potion",0),("Mushroom",1),("Coin",1)]
-  | n == "Blue Dragon"  = [("Arrow",1),("Potion",0),("Mushroom",1),("Coin",1)]
-  | n == "Black Dragon" = [("Arrow",1),("Potion",0),("Mushroom",1),("Coin",1)]
-  | n == "White Dragon" = [("Arrow",1),("Potion",0),("Mushroom",1),("Coin",1)]
-  | n == "3 Hydra"      = [("Arrow",0),("Potion",0),("Mushroom",1),("Coin",1)]
+  | n == "Red Dragon"   = [("Arrow",1),("Potion",0),("Mushroom",0),("Coin",1)]
+  | n == "Green Dragon" = [("Arrow",1),("Potion",0),("Mushroom",0),("Coin",1)]
+  | n == "Blue Dragon"  = [("Arrow",1),("Potion",0),("Mushroom",0),("Coin",1)]
+  | n == "Black Dragon" = [("Arrow",1),("Potion",0),("Mushroom",0),("Coin",1)]
+  | n == "White Dragon" = [("Arrow",1),("Potion",0),("Mushroom",0),("Coin",1)]
+  | n == "3 Hydra"      = [("Arrow",0),("Potion",0),("Mushroom",0),("Coin",1)]
+  | n == "Goblin"       = [("Arrow",3),("Potion",0),("Mushroom",1),("Item",1)]
   | n == "Orc"          = [("Arrow",0),("Potion",0),("Mushroom",1),("Item",1)]
   | n == "Orc Archer"   = [("Arrow",3),("Potion",0),("Mushroom",1),("Item",1)]
   | n == "Orc Shaman"   = [("Arrow",1),("Potion",1),("Mushroom",1),("Item",1)]
   | n == "Ogre"         = [("Arrow",0),("Potion",0),("Mushroom",1),("Item",1)]
-  | n == "Spider"       = [("Arrow",1),("Potion",0),("Mushroom",1),("Coin",1)]
+  | n == "Spider"       = [("Arrow",1),("Potion",0),("Mushroom",0),("Coin",1)]
   | n == "Troll"        = [("Arrow",1),("Potion",0),("Mushroom",1),("Item",1)]
-  | n == "Wyvern"       = [("Arrow",1),("Potion",0),("Mushroom",1),("Coin",1)]
+  | n == "Wyvern"       = [("Arrow",1),("Potion",0),("Mushroom",0),("Coin",1)]
   | otherwise           = [("Arrow",0),("Potion",0),("Mushroom",0),("Coin",0)]
 
 -- | mkItem
@@ -142,6 +143,7 @@ mkMonster name desc xy = let
     | n == "Black Dragon" = mdDragon
     | n == "White Dragon" = mdDragon
     | n == "3 Hydra"      = lgMonster
+    | n == "Goblin"       = smHumanoid
     | n == "Mouse"        = smBeast
     | n == "Orc"          = mdHumanoid
     | n == "Orc Archer"   = mdHumanoidA
@@ -219,6 +221,7 @@ visualId name = let
     | count "Dire"    n > 0 = VDire
     | count "Dragon"  n > 0 = VDragon
     | count "Hydra"   n > 0 = VHydra
+    | count "Goblin"  n > 0 = VOrc
     | count "Mouse"   n > 0 = VMouse
     | count "Orc"     n > 0 = VOrc
     | count "Ogre"    n > 0 = VOgre

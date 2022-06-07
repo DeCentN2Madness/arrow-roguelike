@@ -109,10 +109,9 @@ mkMonsterMap depth tm am = let
              , insertRand orc       51 60   openList
              , insertRand orcArcher 61 70   openList
              , insertRand orcShaman 71 80   openList
-             , insertRand dires     81 90   openList
-             , insertRand spiders   91 100  openList
-             , insertRand ogres     101 110 bottomLeft
-             , insertRand trolls    111 120 bottomRight
+             , insertRand spiders   81 90   openList
+             , insertRand ogres     91 100  bottomLeft
+             , insertRand trolls    101 110 bottomRight
              ]
     | depth >= 8 && depth < 11 =
       concat [ insertRand shrooms 1  10 openList
@@ -147,7 +146,6 @@ mkMonsterMap depth tm am = let
             , insertRand arrows  41 50 openList
             , insertRand mice    51 60 bottomLeft
             , insertRand wolves  61 70 bottomRight
-            , insertRand goblins 71 80 bottomRight
             ]
    | otherwise =
      concat [ insertRand shrooms 1  10 openList

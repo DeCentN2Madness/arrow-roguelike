@@ -50,29 +50,26 @@ type Properties = Map Text Text
 --   4. ATTACK, SHOOT Damage
 armorShield :: Properties -> AssetMap -> Properties
 armorShield pProp am = let
+  tagLookup :: Text -> [String]
+  tagLookup n = let
+    tag = Map.findWithDefault "None" n pProp
+    in map T.unpack $ T.splitOn ":" $ Map.findWithDefault "I:0:0:" tag descMap
+  -- descriptions
   descMap = Map.fromList $
     [ (name, desc) | (_, v) <- Map.toList am,
       let name = Map.findWithDefault "None" "Name" (property v)
           desc = Map.findWithDefault "None" "Description" (property v) ]
   -- melee
-  melee = Map.findWithDefault "None" "melee" pProp
-  meleeStat = map T.unpack $ T.splitOn ":" $
-    Map.findWithDefault "I:1d1:0" melee descMap
+  meleeStat = tagLookup "melee"
   (mDam, mWT) = (T.pack (meleeStat!!1), read $ meleeStat!!2) :: (Text, Int)
   -- shoot
-  shoot = Map.findWithDefault "None" "shoot" pProp
-  shootStat = map T.unpack $ T.splitOn ":" $
-    Map.findWithDefault "I:1d1:0" shoot descMap
+  shootStat = tagLookup "shoot"
   (rDam, rWT) = (T.pack (shootStat!!1), read $ shootStat!!2) :: (Text, Int)
   -- shield
-  shield = Map.findWithDefault "None" "shield" pProp
-  shieldStat = map T.unpack $ T.splitOn ":" $
-    Map.findWithDefault "I:0:0" shield descMap
+  shieldStat = tagLookup "shield"
   (sAC, sWT) = (read $ shieldStat!!1, read $ shieldStat!!2) :: (Int, Int)
   -- armor
-  armor = Map.findWithDefault "None" "armor" pProp
-  armorStat = map T.unpack $ T.splitOn ":" $
-    Map.findWithDefault "I:10:0" armor descMap
+  armorStat = tagLookup "armor"
   (aAC, aWT) = (read $ armorStat!!1, read $ armorStat!!2) :: (Int, Int)
   -- Dex modifier
   pDex = read $ T.unpack $ Map.findWithDefault "1" "dex" pProp :: Int

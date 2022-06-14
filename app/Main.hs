@@ -47,10 +47,9 @@ mainLoop :: IORef World
   -> TextureMap
   -> IO ()
 mainLoop world render ts = do
-  q <- readIORef world
   events <- SDL.pumpEvents >> SDL.pollEvents
   forM_ (ESE.mkIntents events) $ \i -> do
     modifyIORef world (GA.applyIntent i)
-  d <- readIORef world
-  EDU.draw render ts d
+  q <- readIORef world
+  EDU.draw render ts q
   unless (gameState q == GameStop) $ mainLoop world render ts

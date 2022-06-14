@@ -276,16 +276,15 @@ equip name desc pProp = let
 
 -- | @ Tags
 -- Unique tags based on @ equipment
-
 gearTags :: Properties -> Properties -> Text
 gearTags pProp descMap = let
   tagLookup :: Text -> Text
   tagLookup n = let
     tag = Map.findWithDefault "None" n pProp
-    desc = T.splitOn ":" $ Map.findWithDefault "0:0:0:0" tag descMap
+    desc = T.splitOn ":" $ Map.findWithDefault ":::" tag descMap
     in desc!!3
   tagReduce :: Text -> Text
-  tagReduce xs = T.intercalate "," $ nub $ T.splitOn "," xs
+  tagReduce xs = T.intercalate "," $ map (T.append "+") $ nub $ T.splitOn "," xs
   gear = [ "melee", "shield", "shoot", "armor", "head"
          , "feet", "hands", "jewelry", "neck", "cloak" ]
   in tagReduce $ T.intercalate "," $ map tagLookup gear

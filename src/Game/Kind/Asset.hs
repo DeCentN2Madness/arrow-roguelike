@@ -74,14 +74,14 @@ mkAssetMap = let
        , mkItem "melee/Warhammer"       "|:1d12:6:Heavy"        pos
        , mkItem "melee/Zweihander"      "|:2d6:6:Heavy"         pos
        -- melee Elvish
-       , mkItem "melee/Elvish Dagger"   "|:2d2:1:" pos
-       , mkItem "melee/Elvish Spear"    "|:2d3:3:" pos
-       , mkItem "melee/Elvish Sword"    "|:2d4:3:" pos
-       , mkItem "melee/Wizard Staff"    "|:2d5:4:" pos
+       , mkItem "melee/Elvish Dagger"   "|:2d2:1:Magic" pos
+       , mkItem "melee/Elvish Spear"    "|:2d3:3:Magic" pos
+       , mkItem "melee/Elvish Sword"    "|:2d4:3:Magic" pos
+       , mkItem "melee/Wizard Staff"    "|:2d5:4:Magic" pos
        -- shield
-       , mkItem "shield/Buckler"        "):1:2:" pos
-       , mkItem "shield/Shield"         "):2:6:" pos
-       , mkItem "shield/Kite Shield"    "):2:5:" pos
+       , mkItem "shield/Buckler"        "):1:2:Shield" pos
+       , mkItem "shield/Shield"         "):2:6:Shield" pos
+       , mkItem "shield/Kite Shield"    "):2:5:Shield" pos
        -- shoot
        , mkItem "shoot/Blowgun"         "}:1d1:1:Ammo"         pos
        , mkItem "shoot/Crossbow, light" "}:1d8:5:Ammo"         pos
@@ -139,7 +139,7 @@ mkAssetMap = let
        , mkItem "hands/Gauntlets of Frost"  "]:100:1:COLD" pos
        , mkItem "hands/Gauntlets of Flames" "]:100:1:FIRE" pos
        -- Rings
-       , mkItem "jewelry/Ring"            "=:10:1:"  pos
+       , mkItem "jewelry/Ring"            "=:10:1:" pos
        , mkItem "jewelry/Ring of Dwarves" "=:100:1:CON" pos
        , mkItem "jewelry/Ring of Elves"   "=:100:1:DEX,INT" pos
        , mkItem "jewelry/Ring of Magi"    "=:100:1:INT" pos

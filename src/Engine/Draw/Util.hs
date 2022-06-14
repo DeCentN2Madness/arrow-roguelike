@@ -75,7 +75,7 @@ draw r ts w = do
   -- Screen
   SDL.present r
   -- Use `threadDelay` to take advantage of the Haskell runtime.
-  threadDelay 10000
+  threadDelay 100000
 
 -- | drawCamera draws Visual in relation to Camera
 --- Coord is then translated into the screen with scaleXY and

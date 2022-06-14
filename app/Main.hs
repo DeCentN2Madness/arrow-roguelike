@@ -49,9 +49,8 @@ mainLoop :: IORef World
 mainLoop world render ts = do
   q <- readIORef world
   events <- SDL.pumpEvents >> SDL.pollEvents
-  let intents = ESE.mkIntents events
-  forM_ intents $ \i -> do
+  forM_ (ESE.mkIntents events) $ \i -> do
     modifyIORef world (GA.applyIntent i)
-    d <- readIORef world
-    EDU.draw render ts d
+  d <- readIORef world
+  EDU.draw render ts d
   unless (gameState q == GameStop) $ mainLoop world render ts

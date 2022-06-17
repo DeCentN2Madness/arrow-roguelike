@@ -110,32 +110,32 @@ mkAssetMap = let
        , mkItem "armor/Splint"          "[:17:60:Heavy_Armor"  pos
        , mkItem "armor/Plate"           "[:18:65:Heavy_Armor"  pos
        -- Head
-       , mkItem "head/Leather Skullcap"  "]:1:2:" pos
+       , mkItem "head/Leather Skullcap"  "]:1:0:" pos
+       , mkItem "head/Mail Coif"         "]:10:2:AC" pos
+       , mkItem "head/Open Helm"         "]:20:1:AC" pos
+       , mkItem "head/Helm"              "]:30:2:AC" pos
+       , mkItem "head/Helm of Dragon"    "]:100:2:AC,FIRE,COLD" pos
        , mkItem "head/Crown of Elements" "]:100:2:FIRE,COLD" pos
-       , mkItem "head/Crown of King"     "]:100:2:WIS,FIRE,COLD,SEARCH" pos
-       , mkItem "head/Mail Coif"         "]:100:2:AC" pos
-       , mkItem "head/Open Helm"         "]:100:2:AC" pos
-       , mkItem "head/Helm"              "]:100:2:AC" pos
-       , mkItem "head/Jousting Helm"     "]:100:2:AC,CON" pos
        , mkItem "head/Crown of Elves"    "]:100:2:INT,FIRE,COLD,SEARCH" pos
+       , mkItem "head/Crown of King"     "]:100:2:WIS,FIRE,COLD,SEARCH" pos
        -- Feet
-       , mkItem "feet/Boots"              "]:1:1:" pos
+       , mkItem "feet/Leather Leggings"   "]:1:1:" pos
+       , mkItem "feet/Mail Chausses"      "]:10:2:AC" pos
+       , mkItem "feet/Plate Leggings"     "]:30:3:AC" pos
+       , mkItem "feet/Traveler Boots"     "]:20:1:FIRE,COLD" pos
        , mkItem "feet/Boots of Elvenkind" "]:100:1:DEX,COLD" pos
+       , mkItem "feet/Boots of Dragon"    "]:100:1:CON,FIRE" pos
        , mkItem "feet/Boots of Speed"     "]:100:1:DEX,AC" pos
-       , mkItem "feet/Dwarven Boots"      "]:100:1:STR,COLD" pos
-       , mkItem "feet/Horseman Boots"     "]:100:1:CON,FIRE" pos
-       , mkItem "feet/Mail Chausses"      "]:100:1:AC" pos
-       , mkItem "feet/Plate Leggings"     "]:100:1:AC" pos
-       , mkItem "feet/Traveler Boots"     "]:100:1:COLD" pos
+       , mkItem "feet/Dwarven Boots"      "]:100:2:AC,STR,COLD" pos
        -- Hands
        , mkItem "hands/Gloves"              "]:1:1:" pos
-       , mkItem "hands/Gloves of Thieves"   "]:100:1:DEX,INT" pos
-       , mkItem "hands/Bracers of Warrior"  "]:100:1:STR,ATTACK" pos
-       , mkItem "hands/Bracers of Hunter"   "]:100:1:DEX,SHOOT" pos
-       , mkItem "hands/Gauntlets of Ogre"   "]:100:1:STR,CON" pos
-       , mkItem "hands/Gauntlets of Power"  "]:100:1:INT,CON" pos
-       , mkItem "hands/Gauntlets of Frost"  "]:100:1:COLD" pos
-       , mkItem "hands/Gauntlets of Flames" "]:100:1:FIRE" pos
+       , mkItem "hands/Bracers"             "]:10:3:AC" pos
+       , mkItem "hands/Bracers of Warrior"  "]:50:3:STR,ATTACK" pos
+       , mkItem "hands/Bracers of Hunter"   "]:50:3:DEX,SHOOT" pos
+       , mkItem "hands/Gauntlets of Ogre"   "]:100:3:STR,CON" pos
+       , mkItem "hands/Gauntlets of Power"  "]:100:3:INT,WIS,CON" pos
+       , mkItem "hands/Gauntlets of Frost"  "]:100:3:CON,COLD" pos
+       , mkItem "hands/Gauntlets of Flames" "]:100:3:CON,FIRE" pos
        -- Rings
        , mkItem "jewelry/Ring"            "=:10:0:" pos
        , mkItem "jewelry/Ring of Dwarves" "=:100:0:CON" pos
@@ -147,13 +147,13 @@ mkAssetMap = let
        , mkItem "jewelry/Ring of Warrior" "=:100:0:STR" pos
        -- Amulets
        , mkItem "neck/Amulet"               "\":10:0:" pos
-       , mkItem "neck/Amulet of Archery"    "\":100:0:DEX,CON" pos
-       , mkItem "neck/Amulet of Arms"       "\":100:0:STR,CON" pos
+       , mkItem "neck/Amulet of Alchemy"    "\":100:0:INT,FIRE,COLD" pos
+       , mkItem "neck/Amulet of Archery"    "\":100:0:DEX,INT" pos
+       , mkItem "neck/Amulet of Arms"       "\":100:0:STR,DEX" pos
        , mkItem "neck/Amulet of Devotion"   "\":100:0:STR,WIS" pos
        , mkItem "neck/Amulet of Dwarves"    "\":100:0:STR,CON" pos
        , mkItem "neck/Amulet of Elves"      "\":100:0:INT,WIS" pos
        , mkItem "neck/Amulet of Protection" "\":100:0:AC" pos
-       , mkItem "neck/Amulet of Wizardry"   "\":100:0:INT,WIS" pos
        -- Cloaks
        , mkItem "cloak/Cloak"                "(:1:3:" pos
        , mkItem "cloak/Cloak of Iron Throne" "(:100:3:CON,SEARCH" pos

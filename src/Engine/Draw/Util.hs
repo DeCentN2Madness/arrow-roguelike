@@ -64,7 +64,7 @@ draw r ts w = do
       -- Look Text
       EDT.drawLook r w
   -- Dialog
-  _ <- case gameState w of
+  case gameState w of
     GameDrop      -> EDI.drawInventory r w
     GameEquipment -> EDI.drawEquipment r w
     GameExamine   -> EDI.drawExamine   r w
@@ -132,11 +132,11 @@ renderTexture :: (Num a, RealFrac a)
   -> (SDL.Texture, SDL.TextureInfo)
   -> (a, a)
   -> IO ()
-renderTexture r (t, ti) (x, y) = let
-    rectB = U.mkRect (floor x) (floor y) tw th
-    tw = fromIntegral $ SDL.textureWidth ti
-    th = fromIntegral $ SDL.textureHeight ti
-    in SDL.copy r t Nothing (Just rectB)
+renderTexture r (t, ti) (x, y) = do
+  let rectB = U.mkRect (floor x) (floor y) tw th
+      tw = fromIntegral $ SDL.textureWidth ti
+      th = fromIntegral $ SDL.textureHeight ti
+  SDL.copy r t Nothing (Just rectB)
 
 -- | renderVisual
 -- draw clip from Visual which has SDL.Texture and Foreign.C.Types (CInt)
@@ -145,10 +145,10 @@ renderVisual :: (Num a, RealFrac a)
   -> Visual
   -> (a, a)
   -> IO ()
-renderVisual r (Visual (xi, yi) (t, _) tw th) (x, y) = let
-    rectA = U.mkRect xi yi tw th
-    rectB = U.mkRect (floor x) (floor y) tw th
-    in SDL.copy r t (Just rectA) (Just rectB)
+renderVisual r (Visual (xi, yi) (t, _) tw th) (x, y) = do
+  let rectA = U.mkRect xi yi tw th
+      rectB = U.mkRect (floor x) (floor y) tw th
+  SDL.copy r t (Just rectA) (Just rectB)
 
 -- | setColor
 setColor :: (MonadIO m) => SDL.Renderer -> Colour -> m ()

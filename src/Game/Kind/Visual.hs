@@ -63,6 +63,8 @@ data VisualKind
   | VBoots
   | VLDragon
   | VHydra
+  | VZombie
+  | VGoblin
   deriving (Ord, Show, Eq, Generic)
 
 instance FromJSON VisualKind

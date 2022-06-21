@@ -164,22 +164,25 @@ mkAssetMap = let
        , mkItem "cloak/Cloak of Hunter"      "(:100:3:DEX,SHOOT" pos
        , mkItem "cloak/Cloak of Winter"      "(:100:3:CON,COLD" pos
        -- Monsters
-       , mkMonster "Mouse"        "Small beast (r)"     pos
-       , mkMonster "3 Hydra"      "Large monster (M)"   pos
-       , mkMonster "Goblin"       "Small humanoid (o)"  pos
-       , mkMonster "Orc"          "Medium humanoid (o)" pos
-       , mkMonster "Orc Archer"   "Medium humanoid (o)" pos
-       , mkMonster "Orc Shaman"   "Medium humanoid (o)" pos
-       , mkMonster "Ogre"         "Large giant (O)"     pos
-       , mkMonster "Spider"       "Large beast (S)"     pos
-       , mkMonster "Troll"        "Large giant (T)"     pos
-       , mkMonster "Wolf"         "Medium beast (c)"    pos
-       , mkMonster "Dire Wolf"    "Large beast (C)"     pos
        , mkMonster "Red Dragon"   "Medium dragon (d)"   pos
        , mkMonster "Green Dragon" "Medium dragon (d)"   pos
        , mkMonster "Blue Dragon"  "Medium dragon (d)"   pos
        , mkMonster "Black Dragon" "Medium dragon (d)"   pos
        , mkMonster "White Dragon" "Medium dragon (d)"   pos
+       , mkMonster "Goblin"       "Small humanoid (o)"  pos
+       , mkMonster "3 Hydra"      "Large monster (M)"   pos
+       , mkMonster "Mouse"        "Small beast (r)"     pos
+       , mkMonster "Necromancer"  "Medium human (h)"    pos
+       , mkMonster "Orc"          "Medium humanoid (o)" pos
+       , mkMonster "Orc Archer"   "Medium humanoid (o)" pos
+       , mkMonster "Orc Shaman"   "Medium humanoid (o)" pos
+       , mkMonster "Ogre"         "Large giant (O)"     pos
+       , mkMonster "Skeleton"     "Medium undead (s)"   pos
+       , mkMonster "Spider"       "Large beast (S)"     pos
+       , mkMonster "Troll"        "Large giant (T)"     pos
+       , mkMonster "Wolf"         "Medium beast (c)"    pos
+       , mkMonster "Dire Wolf"    "Large beast (C)"     pos
        , mkMonster "Wyvern"       "Large dragon (D)"    pos
+       , mkMonster "Zombie"       "Medium undead (z)"   pos
        ]
   in Map.fromList $ zip [0..] em

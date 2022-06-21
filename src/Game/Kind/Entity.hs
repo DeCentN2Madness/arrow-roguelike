@@ -108,15 +108,18 @@ mkInventory n
   | n == "Blue Dragon"  = [("Arrow",1),("Potion",0),("Mushroom",0),("Coin",1)]
   | n == "Black Dragon" = [("Arrow",1),("Potion",0),("Mushroom",0),("Coin",1)]
   | n == "White Dragon" = [("Arrow",1),("Potion",0),("Mushroom",0),("Coin",1)]
+  | n == "Goblin"       = [("Arrow",1),("Potion",0),("Mushroom",1),("Item",1)]
   | n == "3 Hydra"      = [("Arrow",0),("Potion",0),("Mushroom",0),("Coin",1)]
-  | n == "Goblin"       = [("Arrow",3),("Potion",0),("Mushroom",1),("Item",1)]
+  | n == "Necromancer"  = [("Arrow",1),("Potion",1),("Mushroom",1),("Item",1)]
   | n == "Orc"          = [("Arrow",0),("Potion",0),("Mushroom",1),("Item",1)]
-  | n == "Orc Archer"   = [("Arrow",3),("Potion",0),("Mushroom",1),("Item",1)]
+  | n == "Orc Archer"   = [("Arrow",1),("Potion",0),("Mushroom",0),("Item",1)]
   | n == "Orc Shaman"   = [("Arrow",1),("Potion",1),("Mushroom",1),("Item",1)]
-  | n == "Ogre"         = [("Arrow",0),("Potion",0),("Mushroom",1),("Item",1)]
+  | n == "Ogre"         = [("Arrow",0),("Potion",0),("Mushroom",0),("Item",1)]
+  | n == "Skeleton"     = [("Arrow",0),("Potion",0),("Mushroom",0),("Item",1)]
   | n == "Spider"       = [("Arrow",1),("Potion",0),("Mushroom",0),("Coin",1)]
-  | n == "Troll"        = [("Arrow",1),("Potion",0),("Mushroom",1),("Item",1)]
+  | n == "Troll"        = [("Arrow",1),("Potion",0),("Mushroom",0),("Item",1)]
   | n == "Wyvern"       = [("Arrow",1),("Potion",0),("Mushroom",0),("Coin",1)]
+  | n == "Zombie"       = [("Arrow",0),("Potion",0),("Mushroom",0),("Coin",1)]
   | otherwise           = [("Arrow",0),("Potion",0),("Mushroom",0),("Coin",0)]
 
 -- | mkItem
@@ -145,15 +148,18 @@ mkMonster name desc xy = let
     | n == "3 Hydra"      = lgMonster
     | n == "Goblin"       = smHumanoid
     | n == "Mouse"        = smBeast
+    | n == "Necromancer"  = mdWizard
     | n == "Orc"          = mdHumanoid
-    | n == "Orc Archer"   = mdHumanoidA
+    | n == "Orc Archer"   = mdHumanoid
     | n == "Orc Shaman"   = mdHumanoidM
     | n == "Ogre"         = lgHumanoid
+    | n == "Skeleton"     = mdUndead
     | n == "Spider"       = lgSpider
     | n == "Troll"        = gtHumanoid
     | n == "Wolf"         = mdBeast
     | n == "Dire Wolf"    = lgBeast
     | n == "Wyvern"       = lgDragon
+    | n == "Zombie"       = mdUndeadZ
     | otherwise = mdHumanoid
   mProp = mkProp name desc (monster name)
   mHP  = read $ T.unpack $ Map.findWithDefault "1" "HP" mProp
@@ -216,28 +222,31 @@ visualId name = let
   count x xs = length $
     filter (==x) (T.words $ fst $ T.breakOn "/" xs)
   visual n
-    | count "Actor"   n > 0 = VActor
-    | count "Player"  n > 0 = VActor
-    | count "Dire"    n > 0 = VDire
-    | count "Dragon"  n > 0 = VDragon
-    | count "Hydra"   n > 0 = VHydra
-    | count "Goblin"  n > 0 = VOrc
-    | count "Mouse"   n > 0 = VMouse
-    | count "Orc"     n > 0 = VOrc
-    | count "Ogre"    n > 0 = VOgre
-    | count "Spider"  n > 0 = VSpider
-    | count "Troll"   n > 0 = VTroll
-    | count "Wolf"    n > 0 = VWolf
-    | count "Wyvern"  n > 0 = VLDragon
-    | count "melee"   n > 0 = VDagger
-    | count "shoot"   n > 0 = VBow
-    | count "jewelry" n > 0 = VRing
-    | count "neck"    n > 0 = VAmulet
-    | count "armor"   n > 0 = VArmor
-    | count "cloak"   n > 0 = VCloak
-    | count "shield"  n > 0 = VShield
-    | count "head"    n > 0 = VHelmet
-    | count "hands"   n > 0 = VGloves
-    | count "feet"    n > 0 = VBoots
+    | count "Actor"       n > 0 = VActor
+    | count "Player"      n > 0 = VActor
+    | count "Dire"        n > 0 = VDire
+    | count "Dragon"      n > 0 = VDragon
+    | count "Hydra"       n > 0 = VHydra
+    | count "Goblin"      n > 0 = VGoblin
+    | count "Mouse"       n > 0 = VMouse
+    | count "Orc"         n > 0 = VOrc
+    | count "Ogre"        n > 0 = VOgre
+    | count "Necromancer" n > 0 = VHuman
+    | count "Skeleton"    n > 0 = VSkeleton
+    | count "Spider"      n > 0 = VSpider
+    | count "Troll"       n > 0 = VTroll
+    | count "Wolf"        n > 0 = VWolf
+    | count "Wyvern"      n > 0 = VLDragon
+    | count "Zombie"      n > 0 = VZombie
+    | count "melee"       n > 0 = VDagger
+    | count "shoot"       n > 0 = VBow
+    | count "jewelry"     n > 0 = VRing
+    | count "neck"        n > 0 = VAmulet
+    | count "armor"       n > 0 = VArmor
+    | count "cloak"       n > 0 = VCloak
+    | count "shield"      n > 0 = VShield
+    | count "head"        n > 0 = VHelmet
+    | count "hands"       n > 0 = VGloves
+    | count "feet"        n > 0 = VBoots
     | otherwise = VMouse
   in visual name

@@ -32,6 +32,7 @@ data AI
   | Get
   | Move
   | Rest
+  | Summon
   | Throw
   | Wait
   deriving (Show, Eq)
@@ -56,29 +57,32 @@ aiAction ((mx, mEntity):xs) w = if mx == 0 || not (block mEntity)
   mPos   = coord mEntity
   mProp  = property mEntity
   mInt   = read $ T.unpack $ Map.findWithDefault "1" "int" mProp :: Int
+  mSummon = Map.findWithDefault "0" "SUMMON" mProp
   mSpawn = spawn mEntity
   -- action
   action
     | C.adjacent mPos pPos = Attack
-    | (mHp <= 5)   && C.adjacent mPos mSpawn = Rest
-    | (mArrow > 0) && (C.chessDist mPos pPos <= 4) = Throw
+    | (mMp > 5)    && (mSummon /= "0") && (C.chessDist mPos pPos <= 5) = Summon
     | (mMp > 0)    && (C.chessDist mPos pPos <= 4) = Cast
+    | (mArrow > 0) && (C.chessDist mPos pPos <= 4) = Throw
     | (mMush > 0)  && (mMaxHp - mHp > 5) = Eat
     | (mPot > 0)   && (mMaxHp - mHp > 10) = Drink
+    | (mHp <= 5)   && C.adjacent mPos mSpawn = Rest
     | (mInt > 6)   && any (\(i, _) -> kind i == Coin) mItems = Get
     | (mInt < 6)   && any (\(i, _) -> kind i == Mushroom) mItems = Get
     | (mInt > 9)   && any (\(i, _) -> kind i == Potion) mItems = Get
     | (mHp > 0) = Move
     | otherwise = Wait
   world = case action of
-    Attack -> GC.mkCombat  mx 0 w
-    Cast   -> monsterCast  mx mEntity w
-    Drink  -> monsterDrink mx mEntity w
-    Eat    -> monsterEat   mx mEntity w
-    Get    -> monsterGet   mx mEntity w
-    Move   -> pathFinder   mx mEntity w
-    Rest   -> monsterHeal  mx mEntity w
-    Throw  -> monsterThrow mx mEntity w
+    Attack -> GC.mkCombat   mx 0 w
+    Cast   -> monsterCast   mx mEntity w
+    Drink  -> monsterDrink  mx mEntity w
+    Eat    -> monsterEat    mx mEntity w
+    Get    -> monsterGet    mx mEntity w
+    Move   -> pathFinder    mx mEntity w
+    Rest   -> monsterHeal   mx mEntity w
+    Summon -> monsterSummon mx mEntity w
+    Throw  -> monsterThrow  mx mEntity w
     Wait   -> w
   -- newWorld w/ action
   in aiAction xs world
@@ -198,6 +202,30 @@ monsterHeal mx mEntity w = let
     then T.append mName " is *Hurting*..."
     else "..."
   in w { entityT  = GE.updateEntityHp mx mHp (entityT w)
+       , journalT = GJ.updateJournal [entry] (journalT w) }
+
+-- | monsterSummon
+-- M adds Friends...
+monsterSummon :: Int -> EntityKind -> World -> World
+monsterSummon mx mEntity w = let
+  mMove  = moveT mEntity
+  mMana  = eMP mEntity - 1
+  mMaxMP = eMaxMP mEntity
+  mProp  = property mEntity
+  mName  = Map.findWithDefault "M" "Name" mProp
+  mSummon = Map.findWithDefault "Mouse" "SUMMON" mProp
+  newMonster = if mMana > 0 && mMaxMP > 0 && not (null mMove)
+    then mEntity { eMP =  mMana }
+    else mEntity
+  entry = if mMana > 0 && mMaxMP > 0 && not (null mMove)
+    then T.concat [ mName, " Summons a ", mSummon, "!" ]
+    else "No Summon..."
+  summonWorld = if mMana > 0 && mMaxMP > 0 && not (null mMove)
+    then let
+    item = GI.mkDropItem mSummon (head mMove) (assetT w)
+    in GI.putDown item $ GE.updateEntity mx newMonster (entityT w)
+    else entityT w
+  in w { entityT  = summonWorld
        , journalT = GJ.updateJournal [entry] (journalT w) }
 
 -- | monsterThrow

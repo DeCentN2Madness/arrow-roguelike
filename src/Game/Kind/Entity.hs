@@ -109,15 +109,14 @@ mkInventory n
   | n == "Black Dragon" = [("Arrow",1),("Potion",0),("Mushroom",0),("Coin",1)]
   | n == "White Dragon" = [("Arrow",1),("Potion",0),("Mushroom",0),("Coin",1)]
   | n == "Goblin"       = [("Arrow",1),("Potion",0),("Mushroom",1),("Item",1)]
-  | n == "3 Hydra"      = [("Arrow",0),("Potion",0),("Mushroom",0),("Coin",1)]
   | n == "Necromancer"  = [("Arrow",1),("Potion",1),("Mushroom",1),("Item",1)]
   | n == "Orc"          = [("Arrow",0),("Potion",0),("Mushroom",1),("Item",1)]
-  | n == "Orc Archer"   = [("Arrow",1),("Potion",0),("Mushroom",0),("Item",1)]
+  | n == "Orc Archer"   = [("Arrow",1),("Potion",0),("Mushroom",1),("Item",1)]
   | n == "Orc Shaman"   = [("Arrow",1),("Potion",1),("Mushroom",1),("Item",1)]
-  | n == "Ogre"         = [("Arrow",0),("Potion",0),("Mushroom",0),("Item",1)]
+  | n == "Ogre"         = [("Arrow",0),("Potion",0),("Mushroom",1),("Item",1)]
   | n == "Skeleton"     = [("Arrow",0),("Potion",0),("Mushroom",0),("Item",1)]
   | n == "Spider"       = [("Arrow",1),("Potion",0),("Mushroom",0),("Coin",1)]
-  | n == "Troll"        = [("Arrow",1),("Potion",0),("Mushroom",0),("Item",1)]
+  | n == "Troll"        = [("Arrow",1),("Potion",0),("Mushroom",1),("Item",1)]
   | n == "Wyvern"       = [("Arrow",1),("Potion",0),("Mushroom",0),("Coin",1)]
   | n == "Zombie"       = [("Arrow",0),("Potion",0),("Mushroom",0),("Coin",1)]
   | otherwise           = [("Arrow",0),("Potion",0),("Mushroom",0),("Coin",0)]
@@ -146,20 +145,21 @@ mkMonster name desc xy = let
     | n == "Black Dragon" = mdDragon
     | n == "White Dragon" = mdDragon
     | n == "3 Hydra"      = lgMonster
-    | n == "Goblin"       = smHumanoid
-    | n == "Mouse"        = smBeast
-    | n == "Necromancer"  = mdWizard
-    | n == "Orc"          = mdHumanoid
-    | n == "Orc Archer"   = mdHumanoid
-    | n == "Orc Shaman"   = mdHumanoidM
-    | n == "Ogre"         = lgHumanoid
-    | n == "Skeleton"     = mdUndead
-    | n == "Spider"       = lgSpider
-    | n == "Troll"        = gtHumanoid
-    | n == "Wolf"         = mdBeast
-    | n == "Dire Wolf"    = lgBeast
-    | n == "Wyvern"       = lgDragon
-    | n == "Zombie"       = mdUndeadZ
+    | n == "Goblin"            = smHumanoid
+    | n == "Goblin Ratcatcher" = smHumanoidM
+    | n == "Mouse"             = smBeast
+    | n == "Necromancer"       = mdWizard
+    | n == "Orc"               = mdHumanoid
+    | n == "Orc Archer"        = mdHumanoid
+    | n == "Orc Shaman"        = mdHumanoidM
+    | n == "Ogre"              = lgHumanoid
+    | n == "Skeleton"          = mdUndead
+    | n == "Spider"            = lgSpider
+    | n == "Troll"             = gtHumanoid
+    | n == "Wolf"              = mdBeast
+    | n == "Dire Wolf"         = lgBeast
+    | n == "Wyvern"            = lgDragon
+    | n == "Zombie"            = mdUndeadZ
     | otherwise = mdHumanoid
   mProp = mkProp name desc (monster name)
   mHP  = read $ T.unpack $ Map.findWithDefault "1" "HP" mProp
@@ -175,6 +175,7 @@ mkMonster name desc xy = let
         , eHP       = if mHP > 1 then mHP else 1
         , eMaxHP    = if mHP > 1 then mHP else 1
         , eMP       = mMP
+        , eMaxMP    = mMP
         , eXP       = mXP
         }
 

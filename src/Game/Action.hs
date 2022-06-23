@@ -259,6 +259,8 @@ actionExamine x w = let
   mCast    = Map.findWithDefault "0" "CAST" mProp
   mProf    = Map.findWithDefault "0" "Proficiency" mProp
   mSearch  = Map.findWithDefault "0" "SEARCH" mProp
+  mWT      = Map.findWithDefault "0" "WT" mProp
+  mWWT     = Map.findWithDefault "0" "WWT" mProp
   mCls     = T.append "Class: " mClass
   -- Stats
   mStat = if mStr /= "0"
@@ -278,7 +280,8 @@ actionExamine x w = let
   mExtra = T.concat [ ", Attacks: ", mAttacks
                     , ", Cast: ", mCast
                     , ", Proficiency: +", mProf
-                    , ", Search: +", mSearch ]
+                    , ", Search: +", mSearch
+                    , ", WT: ", mWWT, "/", mWT ]
   mRules
     | mClass == "Fighter" = T.append "Special: Item" mExtra
     | mClass == "Rogue"   = T.append "Special: Coin" mExtra

@@ -397,14 +397,20 @@ actionRest w = let
   newTick      = tick w + 1
   (pEntity, _) = GP.getPlayer (entityT w)
   -- Rest
-  heal   = eHP pEntity + 1
-  mana   = eMP pEntity + 1
+  pProp  = property pEntity
+  pCon   = abilityMod $ read $ T.unpack $ Map.findWithDefault "1" "con" pProp
+  pWis   = abilityMod $ read $ T.unpack $ Map.findWithDefault "1" "wis" pProp
+  heal   = eHP pEntity + (if pCon > 1 then pCon else 1)
+  mana   = eMP pEntity + (if pWis > 1 then pWis else 1)
   pHp    = if heal > pMaxHp then pMaxHp else heal
   pMp    = if mana > pMaxMp then pMaxMp else mana
   pMaxHp = eMaxHP pEntity
   pMaxMp = eMaxMP pEntity
   newPlayer = pEntity { eHP = pHp, eMP = pMp }
-  entry = T.append "Rest... tick=" (T.pack $ show newTick)
+  entry = T.concat [ "Rest..."
+                   , " HP=", T.pack $ show pHp
+                   , ", MP=", T.pack $ show pMp
+                   , ", tick=", T.pack $ show newTick ]
   in w { tick     = newTick
        , entityT  = GP.updatePlayer newPlayer (entityT w)
        , journalT = GJ.updateJournal [entry] (journalT w) }

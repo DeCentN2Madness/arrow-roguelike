@@ -165,8 +165,8 @@ mkMonsterMap depth tm am = let
             , insertRand coins   31 40 openList
             , insertRand arrows  41 50 openList
             , insertRand mice    51 60 openList
-            , insertRand wolves  61 70 openList
-            , insertRand goblins 71 80 bottomLeft
+            , insertRand wolves  61 70 bottomLeft
+            , insertRand goblins 71 80 bottomRight
             , insertRand ratters 81 90 bottomRight
             ]
    | otherwise =

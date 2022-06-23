@@ -21,12 +21,10 @@ import Data.Map (Map)
 import qualified Data.Map.Strict as Map
 import Data.Text (Text)
 import qualified Game.DiceSet as DS
-import Game.Entity (EntityMap)
+import Game.Entity (AssetMap, EntityMap)
 import Game.Kind.Entity
 
-type AssetMap = EntityMap
 type Coord = (Int, Int)
-type Inventory = Map Text Int
 type NameMap = Map Text EntityKind
 
 -- | checkPickUp

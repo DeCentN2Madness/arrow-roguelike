@@ -11,6 +11,7 @@ module Game.Kind.Entity (Entity(..)
                         , EntityKind(..)
                         , mkItem
                         , mkMonster
+                        , Inventory
                         , Properties) where
 
 import Prelude hiding (lookup)
@@ -21,11 +22,11 @@ import Data.Text (Text)
 import qualified Data.Text as T
 import GHC.Generics
 import Game.Kind.Beasts
-import Game.Kind.Visual (VisualKind(..))
+import Game.Kind.Visual
 
 type Coord = (Int, Int)
-type Properties = Map Text Text
 type Inventory = Map Text Int
+type Properties = Map Text Text
 
 -- | Entity stack sort...
 data Entity

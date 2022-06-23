@@ -28,19 +28,15 @@ module Game.Player (armorShield
 import Prelude hiding (lookup)
 import Control.Arrow ((&&&))
 import Data.List
-import Data.Map (Map)
 import qualified Data.Map.Strict as Map
 import Data.Text (Text)
 import qualified Data.Text as T
-import Game.Entity (EntityMap)
+import Game.Entity (AssetMap, EntityMap)
 import qualified Game.Entity as GE
-import Game.Kind.Entity (EntityKind(..))
+import Game.Kind.Entity
 import Game.Rules
 
 type Coord = (Int, Int)
-type Player = EntityKind
-type AssetMap = EntityMap
-type Properties = Map Text Text
 
 -- | armorShield
 -- Armor and Shields modify '@' stats
@@ -318,7 +314,7 @@ getMana em = let
 
 -- | @ lives at 0
 -- getPlayer
-getPlayer :: EntityMap -> (Player, Coord)
+getPlayer :: EntityMap -> (EntityKind, Coord)
 getPlayer = GE.getEntityAt 0
 
 -- | @ Potion
@@ -336,7 +332,7 @@ selection xs = let
   in [ loc | (k, v) <- zip pSel xs, let loc = T.concat [ k, ") ", v ] ]
 
 -- | update @ properties
-updatePlayer :: Player -> EntityMap -> EntityMap
+updatePlayer :: EntityKind -> EntityMap -> EntityMap
 updatePlayer = Map.insert 0
 
 -- | update @ position

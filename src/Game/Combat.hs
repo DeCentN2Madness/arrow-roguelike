@@ -31,7 +31,7 @@ import Game.Entity (EntityMap)
 import qualified Game.Entity as GE
 import qualified Game.Inventory as GI
 import qualified Game.Journal as GJ
-import Game.Kind.Entity (EntityKind(..))
+import Game.Kind.Entity
 import qualified Game.Player as GP
 import Game.Rules
 

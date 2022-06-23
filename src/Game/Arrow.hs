@@ -24,7 +24,7 @@ import Game.Compass
 import Game.Entity (EntityMap)
 import qualified Game.Entity as GE
 import qualified Game.Journal as GJ
-import Game.Kind.Entity (EntityKind(..))
+import Game.Kind.Entity
 import qualified Game.Player as GP
 import qualified Game.Tile as GT
 

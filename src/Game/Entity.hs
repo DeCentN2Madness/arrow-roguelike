@@ -16,7 +16,8 @@ Example:
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
 -}
-module Game.Entity (EntityMap
+module Game.Entity (AssetMap
+                   , EntityMap
                    , fromBlock
                    , fromEntityAt
                    , fromEntityBy

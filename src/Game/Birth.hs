@@ -15,10 +15,9 @@ import qualified Data.Map.Strict as Map
 import Data.Text (Text)
 import qualified Data.Text as T
 import qualified Game.DiceSet as DS
-import Game.Kind.Entity (EntityKind(..))
+import Game.Kind.Entity
 import Game.Rules
 
-type Player = EntityKind
 type Seed = Int
 
 -- | archtype
@@ -57,7 +56,7 @@ manaPool n
   | otherwise = ("MP", "0")
 
 -- | @ Stats
-mkPlayer :: Seed -> Player -> Player
+mkPlayer :: Seed -> EntityKind -> EntityKind
 mkPlayer s pEntity = let
   pProp = property pEntity
   aAC  = read $ T.unpack $ Map.findWithDefault "10" "AC" pProp
@@ -88,7 +87,7 @@ mkPlayer s pEntity = let
   in pEntity { property = Map.union newProp pProp }
 
 -- | @ Weapons
-weaponAttack :: Text -> (Text,Text)
+weaponAttack :: Text -> (Text, Text)
 weaponAttack n
   | n == "Fighter" = ("ATTACK", "1d8")
   | n == "Rogue"   = ("ATTACK", "1d4")
@@ -98,7 +97,7 @@ weaponAttack n
 
 -- | @ Weapons
 -- Extra Cast Damage based on level
-weaponCast :: Text -> (Text,Text)
+weaponCast :: Text -> (Text, Text)
 weaponCast n
   | n == "Fighter" = ("CAST", "0")
   | n == "Rogue"   = ("CAST", "1d6")
@@ -107,7 +106,7 @@ weaponCast n
   | otherwise      = ("CAST", "0")
 
 -- | @ Weapons
-weaponClass :: Text -> (Text,Text)
+weaponClass :: Text -> (Text, Text)
 weaponClass n
   | n == "Fighter" = ("melee", "melee/Longsword")
   | n == "Rogue"   = ("shoot", "shoot/Throwing Knife")
@@ -116,7 +115,7 @@ weaponClass n
   | otherwise      = ("melee", "melee/Dagger")
 
 -- | @ Weapons
-weaponWT :: Text -> (Text,Text)
+weaponWT :: Text -> (Text, Text)
 weaponWT n
   | n == "Fighter" = ("WWT", "3")
   | n == "Rogue"   = ("WWT", "1")

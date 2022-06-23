@@ -176,6 +176,7 @@ mkAssetMap = let
        , mkMonster "Necromancer"  "Medium human (h)"    pos
        , mkMonster "Orc"          "Medium humanoid (o)" pos
        , mkMonster "Orc Archer"   "Medium humanoid (o)" pos
+       , mkMonster "Orc Beastmaster" "Medium humanoid (o)" pos
        , mkMonster "Orc Shaman"   "Medium humanoid (o)" pos
        , mkMonster "Ogre"         "Large giant (O)"     pos
        , mkMonster "Skeleton"     "Medium undead (s)"   pos

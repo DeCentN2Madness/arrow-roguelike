@@ -14,10 +14,7 @@ type Prop = [(Text, Text)]
 
 -- | fighter
 fighter :: Prop
-fighter = [ ("str", "15")
-          , ("dex", "14")
-          , ("con", "13")
-          , ("int", "12")
+fighter = [ ("str", "15"), ("dex", "14"), ("con", "13"), ("int", "12")
           , ("wis", "10")
           , ("HP", "10")
           , ("MP", "0")
@@ -45,10 +42,7 @@ fighter = [ ("str", "15")
 
 -- | Mouse
 smBeast :: Prop
-smBeast = [ ("str", "7")
-          , ("dex", "15")
-          , ("con", "11")
-          , ("int", "2")
+smBeast = [ ("str", "7"), ("dex", "15"), ("con", "11"), ("int", "2")
           , ("wis", "10")
           , ("HP", "7")
           , ("MP", "0")
@@ -76,10 +70,7 @@ smBeast = [ ("str", "7")
 
 -- | Wolf
 mdBeast :: Prop
-mdBeast = [ ("str", "12")
-          , ("dex", "15")
-          , ("con", "12")
-          , ("int", "3")
+mdBeast = [ ("str", "12"), ("dex", "15"), ("con", "12"), ("int", "3")
           , ("wis", "12")
           , ("HP", "11")
           , ("MP", "0")
@@ -107,10 +98,7 @@ mdBeast = [ ("str", "12")
 
 -- | Dire Wolf
 lgBeast :: Prop
-lgBeast = [ ("str", "17")
-          , ("dex", "15")
-          , ("con", "15")
-          , ("int", "3")
+lgBeast = [ ("str", "17"), ("dex", "15"), ("con", "15"), ("int", "3")
           , ("wis", "12")
           , ("HP", "35")
           , ("MP", "0")
@@ -138,10 +126,7 @@ lgBeast = [ ("str", "17")
 
 -- | Dragon Wyrmling
 mdDragon :: Prop
-mdDragon = [ ("str", "15")
-           , ("dex", "12")
-           , ("con", "13")
-           , ("int", "14")
+mdDragon = [ ("str", "15"), ("dex", "12"), ("con", "13"), ("int", "14")
            , ("wis", "11")
            , ("HP", "40")
            , ("MP", "0")
@@ -170,10 +155,7 @@ mdDragon = [ ("str", "15")
 
 -- | Wyvern
 lgDragon :: Prop
-lgDragon = [ ("str", "19")
-           , ("dex", "10")
-           , ("con", "16")
-           , ("int", "5")
+lgDragon = [ ("str", "19"), ("dex", "10"), ("con", "16"), ("int", "5")
            , ("wis", "12")
            , ("HP", "110")
            , ("MP", "0")
@@ -202,10 +184,7 @@ lgDragon = [ ("str", "19")
 
 -- | Hydra
 lgMonster :: Prop
-lgMonster = [ ("str", "20")
-           , ("dex", "12")
-           , ("con", "20")
-           , ("int", "2")
+lgMonster = [ ("str", "20"), ("dex", "12"), ("con", "20"), ("int", "2")
            , ("wis", "10")
            , ("HP", "175")
            , ("MP", "0")
@@ -234,10 +213,7 @@ lgMonster = [ ("str", "20")
 
 -- | Spider
 lgSpider :: Prop
-lgSpider = [ ("str", "14")
-          , ("dex", "16")
-          , ("con", "12")
-          , ("int", "2")
+lgSpider = [ ("str", "14"), ("dex", "16"), ("con", "12"), ("int", "2")
           , ("wis", "11")
           , ("HP", "25")
           , ("MP", "0")
@@ -266,10 +242,7 @@ lgSpider = [ ("str", "14")
 
 -- | Troll
 gtHumanoid :: Prop
-gtHumanoid = [ ("str", "18")
-             , ("dex", "13")
-             , ("con", "20")
-             , ("int", "7")
+gtHumanoid = [ ("str", "18"), ("dex", "13"), ("con", "20"), ("int", "7")
              , ("wis", "9")
              , ("HP", "80")
              , ("MP", "0")
@@ -298,10 +271,7 @@ gtHumanoid = [ ("str", "18")
 
 -- | Ogre
 lgHumanoid :: Prop
-lgHumanoid = [ ("str", "19")
-             , ("dex", "8")
-             , ("con", "16")
-             , ("int", "5")
+lgHumanoid = [ ("str", "19"), ("dex", "8"), ("con", "16"), ("int", "5")
              , ("wis", "7")
              , ("HP", "60")
              , ("MP", "0")
@@ -330,10 +300,7 @@ lgHumanoid = [ ("str", "19")
 
 -- | Orc
 mdHumanoid :: Prop
-mdHumanoid = [ ("str", "16")
-             , ("dex", "12")
-             , ("con", "16")
-             , ("int", "7")
+mdHumanoid = [ ("str", "16"), ("dex", "12"), ("con", "16"), ("int", "7")
              , ("wis", "11")
              , ("HP", "15")
              , ("MP", "0")
@@ -362,8 +329,7 @@ mdHumanoid = [ ("str", "16")
 
 -- | Orc Shaman
 mdHumanoidM :: Prop
-mdHumanoidM = mdHumanoid ++ [ ("str", "10")
-                            , ("int", "13")
+mdHumanoidM = mdHumanoid ++ [ ("str", "10"), ("int", "13")
                             , ("MP", "10")
                             , ("AC", "11")
                             , ("WT", "18")
@@ -378,12 +344,18 @@ mdHumanoidM = mdHumanoid ++ [ ("str", "10")
                             , ("armor", "None")
                             ]
 
+-- | Orc Beastmaster
+mdHumanoidS :: Prop
+mdHumanoidS = mdHumanoid ++ [ ("str", "13"), ("int", "10")
+                            , ("MP", "10")
+                            , ("CAST", "1d8")
+                            , ("SUMMON", "Wolf")
+                            , ("Throw", "grunts!")
+                            ]
+
 -- | Goblin
 smHumanoid :: Prop
-smHumanoid = [ ("str", "8")
-             , ("dex", "14")
-             , ("con", "10")
-             , ("int", "10")
+smHumanoid = [ ("str", "8"), ("dex", "14"), ("con", "10"), ("int", "10")
              , ("wis", "8")
              , ("HP", "7")
              , ("MP", "0")
@@ -430,10 +402,7 @@ smHumanoidM = smHumanoid ++ [ ("int", "13")
 
 -- | Skeleton
 mdUndead :: Prop
-mdUndead = [ ("str", "10")
-           , ("dex", "14")
-           , ("con", "15")
-           , ("int", "6")
+mdUndead = [ ("str", "10"), ("dex", "14"), ("con", "15"), ("int", "6")
            , ("wis", "8")
            , ("HP", "15")
            , ("MP", "0")
@@ -462,10 +431,7 @@ mdUndead = [ ("str", "10")
 
 -- | Zombie
 mdUndeadZ :: Prop
-mdUndeadZ = [ ("str", "13")
-            , ("dex", "6")
-            , ("con", "16")
-            , ("int", "3")
+mdUndeadZ = [ ("str", "13"), ("dex", "6"), ("con", "16"), ("int", "3")
             , ("wis", "6")
             , ("HP", "20")
             , ("MP", "0")
@@ -494,10 +460,7 @@ mdUndeadZ = [ ("str", "13")
 
 -- | Necromancer
 mdWizard :: Prop
-mdWizard = [ ("str", "10")
-           , ("dex", "13")
-           , ("con", "12")
-           , ("int", "16")
+mdWizard = [ ("str", "10"), ("dex", "13"), ("con", "12"), ("int", "16")
            , ("wis", "14")
            , ("HP", "50")
            , ("MP", "10")

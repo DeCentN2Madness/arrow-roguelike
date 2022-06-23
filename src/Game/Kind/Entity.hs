@@ -104,23 +104,22 @@ defaultEK name desc pos =
 mkInventory :: Text -> [(Text, Int)]
 mkInventory n
   | n == "Player"       = [("Arrow",1),("Potion",1),("Mushroom",1),("Coin",1)]
-  | n == "Red Dragon"   = [("Arrow",1),("Potion",0),("Mushroom",0),("Coin",1)]
-  | n == "Green Dragon" = [("Arrow",1),("Potion",0),("Mushroom",0),("Coin",1)]
-  | n == "Blue Dragon"  = [("Arrow",1),("Potion",0),("Mushroom",0),("Coin",1)]
-  | n == "Black Dragon" = [("Arrow",1),("Potion",0),("Mushroom",0),("Coin",1)]
-  | n == "White Dragon" = [("Arrow",1),("Potion",0),("Mushroom",0),("Coin",1)]
-  | n == "Goblin"       = [("Arrow",1),("Potion",0),("Mushroom",1),("Item",1)]
   | n == "Necromancer"  = [("Arrow",1),("Potion",1),("Mushroom",1),("Item",1)]
-  | n == "Orc"          = [("Arrow",0),("Potion",0),("Mushroom",1),("Item",1)]
-  | n == "Orc Archer"   = [("Arrow",1),("Potion",0),("Mushroom",1),("Item",1)]
-  | n == "Orc Shaman"   = [("Arrow",1),("Potion",1),("Mushroom",1),("Item",1)]
-  | n == "Ogre"         = [("Arrow",0),("Potion",0),("Mushroom",1),("Item",1)]
-  | n == "Skeleton"     = [("Arrow",0),("Potion",0),("Mushroom",0),("Item",1)]
-  | n == "Spider"       = [("Arrow",1),("Potion",0),("Mushroom",0),("Coin",1)]
-  | n == "Troll"        = [("Arrow",1),("Potion",0),("Mushroom",1),("Item",1)]
-  | n == "Wyvern"       = [("Arrow",1),("Potion",0),("Mushroom",0),("Coin",1)]
-  | n == "Zombie"       = [("Arrow",0),("Potion",0),("Mushroom",0),("Coin",1)]
-  | otherwise           = [("Arrow",0),("Potion",0),("Mushroom",0),("Coin",0)]
+  | n == "Red Dragon"   = [("Arrow",1),("Coin",1)]
+  | n == "Green Dragon" = [("Arrow",1),("Coin",1)]
+  | n == "Blue Dragon"  = [("Arrow",1),("Coin",1)]
+  | n == "Black Dragon" = [("Arrow",1),("Coin",1)]
+  | n == "White Dragon" = [("Arrow",1),("Coin",1)]
+  | n == "Spider"       = [("Arrow",1),("Coin",1)]
+  | n == "Wyvern"       = [("Arrow",1),("Coin",1)]
+  | n == "Goblin"            = [("Arrow",1),("Mushroom",1),("Item",1)]
+  | n == "Goblin Ratcatcher" = [("Arrow",1),("Mushroom",1),("Item",1)]
+  | n == "Orc"               = [("Arrow",1),("Mushroom",1),("Item",1)]
+  | n == "Orc Archer"        = [("Arrow",1),("Mushroom",1),("Item",1)]
+  | n == "Orc Beastmaster"   = [("Arrow",1),("Mushroom",1),("Item",1)]
+  | n == "Orc Shaman"        = [("Arrow",1),("Mushroom",1),("Item",1)]
+  | n == "Troll"             = [("Arrow",1),("Mushroom",1),("Item",1)]
+  | otherwise = [("Arrow",0),("Potion",0),("Mushroom",0),("Coin",1)]
 
 -- | mkItem
 mkItem :: Text -> Text -> Coord -> EntityKind
@@ -152,6 +151,7 @@ mkMonster name desc xy = let
     | n == "Necromancer"       = mdWizard
     | n == "Orc"               = mdHumanoid
     | n == "Orc Archer"        = mdHumanoid
+    | n == "Orc Beastmaster"   = mdHumanoidS
     | n == "Orc Shaman"        = mdHumanoidM
     | n == "Ogre"              = lgHumanoid
     | n == "Skeleton"          = mdUndead

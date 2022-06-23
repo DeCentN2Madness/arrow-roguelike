@@ -171,11 +171,11 @@ mkAssetMap = let
        , mkMonster "White Dragon" "Medium dragon (d)"   pos
        , mkMonster "Goblin"       "Small humanoid (o)"  pos
        , mkMonster "Goblin Ratcatcher" "Small humanoid (o)" pos
+       , mkMonster "Goblin Wizard" "Small humanoid (o)" pos
        , mkMonster "3 Hydra"      "Large monster (M)"   pos
        , mkMonster "Mouse"        "Small beast (r)"     pos
        , mkMonster "Necromancer"  "Medium human (h)"    pos
        , mkMonster "Orc"          "Medium humanoid (o)" pos
-       , mkMonster "Orc Archer"   "Medium humanoid (o)" pos
        , mkMonster "Orc Beastmaster" "Medium humanoid (o)" pos
        , mkMonster "Orc Shaman"   "Medium humanoid (o)" pos
        , mkMonster "Ogre"         "Large giant (O)"     pos

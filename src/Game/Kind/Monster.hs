@@ -62,8 +62,8 @@ mkMonsterMap depth tm am = let
   hydras      = Map.findWithDefault arr "3 Hydra"      assets
   goblins     = Map.findWithDefault arr "Goblin"       assets
   ratters     = Map.findWithDefault arr "Goblin Ratcatcher" assets
+  wizzos      = Map.findWithDefault arr "Goblin Wizard" assets
   orc         = Map.findWithDefault arr "Orc"          assets
-  orcArcher   = Map.findWithDefault arr "Orc Archer"   assets
   orcBeast    = Map.findWithDefault arr "Orc Beastmaster" assets
   orcShaman   = Map.findWithDefault arr "Orc Shaman"   assets
   ogres       = Map.findWithDefault arr "Ogre"         assets
@@ -112,10 +112,10 @@ mkMonsterMap depth tm am = let
              , insertRand coins   31 40 openList
              , insertRand arrows  41 50 openList
              , insertRand orc       51 60 openList
-             , insertRand orcArcher 61 70 openList
-             , insertRand orcShaman 71 80 openList
-             , insertRand orcBeast  81 90 openList
-             , insertRand necros    91 100  openList
+             , insertRand orcShaman 61 70 openList
+             , insertRand orcBeast  71 80 openList
+             , insertRand spiders   81 90 openList
+             , insertRand necros    91 100  bottomLeft
              , insertRand ogres     101 110 bottomLeft
              , insertRand trolls    110 120 bottomRight
              ]
@@ -126,9 +126,9 @@ mkMonsterMap depth tm am = let
              , insertRand coins   31 40 openList
              , insertRand arrows  41 50 openList
              , insertRand orc       51 60 openList
-             , insertRand orcArcher 61 70 openList
-             , insertRand orcShaman 71 80 openList
-             , insertRand orcBeast  81 90 openList
+             , insertRand orcShaman 61 70 openList
+             , insertRand orcBeast  71 80 openList
+             , insertRand skeletons 81 90 openList
              , insertRand ogres     91 100  bottomLeft
              , insertRand spiders   101 110 bottomLeft
              , insertRand necros    110 120 bottomRight
@@ -140,9 +140,9 @@ mkMonsterMap depth tm am = let
              , insertRand coins   31 40 openList
              , insertRand arrows  41 50 openList
              , insertRand skeletons 51 60 openList
-             , insertRand orc       61 70 openList
-             , insertRand orcArcher 71 80 openList
-             , insertRand orcShaman 81 90 openList
+             , insertRand zombies   61 70 openList
+             , insertRand orc       71 80 openList
+             , insertRand orcShaman 81 90   bottomLeft
              , insertRand orcBeast  91 100  bottomLeft
              , insertRand necros    101 110 bottomRight
              ]
@@ -153,8 +153,8 @@ mkMonsterMap depth tm am = let
              , insertRand coins   31 40 openList
              , insertRand arrows  41 50 openList
              , insertRand wolves   51 60 openList
-             , insertRand zombies  61 70 openList
-             , insertRand goblins  71 80 openList
+             , insertRand goblins  61 70 openList
+             , insertRand wizzos   71 80  bottomLeft
              , insertRand ratters  81 90  bottomLeft
              , insertRand dires    91 100 bottomRight
              ]

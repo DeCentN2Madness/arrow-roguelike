@@ -114,11 +114,11 @@ mkInventory n
   | n == "Wyvern"       = [("Arrow",1),("Coin",1)]
   | n == "Goblin"            = [("Arrow",1),("Mushroom",1),("Item",1)]
   | n == "Goblin Ratcatcher" = [("Arrow",1),("Mushroom",1),("Item",1)]
+  | n == "Goblin Wizard"     = [("Arrow",1),("Potion",1),("Item",1)]
   | n == "Orc"               = [("Arrow",1),("Mushroom",1),("Item",1)]
-  | n == "Orc Archer"        = [("Arrow",1),("Mushroom",1),("Item",1)]
   | n == "Orc Beastmaster"   = [("Arrow",1),("Mushroom",1),("Item",1)]
-  | n == "Orc Shaman"        = [("Arrow",1),("Mushroom",1),("Item",1)]
-  | n == "Troll"             = [("Arrow",1),("Mushroom",1),("Item",1)]
+  | n == "Orc Shaman"        = [("Arrow",1),("Potion",1),("Item",1)]
+  | n == "Troll" = [("Arrow",1),("Mushroom",1),("Item",1)]
   | otherwise = [("Arrow",0),("Potion",0),("Mushroom",0),("Coin",1)]
 
 -- | mkItem
@@ -146,11 +146,11 @@ mkMonster name desc xy = let
     | n == "White Dragon" = mdDragon
     | n == "3 Hydra"      = lgMonster
     | n == "Goblin"            = smHumanoid
-    | n == "Goblin Ratcatcher" = smHumanoidM
+    | n == "Goblin Ratcatcher" = smHumanoidS
+    | n == "Goblin Wizard"     = smHumanoidM
     | n == "Mouse"             = smBeast
     | n == "Necromancer"       = mdWizard
     | n == "Orc"               = mdHumanoid
-    | n == "Orc Archer"        = mdHumanoid
     | n == "Orc Beastmaster"   = mdHumanoidS
     | n == "Orc Shaman"        = mdHumanoidM
     | n == "Ogre"              = lgHumanoid

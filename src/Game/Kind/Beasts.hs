@@ -18,7 +18,7 @@ fighter = [ ("str", "15"), ("dex", "14"), ("con", "13"), ("int", "12")
           , ("wis", "10")
           , ("HP", "10")
           , ("MP", "0")
-          , ("XP", "1")
+          , ("XP", "0")
           , ("Proficiency", "2")
           , ("Class", "Fighter")
           , ("AC", "11")
@@ -382,20 +382,37 @@ smHumanoid = [ ("str", "8"), ("dex", "14"), ("con", "10"), ("int", "10")
              , ("feet", "None")
              ]
 
--- | Goblin Ratcatcher
+-- | Goblin Wizard
 smHumanoidM :: Prop
 smHumanoidM = smHumanoid ++ [ ("int", "13")
                             , ("MP", "10")
                             , ("AC", "11")
-                            , ("WT", "14")
+                            , ("WT", "13")
+                            , ("WWT", "2")
+                            , ("ATTACK", "1d4")
+                            , ("SHOOT", "1d4")
+                            , ("CAST", "1d6")
+                            , ("Throw", "chants!")
+                            , ("melee", "melee/Light Hammer")
+                            , ("shoot", "shoot/Dart")
+                            , ("armor", "armor/Leather")
+                            , ("shield", "None")
+                            ]
+
+-- | Goblin Ratcatcher
+smHumanoidS :: Prop
+smHumanoidS = smHumanoid ++ [ ("int", "13")
+                            , ("MP", "10")
+                            , ("AC", "11")
+                            , ("WT", "13")
                             , ("WWT", "2")
                             , ("ATTACK", "1d6")
-                            , ("SHOOT", "1d6")
+                            , ("SHOOT", "1d4")
                             , ("CAST", "1d6")
                             , ("SUMMON", "Mouse")
                             , ("Throw", "throws!")
                             , ("melee", "melee/Sickle")
-                            , ("shoot", "shoot/Javelin")
+                            , ("shoot", "shoot/Dart")
                             , ("armor", "armor/Leather")
                             , ("shield", "None")
                             ]

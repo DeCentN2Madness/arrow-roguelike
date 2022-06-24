@@ -24,7 +24,6 @@ import qualified Data.Map.Strict as Map
 import Data.Maybe
 import qualified Game.Kind.Dungeon as GKD
 import Game.Kind.Tile
-import Game.Tile (TileMap)
 import qualified Game.Tile as GT
 
 type Coord = (Int, Int)

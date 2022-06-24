@@ -17,7 +17,6 @@ import Data.Text (Text)
 import qualified Data.Text as T
 import Text.Printf
 import Game.Kind.Tile
-import Game.Tile (TileMap)
 
 -- | showVault for visualization
 -- >>>  let d = cave 1 80 40

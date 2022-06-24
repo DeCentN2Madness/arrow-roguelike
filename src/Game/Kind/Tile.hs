@@ -11,14 +11,18 @@ module Game.Kind.Tile (addLit
                       , Dungeon(..)
                       , Terrain(..)
                       , TileKind(..)
+                      , TileMap
                       , VisualKind(..)) where
 
 import Data.Aeson
+import Data.Map (Map)
 import GHC.Generics
 import Game.Kind.Dungeon (Dungeon(..), Terrain(..))
 import Game.Kind.Visual
 
 type Coord = (Int, Int)
+type TileMap = Map Int TileKind
+
 data TileKind
   = TileKind
   !Coord

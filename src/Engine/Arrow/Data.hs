@@ -79,6 +79,7 @@ data GameState
   | GameStop
   | GameAnimation
   | GameDialog
+  | GameDig
   | GameDrop
   | GameEquipment
   | GameExamine

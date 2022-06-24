@@ -26,6 +26,7 @@ import qualified Game.Equipment as EQUIP
 import qualified Game.Inventory as GI
 import qualified Game.Journal as GJ
 import qualified Game.Player as GP
+import qualified Game.Tile as GT
 import Game.Kind.Entity
 import Game.Rules
 
@@ -88,6 +89,35 @@ actionCoin ix w = let
     else "No Deal... "
   in w { tick     = newTick
        , entityT  = GP.updatePlayer newPlayer (entityT w)
+       , journalT = GJ.updateJournal [entry] (journalT w) }
+
+-- | actionDig
+-- if there is dirt to Dig...
+actionDig :: Int -> World -> World
+actionDig ix w = let
+  newTick         = tick w + 1
+  (pEntity, pPos) = GP.getPlayer (entityT w)
+  -- Dig requires Str
+  pProp  = property pEntity
+  pStr   = read $ T.unpack $ Map.findWithDefault "1" "str" pProp :: Int
+  -- pick target from ix
+  label = [ "N", "NW", "W", "SW", "S", "SE", "E", "NE" ]
+  diggable = cardinal pPos
+  sz = length diggable - 1
+  shovel = if ix > sz then sz else ix
+  -- clamp dig to gridXY
+  (x, y) = diggable!!shovel
+  (xMax, yMax) = gridXY w
+  -- dig
+  newMap = if pStr > 10 && x > 0 && x < xMax && y > 0 && y < yMax
+    then GT.updateTile (x, y) (gameT w)
+    else gameT w
+  entry = if pStr > 10 && x > 0 && x < xMax && y > 0 && y < yMax
+    then T.concat [ "Dig ", label!!shovel, ", ", T.pack $ show (x, y) ]
+    else "No Dig... "
+  in w { tick = newTick
+       , gameT = newMap
+       , gameState = GameRun
        , journalT = GJ.updateJournal [entry] (journalT w) }
 
 -- | actionDoff

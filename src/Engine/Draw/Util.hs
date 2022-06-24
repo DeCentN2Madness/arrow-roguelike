@@ -66,6 +66,7 @@ draw r ts w = do
   -- Dialog
   case gameState w of
     GameDrop      -> EDI.drawInventory r w
+    GameDig       -> EDI.drawTarget    r w
     GameEquipment -> EDI.drawEquipment r w
     GameExamine   -> EDI.drawExamine   r w
     GameInventory -> EDI.drawInventory r w

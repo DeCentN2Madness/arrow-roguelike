@@ -13,16 +13,15 @@ module Game.Tile (fromMoveBlocked
                  , fromVisionBlocked
                  , TileMap
                  , mkTileMap
+                 , updateTile
                  , updateTileMap) where
 
 import Prelude hiding (lookup)
-import Data.Map (Map)
 import qualified Data.Map.Strict as Map
 import qualified Data.Vector as V
 import Game.Kind.Tile
 
 type Coord = (Int, Int)
-type TileMap = Map Int TileKind
 
 -- | dungeonGrid uniform grid helper function for zip
 -- Note: Dungeon is Vector (width*height)
@@ -54,7 +53,6 @@ fromVisual tm = let
       let xy = if vis then pos else (0,0) ]
   in terrainList
 
-
 -- | fromVisionBlocked returns VisionBlocked
 fromVisionBlocked :: TileMap -> [(Terrain, Coord)]
 fromVisionBlocked tm = let
@@ -71,7 +69,18 @@ mkTileMap d = let
                let tk = TileKind xy False t (addVisual t) (addLit t) ]
   in Map.fromList $ zip [0 :: Int ..] terrainList
 
+-- | updateTile
+-- @ Dig
+updateTile :: Coord -> TileMap -> TileMap
+updateTile pos tm = let
+  tileList = [ (ix, tk) | (ix, TileKind xy vis t vt vl) <- Map.toList tm,
+               let tk = if xy == pos
+                     then TileKind xy True Open VOpen VLOpen
+                     else TileKind xy vis t vt vl ]
+  in Map.fromList tileList
+
 -- | updateTileMap
+-- @ FoV
 updateTileMap :: [Coord] -> TileMap -> TileMap
 updateTileMap seen tm = let
   tileList = [ (ix, tk) | (ix, TileKind xy vis t vt vl) <- Map.toList tm,

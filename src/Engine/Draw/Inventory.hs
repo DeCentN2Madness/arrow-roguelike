@@ -11,7 +11,8 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 module Engine.Draw.Inventory (drawEquipment
                              , drawExamine
                              , drawInventory
-                             , drawStore) where
+                             , drawStore
+                             , drawTarget) where
 
 import Prelude hiding (lookup)
 import Control.Monad (forM_)
@@ -92,6 +93,26 @@ drawStore :: SDL.Renderer -> World -> IO ()
 drawStore r w = do
   let logs = zip [0..] $ GP.characterStore (entityT w) (assetT w)
   renderDialog r (120, 10)
+  fn <- SDL.Font.load "./assets/fonts/Hack-Regular.ttf" 14
+  -- Journal
+  forM_ logs $ \(i, j) -> do
+    -- Text
+    tx <- SDL.Font.blended fn yellow j
+    sz <- SDL.Font.size fn j
+    rt <- SDL.createTextureFromSurface r tx
+    -- HUD
+    let hudT = fromIntegral $ snd sz + (i * snd sz) :: Double
+    EDT.renderText r rt sz (125, hudT)
+    -- Cleanup
+    SDL.freeSurface tx
+    SDL.destroyTexture rt
+  SDL.Font.free fn
+
+-- | drawTarget
+-- Show the Store
+drawTarget :: SDL.Renderer -> World -> IO ()
+drawTarget r _ = do
+  let logs = zip [0..] GP.characterTarget
   fn <- SDL.Font.load "./assets/fonts/Hack-Regular.ttf" 14
   -- Journal
   forM_ logs $ \(i, j) -> do

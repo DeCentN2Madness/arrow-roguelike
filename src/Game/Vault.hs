@@ -18,7 +18,6 @@ import qualified Data.Map.Strict as Map
 import Data.Maybe
 import Game.Kind.Cave
 import Game.Kind.Tile
-import Game.Tile (TileMap)
 
 type Coord = (Int, Int)
 type CoordMap = Map Coord TileKind

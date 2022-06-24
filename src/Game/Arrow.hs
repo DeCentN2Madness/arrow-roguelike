@@ -107,6 +107,17 @@ applyIntent :: Intent -> World -> World
 applyIntent intent w = let
   world n
     | n == GameDialog = helpWorld w
+    | n == GameDig = case intent of
+        Action Zero  -> GA.actionDig 0 w
+        Action One   -> GA.actionDig 1 w
+        Action Two   -> GA.actionDig 2 w
+        Action Three -> GA.actionDig 3 w
+        Action Four  -> GA.actionDig 4 w
+        Action Five  -> GA.actionDig 5 w
+        Action Six   -> GA.actionDig 6 w
+        Action Seven -> GA.actionDig 7 w
+        Quit -> escWorld w
+        _ -> w
     | n == GameDrop = case intent of
         Action Zero  -> GA.actionDrop 0 w
         Action One   -> GA.actionDrop 1 w
@@ -259,6 +270,7 @@ applyIntent intent w = let
         Action W -> equipWorld w
         Action X -> examineWorld w
         Action Y -> actionDirection NorthEast w
+        Action Z -> digWorld w
         Action Help -> helpWorld w
         Action Space -> actionMonster $ GA.actionRest w
         Quit -> escWorld w
@@ -272,6 +284,14 @@ coinWorld w = w { journalT = GJ.updateJournal ["Acquire..."] (journalT w)
                  , gameState = if gameState w == GameStore
                    then GameRun
                    else GameStore }
+
+-- | digWorld
+-- Dig mode
+digWorld :: World -> World
+digWorld w = w { journalT = GJ.updateJournal ["Dig..."] (journalT w)
+                , gameState = if gameState w == GameDig
+                  then GameRun
+                  else GameDig }
 
 -- | dropWorld
 -- Drop mode
@@ -315,6 +335,7 @@ helpWorld w = let
   help = [ "..."
          , "Movement: vi mode or Arrow keys, ESC to Continue/Quit..."
          , "(SPC)Rest, (?)Help,     ..."
+         , "(Z)Dig"
          , "(S)earch,  (T)hrow,     (W)ield, E(X)amine,"
          , "(G)et,     (I)nventory, (Q)uaff, (R)eset,"
          , "(A)cquire, (C)ast,      (D)rop,  (E)at,"

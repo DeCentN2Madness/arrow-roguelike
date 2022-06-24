@@ -14,6 +14,7 @@ module Game.Player (characterEquipment
                    , characterLook
                    , characterSheet
                    , characterStore
+                   , characterTarget
                    , getArrow
                    , getHealth
                    , getMana
@@ -195,6 +196,14 @@ characterStore em am = let
           item = Map.findWithDefault "--" k descMap ]
   in selection pInv
   ++ [ " ", "Press [0-9, A-J] to Purchase. (S)ell. ESC to Continue." ]
+
+-- | @ Target
+characterTarget :: [Text]
+characterTarget = [ "1) NW -  0) N - 7) NE"
+                  , "2) W  -       - 6) E"
+                  , "3) SW -  4) S - 5) SE"
+                  , "Press [0-7] to Target. ESC to Continue."
+                  ]
 
 -- | @ condition
 -- Green, Red, Purple...

@@ -36,6 +36,7 @@ library
                     , Game.Compass
                     , Game.DiceSet
                     , Game.Entity
+                    , Game.Equipment
                     , Game.Inventory
                     , Game.Journal
                     , Game.Kind.Asset
@@ -89,6 +90,7 @@ executable Arrow
                     , Game.Compass
                     , Game.DiceSet
                     , Game.Entity
+                    , Game.Equipment
                     , Game.Inventory
                     , Game.Journal
                     , Game.Kind.Asset

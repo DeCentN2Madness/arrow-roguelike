@@ -22,6 +22,7 @@ import qualified Game.Combat as GC
 import Game.Compass
 import qualified Game.DiceSet as DS
 import qualified Game.Entity as GE
+import qualified Game.Equipment as EQUIP
 import qualified Game.Inventory as GI
 import qualified Game.Journal as GJ
 import qualified Game.Player as GP
@@ -108,7 +109,7 @@ actionDoff item w = let
     newProp = Map.insert pEquip "None" pProp
     pCnt = Map.findWithDefault 0 (snd pItem) pInv
     in pEntity { inventory = Map.insert (snd pItem) (pCnt+1) pInv
-               , property  = GP.armorShield newProp (assetT w) }
+               , property  = EQUIP.armorShield newProp (assetT w) }
     else pEntity
   entry = if not (null pItems)
     then T.concat [ "Doff ", fst pItem, "..." ]
@@ -141,7 +142,7 @@ actionDon ix w = let
     then let
     newProp = Map.insert pEquip (fst pItem) (property pEntity)
     in pEntity { inventory = Map.insert (fst pItem) (snd pItem-1) newInv
-               , property  = GP.armorShield newProp (assetT w) }
+               , property  = EQUIP.armorShield newProp (assetT w) }
     else pEntity
   entry = if fst pItem /= "None"
     then if equip /= "None"

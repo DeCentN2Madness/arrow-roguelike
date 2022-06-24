@@ -44,6 +44,7 @@ library
                     , Game.Kind.Dungeon
                     , Game.Kind.Entity
                     , Game.Kind.Monster
+                    , Game.Kind.Spawn
                     , Game.Kind.Tile
                     , Game.Kind.Visual
                     , Game.Player
@@ -96,6 +97,7 @@ executable Arrow
                     , Game.Kind.Dungeon
                     , Game.Kind.Entity
                     , Game.Kind.Monster
+                    , Game.Kind.Spawn
                     , Game.Kind.Tile
                     , Game.Kind.Visual
                     , Game.Player

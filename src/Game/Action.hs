@@ -21,12 +21,11 @@ import Engine.Arrow.Data
 import qualified Game.Combat as GC
 import Game.Compass
 import qualified Game.DiceSet as DS
-import Game.Entity (EntityMap)
 import qualified Game.Entity as GE
 import qualified Game.Inventory as GI
 import qualified Game.Journal as GJ
-import Game.Kind.Entity
 import qualified Game.Player as GP
+import Game.Kind.Entity
 import Game.Rules
 
 -- | actionCast

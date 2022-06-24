@@ -17,15 +17,13 @@ module Game.Inventory (checkPickUp
 import Prelude hiding (lookup)
 import Control.Arrow ((&&&))
 import Data.List
-import Data.Map (Map)
 import qualified Data.Map.Strict as Map
 import Data.Text (Text)
 import qualified Game.DiceSet as DS
-import Game.Entity (AssetMap, EntityMap)
 import Game.Kind.Entity
+import Game.Kind.Spawn
 
 type Coord = (Int, Int)
-type NameMap = Map Text EntityKind
 
 -- | checkPickUp
 -- Did '@' actually PickUp?

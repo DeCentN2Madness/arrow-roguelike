@@ -11,11 +11,9 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 module Game.Kind.Asset (mkAssetMap) where
 
 import Prelude hiding (lookup)
-import Data.Map (Map)
 import qualified Data.Map.Strict as Map
 import Game.Kind.Entity
-
-type AssetMap = Map Int EntityKind
+import Game.Kind.Spawn
 
 -- | mkAssetMap
 -- All the assets within the World by Ix

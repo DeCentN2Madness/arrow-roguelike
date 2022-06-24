@@ -21,12 +21,11 @@ import qualified Game.Action as GA
 import qualified Game.AI as GAI
 import qualified Game.Combat as GC
 import Game.Compass
-import Game.Entity (EntityMap)
 import qualified Game.Entity as GE
 import qualified Game.Journal as GJ
-import Game.Kind.Entity
 import qualified Game.Player as GP
 import qualified Game.Tile as GT
+import Game.Kind.Entity
 
 -- | actionBump
 -- if there is a Bump...

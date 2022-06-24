@@ -12,19 +12,15 @@ module Game.Kind.Monster (mkMonsterMap, updateEntitySpawn) where
 
 import Prelude hiding (lookup)
 import Data.List
-import Data.Map (Map)
 import qualified Data.Map.Strict as Map
-import Data.Text (Text)
 import qualified Game.DiceSet as DS
-import Game.Kind.Entity
 import Game.Tile (TileMap)
 import qualified Game.Tile as GT
+import Game.Kind.Entity
+import Game.Kind.Spawn
 
-type AssetMap = EntityMap
 type Coord = (Int, Int)
 type Depth = Int
-type EntityMap = Map Int EntityKind
-type NameMap = Map Text EntityKind
 
 -- | insertRand all over the TileMap
 insertRand :: EntityKind -> Int -> Int -> [Coord] -> [(Int, EntityKind)]

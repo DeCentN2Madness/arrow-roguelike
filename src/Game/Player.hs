@@ -31,7 +31,6 @@ import Data.List
 import qualified Data.Map.Strict as Map
 import Data.Text (Text)
 import qualified Data.Text as T
-import Game.Entity (AssetMap, EntityMap)
 import qualified Game.Entity as GE
 import Game.Kind.Entity
 import Game.Rules

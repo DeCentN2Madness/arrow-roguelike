@@ -27,15 +27,12 @@ import Data.Text (Text)
 import qualified Data.Text as T
 import Engine.Arrow.Data (World (..))
 import qualified Game.DiceSet as DS
-import Game.Entity (EntityMap)
 import qualified Game.Entity as GE
 import qualified Game.Inventory as GI
 import qualified Game.Journal as GJ
-import Game.Kind.Entity
 import qualified Game.Player as GP
+import Game.Kind.Entity
 import Game.Rules
-
-type AssetMap = EntityMap
 
 -- types for clarity...
 type Seed = Int

@@ -40,13 +40,12 @@ import qualified Game.Birth as GB
 import Game.Kind.Asset
 import Game.Kind.Entity
 import Game.Kind.Monster
+import Game.Kind.Spawn
 import Game.Tile (TileMap)
 import qualified Game.Tile as GT
 
-type AssetMap = EntityMap
 type Coord = (Int, Int)
 type Depth = Int
-type EntityMap = Map Int EntityKind
 
 -- | fromBlock
 fromBlock :: EntityMap -> [(Int, Coord)]

@@ -46,11 +46,12 @@ fromOpen tm = let
   in terrainList
 
 -- | fromVisual return visual terrain
+-- (0,0) .. (xMax, yMax)
 fromVisual :: TileMap -> [(TileKind, Coord)]
 fromVisual tm = let
-  terrainList = filter ((/=(0,0)).snd) $
+  terrainList = filter ((/=(-1,-1)).snd) $
     [ (tk, xy) | (_, tk@(TileKind pos vis _ _ _)) <- Map.toList tm,
-      let xy = if vis then pos else (0,0) ]
+      let xy = if vis then pos else (-1,-1) ]
   in terrainList
 
 -- | fromVisionBlocked returns VisionBlocked

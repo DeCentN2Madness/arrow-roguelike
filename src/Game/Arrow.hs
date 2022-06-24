@@ -20,11 +20,11 @@ import qualified Engine.Draw.Camera as EDC
 import qualified Game.Action as GA
 import qualified Game.AI as GAI
 import qualified Game.Combat as GC
-import Game.Compass
 import qualified Game.Entity as GE
 import qualified Game.Journal as GJ
 import qualified Game.Player as GP
 import qualified Game.Tile as GT
+import Game.Compass
 import Game.Kind.Entity
 
 -- | actionBump

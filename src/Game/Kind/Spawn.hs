@@ -8,7 +8,7 @@ Game.Kind.Spawn.hs creates Items and Monsters...
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
 -}
-module Game.Kind.Spawn (defaultEK, mkItem, mkMonster) where
+module Game.Kind.Spawn (mkItem, mkMonster) where
 
 import Prelude hiding (lookup)
 import qualified Data.Map.Strict as Map

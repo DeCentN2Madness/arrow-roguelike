@@ -113,7 +113,7 @@ actionDig ix w = let
     then GT.updateTile (x, y) (gameT w)
     else gameT w
   entry = if pStr > 10 && x > 0 && x < xMax && y > 0 && y < yMax
-    then T.concat [ "Dig ", label!!shovel, ", ", T.pack $ show (x, y) ]
+    then T.concat [ "Dig ", label!!shovel, "..." ]
     else "No Dig... "
   in w { tick = newTick
        , gameT = newMap

@@ -108,6 +108,10 @@ applyIntent intent w = let
   world n
     | n == GameDialog = helpWorld w
     | n == GameDig = case intent of
+        Action North -> GA.actionDig 0 w
+        Action South -> GA.actionDig 4 w
+        Action East  -> GA.actionDig 2 w
+        Action West  -> GA.actionDig 6 w
         Action Zero  -> GA.actionDig 0 w
         Action One   -> GA.actionDig 1 w
         Action Two   -> GA.actionDig 2 w
@@ -270,7 +274,7 @@ applyIntent intent w = let
         Action W -> equipWorld w
         Action X -> examineWorld w
         Action Y -> actionDirection NorthEast w
-        Action Z -> digWorld w
+        Action Z -> actionMonster $ digWorld w
         Action Help -> helpWorld w
         Action Space -> actionMonster $ GA.actionRest w
         Quit -> escWorld w

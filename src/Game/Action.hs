@@ -97,9 +97,16 @@ actionDig :: Int -> World -> World
 actionDig ix w = let
   newTick         = tick w + 1
   (pEntity, pPos) = GP.getPlayer (entityT w)
-  -- Dig requires Str
+  -- Dig for Str > 10
   pProp  = property pEntity
   pStr   = read $ T.unpack $ Map.findWithDefault "1" "str" pProp :: Int
+  -- Dig spell for Str < 10
+  pCast  = if eLvl pEntity > 1 then eLvl pEntity `div` 2 else 1
+  pMana  = eMP pEntity - pCast
+  pMaxMP = eMaxMP pEntity
+  newPlayer = if pStr < 10 && pMana > 0 && pMaxMP > 0
+    then pEntity { eMP = pMana }
+    else pEntity
   -- pick target from ix
   label = [ "N", "NW", "W", "SW", "S", "SE", "E", "NE" ]
   diggable = cardinal pPos
@@ -108,17 +115,19 @@ actionDig ix w = let
   -- clamp dig to gridXY
   (x, y) = diggable!!shovel
   (xMax, yMax) = gridXY w
-  -- dig
-  newMap = if pStr > 10 && x > 0 && x < xMax && y > 0 && y < yMax
+  -- @ dig
+  canDig = (pStr >= 10 || (pMana > 0 && pMaxMP > 0))
+  newMap = if canDig && x > 0 && x < xMax && y > 0 && y < yMax
     then GT.updateTile (x, y) (gameT w)
     else gameT w
-  entry = if pStr > 10 && x > 0 && x < xMax && y > 0 && y < yMax
+  entry = if canDig && x > 0 && x < xMax && y > 0 && y < yMax
     then T.concat [ "Dig ", label!!shovel, "..." ]
     else "No Dig... "
-  in w { tick = newTick
-       , gameT = newMap
+  in w { tick      = newTick
+       , gameT     = newMap
        , gameState = GameRun
-       , journalT = GJ.updateJournal [entry] (journalT w) }
+       , entityT   = GP.updatePlayer newPlayer (entityT w)
+       , journalT  = GJ.updateJournal [entry] (journalT w) }
 
 -- | actionDoff
 -- if there is a Hat to remove...
@@ -503,7 +512,6 @@ actionThrow w = let
   newTick         = tick w + 1
   (pEntity, pPos) = GP.getPlayer (entityT w)
   -- Rogue uses Coin and Arrow
-  -- Everyone else Arrow
   pProp  = property pEntity
   pCls   = Map.findWithDefault "Player" "Class" pProp
   pInv   = inventory pEntity

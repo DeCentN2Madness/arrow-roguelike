@@ -55,10 +55,10 @@ aiAction ((mx, mEntity):xs) w = if mx == 0 || not (block mEntity)
   mPot   = Map.findWithDefault 0 "Potion" mInv
   mItems = GE.getEntityBy mPos (entityT w)
   mPos   = coord mEntity
-  mProp  = property mEntity
-  mInt   = read $ T.unpack $ Map.findWithDefault "1" "int" mProp :: Int
-  mSummon = Map.findWithDefault "0" "SUMMON" mProp
-  mSpawn = spawn mEntity
+  -- Properties
+  (mInt, _) = abilityLookup "int" mEntity
+  mSummon   = Map.findWithDefault "0" "SUMMON" (property mEntity)
+  mSpawn    = spawn mEntity
   -- action
   action
     | C.adjacent mPos pPos = Attack
@@ -128,10 +128,10 @@ monsterDrink mx mEntity w = let
   mMp    = if mana > mMaxMp then mMaxMp else mana
   mMaxHp = eMaxHP mEntity
   mMaxMp = eMaxMP mEntity
-  mProp  = property mEntity
-  mCon   = abilityMod $ read $ T.unpack $ Map.findWithDefault "1" "con" mProp
-  mWis   = abilityMod $ read $ T.unpack $ Map.findWithDefault "1" "wis" mProp
-  mName  = Map.findWithDefault "M" "Name" mProp
+  -- Properties
+  mName     = Map.findWithDefault "M" "Name" (property mEntity)
+  (_, mCon) = abilityLookup "con" mEntity
+  (_, mWis) = abilityLookup "wis" mEntity
   newMonster = if mPot > 0
     then mEntity { inventory = Map.insert "Potion" (mPot-1) mInv
                  , eHP = mHp, eMP = mMp }
@@ -156,9 +156,9 @@ monsterEat mx mEntity w = let
   hDelta = hRoll + mCon
   mHp    = if heal > mMaxHp then mMaxHp else heal
   mMaxHp = eMaxHP mEntity
-  mProp  = property mEntity
-  mCon   = abilityMod $ read $ T.unpack $ Map.findWithDefault "1" "con" mProp
-  mName  = Map.findWithDefault "M" "Name" mProp
+  -- Properties
+  mName     = Map.findWithDefault "M" "Name" (property mEntity)
+  (_, mCon) = abilityLookup "con" mEntity
   newMonster = if mMush > 0
     then mEntity { inventory = Map.insert "Mushroom" (mMush-1) mInv, eHP = mHp }
     else mEntity
@@ -211,6 +211,7 @@ monsterSummon mx mEntity w = let
   mMove  = moveT mEntity
   mMana  = eMP mEntity - 1
   mMaxMP = eMaxMP mEntity
+  -- Properties
   mProp  = property mEntity
   mName  = Map.findWithDefault "M" "Name" mProp
   mSummon = Map.findWithDefault "Mouse" "SUMMON" mProp
@@ -235,6 +236,7 @@ monsterThrow mx mEntity w = let
   mInv   = inventory mEntity
   mArrow = Map.findWithDefault 0 "Arrow" mInv
   mPos   = coord mEntity
+  -- Properties
   mProp  = property mEntity
   mName  = Map.findWithDefault "M" "Name" mProp
   mVerb  = Map.findWithDefault "shoots..." "Throw" mProp

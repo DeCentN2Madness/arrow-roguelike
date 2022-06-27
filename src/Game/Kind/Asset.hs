@@ -109,27 +109,27 @@ mkAssetMap = let
        , mkItem "armor/Plate"           "[:18:65:Heavy_Armor"  pos
        -- Head
        , mkItem "head/Leather Skullcap"  "]:1:0:" pos
-       , mkItem "head/Mail Coif"         "]:10:2:AC" pos
-       , mkItem "head/Open Helm"         "]:20:1:AC" pos
-       , mkItem "head/Helm"              "]:30:2:AC" pos
-       , mkItem "head/Helm of Dragon"    "]:100:2:AC,FIRE,COLD" pos
+       , mkItem "head/Mail Coif"         "]:10:2:CON" pos
+       , mkItem "head/Open Helm"         "]:20:1:CON" pos
+       , mkItem "head/Helm"              "]:30:2:CON" pos
+       , mkItem "head/Helm of Dragon"    "]:100:2:STR,FIRE,COLD" pos
        , mkItem "head/Crown of Elements" "]:100:2:FIRE,COLD" pos
        , mkItem "head/Crown of Elves"    "]:100:2:INT,FIRE,COLD,SEARCH" pos
        , mkItem "head/Crown of King"     "]:100:2:WIS,FIRE,COLD,SEARCH" pos
        -- Feet
        , mkItem "feet/Leather Leggings"   "]:1:1:" pos
-       , mkItem "feet/Mail Chausses"      "]:10:2:AC" pos
-       , mkItem "feet/Plate Leggings"     "]:30:3:AC" pos
+       , mkItem "feet/Mail Chausses"      "]:10:2:CON" pos
+       , mkItem "feet/Plate Leggings"     "]:30:3:CON" pos
        , mkItem "feet/Traveler Boots"     "]:20:1:FIRE,COLD" pos
        , mkItem "feet/Boots of Elvenkind" "]:100:1:DEX,COLD" pos
        , mkItem "feet/Boots of Dragon"    "]:100:1:CON,FIRE" pos
        , mkItem "feet/Boots of Speed"     "]:100:1:DEX,AC" pos
-       , mkItem "feet/Dwarven Boots"      "]:100:2:AC,STR,COLD" pos
+       , mkItem "feet/Dwarven Boots"      "]:100:2:STR,COLD" pos
        -- Hands
        , mkItem "hands/Gloves"              "]:1:1:" pos
-       , mkItem "hands/Bracers"             "]:10:3:AC" pos
-       , mkItem "hands/Bracers of Warrior"  "]:50:3:STR,ATTACK" pos
-       , mkItem "hands/Bracers of Hunter"   "]:50:3:DEX,SHOOT" pos
+       , mkItem "hands/Bracers"             "]:10:3:STR" pos
+       , mkItem "hands/Bracers of Warrior"  "]:50:3:STR,DEX" pos
+       , mkItem "hands/Bracers of Hunter"   "]:50:3:DEX,WIS" pos
        , mkItem "hands/Gauntlets of Ogre"   "]:100:3:STR,CON" pos
        , mkItem "hands/Gauntlets of Power"  "]:100:3:INT,WIS,CON" pos
        , mkItem "hands/Gauntlets of Frost"  "]:100:3:CON,COLD" pos
@@ -151,13 +151,13 @@ mkAssetMap = let
        , mkItem "neck/Amulet of Devotion"   "\":100:0:STR,WIS" pos
        , mkItem "neck/Amulet of Dwarves"    "\":100:0:STR,CON" pos
        , mkItem "neck/Amulet of Elves"      "\":100:0:INT,WIS" pos
-       , mkItem "neck/Amulet of Protection" "\":100:0:AC" pos
+       , mkItem "neck/Amulet of Protection" "\":100:0:CON" pos
        -- Cloaks
        , mkItem "cloak/Cloak"                "(:1:3:" pos
        , mkItem "cloak/Cloak of Iron Throne" "(:100:3:CON,SEARCH" pos
        , mkItem "cloak/Cloak of Elvenkind"   "(:100:3:DEX,SEARCH" pos
        , mkItem "cloak/Cloak of Elements"    "(:100:3:FIRE,COLD" pos
-       , mkItem "cloak/Cloak of Protection"  "(:100:3:AC" pos
+       , mkItem "cloak/Cloak of Protection"  "(:100:3:CON" pos
        , mkItem "cloak/Cloak of Dragon"      "(:100:3:CON,FIRE" pos
        , mkItem "cloak/Cloak of Hunter"      "(:100:3:DEX,SHOOT" pos
        , mkItem "cloak/Cloak of Winter"      "(:100:3:CON,COLD" pos

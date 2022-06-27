@@ -48,11 +48,11 @@ armorShield pProp am = let
   armorStat = tagLookup "armor"
   (aAC, aWT) = (read $ armorStat!!1, read $ armorStat!!2) :: (Int, Int)
   -- Dex modifier
-  pDex = read $ T.unpack $ Map.findWithDefault "1" "dex" pProp :: Int
+  pDex = abilityMod $ read $ T.unpack $ Map.findWithDefault "1" "dex" pProp
   pDR n
     | n > 40 = 0
-    | n > 20 && n <= 40 = if abilityMod pDex > 2 then 2 else abilityMod pDex
-    | otherwise = abilityMod pDex
+    | n > 20 && n <= 40 = if pDex > 2 then 2 else pDex
+    | otherwise = pDex
   -- ArmorClass (AC)
   pAC = aAC + sAC + pDR aWT
   -- Weight (WT)

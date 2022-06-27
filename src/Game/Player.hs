@@ -61,9 +61,9 @@ characterEquipment em _ = let
   range  = T.append "Shoot:  " $ Map.findWithDefault "0" "SHOOT" pProp
   tags   = T.append "Tags:   " $ Map.findWithDefault "None" "TAGS" pProp
   -- Encumbered, Finesse, Heavy weapons?
-  pStr = read $ T.unpack $ Map.findWithDefault "1" "str" pProp :: Int
-  pWT  = read $ T.unpack $ Map.findWithDefault "0" "WT"  pProp :: Int
-  pWWT = read $ T.unpack $ Map.findWithDefault "0" "WWT" pProp :: Int
+  (pStr, _) = abilityLookup "str" pEntity
+  (pWT, _)  = abilityLookup "WT" pEntity
+  (pWWT, _) = abilityLookup "WWT" pEntity
   pEnc = if pWT > 5 * pStr
     then "Load:   ENCUMBERED!"
     else T.concat [ "Load:   "
@@ -288,11 +288,11 @@ updatePlayerXP xp em = let
   (pEntity, _ ) = getPlayer em
   pProp = property pEntity
   pCls  = Map.findWithDefault "None" "Class" pProp
-  pStr  = read $ T.unpack $ Map.findWithDefault "1" "str" pProp
-  pDex  = read $ T.unpack $ Map.findWithDefault "1" "dex" pProp
-  pCon  = read $ T.unpack $ Map.findWithDefault "1" "con" pProp
-  pInt  = read $ T.unpack $ Map.findWithDefault "1" "int" pProp
-  pWis  = read $ T.unpack $ Map.findWithDefault "1" "wis" pProp
+  (pStr, _)     = abilityLookup "str" pEntity
+  (pDex, _)     = abilityLookup "dex" pEntity
+  (pCon, pConMod) = abilityLookup "con" pEntity
+  (pInt, _)     = abilityLookup "int" pEntity
+  (pWis, pWisMod) = abilityLookup "wis" pEntity
   cHP   = read $ T.unpack $ Map.findWithDefault "1" "HP" pProp
   cMP   = read $ T.unpack $ Map.findWithDefault "0" "MP" pProp
   cAttacks = Map.findWithDefault "0" "ATTACKS" pProp
@@ -305,7 +305,7 @@ updatePlayerXP xp em = let
   current = eLvl pEntity
   -- HP
   pHP    = if pLvl > current then pMaxHP else eHP pEntity
-  pMaxHP = pLvl * (cHP + abilityMod pCon)
+  pMaxHP = pLvl * (cHP + pConMod)
   -- Fighter
   (fStr, fDex) = if pCls == "Fighter" then abilityGain pLvl current else (0,0)
   -- Rogue
@@ -316,8 +316,7 @@ updatePlayerXP xp em = let
   (cWis, cStr) = if pCls == "Cleric" then abilityGain pLvl current else (0,0)
   -- Mana
   pMP    = if pLvl > current then pMaxMP else eMP pEntity
-  newWis = pWis + mWis + cWis
-  pMaxMP = pLvl * (cMP + abilityMod newWis)
+  pMaxMP = pLvl * (cMP + pWisMod)
   -- ATTACKS, CAST, PROFICIENCY, SEARCH
   pAttacks = attacksGain pCls pLvl cAttacks
   pCast    = castGain pCls pLvl cCast
@@ -326,6 +325,7 @@ updatePlayerXP xp em = let
   -- Properties
   newProp = Map.fromList [ ("str", T.pack $ show $ pStr + fStr + cStr)
                          , ("dex", T.pack $ show $ pDex + fDex + rDex)
+                         , ("con", T.pack $ show  pCon)
                          , ("int", T.pack $ show $ pInt + mInt + rInt)
                          , ("wis", T.pack $ show $ pWis + mWis + cWis)
                          , ("ATTACKS", pAttacks)

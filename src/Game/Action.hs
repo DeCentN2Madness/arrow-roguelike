@@ -97,9 +97,9 @@ actionDig :: Int -> World -> World
 actionDig ix w = let
   newTick         = tick w + 1
   (pEntity, pPos) = GP.getPlayer (entityT w)
-  -- Dig for Str > 10
+  -- Dig for Str >= 0
   (_, pMod) = abilityLookup "str" pEntity
-  -- Dig spell for Str < 10
+  -- Dig spell for Str < 0
   pCast  = if eLvl pEntity > 1 then eLvl pEntity `div` 2 else 1
   pMana  = eMP pEntity - pCast
   pMaxMP = eMaxMP pEntity
@@ -235,13 +235,14 @@ actionEat w = let
   hDelta = hRoll + pCon + prof
   pHp    = if heal > pMaxHp then pMaxHp else heal
   pMaxHp = eMaxHP pEntity
-  pProp  = property pEntity
-  pStr   = read $ T.unpack $ Map.findWithDefault "1" "str" pProp :: Int
-  pCon   = abilityMod $ read $ T.unpack $ Map.findWithDefault "1" "con" pProp
+  -- Properties
+  pProp      = property pEntity
+  pCls       = Map.findWithDefault "Player" "Class" pProp
+  (pProf, _) = abilityLookup "Proficiency" pEntity
+  (_, pCon)  = abilityLookup "con" pEntity
   -- Encumbered?
-  pWT    = read $ T.unpack $ Map.findWithDefault "0" "WT" pProp  :: Int
-  pProf  = read $ T.unpack $ Map.findWithDefault "0" "Proficiency" pProp
-  pCls   = Map.findWithDefault "Player" "Class" pProp
+  (pStr, _)  = abilityLookup "str" pEntity
+  (pWT, _)   = abilityLookup "WT" pEntity
   prof   = if pCls == "Cleric" then checkEncumberance pStr pWT pProf else 0
   newPlayer = if pMush > 0
     then pEntity { inventory = Map.insert "Mushroom" (pMush-1) pInv, eHP = pHp }
@@ -340,8 +341,8 @@ actionGet w = let
   newTick         = tick w + 1
   (pEntity, pPos) = GP.getPlayer (entityT w)
   -- Get
-  items           = GE.getEntityBy pPos (entityT w)
-  pickedItems     = GI.checkPickUp (inventory newPlayer) (inventory pEntity)
+  items       = GE.getEntityBy pPos (entityT w)
+  pickedItems = GI.checkPickUp (inventory newPlayer) (inventory pEntity)
   newPlayer = if not (null items)
     then GI.pickUp items pEntity
     else pEntity
@@ -407,15 +408,16 @@ actionQuaff w = let
   pMp    = if mana > pMaxMp then pMaxMp else mana
   pMaxHp = eMaxHP pEntity
   pMaxMp = eMaxMP pEntity
-  pProp  = property pEntity
-  pStr   = read $ T.unpack $ Map.findWithDefault "1" "str" pProp :: Int
-  pCon   = abilityMod $ read $ T.unpack $ Map.findWithDefault "1" "con" pProp
-  pWis   = abilityMod $ read $ T.unpack $ Map.findWithDefault "1" "wis" pProp
+  -- Properties
+  pProp      = property pEntity
+  pCls       = Map.findWithDefault "Player" "Class" pProp
+  (pProf, _) = abilityLookup "Proficiency" pEntity
+  (_, pCon)  = abilityLookup "con" pEntity
+  (_, pWis)  = abilityLookup "wis" pEntity
   -- Encumbered?
-  pWT    = read $ T.unpack $ Map.findWithDefault "0" "WT" pProp  :: Int
-  pProf  = read $ T.unpack $ Map.findWithDefault "0" "Proficiency" pProp
-  pCls   = Map.findWithDefault "Player" "Class" pProp
-  prof   = if pCls == "Mage" then checkEncumberance pStr pWT pProf else 0
+  (pStr, _)  = abilityLookup "str" pEntity
+  (pWT, _)   = abilityLookup "WT" pEntity
+  prof = if pCls == "Mage" then checkEncumberance pStr pWT pProf else 0
   newPlayer = if pPot > 0
     then pEntity { inventory = Map.insert "Potion" (pPot-1) pInv
                  , eHP = pHp, eMP = pMp }
@@ -435,9 +437,8 @@ actionRest w = let
   newTick      = tick w + 1
   (pEntity, _) = GP.getPlayer (entityT w)
   -- Rest
-  pProp  = property pEntity
-  pCon   = abilityMod $ read $ T.unpack $ Map.findWithDefault "1" "con" pProp
-  pWis   = abilityMod $ read $ T.unpack $ Map.findWithDefault "1" "wis" pProp
+  (_, pCon) = abilityLookup "con" pEntity
+  (_, pWis) = abilityLookup "wis" pEntity
   heal   = eHP pEntity + (if pCon > 1 then pCon else 1)
   mana   = eMP pEntity + (if pWis > 1 then pWis else 1)
   pHp    = if heal > pMaxHp then pMaxHp else heal
@@ -460,9 +461,8 @@ actionSearch w = let
   newTick         = tick w + 1
   (pEntity, pPos) = GP.getPlayer (entityT w)
   -- Search
-  pProp   = property pEntity
-  pWis    = abilityMod $ read $ T.unpack $ Map.findWithDefault "1" "wis" pProp
-  pSearch = read $ T.unpack $ Map.findWithDefault "0" "SEARCH" pProp
+  (_, pWis)    = abilityLookup "wis" pEntity
+  (pSearch, _) = abilityLookup "SEARCH" pEntity
   mSearch = fromIntegral $ pWis + pSearch
   mTargets = filter (/=pPos) $
     [ xy | (_, pos) <- GE.fromBlock (entityT w),
@@ -516,7 +516,7 @@ actionThrow w = let
   pInv   = inventory pEntity
   pCoin  = if pCls == "Rogue" then Map.findWithDefault 0 "Coin" pInv else 0
   pArrow = Map.findWithDefault 0 "Arrow" pInv
-  -- Arrow vs Coin
+  -- Arrow or Coin
   (ammo, count) = if pCoin > 0 then ("Coin", pCoin-1) else ("Arrow", pArrow-1)
   -- pick closest target
   mySort  = sortBy (compare `on` snd)

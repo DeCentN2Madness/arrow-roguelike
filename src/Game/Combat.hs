@@ -130,19 +130,17 @@ mkCombat px mx w = if px == mx
     pProp = property pEntity
     pName = Map.findWithDefault "P" "Name" pProp
     -- COMBAT
-    pStr  = read $ T.unpack $ Map.findWithDefault "1" "str" pProp :: Int
-    pDex  = read $ T.unpack $ Map.findWithDefault "1" "dex" pProp :: Int
-    pAtk  = read $ T.unpack $ Map.findWithDefault "1" "ATTACKS" pProp :: Int
-    pWeap = Map.findWithDefault "1d1" "ATTACK" pProp
+    (pStr, pStrMod) = abilityLookup "str" pEntity
+    (_, pDexMod) = abilityLookup "dex" pEntity
+    (pAtk, _) = abilityLookup "ATTACKS" pEntity
+    (pWWT, _) = abilityLookup "WWT" pEntity
+    pWeap     = Map.findWithDefault "1d1" "ATTACK" pProp
     -- Fighter or Rogue, Finesse?
-    pWWT  = read $ T.unpack $ Map.findWithDefault "3" "WWT" pProp :: Int
-    pStat = if pWWT < 3
-      then abilityMod pDex
-      else abilityMod pStr
+    pStat = if pWWT < 3 then pDexMod else pStrMod
     -- Encumbered?
-    pWT  = read $ T.unpack $ Map.findWithDefault "0" "WT" pProp :: Int
-    pMod = read $ T.unpack $ Map.findWithDefault "0" "Proficiency" pProp
-    pEnc = checkEncumberance pStr pWT pMod
+    (pWT, _)  = abilityLookup "WT" pEntity
+    (pMod, _) = abilityLookup "Proficiency" pEntity
+    pEnc      = checkEncumberance pStr pWT pMod
     -- ATTACK roll
     (pEntry, pDamage) = attackAction pSeed pName pAtk pWeap pStat pEnc mName mAC
     pAttack = mHP - pDamage
@@ -174,20 +172,18 @@ mkMagicCombat px mx w = if px == mx
     pProp = property pEntity
     pName = Map.findWithDefault "P" "Name" pProp
     -- MAGIC
-    pStr  = read $ T.unpack $ Map.findWithDefault "1" "str" pProp :: Int
-    pInt  = read $ T.unpack $ Map.findWithDefault "1" "int" pProp :: Int
-    pWis  = read $ T.unpack $ Map.findWithDefault "1" "wis" pProp :: Int
+    (pStr, _) = abilityLookup "str" pEntity
+    (_, pIntMod) = abilityLookup "int" pEntity
+    (_, pWisMod) = abilityLookup "wis" pEntity
+    (pWWT, _) = abilityLookup "WWT" pEntity
     pAtk  = 1
-    pWeap = checkFinesse pWWT $ Map.findWithDefault "0" "CAST" pProp
     -- Mage or Cleric, Finesse?
-    pWWT   = read $ T.unpack $ Map.findWithDefault "0" "WWT" pProp :: Int
+    pWeap = checkFinesse pWWT $ Map.findWithDefault "0" "CAST" pProp
     pClass = Map.findWithDefault "None" "Class" pProp
-    pStat  = if pClass == "Cleric"
-      then abilityMod pWis
-      else abilityMod pInt
+    pStat  = if pClass == "Cleric" then pWisMod else pIntMod
     -- Encumbered?
-    pWT  = read $ T.unpack $ Map.findWithDefault "0" "WT" pProp  :: Int
-    pMod = read $ T.unpack $ Map.findWithDefault "0" "Proficiency" pProp
+    (pWT, _)  = abilityLookup "WT" pEntity
+    (pMod, _) = abilityLookup "Proficiency" pEntity
     pEnc = checkEncumberance pStr pWT pMod
     -- CAST roll
     (pEntry, pDamage) = attackAction pSeed pName pAtk pWeap pStat pEnc mName mAC
@@ -224,15 +220,16 @@ mkRangeCombat px mx w = if px == mx
     pProp = property pEntity
     pName = Map.findWithDefault "P" "Name" pProp
     -- THROW
-    pStr  = read $ T.unpack $ Map.findWithDefault "1" "str" pProp :: Int
-    pDex  = read $ T.unpack $ Map.findWithDefault "1" "dex" pProp :: Int
-    pAtk  = read $ T.unpack $ Map.findWithDefault "1" "ATTACKS" pProp :: Int
-    pWeap = Map.findWithDefault "1d1" "SHOOT" pProp
-    pStat = abilityMod pDex
+    (pStr, _) = abilityLookup "str" pEntity
+    (_, pDexMod) = abilityLookup "dex" pEntity
+    (pAtk, _) = abilityLookup "ATTACKS" pEntity
+    (pWWT, _) = abilityLookup "WWT" pEntity
+    pStat     = pDexMod
     -- Encumbered?
-    pWT  = read $ T.unpack $ Map.findWithDefault "0" "WT" pProp  :: Int
-    pMod = read $ T.unpack $ Map.findWithDefault "0" "Proficiency" pProp
-    pEnc = checkEncumberance pStr pWT pMod
+    (pWT, _)  = abilityLookup "WT" pEntity
+    (pMod, _) = abilityLookup "Proficiency" pEntity
+    pEnc      = checkEncumberance pStr pWT pMod
+    pWeap     = checkFinesse pWWT $ Map.findWithDefault "1d1" "SHOOT" pProp
     -- SHOOT roll
     (pEntry, pDamage) = attackAction pSeed pName pAtk pWeap pStat pEnc mName mAC
     pAttack = mHP - pDamage

@@ -157,10 +157,10 @@ searchGain lvl search
 -- @ loses Proficiency based on WT
 checkEncumberance :: Int -> Int -> Int -> Int
 checkEncumberance str wt prof
-  | wt > 8 * str = -5
-  | wt > 7 * str = -3
-  | wt > 6 * str = -1
-  | wt > 5 * str = 0
+  | wt > (8 * str) = -5
+  | wt > (7 * str) = -3
+  | wt > (6 * str) = -1
+  | wt > (5 * str) = 0
   | otherwise = prof
 
 -- | checkFinesse

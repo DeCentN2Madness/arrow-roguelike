@@ -110,20 +110,20 @@ mkAssetMap = let
        -- Head
        , mkItem "head/Leather Skullcap"  "]:1:0:" pos
        , mkItem "head/Mail Coif"         "]:10:2:CON" pos
-       , mkItem "head/Open Helm"         "]:20:1:CON" pos
-       , mkItem "head/Helm"              "]:30:2:CON" pos
-       , mkItem "head/Helm of Dragon"    "]:100:2:STR,FIRE,COLD" pos
+       , mkItem "head/Open Helm"         "]:20:1:WIS" pos
+       , mkItem "head/Helm"              "]:30:2:STR" pos
+       , mkItem "head/Helm of Dragon"    "]:100:2:STR,FIRE" pos
        , mkItem "head/Crown of Elements" "]:100:2:FIRE,COLD" pos
-       , mkItem "head/Crown of Elves"    "]:100:2:INT,FIRE,COLD,SEARCH" pos
-       , mkItem "head/Crown of King"     "]:100:2:WIS,FIRE,COLD,SEARCH" pos
+       , mkItem "head/Crown of Elves"    "]:100:2:INT,FIRE,COLD" pos
+       , mkItem "head/Crown of King"     "]:100:2:WIS,FIRE,COLD" pos
        -- Feet
        , mkItem "feet/Leather Leggings"   "]:1:1:" pos
        , mkItem "feet/Mail Chausses"      "]:10:2:CON" pos
-       , mkItem "feet/Plate Leggings"     "]:30:3:CON" pos
-       , mkItem "feet/Traveler Boots"     "]:20:1:FIRE,COLD" pos
-       , mkItem "feet/Boots of Elvenkind" "]:100:1:DEX,COLD" pos
+       , mkItem "feet/Plate Leggings"     "]:30:3:STR" pos
+       , mkItem "feet/Traveler Boots"     "]:20:1:COLD" pos
+       , mkItem "feet/Boots of Elvenkind" "]:100:1:DEX" pos
        , mkItem "feet/Boots of Dragon"    "]:100:1:CON,FIRE" pos
-       , mkItem "feet/Boots of Speed"     "]:100:1:DEX,AC" pos
+       , mkItem "feet/Boots of Speed"     "]:100:1:DEX,INT" pos
        , mkItem "feet/Dwarven Boots"      "]:100:2:STR,COLD" pos
        -- Hands
        , mkItem "hands/Gloves"              "]:1:1:" pos
@@ -154,12 +154,12 @@ mkAssetMap = let
        , mkItem "neck/Amulet of Protection" "\":100:0:CON" pos
        -- Cloaks
        , mkItem "cloak/Cloak"                "(:1:3:" pos
-       , mkItem "cloak/Cloak of Iron Throne" "(:100:3:CON,SEARCH" pos
-       , mkItem "cloak/Cloak of Elvenkind"   "(:100:3:DEX,SEARCH" pos
+       , mkItem "cloak/Cloak of Iron Throne" "(:100:3:CON,WIS" pos
+       , mkItem "cloak/Cloak of Elvenkind"   "(:100:3:DEX,WIS" pos
        , mkItem "cloak/Cloak of Elements"    "(:100:3:FIRE,COLD" pos
        , mkItem "cloak/Cloak of Protection"  "(:100:3:CON" pos
-       , mkItem "cloak/Cloak of Dragon"      "(:100:3:CON,FIRE" pos
-       , mkItem "cloak/Cloak of Hunter"      "(:100:3:DEX,SHOOT" pos
+       , mkItem "cloak/Cloak of Dragon"      "(:100:3:STR,FIRE" pos
+       , mkItem "cloak/Cloak of Hunter"      "(:100:3:DEX,WIS" pos
        , mkItem "cloak/Cloak of Winter"      "(:100:3:CON,COLD" pos
        -- Monsters
        , mkMonster "Red Dragon"   "Medium dragon (d)"   pos

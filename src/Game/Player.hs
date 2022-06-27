@@ -61,9 +61,8 @@ characterEquipment em _ = let
   range  = T.append "Shoot:  " $ Map.findWithDefault "0" "SHOOT" pProp
   tags   = T.append "Tags:   " $ Map.findWithDefault "None" "TAGS" pProp
   -- Encumbered, Finesse, Heavy weapons?
-  (pStr, pStrMod) = abilityLookup "str" pEntity
-  (pWT, _)  = abilityLookup "WT" pEntity
-  (pWWT, _) = abilityLookup "WWT" pEntity
+  pWT  = read $ T.unpack $ Map.findWithDefault "0" "WT" pProp :: Int
+  pWWT = read $ T.unpack $ Map.findWithDefault "0" "WWT" pProp :: Int
   pEnc = if pWT > 5 * pStr
     then "Load:   ENCUMBERED!"
     else T.concat [ "Load:   "
@@ -76,6 +75,7 @@ characterEquipment em _ = let
     then "Weapon: Heavy"
     else T.concat [ "Weapon: ", T.pack $ show pWWT, " lbs." ]
   -- Skills
+  (pStr, pStrMod) = abilityLookup "str" pEntity
   (_, pDexMod) = abilityLookup "dex" pEntity
   (_, pConMod) = abilityLookup "con" pEntity
   (_, pIntMod) = abilityLookup "int" pEntity

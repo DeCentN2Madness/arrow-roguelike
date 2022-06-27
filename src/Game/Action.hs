@@ -116,10 +116,10 @@ actionDig ix w = let
   (xMax, yMax) = gridXY w
   -- @ dig
   canDig = (pMod >= 0 || (pMana > 0 && pMaxMP > 0))
-  newMap = if canDig && x > 0 && x < xMax && y > 0 && y < yMax
+  newMap = if canDig && x > 0 && x < xMax-1 && y > 0 && y < yMax-1
     then GT.updateTile (x, y) (gameT w)
     else gameT w
-  entry = if canDig && x > 0 && x < xMax && y > 0 && y < yMax
+  entry = if canDig && x > 0 && x < xMax-1 && y > 0 && y < yMax-1
     then T.concat [ "Dig ", label!!shovel, "..." ]
     else "No Dig... "
   in w { tick      = newTick

@@ -39,10 +39,12 @@ abilityLookup :: Text -> EntityKind -> (Int, Int)
 abilityLookup stat pEntity = let
   pProp = property pEntity
   pStat = read $ T.unpack $ Map.findWithDefault "0" stat pProp :: Int
+  pTag  = T.append "+" (T.toUpper stat)
   pTags = T.splitOn "," $ Map.findWithDefault "," "TAGS" pProp
-  pCnt  = length $ filter (== T.append "+" stat) pTags
-  pMod  = abilityMod (pStat + pCnt)
-  in (pStat, pMod)
+  pCnt  = length $ filter (==pTag) pTags
+  newStat = pStat + pCnt
+  pMod  = abilityMod newStat
+  in (newStat, pMod)
 
 -- | abilityMod
 abilityMod :: Int -> Int

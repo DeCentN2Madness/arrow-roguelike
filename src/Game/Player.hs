@@ -61,7 +61,7 @@ characterEquipment em _ = let
   range  = T.append "Shoot:  " $ Map.findWithDefault "0" "SHOOT" pProp
   tags   = T.append "Tags:   " $ Map.findWithDefault "None" "TAGS" pProp
   -- Encumbered, Finesse, Heavy weapons?
-  (pStr, _) = abilityLookup "str" pEntity
+  (pStr, pStrMod) = abilityLookup "str" pEntity
   (pWT, _)  = abilityLookup "WT" pEntity
   (pWWT, _) = abilityLookup "WWT" pEntity
   pEnc = if pWT > 5 * pStr
@@ -72,11 +72,23 @@ characterEquipment em _ = let
   pFinesse = if pWWT < 3
     then "Melee:  Finesse"
     else "Melee:  Strength"
-  pHeavy   = if pWWT > 4
+  pHeavy = if pWWT > 4
     then "Weapon: Heavy"
     else T.concat [ "Weapon: ", T.pack $ show pWWT, " lbs." ]
+  -- Skills
+  (_, pDexMod) = abilityLookup "dex" pEntity
+  (_, pConMod) = abilityLookup "con" pEntity
+  (_, pIntMod) = abilityLookup "int" pEntity
+  (_, pWisMod) = abilityLookup "wis" pEntity
+  pSkills = T.concat [ "Skills:"
+                     , " Str:",  resultFmt pStrMod
+                     , ", Dex:", resultFmt pDexMod
+                     , ", Con:", resultFmt pConMod
+                     , ", Int:", resultFmt pIntMod
+                     , ", Wis:", resultFmt pWisMod
+                     ]
   in selection pInv
-  ++ [ armorClass, attack, range, pFinesse, pEnc, pHeavy, tags
+  ++ [ armorClass, attack, range, pFinesse, pEnc, pHeavy, tags, pSkills
      , "Press [0-9] to Doff. (I)nventory. Press ESC to Continue." ]
 
 -- | @ Examine
@@ -193,14 +205,14 @@ characterStore em am = let
       let name = if k `elem` ["Arrow", "Mushroom", "Potion"]
             then T.concat [ k, " (", T.pack $ show v, ") ", item ]
             else "None"
-          item = Map.findWithDefault "--" k descMap ]
+          item = Map.findWithDefault "None" k descMap ]
   in selection pInv
   ++ [ " ", "Press [0-9, A-J] to Purchase. (S)ell. ESC to Continue." ]
 
 -- | @ Target
 characterTarget :: [Text]
 characterTarget = [ "1) NW -  0) N - 7) NE"
-                  , "2) W  -       - 6) E"
+                  , "2) W  -  ---- - 6) E"
                   , "3) SW -  4) S - 5) SE"
                   , "Press [0-7] to Target. ESC to Continue."
                   ]
@@ -287,19 +299,21 @@ updatePlayerXP :: Int -> EntityMap -> EntityMap
 updatePlayerXP xp em = let
   (pEntity, _ ) = getPlayer em
   pProp = property pEntity
-  pCls  = Map.findWithDefault "None" "Class" pProp
-  (pStr, _)     = abilityLookup "str" pEntity
-  (pDex, _)     = abilityLookup "dex" pEntity
-  (pCon, pConMod) = abilityLookup "con" pEntity
-  (pInt, _)     = abilityLookup "int" pEntity
-  (pWis, pWisMod) = abilityLookup "wis" pEntity
-  cHP   = read $ T.unpack $ Map.findWithDefault "1" "HP" pProp
-  cMP   = read $ T.unpack $ Map.findWithDefault "0" "MP" pProp
-  cAttacks = Map.findWithDefault "0" "ATTACKS" pProp
+  pCls     = Map.findWithDefault "None" "Class" pProp
+  cAttacks = Map.findWithDefault "1" "ATTACKS" pProp
   cCast    = Map.findWithDefault "0" "CAST" pProp
   cProf    = Map.findWithDefault "0" "Proficiency" pProp
   cSearch  = Map.findWithDefault "0" "SEARCH" pProp
-  -- EXP
+  cHP  = read $ T.unpack $ Map.findWithDefault "0" "HP" pProp :: Int
+  cMP  = read $ T.unpack $ Map.findWithDefault "0" "MP" pProp :: Int
+  pStr = read $ T.unpack $ Map.findWithDefault "1" "str" pProp :: Int
+  pDex = read $ T.unpack $ Map.findWithDefault "1" "dex" pProp :: Int
+  pCon = read $ T.unpack $ Map.findWithDefault "1" "con" pProp :: Int
+  pInt = read $ T.unpack $ Map.findWithDefault "1" "int" pProp :: Int
+  pWis = read $ T.unpack $ Map.findWithDefault "1" "wis" pProp :: Int
+  (_, pConMod) = abilityLookup "con" pEntity
+  (_, pWisMod) = abilityLookup "wis" pEntity
+  -- Experience
   pTot    = eXP pEntity + xp
   pLvl    = xpLevel pTot
   current = eLvl pEntity

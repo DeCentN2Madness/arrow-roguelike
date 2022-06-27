@@ -330,7 +330,7 @@ updatePlayerXP xp em = let
   (cWis, cStr) = if pCls == "Cleric" then abilityGain pLvl current else (0,0)
   -- Mana
   pMP    = if pLvl > current then pMaxMP else eMP pEntity
-  pMaxMP = pLvl * (cMP + pWisMod)
+  pMaxMP = if pMaxMP > 0 then pLvl * (cMP + pWisMod) else 0
   -- ATTACKS, CAST, PROFICIENCY, SEARCH
   pAttacks = attacksGain pCls pLvl cAttacks
   pCast    = castGain pCls pLvl cCast

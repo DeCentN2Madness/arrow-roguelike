@@ -318,8 +318,9 @@ updatePlayerXP xp em = let
   pLvl    = xpLevel pTot
   current = eLvl pEntity
   -- HP
-  pHP    = if pLvl > current then pMaxHP else eHP pEntity
-  pMaxHP = pLvl * (cHP + pConMod)
+  pHP     = if pLvl > current then pMaxHP else eHP pEntity
+  pHealth = pLvl * (cHP + pConMod)
+  pMaxHP  = if pHealth > 0 then pHealth else cHP
   -- Fighter
   (fStr, fDex) = if pCls == "Fighter" then abilityGain pLvl current else (0,0)
   -- Rogue
@@ -330,7 +331,8 @@ updatePlayerXP xp em = let
   (cWis, cStr) = if pCls == "Cleric" then abilityGain pLvl current else (0,0)
   -- Mana
   pMP    = if pLvl > current then pMaxMP else eMP pEntity
-  pMaxMP = if pMaxMP > 0 then pLvl * (cMP + pWisMod) else 0
+  pMana  = pLvl * (cMP + pWisMod)
+  pMaxMP = if pMana > 0 then pMana else 0
   -- ATTACKS, CAST, PROFICIENCY, SEARCH
   pAttacks = attacksGain pCls pLvl cAttacks
   pCast    = castGain pCls pLvl cCast

@@ -8,9 +8,11 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 -}
 module Game.Rules where
 
+import qualified Data.Map.Strict as Map
 import Data.Text (Text)
 import qualified Data.Text as T
 import qualified Game.DiceSet as DS
+import Game.Kind.Entity
 
 -- | abilityBonus
 -- Formatted bonus
@@ -30,6 +32,17 @@ abilityGain lvl curr
   | lvl == 16 && lvl > curr = (1, 1)
   | lvl == 19 && lvl > curr = (1, 1)
   | otherwise = (0,0)
+
+-- | abilityLookup
+-- @ ability with modifiers like Items, Status, etc...
+abilityLookup :: Text -> EntityKind -> (Int, Int)
+abilityLookup stat pEntity = let
+  pProp = property pEntity
+  pStat = read $ T.unpack $ Map.findWithDefault "0" stat pProp :: Int
+  pTags = T.splitOn "," $ Map.findWithDefault "," "TAGS" pProp
+  pCnt  = length $ filter (== T.append "+" stat) pTags
+  pMod  = abilityMod (pStat + pCnt)
+  in (pStat, pMod)
 
 -- | abilityMod
 abilityMod :: Int -> Int

@@ -98,13 +98,12 @@ actionDig ix w = let
   newTick         = tick w + 1
   (pEntity, pPos) = GP.getPlayer (entityT w)
   -- Dig for Str > 10
-  pProp  = property pEntity
-  pStr   = read $ T.unpack $ Map.findWithDefault "1" "str" pProp :: Int
+  (_, pMod) = abilityLookup "str" pEntity
   -- Dig spell for Str < 10
   pCast  = if eLvl pEntity > 1 then eLvl pEntity `div` 2 else 1
   pMana  = eMP pEntity - pCast
   pMaxMP = eMaxMP pEntity
-  newPlayer = if pStr < 10 && pMana > 0 && pMaxMP > 0
+  newPlayer = if pMod < 0 && pMana > 0 && pMaxMP > 0
     then pEntity { eMP = pMana }
     else pEntity
   -- pick target from ix
@@ -116,7 +115,7 @@ actionDig ix w = let
   (x, y) = diggable!!shovel
   (xMax, yMax) = gridXY w
   -- @ dig
-  canDig = (pStr >= 10 || (pMana > 0 && pMaxMP > 0))
+  canDig = (pMod >= 0 || (pMana > 0 && pMaxMP > 0))
   newMap = if canDig && x > 0 && x < xMax && y > 0 && y < yMax
     then GT.updateTile (x, y) (gameT w)
     else gameT w

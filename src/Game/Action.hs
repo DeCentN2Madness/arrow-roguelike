@@ -439,10 +439,10 @@ actionRest w = let
   -- Rest
   (_, pCon) = abilityLookup "con" pEntity
   (_, pWis) = abilityLookup "wis" pEntity
-  heal   = eHP pEntity + pCon
-  mana   = if pMaxMp > 1 then eMP pEntity + pWis else 0
-  pHp    = if heal > pMaxHp then pMaxHp else heal
-  pMp    = if mana > pMaxMp then pMaxMp else mana
+  heal   = eHP pEntity + (if pCon > 0 then pCon else 0)
+  mana   = eMP pEntity + (if pMaxMP > 0 && pWis > 0 then pWis else 0)
+  pHp    = if heal >= pMaxHp then pMaxHp else heal
+  pMp    = if mana >= pMaxMp then pMaxMp else mana
   pMaxHp = eMaxHP pEntity
   pMaxMp = eMaxMP pEntity
   newPlayer = pEntity { eHP = pHp, eMP = pMp }

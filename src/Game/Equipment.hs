@@ -11,7 +11,6 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 module Game.Equipment (armorShield) where
 
 import Prelude hiding (lookup)
-import Data.List
 import qualified Data.Map.Strict as Map
 import Data.Text (Text)
 import qualified Data.Text as T
@@ -77,7 +76,7 @@ gearTags pProp descMap = let
     desc = T.splitOn ":" $ Map.findWithDefault ":::" tag descMap
     in desc!!3
   tagReduce :: Text -> Text
-  tagReduce xs = T.intercalate "," $ map (T.append "+") $ nub $ T.splitOn "," xs
+  tagReduce xs = T.intercalate "," $ map (T.append "+") $ T.splitOn "," xs
   gear = [ "melee", "shield", "shoot", "armor", "head"
          , "feet", "hands", "jewelry", "neck", "cloak" ]
   in tagReduce $ T.intercalate "," $ map tagLookup gear

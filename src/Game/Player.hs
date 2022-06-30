@@ -80,12 +80,13 @@ characterEquipment em _ = let
   (_, pConMod) = abilityLookup "con" pEntity
   (_, pIntMod) = abilityLookup "int" pEntity
   (_, pWisMod) = abilityLookup "wis" pEntity
-  pSkills = T.concat [ "Skills:"
-                     , " Str:",  resultFmt pStrMod
-                     , ", Dex:", resultFmt pDexMod
-                     , ", Con:", resultFmt pConMod
-                     , ", Int:", resultFmt pIntMod
-                     , ", Wis:", resultFmt pWisMod
+  pSkills = T.concat [ "Ability:"
+                     , " Melee:",  resultFmt pStrMod
+                     , "/", resultFmt pDexMod
+                     , ", Shoot ", resultFmt pDexMod
+                     , ", Toughness:", resultFmt pConMod
+                     , ", Magic:", resultFmt pIntMod
+                     , ", Willpower:", resultFmt pWisMod
                      ]
   in selection pInv
   ++ [ armorClass, attack, range, pFinesse, pEnc, pHeavy, tags, pSkills
@@ -167,7 +168,7 @@ characterSheet em = let
   (pEntity, _) = getPlayer em
   pInv   = inventory pEntity
   pCoin  = T.append "AU: " (T.pack $ show $ Map.findWithDefault 0 "Coin" pInv)
-  pProp = property pEntity
+  pProp  = property pEntity
   pEquip = T.concat [ equip "melee" "|" pProp
     , equip "shoot"   "{" pProp
     , equip "jewelry" "=" pProp
@@ -179,14 +180,14 @@ characterSheet em = let
     , equip "hands"   "]" pProp
     , equip "feet"    "]" pProp
     ]
-  pCls  = Map.findWithDefault "Player" "Class" pProp
-  pStr  = T.append "Str: " $ Map.findWithDefault "1" "str" pProp
-  pDex  = T.append "Dex: " $ Map.findWithDefault "1" "dex" pProp
-  pCon  = T.append "Con: " $ Map.findWithDefault "1" "con" pProp
-  pInt  = T.append "Int: " $ Map.findWithDefault "1" "int" pProp
-  pWis  = T.append "Wis: " $ Map.findWithDefault "1" "wis" pProp
-  pLvl  = T.pack $ "Level: " ++ show (eLvl pEntity)
-  pExp  = T.pack $ "EXP: " ++ show (eXP pEntity)
+  pCls = Map.findWithDefault "Player" "Class" pProp
+  pStr = T.append "Str: " $ Map.findWithDefault "1" "str" pProp
+  pDex = T.append "Dex: " $ Map.findWithDefault "1" "dex" pProp
+  pCon = T.append "Con: " $ Map.findWithDefault "1" "con" pProp
+  pInt = T.append "Int: " $ Map.findWithDefault "1" "int" pProp
+  pWis = T.append "Wis: " $ Map.findWithDefault "1" "wis" pProp
+  pLvl = T.pack $ "Level: " ++ show (eLvl pEntity)
+  pExp = T.pack $ "EXP: " ++ show (eXP pEntity)
   in [ pCls, pLvl, pExp, pCoin, pEquip, pStr, pDex, pCon, pInt, pWis ]
 
 -- | @ Store

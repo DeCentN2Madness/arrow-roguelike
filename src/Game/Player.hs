@@ -60,7 +60,7 @@ characterEquipment em _ = let
   attack = T.append "Attack: " $ Map.findWithDefault "0" "ATTACK" pProp
   range  = T.append "Shoot:  " $ Map.findWithDefault "0" "SHOOT" pProp
   tags   = T.append "Tags:   " $ Map.findWithDefault "None" "TAGS" pProp
-  -- Encumbered, Finesse, Heavy weapons?
+  -- Encumbered, Heavy weapons?
   pWT  = read $ T.unpack $ Map.findWithDefault "0" "WT" pProp :: Int
   pWWT = read $ T.unpack $ Map.findWithDefault "0" "WWT" pProp :: Int
   pEnc = if pWT > 5 * pStr
@@ -68,11 +68,8 @@ characterEquipment em _ = let
     else T.concat [ "Load:   "
                   , T.pack $ show pWT, "/"
                   , T.pack $ show (5 * pStr), " lbs." ]
-  pFinesse = if pWWT < 3
-    then "Melee:  Finesse"
-    else "Melee:  Strength"
-  pHeavy = if pWWT > 4
-    then "Weapon: Heavy"
+  pHeavy = if pWWT < 3
+    then "Weapon: Finesse"
     else T.concat [ "Weapon: ", T.pack $ show pWWT, " lbs." ]
   -- Skills
   (pStr, pStrMod) = abilityLookup "str" pEntity
@@ -89,7 +86,7 @@ characterEquipment em _ = let
                      , ", Willpower:", resultFmt pWisMod
                      ]
   in selection pInv
-  ++ [ armorClass, attack, range, pFinesse, pEnc, pHeavy, tags, pSkills
+  ++ [ armorClass, attack, range, pEnc, pHeavy, tags, pSkills
      , "Press [0-9] to Doff. (I)nventory. Press ESC to Continue." ]
 
 -- | @ Examine

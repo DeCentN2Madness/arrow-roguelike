@@ -44,25 +44,24 @@ type Coord = (Int, Int)
 characterEquipment :: EntityMap -> AssetMap -> [Text]
 characterEquipment em _ = let
   (pEntity, _) = getPlayer em
-  pProp = property pEntity
   pInv = [melee, shoot, ring, neck, armor, cloak, shield, helmet, hands, feet]
-  melee  = T.append "Melee:  " $ Map.findWithDefault "None" "melee" pProp
-  shoot  = T.append "Shoot:  " $ Map.findWithDefault "None" "shoot" pProp
-  ring   = T.append "Ring:   " $ Map.findWithDefault "None" "jewelry" pProp
-  neck   = T.append "Neck:   " $ Map.findWithDefault "None" "neck" pProp
-  armor  = T.append "Armor:  " $ Map.findWithDefault "None" "armor" pProp
-  cloak  = T.append "Cloak:  " $ Map.findWithDefault "None" "cloak" pProp
-  shield = T.append "Shield: " $ Map.findWithDefault "None" "shield" pProp
-  helmet = T.append "Head:   " $ Map.findWithDefault "None" "head" pProp
-  hands  = T.append "Hands:  " $ Map.findWithDefault "None" "hands" pProp
-  feet   = T.append "Feet:   " $ Map.findWithDefault "None" "feet" pProp
-  armorClass = T.append "AC: " $ Map.findWithDefault "0" "AC" pProp
-  attack = T.append "Attack: " $ Map.findWithDefault "0" "ATTACK" pProp
-  range  = T.append "Shoot:  " $ Map.findWithDefault "0" "SHOOT" pProp
-  tags   = T.append "Tags:   " $ Map.findWithDefault "None" "TAGS" pProp
+  melee  = T.append "Melee:  " $ propertyLookup "melee" pEntity
+  shoot  = T.append "Shoot:  " $ propertyLookup "shoot" pEntity
+  ring   = T.append "Ring:   " $ propertyLookup "jewelry" pEntity
+  neck   = T.append "Neck:   " $ propertyLookup "neck" pEntity
+  armor  = T.append "Armor:  " $ propertyLookup "armor" pEntity
+  cloak  = T.append "Cloak:  " $ propertyLookup "cloak" pEntity
+  shield = T.append "Shield: " $ propertyLookup "shield" pEntity
+  helmet = T.append "Head:   " $ propertyLookup "head" pEntity
+  hands  = T.append "Hands:  " $ propertyLookup "hands" pEntity
+  feet   = T.append "Feet:   " $ propertyLookup "feet" pEntity
+  armorClass = T.append "AC: " $ propertyLookup "AC" pEntity
+  attack = T.append "Attack: " $ propertyLookup "ATTACK" pEntity
+  range  = T.append "Shoot:  " $ propertyLookup "SHOOT" pEntity
+  tags   = T.append "Tags:   " $ propertyLookup "TAGS" pEntity
   -- Encumbered, Heavy weapons?
-  pWT  = read $ T.unpack $ Map.findWithDefault "0" "WT" pProp :: Int
-  pWWT = read $ T.unpack $ Map.findWithDefault "0" "WWT" pProp :: Int
+  pWT  = propertyNLookup "WT" pEntity
+  pWWT = propertyNLookup "WWT" pEntity
   pEnc = if pWT > 5 * pStr
     then "Load:   ENCUMBERED!"
     else T.concat [ "Load:   "
@@ -177,12 +176,12 @@ characterSheet em = let
     , equip "hands"   "]" pProp
     , equip "feet"    "]" pProp
     ]
-  pCls = Map.findWithDefault "Player" "Class" pProp
-  pStr = T.append "Str: " $ Map.findWithDefault "1" "str" pProp
-  pDex = T.append "Dex: " $ Map.findWithDefault "1" "dex" pProp
-  pCon = T.append "Con: " $ Map.findWithDefault "1" "con" pProp
-  pInt = T.append "Int: " $ Map.findWithDefault "1" "int" pProp
-  pWis = T.append "Wis: " $ Map.findWithDefault "1" "wis" pProp
+  pCls = propertyLookup "Class" pEntity
+  pStr = T.append "Str: " $ propertyLookup "str" pEntity
+  pDex = T.append "Dex: " $ propertyLookup "dex" pEntity
+  pCon = T.append "Con: " $ propertyLookup "con" pEntity
+  pInt = T.append "Int: " $ propertyLookup "int" pEntity
+  pWis = T.append "Wis: " $ propertyLookup "wis" pEntity
   pLvl = T.pack $ "Level: " ++ show (eLvl pEntity)
   pExp = T.pack $ "EXP: " ++ show (eXP pEntity)
   in [ pCls, pLvl, pExp, pCoin, pEquip, pStr, pDex, pCon, pInt, pWis ]
@@ -297,18 +296,18 @@ updatePlayerXP :: Int -> EntityMap -> EntityMap
 updatePlayerXP xp em = let
   (pEntity, _ ) = getPlayer em
   pProp = property pEntity
-  pCls     = Map.findWithDefault "None" "Class" pProp
-  cAttacks = Map.findWithDefault "1" "ATTACKS" pProp
-  cCast    = Map.findWithDefault "0" "CAST" pProp
-  cProf    = Map.findWithDefault "0" "Proficiency" pProp
-  cSearch  = Map.findWithDefault "0" "SEARCH" pProp
-  cHP  = read $ T.unpack $ Map.findWithDefault "0" "HP" pProp :: Int
-  cMP  = read $ T.unpack $ Map.findWithDefault "0" "MP" pProp :: Int
-  pStr = read $ T.unpack $ Map.findWithDefault "1" "str" pProp :: Int
-  pDex = read $ T.unpack $ Map.findWithDefault "1" "dex" pProp :: Int
-  pCon = read $ T.unpack $ Map.findWithDefault "1" "con" pProp :: Int
-  pInt = read $ T.unpack $ Map.findWithDefault "1" "int" pProp :: Int
-  pWis = read $ T.unpack $ Map.findWithDefault "1" "wis" pProp :: Int
+  pCls     = propertyLookup "Class" pEntity
+  cAttacks = propertyLookup "ATTACKS" pEntity
+  cCast    = propertyLookup "CAST" pEntity
+  cProf    = propertyLookup "Proficiency" pEntity
+  cSearch  = propertyLookup "SEARCH" pEntity
+  cHP  = propertyNLookup "HP" pEntity
+  cMP  = propertyNLookup "MP" pEntity
+  pStr = propertyNLookup "str" pEntity
+  pDex = propertyNLookup "dex" pEntity
+  pCon = propertyNLookup "con" pEntity
+  pInt = propertyNLookup "int" pEntity
+  pWis = propertyNLookup "wis" pEntity
   (_, pConMod) = abilityLookup "con" pEntity
   (_, pWisMod) = abilityLookup "wis" pEntity
   -- Experience

@@ -127,27 +127,25 @@ mkCombat px mx w = if px == mx
     -- random seed
     pSeed = tick w + uncurry (*) pPos :: Int
     -- pAR, pDam, pMod
-    pProp = property pEntity
-    pName = Map.findWithDefault "P" "Name" pProp
+    pName = propertyLookup "Name" pEntity
     -- COMBAT
     (pStr, pStrMod) = abilityLookup "str" pEntity
     (_, pDexMod) = abilityLookup "dex" pEntity
-    (pAtk, _) = abilityLookup "ATTACKS" pEntity
-    (pWWT, _) = abilityLookup "WWT" pEntity
-    pWeap     = Map.findWithDefault "1d1" "ATTACK" pProp
+    pAtk  = propertyNLookup "ATTACKS" pEntity
+    pWWT  = propertyNLookup "WWT" pEntity
+    pWeap = propertyLookup "ATTACK" pEntity
     -- Fighter or Rogue, Finesse?
     pStat = if pWWT < 3 then pDexMod else pStrMod
     -- Encumbered?
-    (pWT, _)  = abilityLookup "WT" pEntity
-    (pMod, _) = abilityLookup "Proficiency" pEntity
-    pEnc      = checkEncumberance pStr pWT pMod
+    pWT  = propertyNLookup "WT" pEntity
+    pMod = propertyNLookup "Proficiency" pEntity
+    pEnc = checkEncumberance pStr pWT pMod
     -- ATTACK roll
     (pEntry, pDamage) = attackAction pSeed pName pAtk pWeap pStat pEnc mName mAC
     pAttack = mHP - pDamage
     -- mAC
-    mProp = property mEntity
-    mName = Map.findWithDefault "M" "Name" mProp
-    mAC   = read $ T.unpack $ Map.findWithDefault "1" "AC" mProp
+    mName = propertyLookup "Name" mEntity
+    mAC   = propertyNLookup "AC" mEntity
     mHP   = eHP mEntity
     mExp  = eXP mEntity
     mCond = T.concat [ mName, " is", condition pAttack mExp ]
@@ -169,29 +167,27 @@ mkMagicCombat px mx w = if px == mx
     -- random seed
     pSeed = tick w + uncurry (*) pPos :: Int
     -- pAR, pDam, pMod
-    pProp = property pEntity
-    pName = Map.findWithDefault "P" "Name" pProp
+    pName = propertyLookup "Name" pEntity
     -- MAGIC
     (pStr, _) = abilityLookup "str" pEntity
     (_, pIntMod) = abilityLookup "int" pEntity
     (_, pWisMod) = abilityLookup "wis" pEntity
-    (pWWT, _) = abilityLookup "WWT" pEntity
-    pAtk  = 1
+    pWWT = propertyNLookup "WWT" pEntity
+    pAtk = 1
     -- Mage or Cleric, Finesse?
-    pWeap = checkFinesse pWWT $ Map.findWithDefault "0" "CAST" pProp
-    pClass = Map.findWithDefault "None" "Class" pProp
-    pStat  = if pClass == "Cleric" then pWisMod else pIntMod
+    pWeap = checkFinesse pWWT $ propertyLookup "CAST" pEntity
+    pClass = propertyLookup "Class" pEntity
+    pStat = if pClass == "Cleric" then pWisMod else pIntMod
     -- Encumbered?
-    (pWT, _)  = abilityLookup "WT" pEntity
-    (pMod, _) = abilityLookup "Proficiency" pEntity
+    pWT  = propertyNLookup "WT" pEntity
+    pMod = propertyNLookup "Proficiency" pEntity
     pEnc = checkEncumberance pStr pWT pMod
     -- CAST roll
     (pEntry, pDamage) = attackAction pSeed pName pAtk pWeap pStat pEnc mName mAC
     pAttack = mHP - pDamage
     -- mAC
-    mProp = property mEntity
-    mName = Map.findWithDefault "M" "Name" mProp
-    mAC   = read $ T.unpack $ Map.findWithDefault "1" "AC" mProp
+    mName = propertyLookup "Name" mEntity
+    mAC   = propertyNLookup "AC" mEntity
     mHP   = eHP mEntity
     mExp  = eXP mEntity
     mCond = T.concat [ mName, " is", condition pAttack mExp ]
@@ -217,26 +213,23 @@ mkRangeCombat px mx w = if px == mx
     -- random seed
     pSeed = tick w + uncurry (*) pPos :: Int
     -- pAR, pDam, pMod
-    pProp = property pEntity
-    pName = Map.findWithDefault "P" "Name" pProp
+    pName = propertyLookup "Name" pEntity
     -- THROW
-    (pStr, _) = abilityLookup "str" pEntity
-    (_, pDexMod) = abilityLookup "dex" pEntity
-    (pAtk, _) = abilityLookup "ATTACKS" pEntity
-    (pWWT, _) = abilityLookup "WWT" pEntity
-    pStat     = pDexMod
+    (pStr, _)  = abilityLookup "str" pEntity
+    (_, pStat) = abilityLookup "dex" pEntity
+    pAtk  = propertyNLookup "ATTACKS" pEntity
+    pWWT  = propertyNLookup "WWT" pEntity
     -- Encumbered?
-    (pWT, _)  = abilityLookup "WT" pEntity
-    (pMod, _) = abilityLookup "Proficiency" pEntity
-    pEnc      = checkEncumberance pStr pWT pMod
-    pWeap     = checkFinesse pWWT $ Map.findWithDefault "1d1" "SHOOT" pProp
+    pWT   = propertyNLookup "WT" pEntity
+    pMod  = propertyNLookup "Proficiency" pEntity
+    pEnc  = checkEncumberance pStr pWT pMod
+    pWeap = checkFinesse pWWT $ propertyLookup "SHOOT" pEntity
     -- SHOOT roll
     (pEntry, pDamage) = attackAction pSeed pName pAtk pWeap pStat pEnc mName mAC
     pAttack = mHP - pDamage
     -- mAC
-    mProp = property mEntity
-    mName = Map.findWithDefault "M" "Name" mProp
-    mAC   = read $ T.unpack $ Map.findWithDefault "1" "AC" mProp
+    mName = propertyLookup "Name" mEntity
+    mAC   = propertyNLookup "AC" mEntity
     mHP   = eHP mEntity
     mExp  = eXP mEntity
     mCond = T.concat [ mName, " is", condition pAttack mExp ]

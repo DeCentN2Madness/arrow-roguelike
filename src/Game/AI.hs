@@ -57,12 +57,12 @@ aiAction ((mx, mEntity):xs) w = if mx == 0 || not (block mEntity)
   mPos   = coord mEntity
   -- Properties
   (mInt, _) = abilityLookup "int" mEntity
-  mSummon   = Map.findWithDefault "0" "SUMMON" (property mEntity)
+  mSummon   = propertyLookup "SUMMON" mEntity
   mSpawn    = spawn mEntity
   -- action
   action
     | C.adjacent mPos pPos = Attack
-    | (mMp > 5)    && (mSummon /= "0") && (C.chessDist mPos pPos <= 5) = Summon
+    | (mMp > 5) && (mSummon /= "None") && (C.chessDist mPos pPos <= 5) = Summon
     | (mMp > 0)    && (C.chessDist mPos pPos <= 4) = Cast
     | (mArrow > 0) && (C.chessDist mPos pPos <= 4) = Throw
     | (mMush > 0)  && (mMaxHp - mHp > 5) = Eat

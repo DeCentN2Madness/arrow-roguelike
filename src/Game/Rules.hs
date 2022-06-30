@@ -195,6 +195,22 @@ criticalRoll roll modifier prof
   where
     result = roll + modifier + prof
 
+-- | propertyLookup
+-- @ properties as Text...
+propertyLookup :: Text -> EntityKind -> Text
+propertyLookup stat pEntity = let
+  pProp = property pEntity
+  pStat = Map.findWithDefault "None" stat pProp
+  in pStat
+
+-- | propertyIntLookup
+-- @ properties as Int...
+propertyNLookup :: Text -> EntityKind -> Int
+propertyNLookup stat pEntity = let
+  pProp = property pEntity
+  pStat = read $ T.unpack $ Map.findWithDefault "0" stat pProp :: Int
+  in pStat
+
 -- | resultFmt
 resultFmt :: Int -> Text
 resultFmt n
@@ -209,9 +225,10 @@ weapon :: Text -> Int -> Int -> Int
 weapon pWeap seed bonus = let
   (wDam, wMod) = T.breakOn "+" pWeap
   roll = case wDam of
-    "0"   -> 0
-    "1"   -> 1
-    "1d1" -> 1
+    "None" -> 1
+    "0"    -> 0
+    "1"    -> 1
+    "1d1"  -> 1
     -- d4, d6, d8, d10, d12, d20
     "1d4" -> DS.d4 seed
     "1d6" -> DS.d6 seed

@@ -124,22 +124,19 @@ mkCombat px mx w = if px == mx
   else let
     (pEntity, pPos) = GE.getEntityAt px (entityT w)
     (mEntity, _)    = GE.getEntityAt mx (entityT w)
-    -- random seed
-    pSeed = tick w + uncurry (*) pPos :: Int
-    -- pAR, pDam, pMod
-    pName = propertyLookup "Name" pEntity
     -- COMBAT
+    pSeed = tick w + uncurry (*) pPos :: Int
+    pName = propertyLookup "Name" pEntity
     (pStr, pStrMod) = abilityLookup "str" pEntity
     (_, pDexMod) = abilityLookup "dex" pEntity
     pAtk  = propertyNLookup "ATTACKS" pEntity
-    pWWT  = propertyNLookup "WWT" pEntity
     pWeap = propertyLookup "ATTACK" pEntity
-    -- Fighter or Rogue, Finesse?
+    -- Encumbered, Finesse?
+    pWT   = propertyNLookup "WT" pEntity
+    pWWT  = propertyNLookup "WWT" pEntity
+    pMod  = propertyNLookup "Proficiency" pEntity
+    pEnc  = checkEncumberance pStr pWT pMod
     pStat = if pWWT < 3 then pDexMod else pStrMod
-    -- Encumbered?
-    pWT  = propertyNLookup "WT" pEntity
-    pMod = propertyNLookup "Proficiency" pEntity
-    pEnc = checkEncumberance pStr pWT pMod
     -- ATTACK roll
     (pEntry, pDamage) = attackAction pSeed pName pAtk pWeap pStat pEnc mName mAC
     pAttack = mHP - pDamage
@@ -157,31 +154,29 @@ mkCombat px mx w = if px == mx
        , journalT = GJ.updateJournal (mCond : pEntry) (journalT w) }
 
 -- | mkMagicCombat
--- Cast, Chant, Magic Combat...
+-- Cast...
 mkMagicCombat :: Int -> Int -> World -> World
 mkMagicCombat px mx w = if px == mx
   then w
   else let
     (pEntity, pPos) = GE.getEntityAt px (entityT w)
     (mEntity, _)    = GE.getEntityAt mx (entityT w)
-    -- random seed
-    pSeed = tick w + uncurry (*) pPos :: Int
-    -- pAR, pDam, pMod
-    pName = propertyLookup "Name" pEntity
     -- MAGIC
+    pSeed = tick w + uncurry (*) pPos :: Int
+    pName = propertyLookup "Name" pEntity
     (pStr, _) = abilityLookup "str" pEntity
     (_, pIntMod) = abilityLookup "int" pEntity
     (_, pWisMod) = abilityLookup "wis" pEntity
-    pWWT = propertyNLookup "WWT" pEntity
     pAtk = 1
-    -- Mage or Cleric, Finesse?
-    pWeap = checkFinesse pWWT $ propertyLookup "CAST" pEntity
+    -- Mage or Cleric?
     pClass = propertyLookup "Class" pEntity
-    pStat = if pClass == "Cleric" then pWisMod else pIntMod
-    -- Encumbered?
-    pWT  = propertyNLookup "WT" pEntity
-    pMod = propertyNLookup "Proficiency" pEntity
-    pEnc = checkEncumberance pStr pWT pMod
+    pStat  = if pClass == "Cleric" then pWisMod else pIntMod
+    -- Encumbered, Finesse?
+    pWT   = propertyNLookup "WT" pEntity
+    pWWT  = propertyNLookup "WWT" pEntity
+    pMod  = propertyNLookup "Proficiency" pEntity
+    pEnc  = checkEncumberance pStr pWT pMod
+    pWeap = checkFinesse pWWT $ propertyLookup "CAST" pEntity
     -- CAST roll
     (pEntry, pDamage) = attackAction pSeed pName pAtk pWeap pStat pEnc mName mAC
     pAttack = mHP - pDamage
@@ -191,36 +186,30 @@ mkMagicCombat px mx w = if px == mx
     mHP   = eHP mEntity
     mExp  = eXP mEntity
     mCond = T.concat [ mName, " is", condition pAttack mExp ]
-    -- misFire
-    shotEntity = if pDamage < 5
-      then misFire mEntity (assetT w) (entityT w)
-      else entityT w
     -- newEntity with damages and deaths and Exp awards
     newEntity = if pAttack < 1
       then death mx mEntity (assetT w) $ GP.updatePlayerXP mExp (entityT w)
-      else GE.updateEntityHp mx pAttack shotEntity
+      else GE.updateEntityHp mx pAttack (entityT w)
   in w { entityT  = newEntity
        , journalT = GJ.updateJournal (mCond:pEntry) (journalT w) }
 
 -- | mkRangeCombat
--- Shoot, Throw, Ranged Combat...
+-- Shoot...
 mkRangeCombat :: Int -> Int -> World -> World
 mkRangeCombat px mx w = if px == mx
   then w
   else let
     (pEntity, pPos) = GE.getEntityAt px (entityT w)
     (mEntity, _)    = GE.getEntityAt mx (entityT w)
-    -- random seed
-    pSeed = tick w + uncurry (*) pPos :: Int
-    -- pAR, pDam, pMod
-    pName = propertyLookup "Name" pEntity
     -- THROW
+    pSeed = tick w + uncurry (*) pPos :: Int
+    pName = propertyLookup "Name" pEntity
     (pStr, _)  = abilityLookup "str" pEntity
     (_, pStat) = abilityLookup "dex" pEntity
-    pAtk  = propertyNLookup "ATTACKS" pEntity
-    pWWT  = propertyNLookup "WWT" pEntity
-    -- Encumbered?
+    pAtk = propertyNLookup "ATTACKS" pEntity
+    -- Encumbered, Finesse?
     pWT   = propertyNLookup "WT" pEntity
+    pWWT  = propertyNLookup "WWT" pEntity
     pMod  = propertyNLookup "Proficiency" pEntity
     pEnc  = checkEncumberance pStr pWT pMod
     pWeap = checkFinesse pWWT $ propertyLookup "SHOOT" pEntity
@@ -234,7 +223,7 @@ mkRangeCombat px mx w = if px == mx
     mExp  = eXP mEntity
     mCond = T.concat [ mName, " is", condition pAttack mExp ]
     -- misFire
-    shotEntity = if pDamage < 5
+    shotEntity = if pDamage < 4
       then misFire mEntity (assetT w) (entityT w)
       else entityT w
     -- newEntity with damages and deaths and Exp awards

@@ -243,8 +243,9 @@ nth n (_:xs) = nth (n-1) xs
 scatter :: EntityKind -> (Int, Int)
 scatter mEntity = let
   mPos     = coord mEntity
+  mHP      = eHP mEntity
   -- random around the target
-  seed     = 1 + uncurry (*) mPos
+  seed     = 1 + mHP + uncurry (*) mPos
   missList = moveT mEntity
   missRoll = head $ DS.rollList 1 (fromIntegral $ length missList) seed
   in nth missRoll missList

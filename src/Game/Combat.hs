@@ -209,10 +209,9 @@ mkRangeCombat px mx w = if px == mx
     pAtk = propertyNLookup "ATTACKS" pEntity
     -- Encumbered, Finesse?
     pWT   = propertyNLookup "WT" pEntity
-    pWWT  = propertyNLookup "WWT" pEntity
     pMod  = propertyNLookup "Proficiency" pEntity
     pEnc  = checkEncumberance pStr pWT pMod
-    pWeap = checkFinesse pWWT $ propertyLookup "SHOOT" pEntity
+    pWeap = propertyLookup "SHOOT" pEntity
     -- SHOOT roll
     (pEntry, pDamage) = attackAction pSeed pName pAtk pWeap pStat pEnc mName mAC
     pAttack = mHP - pDamage

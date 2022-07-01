@@ -207,11 +207,11 @@ mkRangeCombat px mx w = if px == mx
     (pStr, _)  = abilityLookup "str" pEntity
     (_, pStat) = abilityLookup "dex" pEntity
     pAtk = propertyNLookup "ATTACKS" pEntity
-    -- Encumbered, Finesse?
+    pWeap = propertyLookup "SHOOT" pEntity
+    -- Encumbered?
     pWT   = propertyNLookup "WT" pEntity
     pMod  = propertyNLookup "Proficiency" pEntity
     pEnc  = checkEncumberance pStr pWT pMod
-    pWeap = propertyLookup "SHOOT" pEntity
     -- SHOOT roll
     (pEntry, pDamage) = attackAction pSeed pName pAtk pWeap pStat pEnc mName mAC
     pAttack = mHP - pDamage

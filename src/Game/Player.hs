@@ -161,6 +161,7 @@ characterLook fov em = let
 characterSheet :: EntityMap -> [Text]
 characterSheet em = let
   (pEntity, _) = getPlayer em
+  pHP    = eHP pEntity
   pInv   = inventory pEntity
   pCoin  = T.append "AU: " (T.pack $ show $ Map.findWithDefault 0 "Coin" pInv)
   pProp  = property pEntity
@@ -183,7 +184,10 @@ characterSheet em = let
   pWis = T.append "Wis: " $ propertyLookup "wis" pEntity
   pLvl = T.pack $ "Level: " ++ show (eLvl pEntity)
   pExp = T.pack $ "EXP: " ++ show (eXP pEntity)
-  in [ pCls, pLvl, pExp, pCoin, pEquip, pStr, pDex, pCon, pInt, pWis ]
+  entry = if pHP > 0
+    then [ pCls, pLvl, pExp, pCoin, pEquip, pStr, pDex, pCon, pInt, pWis ]
+    else [ "Dead!" ]
+  in entry
 
 -- | @ Store
 -- Actions:

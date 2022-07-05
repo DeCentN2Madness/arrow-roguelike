@@ -3,7 +3,7 @@
 
 Engine.Draw.Textual.hs
 
-This module keeps the Text routines for SDL.Renderer.
+This module draws the Journal...
 
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
@@ -13,6 +13,7 @@ module Engine.Draw.Textual (drawLook
                            , renderText) where
 
 import Control.Monad (forM_)
+import Control.Monad.IO.Class (MonadIO)
 import qualified Data.Text as T
 import qualified SDL
 import qualified SDL.Font
@@ -21,7 +22,7 @@ import qualified Engine.SDL.Util as U
 import qualified Game.Journal as GJ
 import qualified Game.Player as GP
 
-drawLook :: SDL.Renderer -> World -> IO ()
+drawLook :: (MonadIO m) => SDL.Renderer -> World -> m ()
 drawLook r w = do
   let view = zip [0..9] $ GP.characterLook (fovT w) (entityT w)
       -- Color
@@ -49,7 +50,7 @@ drawLook r w = do
 -- | drawText
 -- Show the Journal
 -- Show the Character
-drawText :: SDL.Renderer -> World -> IO ()
+drawText :: (MonadIO m) => SDL.Renderer -> World -> m ()
 drawText r w = do
   let logs  = GJ.fromJournal [0..9] (journalT w)
       sheet = zip [0..] $ GP.characterSheet (entityT w)
@@ -88,15 +89,15 @@ drawText r w = do
 
 -- | renderText
 -- write Text to the screen
-renderText :: (Num a, RealFrac a)
+renderText :: (MonadIO m)
   => SDL.Renderer
   -> SDL.Texture
   -> (Int, Int)
-  -> (a, a)
-  -> IO ()
-renderText r t (tw, th) (x, y) = let
-  rectB = U.mkRect (floor x) (floor y) (fromIntegral tw) (fromIntegral th)
-  in SDL.copy r t Nothing (Just  rectB)
+  -> (Double, Double)
+  -> m ()
+renderText r t (tw, th) (x, y) = do
+  let rectB = U.mkRect (floor x) (floor y) (fromIntegral tw) (fromIntegral th)
+  SDL.copy r t Nothing (Just rectB)
 
 -- | colors
 red :: SDL.Font.Color

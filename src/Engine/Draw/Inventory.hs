@@ -3,7 +3,7 @@
 
 Engine.Draw.Inventory.hs
 
-This module keeps the Inventory popUp
+This module draws the Menus...
 
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
@@ -14,7 +14,6 @@ module Engine.Draw.Inventory (drawEquipment
                              , drawStore
                              , drawTarget) where
 
-import Prelude hiding (lookup)
 import Control.Monad (forM_)
 import Control.Monad.IO.Class (MonadIO)
 import SDL (($=))
@@ -27,7 +26,7 @@ import qualified Game.Player as GP
 
 -- | drawEquipment
 -- Show the Equipment
-drawEquipment :: SDL.Renderer -> World -> IO ()
+drawEquipment :: (MonadIO m) => SDL.Renderer -> World -> m ()
 drawEquipment r w = do
   let logs = zip [0..] $ GP.characterEquipment (entityT w) (assetT w)
   renderDialog r (120, 10)
@@ -48,7 +47,7 @@ drawEquipment r w = do
 
 -- | drawExamine
 -- Show the Examine
-drawExamine :: SDL.Renderer -> World -> IO ()
+drawExamine :: (MonadIO m) => SDL.Renderer -> World -> m ()
 drawExamine r w = do
   let logs = zip [0..] $ GP.characterExamine (fovT w) (entityT w) (assetT w)
   fn <- SDL.Font.load "./assets/fonts/Hack-Regular.ttf" 14
@@ -68,7 +67,7 @@ drawExamine r w = do
 
 -- | drawInventory
 -- Show the Inventory
-drawInventory :: SDL.Renderer -> World -> IO ()
+drawInventory :: (MonadIO m) => SDL.Renderer -> World -> m ()
 drawInventory r w = do
   let logs = zip [0..] $ GP.characterInventory (entityT w) (assetT w)
   renderDialog r (120, 10)
@@ -89,7 +88,7 @@ drawInventory r w = do
 
 -- | drawStore
 -- Show the Store
-drawStore :: SDL.Renderer -> World -> IO ()
+drawStore :: (MonadIO m) => SDL.Renderer -> World -> m ()
 drawStore r w = do
   let logs = zip [0..] $ GP.characterStore (entityT w) (assetT w)
   renderDialog r (120, 10)
@@ -110,7 +109,7 @@ drawStore r w = do
 
 -- | drawTarget
 -- Show the Store
-drawTarget :: SDL.Renderer -> World -> IO ()
+drawTarget :: (MonadIO m) => SDL.Renderer -> World -> m ()
 drawTarget r _ = do
   let logs = zip [0..] GP.characterTarget
   fn <- SDL.Font.load "./assets/fonts/Hack-Regular.ttf" 14

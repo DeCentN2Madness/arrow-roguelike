@@ -81,11 +81,12 @@ draw r ts w = do
 -- | drawCamera draws Visual in relation to Camera
 --- Coord is then translated into the screen with scaleXY and
 --  cameraXY
-drawCamera :: (Int, Int)
+drawCamera :: (MonadIO m)
+  => (Int, Int)
   -> SDL.Renderer
   -> Visual
   -> World
-  -> IO ()
+  -> m ()
 drawCamera (x, y) r vis w = do
   let (camX, camY)     = cameraXY w
       (scaleX, scaleY) = scaleXY w
@@ -96,7 +97,7 @@ drawCamera (x, y) r vis w = do
   renderVisual r vis (newX, newY)
 
 -- | drawMap
-drawMap :: SDL.Renderer -> TextureMap -> World -> IO ()
+drawMap :: (MonadIO m) => SDL.Renderer -> TextureMap -> World -> m ()
 drawMap r ts w = do
   let visual = Map.toList $ EDV.mkVisualMap ts w
   forM_ visual $ \(i, j) -> drawCamera i r j w
@@ -128,11 +129,12 @@ renderHpBar r (x, y) w h bgColour fgColour p = do
 
 -- | renderTexture
 -- draw entire texture image
-renderTexture :: (Num a, RealFrac a)
+renderTexture :: (MonadIO m)
+  => (Num a, RealFrac a)
   => SDL.Renderer
   -> (SDL.Texture, SDL.TextureInfo)
   -> (a, a)
-  -> IO ()
+  -> m ()
 renderTexture r (t, ti) (x, y) = do
   let rectB = U.mkRect (floor x) (floor y) tw th
       tw = fromIntegral $ SDL.textureWidth ti
@@ -141,11 +143,12 @@ renderTexture r (t, ti) (x, y) = do
 
 -- | renderVisual
 -- draw clip from Visual which has SDL.Texture and Foreign.C.Types (CInt)
-renderVisual :: (Num a, RealFrac a)
+renderVisual :: (MonadIO m)
+  => (Num a, RealFrac a)
   => SDL.Renderer
   -> Visual
   -> (a, a)
-  -> IO ()
+  -> m ()
 renderVisual r (Visual (xi, yi) (t, _) tw th) (x, y) = do
   let rectA = U.mkRect xi yi tw th
       rectB = U.mkRect (floor x) (floor y) tw th

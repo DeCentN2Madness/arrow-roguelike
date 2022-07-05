@@ -3,7 +3,7 @@
 
 Game.Player.hs
 
-Game.Player is the Player rules for Equipment, Inventory, etc...
+Game.Player is the Player functions...
 
 Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 
@@ -214,7 +214,7 @@ characterTarget = [ "1) NW -  0) N - 7) NE"
                   , "Press [0-7] to Target. ESC to Continue."
                   ]
 
--- | @ condition
+-- | @ Condition
 -- Green, Red, Purple...
 condition :: Text -> Int -> Int -> Text
 condition label hp maxHP = let
@@ -225,7 +225,7 @@ condition label hp maxHP = let
   in T.concat [ label, " (HP", status hp, " "
               , T.pack $ show hp, "/", T.pack $ show maxHP, ")" ]
 
--- | @ equipment
+-- | @ Equipment
 equip :: Text -> Text -> Properties -> Text
 equip name desc pProp = let
   item = Map.findWithDefault "None" name pProp
@@ -241,7 +241,7 @@ getArrow em = let
   pArrow = fromIntegral $ Map.findWithDefault 0 "Arrow" (inventory pEntity)
   in pArrow / 20.0
 
--- | @ Health
+-- | @ HitPoints
 getHealth :: EntityMap -> Double
 getHealth em = let
   (pEntity, _) = getPlayer em
@@ -256,7 +256,7 @@ getMushroom em = let
   pMush = fromIntegral $ Map.findWithDefault 0 "Mushroom" (inventory pEntity)
   in pMush / 20.0
 
--- | @ Mana
+-- | @ ManaPoints
 getMana :: EntityMap -> Double
 getMana em = let
   (pEntity, _) = getPlayer em

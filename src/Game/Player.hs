@@ -78,7 +78,7 @@ characterEquipment em am = let
   (_, pWisMod) = abilityLookup "wis" pEntity
   pSkills = T.concat [ "Melee:",  resultFmt pStrMod
                      , "/", resultFmt pDexMod
-                     , ", Shoot ", resultFmt pDexMod
+                     , ", Shoot:", resultFmt pDexMod
                      , ", Toughness:", resultFmt pConMod
                      , ", Magic:", resultFmt pIntMod
                      , ", Willpower:", resultFmt pWisMod

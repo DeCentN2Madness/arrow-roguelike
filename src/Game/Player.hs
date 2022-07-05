@@ -42,29 +42,29 @@ type Coord = (Int, Int)
 --   (I)nventory mode
 --   (W)ield to Doff
 characterEquipment :: EntityMap -> AssetMap -> [Text]
-characterEquipment em _ = let
+characterEquipment em am = let
   (pEntity, _) = getPlayer em
   pInv = [melee, shoot, ring, neck, armor, cloak, shield, helmet, hands, feet]
-  melee  = T.append "Melee:  " $ propertyLookup "melee" pEntity
-  shoot  = T.append "Shoot:  " $ propertyLookup "shoot" pEntity
-  ring   = T.append "Ring:   " $ propertyLookup "jewelry" pEntity
-  neck   = T.append "Neck:   " $ propertyLookup "neck" pEntity
-  armor  = T.append "Armor:  " $ propertyLookup "armor" pEntity
-  cloak  = T.append "Cloak:  " $ propertyLookup "cloak" pEntity
-  shield = T.append "Shield: " $ propertyLookup "shield" pEntity
-  helmet = T.append "Head:   " $ propertyLookup "head" pEntity
-  hands  = T.append "Hands:  " $ propertyLookup "hands" pEntity
-  feet   = T.append "Feet:   " $ propertyLookup "feet" pEntity
+  melee = itemLookup "melee" pEntity am
+  shoot = itemLookup "shoot" pEntity am
+  ring = itemLookup "jewelry" pEntity am
+  neck = itemLookup "neck" pEntity am
+  armor = itemLookup "armor" pEntity am
+  cloak = itemLookup "cloak" pEntity am
+  shield = itemLookup "shield" pEntity am
+  helmet = itemLookup "head" pEntity am
+  hands = itemLookup "hands" pEntity am
+  feet = itemLookup "feet" pEntity am
   armorClass = T.append "AC: " $ propertyLookup "AC" pEntity
   attack = T.append "Attack: " $ propertyLookup "ATTACK" pEntity
-  range  = T.append "Shoot:  " $ propertyLookup "SHOOT" pEntity
-  tags   = T.append "Tags:   " $ propertyLookup "TAGS" pEntity
+  range = T.append "Shoot: " $ propertyLookup "SHOOT" pEntity
+  cast = T.append "Cast: " $ propertyLookup "CAST" pEntity
   -- Encumbered, Heavy weapons?
   pWT  = propertyNLookup "WT" pEntity
   pWWT = propertyNLookup "WWT" pEntity
   pEnc = if pWT > 5 * pStr
-    then "Load:   ENCUMBERED!"
-    else T.concat [ "Load:   "
+    then "Load: ENCUMBERED!"
+    else T.concat [ "Load: "
                   , T.pack $ show pWT, "/"
                   , T.pack $ show (5 * pStr), " lbs." ]
   pHeavy = if pWWT < 3
@@ -76,8 +76,7 @@ characterEquipment em _ = let
   (_, pConMod) = abilityLookup "con" pEntity
   (_, pIntMod) = abilityLookup "int" pEntity
   (_, pWisMod) = abilityLookup "wis" pEntity
-  pSkills = T.concat [ "Ability:"
-                     , " Melee:",  resultFmt pStrMod
+  pSkills = T.concat [ "Melee:",  resultFmt pStrMod
                      , "/", resultFmt pDexMod
                      , ", Shoot ", resultFmt pDexMod
                      , ", Toughness:", resultFmt pConMod
@@ -85,7 +84,7 @@ characterEquipment em _ = let
                      , ", Willpower:", resultFmt pWisMod
                      ]
   in selection pInv
-  ++ [ armorClass, attack, range, pEnc, pHeavy, tags, pSkills
+  ++ [ armorClass, attack, range, cast, pEnc, pHeavy, pSkills
      , "Press [0-9] to Doff. (I)nventory. Press ESC to Continue." ]
 
 -- | @ Examine

@@ -135,7 +135,7 @@ renderDialog :: (MonadIO m)
   -> (Double, Double)
   -> m ()
 renderDialog r (x, y) = do
-  let bgRect = U.mkRect (floor x) (floor y) 600 400
+  let bgRect = U.mkRect (floor x) (floor y) 520 375
   SDL.rendererDrawColor r $= SDL.V4 128 128 128 255
   SDL.fillRect r (Just bgRect)
 

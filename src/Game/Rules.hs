@@ -8,6 +8,7 @@ Author: "Joel E Carlson" <joel.elmer.carlson@gmail.com>
 -}
 module Game.Rules where
 
+import Data.Map (Map)
 import qualified Data.Map.Strict as Map
 import Data.Text (Text)
 import qualified Data.Text as T
@@ -137,24 +138,6 @@ castGain pCls lvl cast
   | pCls == "Cleric" && lvl == 20 = "7d8"
   | otherwise = cast
 
--- | @ gets Proficient w/ lvl
-proficiencyGain :: Int -> Text -> Text
-proficiencyGain lvl prof
-  | lvl == 1  = "2"
-  | lvl == 5  = "3"
-  | lvl == 9  = "4"
-  | lvl == 13 = "5"
-  | lvl == 17 = "6"
-  | otherwise = prof
-
--- | @ gets Search w/ lvl
-searchGain :: Int -> Text -> Text
-searchGain lvl search
-  | lvl == 5  = "4"
-  | lvl == 10 = "5"
-  | lvl == 15 = "6"
-  | otherwise = search
-
 -- | checkEncumberance
 -- @ loses Proficiency based on WT
 checkEncumberance :: Int -> Int -> Int -> Int
@@ -195,6 +178,32 @@ criticalRoll roll modifier prof
   where
     result = roll + modifier + prof
 
+-- | itemLookup
+-- @ Items...
+itemLookup :: Text -> EntityKind -> AssetMap -> Text
+itemLookup x pEntity am = let
+  mkDescMap :: Map Text Text
+  mkDescMap = let
+    assetList = [ (n, d) | (_, ek) <- Map.toList am,
+                  let n = Map.findWithDefault "None" "Name" (property ek)
+                      d = Map.findWithDefault "None" "Description" (property ek) ]
+    in Map.fromList assetList
+  descMap = mkDescMap
+  item = propertyLookup x pEntity
+  desc = Map.findWithDefault "" item descMap
+  label = if item /= "None" then item else T.concat [ x, "/", "None" ]
+  in T.concat [ T.justifyLeft 30 ' ' label, " ", desc ]
+
+-- | @ gets Proficient w/ lvl
+proficiencyGain :: Int -> Text -> Text
+proficiencyGain lvl prof
+  | lvl == 1  = "2"
+  | lvl == 5  = "3"
+  | lvl == 9  = "4"
+  | lvl == 13 = "5"
+  | lvl == 17 = "6"
+  | otherwise = prof
+
 -- | propertyLookup
 -- @ properties as Text...
 propertyLookup :: Text -> EntityKind -> Text
@@ -217,6 +226,14 @@ resultFmt n
   | n < 0 = T.pack $ show n
   | n > 1 = T.append "+" $ T.pack $ show n
   | otherwise = "+0"
+
+-- | @ gets Search w/ lvl
+searchGain :: Int -> Text -> Text
+searchGain lvl search
+  | lvl == 5  = "4"
+  | lvl == 10 = "5"
+  | lvl == 15 = "6"
+  | otherwise = search
 
 -- | weapon
 -- Damage roll for Weapons...

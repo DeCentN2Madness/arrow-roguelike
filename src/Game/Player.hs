@@ -45,31 +45,31 @@ characterEquipment :: EntityMap -> AssetMap -> [Text]
 characterEquipment em am = let
   (pEntity, _) = getPlayer em
   pInv = [melee, shoot, ring, neck, armor, cloak, shield, helmet, hands, feet]
-  melee = itemLookup "melee" pEntity am
-  shoot = itemLookup "shoot" pEntity am
-  ring = itemLookup "jewelry" pEntity am
-  neck = itemLookup "neck" pEntity am
-  armor = itemLookup "armor" pEntity am
-  cloak = itemLookup "cloak" pEntity am
+  melee  = itemLookup "melee" pEntity am
+  shoot  = itemLookup "shoot" pEntity am
+  ring   = itemLookup "jewelry" pEntity am
+  neck   = itemLookup "neck" pEntity am
+  armor  = itemLookup "armor" pEntity am
+  cloak  = itemLookup "cloak" pEntity am
   shield = itemLookup "shield" pEntity am
   helmet = itemLookup "head" pEntity am
-  hands = itemLookup "hands" pEntity am
-  feet = itemLookup "feet" pEntity am
+  hands  = itemLookup "hands" pEntity am
+  feet   = itemLookup "feet" pEntity am
   armorClass = T.append "AC: " $ propertyLookup "AC" pEntity
   attack = T.append "Attack: " $ propertyLookup "ATTACK" pEntity
   range = T.append "Shoot: " $ propertyLookup "SHOOT" pEntity
-  cast = T.append "Cast: " $ propertyLookup "CAST" pEntity
+  cast = T.append "Cast: " $ checkFinesse pWWT $ propertyLookup "CAST" pEntity
+  prof = T.append "Proficiency: " $ resultFmt $ checkEncumberance pStr pWT pProf
   -- Encumbered, Heavy weapons?
-  pWT  = propertyNLookup "WT" pEntity
-  pWWT = propertyNLookup "WWT" pEntity
+  pWT   = propertyNLookup "WT" pEntity
+  pWWT  = propertyNLookup "WWT" pEntity
+  pProf = propertyNLookup "Proficiency" pEntity
   pEnc = if pWT > 5 * pStr
     then "Load: ENCUMBERED!"
     else T.concat [ "Load: "
+                  , T.pack $ show pWWT, "/"
                   , T.pack $ show pWT, "/"
                   , T.pack $ show (5 * pStr), " lbs." ]
-  pHeavy = if pWWT < 3
-    then "Weapon: Finesse"
-    else T.concat [ "Weapon: ", T.pack $ show pWWT, " lbs." ]
   -- Skills
   (pStr, pStrMod) = abilityLookup "str" pEntity
   (_, pDexMod) = abilityLookup "dex" pEntity
@@ -84,7 +84,7 @@ characterEquipment em am = let
                      , ", Willpower:", resultFmt pWisMod
                      ]
   in selection pInv
-  ++ [ armorClass, attack, range, cast, pEnc, pHeavy, pSkills
+  ++ [ armorClass, attack, range, cast, prof, pEnc, pSkills
      , "Press [0-9] to Doff. (I)nventory. Press ESC to Continue." ]
 
 -- | @ Examine

@@ -332,7 +332,7 @@ mdHumanoidM :: Prop
 mdHumanoidM = mdHumanoid ++ [ ("str", "10"), ("int", "13")
                             , ("MP", "10")
                             , ("AC", "11")
-                            , ("WT", "18")
+                            , ("WT", "13")
                             , ("WWT", "4")
                             , ("ATTACK", "1d6")
                             , ("SHOOT", "1d4")
@@ -341,16 +341,22 @@ mdHumanoidM = mdHumanoid ++ [ ("str", "10"), ("int", "13")
                             , ("Throw", "curses!")
                             , ("melee", "melee/Quarterstaff")
                             , ("shoot", "shoot/Dart")
-                            , ("armor", "None")
+                            , ("armor", "armor/Padded")
                             ]
 
 -- | Orc Beastmaster
 mdHumanoidS :: Prop
 mdHumanoidS = mdHumanoid ++ [ ("str", "13"), ("int", "10")
                             , ("MP", "10")
-                            , ("CAST", "1d8")
+                            , ("AC", "11")
+                            , ("WT", "13")
+                            , ("WWT", "3")
+                            , ("ATTACK", "1d6")
+                            , ("CAST", "2d6")
                             , ("SUMMON", "Wolf")
                             , ("Throw", "grunts!")
+                            , ("melee", "melee/Spear")
+                            , ("armor", "armor/Padded")
                             ]
 
 -- | Goblin

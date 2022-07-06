@@ -86,14 +86,17 @@ mkAssetMap = let
        , mkItem "shoot/Shortbow"        "}:1d6:2:Ammo"         pos
        , mkItem "shoot/Throwing Knife"  "|:1d4:1:Throw"        pos
        , mkItem "shoot/Throwing Axe"    "|:1d6:2:Throw"        pos
-       -- melee Elvish
-       , mkItem "melee/Elvish Dagger"   "|:2d2:1:Magic" pos
-       , mkItem "melee/Elvish Spear"    "|:2d3:3:Magic" pos
-       , mkItem "melee/Elvish Sword"    "|:2d4:3:Magic" pos
-       , mkItem "melee/Wizard Staff"    "|:2d5:4:Magic" pos
-       -- shoot Elvish
-       , mkItem "shoot/Elvish Longbow"  "}:2d5:2:Magic,Ammo" pos
-       , mkItem "shoot/Elvish Shortbow" "}:2d3:2:Magic,Ammo" pos
+       -- melee & shoot Dwarves
+       , mkItem "melee/Dwarven Hammer"   "|:2d5:7:STR,HEAVY" pos
+       , mkItem "melee/Dwarven Greataxe" "|:3d4:7:CON,HEAVY" pos
+       , mkItem "shoot/Bolt Thrower"     "|:2d4:7:CON,Ammo" pos
+       -- melee & shoot Elvenkind
+       , mkItem "melee/Elvish Dagger"   "|:2d2:1:DEX" pos
+       , mkItem "melee/Elvish Spear"    "|:2d3:3:INT" pos
+       , mkItem "melee/Elvish Sword"    "|:2d4:3:DEX" pos
+       , mkItem "melee/Wizard Staff"    "|:2d5:4:INT" pos
+       , mkItem "shoot/Elvish Longbow"  "}:2d5:2:WIS,Ammo" pos
+       , mkItem "shoot/Elvish Shortbow" "}:2d3:2:DEX,Ammo" pos
        -- Armor
        , mkItem "armor/Padded"          "[:11:8:Light_Armor"   pos
        , mkItem "armor/Leather"         "[:11:10:Light_Armor"  pos
@@ -123,15 +126,15 @@ mkAssetMap = let
        , mkItem "feet/Traveler Boots"     "]:100:1:COLD" pos
        , mkItem "feet/Boots of Elvenkind" "]:100:1:DEX" pos
        , mkItem "feet/Boots of Dragon"    "]:100:1:CON,FIRE" pos
-       , mkItem "feet/Boots of Speed"     "]:100:1:DEX,INT" pos
+       , mkItem "feet/Boots of Speed"     "]:100:1:DEX,DEX" pos
        , mkItem "feet/Dwarven Boots"      "]:100:2:STR,COLD" pos
        -- Hands
        , mkItem "hands/Gloves"              "]:1:1:" pos
        , mkItem "hands/Bracers"             "]:100:3:STR" pos
        , mkItem "hands/Bracers of Warrior"  "]:100:3:STR,DEX" pos
        , mkItem "hands/Bracers of Hunter"   "]:100:3:DEX,WIS" pos
-       , mkItem "hands/Gauntlets of Ogre"   "]:100:3:STR,CON" pos
-       , mkItem "hands/Gauntlets of Power"  "]:100:3:INT,WIS,CON" pos
+       , mkItem "hands/Gauntlets of Ogre"   "]:100:3:STR,STR" pos
+       , mkItem "hands/Gauntlets of Power"  "]:100:3:INT,INT,WIS" pos
        , mkItem "hands/Gauntlets of Frost"  "]:100:3:CON,COLD" pos
        , mkItem "hands/Gauntlets of Flames" "]:100:3:CON,FIRE" pos
        -- Rings

@@ -84,11 +84,11 @@ mkDropItem name pos am = let
   in item { coord = pos, spawn = pos }
 
 -- | random Item
-mkRandItem :: Coord -> AssetMap -> EntityKind
-mkRandItem pos am = let
+mkRandItem :: Int -> Coord -> AssetMap -> EntityKind
+mkRandItem pSeed pos am = let
   itemList = filter ((/=(-1)).fst) $ [ (ix, v) | (k, v) <- Map.toList am,
                let ix = if kind v == Item then k else (-1) ]
-  seed     = 1 + uncurry (*) pos
+  seed     = 1 + pSeed + uncurry (*) pos
   itemRoll = head $ DS.rollList 1 (fromIntegral $ length itemList) seed
   item     = nth itemRoll itemList
   in item { coord = pos, spawn = pos }

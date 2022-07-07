@@ -88,8 +88,8 @@ condition hp xp
 
 -- | death
 -- Inventory drop around the Corpse...
-death :: Int -> EntityKind -> AssetMap -> EntityMap -> EntityMap
-death mx mEntity am em = let
+death :: Seed -> Int -> EntityKind -> AssetMap -> EntityMap -> EntityMap
+death mSeed mx mEntity am em = let
   mPos   = coord mEntity
   mInv   = inventory mEntity
   mArrow = Map.findWithDefault 0 "Arrow"    mInv
@@ -99,7 +99,7 @@ death mx mEntity am em = let
   loc    = scatter mEntity
   -- Item mostly Coin
   item
-    | mItem   > 0 = GI.mkRandItem loc am
+    | mItem   > 0 = GI.mkRandItem mSeed loc am
     | mPot    > 0 = GI.mkDropItem "Potion"   loc am
     | mMush   > 0 = GI.mkDropItem "Mushroom" loc am
     | mArrow  > 0 = GI.mkDropItem "Arrow"    loc am
@@ -148,7 +148,8 @@ mkCombat px mx w = if px == mx
     mCond = T.concat [ mName, " is", condition pAttack mExp ]
     -- newEntity with damages and deaths and Exp awards
     newEntity = if pAttack < 1
-      then death mx mEntity (assetT w) $ GP.updatePlayerXP mExp (entityT w)
+      then death pSeed mx mEntity (assetT w) $
+      GP.updatePlayerXP mExp (entityT w)
       else GE.updateEntityHp mx pAttack (entityT w)
   in w { entityT  = newEntity
        , journalT = GJ.updateJournal (mCond : pEntry) (journalT w) }
@@ -188,7 +189,8 @@ mkMagicCombat px mx w = if px == mx
     mCond = T.concat [ mName, " is", condition pAttack mExp ]
     -- newEntity with damages and deaths and Exp awards
     newEntity = if pAttack < 1
-      then death mx mEntity (assetT w) $ GP.updatePlayerXP mExp (entityT w)
+      then death pSeed mx mEntity (assetT w) $
+      GP.updatePlayerXP mExp (entityT w)
       else GE.updateEntityHp mx pAttack (entityT w)
   in w { entityT  = newEntity
        , journalT = GJ.updateJournal (mCond:pEntry) (journalT w) }
@@ -227,7 +229,8 @@ mkRangeCombat px mx w = if px == mx
       else entityT w
     -- newEntity with damages and deaths and Exp awards
     newEntity = if pAttack < 1
-      then death mx mEntity (assetT w) $ GP.updatePlayerXP mExp (entityT w)
+      then death pSeed mx mEntity (assetT w) $
+      GP.updatePlayerXP mExp (entityT w)
       else GE.updateEntityHp mx pAttack shotEntity
   in w { entityT  = newEntity
        , journalT = GJ.updateJournal (mCond:pEntry) (journalT w) }
@@ -243,8 +246,9 @@ scatter :: EntityKind -> (Int, Int)
 scatter mEntity = let
   mPos     = coord mEntity
   mHP      = eHP mEntity
+  mMaxHP   = eMaxHP mEntity
   -- random around the target
-  seed     = 1 + mHP + uncurry (*) mPos
+  seed     = 1 + mHP + mMaxHP + uncurry (*) mPos
   missList = moveT mEntity
   missRoll = head $ DS.rollList 1 (fromIntegral $ length missList) seed
   in nth missRoll missList

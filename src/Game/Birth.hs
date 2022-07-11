@@ -82,8 +82,7 @@ mkPlayer s pEntity = let
             , ("SEARCH", "0")
             , weaponCast pClass
             , weaponClass pClass
-            , weaponWT pClass
-            ]
+            , weaponWT pClass ]
   in pEntity { property = Map.union newProp pProp }
 
 -- | @ Weapons

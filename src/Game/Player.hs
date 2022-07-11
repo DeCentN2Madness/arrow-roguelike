@@ -33,6 +33,10 @@ import Data.Text (Text)
 import qualified Data.Text as T
 import qualified Game.Entity as GE
 import Game.Kind.Entity
+import qualified Game.Kind.Cleric as CLERIC
+import qualified Game.Kind.Fighter as FIGHTER
+import qualified Game.Kind.Mage as MAGE
+import qualified Game.Kind.Rogue as ROGUE
 import Game.Rules
 
 type Coord = (Int, Int)
@@ -322,22 +326,58 @@ updatePlayerXP xp em = let
   pHealth = pLvl * (cHP + pConMod)
   pMaxHP  = if pHealth > 0 then pHealth else cHP
   -- Fighter
-  (fStr, fDex) = if pCls == "Fighter" then abilityGain pLvl current else (0,0)
+  (fStr, fDex) = if pCls == "Fighter"
+    then FIGHTER.abilityGain pLvl current
+    else (0,0)
   -- Rogue
-  (rDex, rInt) = if pCls == "Rogue" then abilityGain pLvl current else (0,0)
+  (rDex, rInt) = if pCls == "Rogue"
+    then ROGUE.abilityGain pLvl current
+    else (0,0)
   -- Mage
-  (mInt, mWis) = if pCls == "Mage"  then abilityGain pLvl current else (0,0)
+  (mInt, mWis) = if pCls == "Mage"
+    then MAGE.abilityGain pLvl current
+    else (0,0)
   -- Cleric
-  (cWis, cStr) = if pCls == "Cleric" then abilityGain pLvl current else (0,0)
+  (cWis, cStr) = if pCls == "Cleric"
+    then CLERIC.abilityGain pLvl current
+    else (0,0)
   -- Mana
   pMP    = if pLvl > current then pMaxMP else eMP pEntity
   pMana  = pLvl * (cMP + pWisMod)
   pMaxMP = if pMana > 0 then pMana else 0
   -- ATTACKS, CAST, PROFICIENCY, SEARCH
-  pAttacks = attacksGain pCls pLvl cAttacks
-  pCast    = castGain pCls pLvl cCast
-  pProf    = proficiencyGain pLvl cProf
-  pSearch  = searchGain pLvl cSearch
+  gainAttack :: Text -> Text
+  gainAttack n
+   | n == "Fighter" = FIGHTER.attacksGain pLvl cAttacks
+   | n == "Rogue" = ROGUE.attacksGain pLvl cAttacks
+   | n == "Mage" = MAGE.attacksGain pLvl cAttacks
+   | n == "Cleric" = CLERIC.attacksGain pLvl cAttacks
+   | otherwise = FIGHTER.attacksGain pLvl cAttacks
+  gainCast :: Text -> Text
+  gainCast n
+   | n == "Fighter" = FIGHTER.castGain pLvl cCast
+   | n == "Rogue" = ROGUE.castGain pLvl cCast
+   | n == "Mage" = MAGE.castGain pLvl cCast
+   | n == "Cleric" = CLERIC.castGain pLvl cCast
+   | otherwise = FIGHTER.castGain pLvl cCast
+  gainProficiency :: Text -> Text
+  gainProficiency n
+   | n == "Fighter" = FIGHTER.proficiencyGain pLvl cProf
+   | n == "Rogue" = ROGUE.proficiencyGain pLvl cProf
+   | n == "Mage" = MAGE.proficiencyGain pLvl cProf
+   | n == "Cleric" = CLERIC.proficiencyGain pLvl cProf
+   | otherwise = FIGHTER.proficiencyGain pLvl cProf
+  gainSearch :: Text -> Text
+  gainSearch n
+   | n == "Fighter" = FIGHTER.searchGain pLvl cSearch
+   | n == "Rogue" = ROGUE.searchGain pLvl cSearch
+   | n == "Mage" = MAGE.searchGain pLvl cSearch
+   | n == "Cleric" = CLERIC.searchGain pLvl cSearch
+   | otherwise = FIGHTER.searchGain pLvl cSearch
+  pAttacks = gainAttack pCls
+  pCast    = gainCast pCls
+  pProf    = gainProficiency pCls
+  pSearch  = gainSearch pCls
   -- Properties
   newProp = Map.fromList [ ("str", T.pack $ show $ pStr + fStr + cStr)
                          , ("dex", T.pack $ show $ pDex + fDex + rDex)

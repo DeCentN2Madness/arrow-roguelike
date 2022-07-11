@@ -42,9 +42,13 @@ library
                     , Game.Kind.Asset
                     , Game.Kind.Beasts
                     , Game.Kind.Cave
+                    , Game.Kind.Cleric
                     , Game.Kind.Dungeon
                     , Game.Kind.Entity
+                    , Game.Kind.Fighter
+                    , Game.Kind.Mage
                     , Game.Kind.Monster
+                    , Game.Kind.Rogue
                     , Game.Kind.Spawn
                     , Game.Kind.Tile
                     , Game.Kind.Visual
@@ -96,9 +100,13 @@ executable Arrow
                     , Game.Kind.Asset
                     , Game.Kind.Beasts
                     , Game.Kind.Cave
+                    , Game.Kind.Cleric
                     , Game.Kind.Dungeon
                     , Game.Kind.Entity
+                    , Game.Kind.Fighter
+                    , Game.Kind.Mage
                     , Game.Kind.Monster
+                    , Game.Kind.Rogue
                     , Game.Kind.Spawn
                     , Game.Kind.Tile
                     , Game.Kind.Visual

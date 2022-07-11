@@ -20,20 +20,6 @@ import Game.Kind.Entity
 abilityBonus :: Text -> Text
 abilityBonus n = resultFmt $ abilityMod $ read $ T.unpack n
 
--- | abilityGain
--- @ Primary+9, Secondary+7 stats gain w/ lvl
-abilityGain :: Int -> Int -> (Int, Int)
-abilityGain lvl curr
-  | lvl == 4  && lvl > curr = (2, 0)
-  | lvl == 6  && lvl > curr = (2, 0)
-  | lvl == 8  && lvl > curr = (2, 0)
-  | lvl == 10 && lvl > curr = (0, 2)
-  | lvl == 12 && lvl > curr = (0, 2)
-  | lvl == 14 && lvl > curr = (1, 1)
-  | lvl == 16 && lvl > curr = (1, 1)
-  | lvl == 19 && lvl > curr = (1, 1)
-  | otherwise = (0,0)
-
 -- | abilityLookup
 -- @ ability with modifiers like Items, Status, etc...
 abilityLookup :: Text -> EntityKind -> (Int, Int)
@@ -99,45 +85,6 @@ abilityResult2 resultA resultB rollA rollB modA modB prof =
            , "]"
            ]
 
--- | attacksGain
--- @ Fighters gain ATTACKS w/ lvl
-attacksGain :: Text -> Int -> Text -> Text
-attacksGain pCls lvl attacks
-  | pCls == "Fighter" && lvl == 5  = "2"
-  | pCls == "Fighter" && lvl == 11 = "3"
-  | pCls == "Fighter" && lvl == 17 = "4"
-  | pCls == "Rogue"   && lvl == 5  = "2"
-  | pCls == "Rogue"   && lvl == 11 = "2"
-  | pCls == "Rogue"   && lvl == 17 = "3"
-  | pCls == "Cleric"  && lvl == 5  = "2"
-  | pCls == "Cleric"  && lvl == 11 = "2"
-  | pCls == "Cleric"  && lvl == 17 = "3"
-  | otherwise = attacks
-
--- | castGain
--- @ Magic Users gain CAST w/ lvl
-castGain :: Text -> Int -> Text -> Text
-castGain pCls lvl cast
-  | pCls == "Rogue"  && lvl == 5  = "2d6"
-  | pCls == "Rogue"  && lvl == 11 = "3d6"
-  | pCls == "Rogue"  && lvl == 17 = "4d6"
-  | pCls == "Rogue"  && lvl == 18 = "5d6"
-  | pCls == "Rogue"  && lvl == 19 = "6d6"
-  | pCls == "Rogue"  && lvl == 20 = "7d6"
-  | pCls == "Mage"   && lvl == 5  = "2d10"
-  | pCls == "Mage"   && lvl == 11 = "3d10"
-  | pCls == "Mage"   && lvl == 17 = "4d10"
-  | pCls == "Mage"   && lvl == 18 = "5d10"
-  | pCls == "Mage"   && lvl == 19 = "6d10"
-  | pCls == "Mage"   && lvl == 20 = "7d10"
-  | pCls == "Cleric" && lvl == 5  = "2d8"
-  | pCls == "Cleric" && lvl == 11 = "3d8"
-  | pCls == "Cleric" && lvl == 17 = "4d8"
-  | pCls == "Cleric" && lvl == 18 = "5d8"
-  | pCls == "Cleric" && lvl == 19 = "6d8"
-  | pCls == "Cleric" && lvl == 20 = "7d8"
-  | otherwise = cast
-
 -- | checkEncumberance
 -- @ loses Proficiency based on WT
 checkEncumberance :: Int -> Int -> Int -> Int
@@ -194,16 +141,6 @@ itemLookup x pEntity am = let
   label = if item /= "None" then item else T.concat [ x, "/", "None" ]
   in T.concat [ T.justifyLeft 30 ' ' label, " ", desc ]
 
--- | @ gets Proficient w/ lvl
-proficiencyGain :: Int -> Text -> Text
-proficiencyGain lvl prof
-  | lvl == 1  = "2"
-  | lvl == 5  = "3"
-  | lvl == 9  = "4"
-  | lvl == 13 = "5"
-  | lvl == 17 = "6"
-  | otherwise = prof
-
 -- | propertyLookup
 -- @ properties as Text...
 propertyLookup :: Text -> EntityKind -> Text
@@ -226,14 +163,6 @@ resultFmt n
   | n < 0 = T.pack $ show n
   | n > 1 = T.append "+" $ T.pack $ show n
   | otherwise = "+0"
-
--- | @ gets Search w/ lvl
-searchGain :: Int -> Text -> Text
-searchGain lvl search
-  | lvl == 5  = "4"
-  | lvl == 10 = "5"
-  | lvl == 15 = "6"
-  | otherwise = search
 
 -- | weapon
 -- Damage roll for Weapons...

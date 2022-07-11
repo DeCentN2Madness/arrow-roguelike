@@ -269,11 +269,12 @@ actionExamine x w = let
     [ (name, prop) | (_, v) <- Map.toList (entityT w),
       let name = Map.findWithDefault "None" "Name" (property v)
           prop = property v ]
+  -- selection
   view = GE.fromEntityBy (entityT w)
   pFOV = [ name | (ek, _) <- filter (\(_, j) -> j `elem` fovT w) view,
            let name = Map.findWithDefault "None" "Name" (property ek) ]
-  sz   = length pFOV - 1
-  mSel = if x > sz then 0 else x
+  sz    = length pFOV - 1
+  mSel  = if x > sz then 0 else x
   mName = pFOV!!mSel
   mExamine = Map.findWithDefault "None" mName descMap
   mProp    = Map.findWithDefault Map.empty mName propMap
@@ -282,11 +283,6 @@ actionExamine x w = let
   mCon     = Map.findWithDefault "0" "con" mProp
   mInt     = Map.findWithDefault "0" "int" mProp
   mWis     = Map.findWithDefault "0" "wis" mProp
-  bStr     = abilityBonus mStr
-  bDex     = abilityBonus mDex
-  bCon     = abilityBonus mCon
-  bInt     = abilityBonus mInt
-  bWis     = abilityBonus mWis
   mClass   = Map.findWithDefault "Item" "Class"  mProp
   mArmor   = Map.findWithDefault "None" "armor"  mProp
   mAC      = Map.findWithDefault "0"    "AC"     mProp
@@ -303,11 +299,11 @@ actionExamine x w = let
   mCls     = T.append "Class: " mClass
   -- Stats
   mStat = if mStr /= "0"
-    then T.concat [ "Str:",   mStr, " (", bStr, ")"
-                  , ", Dex:", mDex, " (", bDex, ")"
-                  , ", Con:", mCon, " (", bCon, ")"
-                  , ", Int:", mInt, " (", bInt, ")"
-                  , ", Wis:", mWis, " (", bWis, ")" ]
+    then T.concat [ "Str:",   mStr, " (", abilityBonus mStr, ")"
+                  , ", Dex:", mDex, " (", abilityBonus mDex, ")"
+                  , ", Con:", mCon, " (", abilityBonus mCon, ")"
+                  , ", Int:", mInt, " (", abilityBonus mInt, ")"
+                  , ", Wis:", mWis, " (", abilityBonus mWis, ")" ]
     else "..."
   -- Equipment
   mEquip = if mAC /= "0"
@@ -316,10 +312,10 @@ actionExamine x w = let
                   , ", R:", mRange, " (", mShoot, ")" ]
     else "..."
   -- Special, Extra
-  mExtra = T.concat [ ", Attacks: ", mAttacks
-                    , ", Cast: ", mCast
-                    , ", Proficiency: +", mProf
-                    , ", Search: +", mSearch
+  mExtra = T.concat [ ", Attacks:", mAttacks
+                    , ", Cast:", mCast
+                    , ", Proficiency:+", mProf
+                    , ", Search:+", mSearch
                     , ", WT: ", mWWT, "/", mWT, " lbs." ]
   mRules
     | mClass == "Fighter" = T.append "Special: Item" mExtra
@@ -330,9 +326,9 @@ actionExamine x w = let
     | otherwise           = T.append "Special: Coin" mExtra
   -- Name
   entry = if mExamine /= "None"
-    then T.concat [ mName,  ": ", mExamine ]
+    then T.concat [ mName,  ": ", mExamine, ", ", mCls ]
     else "No Examine..."
-  in w { journalT = GJ.updateJournal [mRules, mEquip, mStat, mCls, entry] (journalT w) }
+  in w { journalT = GJ.updateJournal [mRules, mEquip, mStat, entry] (journalT w) }
 
 -- | actionGet
 -- if there is something to Get...

@@ -107,7 +107,7 @@ weaponCast n
 weaponClass :: Text -> (Text, Text)
 weaponClass n
   | n == "Fighter" = ("melee", "melee/Longsword")
-  | n == "Rogue"   = ("shoot", "melee/Shortsword")
+  | n == "Rogue"   = ("melee", "melee/Shortsword")
   | n == "Mage"    = ("melee", "melee/Quarterstaff")
   | n == "Cleric"  = ("melee", "melee/Mace")
   | otherwise      = ("melee", "melee/Dagger")

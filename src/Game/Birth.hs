@@ -23,7 +23,7 @@ type Seed = Int
 -- | archtype
 archtype :: Int -> Int -> Int -> Int -> Text
 archtype str dex int wis = let
-  warrior  = str + dex
+  warrior = str + dex
   academic = int + wis
   career
     | warrior > academic  && str > dex = "Fighter"
@@ -59,8 +59,7 @@ manaPool n
 mkPlayer :: Seed -> EntityKind -> EntityKind
 mkPlayer s pEntity = let
   pProp = property pEntity
-  aAC  = read $ T.unpack $ Map.findWithDefault "10" "AC" pProp
-  pAC  = abilityMod rDex + aAC
+  pAC = abilityMod rDex + 11
   -- random stats
   rStr = DS.d3 (s+1)  + DS.d4 (s+2)  + DS.d5 (s+3)  + DS.d6 (s+4)
   rDex = DS.d3 (s+5)  + DS.d4 (s+6)  + DS.d5 (s+7)  + DS.d6 (s+8)

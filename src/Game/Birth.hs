@@ -90,7 +90,7 @@ mkPlayer s pEntity = let
 weaponAttack :: Text -> (Text, Text)
 weaponAttack n
   | n == "Fighter" = ("ATTACK", "1d8")
-  | n == "Rogue"   = ("ATTACK", "1d4")
+  | n == "Rogue"   = ("ATTACK", "1d6")
   | n == "Mage"    = ("ATTACK", "1d6")
   | n == "Cleric"  = ("ATTACK", "1d6")
   | otherwise      = ("ATTACK", "1d4")
@@ -109,7 +109,7 @@ weaponCast n
 weaponClass :: Text -> (Text, Text)
 weaponClass n
   | n == "Fighter" = ("melee", "melee/Longsword")
-  | n == "Rogue"   = ("shoot", "shoot/Throwing Knife")
+  | n == "Rogue"   = ("shoot", "melee/Shortsword")
   | n == "Mage"    = ("melee", "melee/Quarterstaff")
   | n == "Cleric"  = ("melee", "melee/Mace")
   | otherwise      = ("melee", "melee/Dagger")
@@ -118,7 +118,7 @@ weaponClass n
 weaponWT :: Text -> (Text, Text)
 weaponWT n
   | n == "Fighter" = ("WWT", "3")
-  | n == "Rogue"   = ("WWT", "1")
+  | n == "Rogue"   = ("WWT", "2")
   | n == "Mage"    = ("WWT", "4")
   | n == "Cleric"  = ("WWT", "4")
   | otherwise      = ("WWT", "1")

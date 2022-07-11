@@ -311,24 +311,23 @@ actionExamine x w = let
                   , ", M:", mMelee, " (", mAttack, ")"
                   , ", R:", mRange, " (", mShoot, ")" ]
     else "..."
-  -- Special, Extra
-  mExtra = T.concat [ ", Attacks:", mAttacks
-                    , ", Cast:", mCast
-                    , ", Proficiency:+", mProf
-                    , ", Search:+", mSearch
-                    , ", WT: ", mWWT, "/", mWT, " lbs." ]
-  mRules
-    | mClass == "Fighter" = T.append "Special: Item" mExtra
-    | mClass == "Rogue"   = T.append "Special: Coin" mExtra
-    | mClass == "Mage"    = T.append "Special: Potion" mExtra
-    | mClass == "Cleric"  = T.append "Special: Mushroom" mExtra
-    | mClass == "Item"    = "..."
-    | otherwise           = T.append "Special: Coin" mExtra
+  -- Extra
+  mEnc = read $ T.unpack mStr :: Int
+  mExtra = if mStr /= "0"
+    then T.concat [ "Attacks:", mAttacks
+                  , ", Cast:", mCast
+                  , ", Proficiency:+", mProf
+                  , ", Search:+", mSearch
+                  , ", Load: "
+                  , mWWT , "/"
+                  , mWT, "/"
+                  , T.pack $ show (5 * mEnc), " lbs." ]
+    else "..."
   -- Name
   entry = if mExamine /= "None"
     then T.concat [ mName,  ": ", mExamine, ", ", mCls ]
     else "No Examine..."
-  in w { journalT = GJ.updateJournal [mRules, mEquip, mStat, entry] (journalT w) }
+  in w { journalT = GJ.updateJournal [mExtra, mEquip, mStat, entry] (journalT w) }
 
 -- | actionGet
 -- if there is something to Get...

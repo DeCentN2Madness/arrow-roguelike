@@ -68,12 +68,10 @@ characterEquipment em am = let
   pWT   = propertyNLookup "WT" pEntity
   pWWT  = propertyNLookup "WWT" pEntity
   pProf = propertyNLookup "Proficiency" pEntity
-  pEnc = if pWT > 5 * pStr
-    then "Load: ENCUMBERED!"
-    else T.concat [ "Load: "
-                  , T.pack $ show pWWT, "/"
-                  , T.pack $ show pWT, "/"
-                  , T.pack $ show (5 * pStr), " lbs." ]
+  pEnc  = T.concat [ "Load: "
+                   , T.pack $ show pWWT, "/"
+                   , T.pack $ show pWT, "/"
+                   , T.pack $ show (5 * pStr), " lbs." ]
   -- Skills
   (pStr, pStrMod) = abilityLookup "str" pEntity
   (_, pDexMod) = abilityLookup "dex" pEntity
@@ -85,8 +83,7 @@ characterEquipment em am = let
                      , ", Shoot:", resultFmt pDexMod
                      , ", Toughness:", resultFmt pConMod
                      , ", Magic:", resultFmt pIntMod
-                     , ", Willpower:", resultFmt pWisMod
-                     ]
+                     , ", Willpower:", resultFmt pWisMod ]
   in selection pInv
   ++ [ armorClass, attack, range, cast, prof, pEnc, pSkills
      , "Press [0-9] to Doff. (I)nventory. Press ESC to Continue." ]

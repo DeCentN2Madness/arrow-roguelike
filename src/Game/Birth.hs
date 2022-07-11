@@ -102,7 +102,7 @@ weaponCast n
   | n == "Fighter" = ("CAST", "0")
   | n == "Rogue"   = ("CAST", "1d6")
   | n == "Mage"    = ("CAST", "1d10")
-  | n == "Cleric"  = ("CAST", "1d8")
+  | n == "Cleric"  = ("CAST", "1d10")
   | otherwise      = ("CAST", "0")
 
 -- | @ Weapons

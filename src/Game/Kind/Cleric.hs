@@ -33,10 +33,13 @@ attacksGain lvl attacks
 -- @ Cleric gain CAST w/ lvl
 castGain :: Int -> Text -> Text
 castGain lvl cast
-  | lvl == 1  = "1d10"
-  | lvl == 5  = "2d10"
-  | lvl == 11 = "3d10+8"
-  | lvl == 17 = "4d10+8"
+  | lvl == 1  = "1d8"
+  | lvl == 5  = "2d8"
+  | lvl == 11 = "3d8"
+  | lvl == 17 = "4d8"
+  | lvl == 18 = "5d8"
+  | lvl == 19 = "6d8"
+  | lvl == 20 = "7d8"
   | otherwise = cast
 
 -- | @ gets Proficient w/ lvl

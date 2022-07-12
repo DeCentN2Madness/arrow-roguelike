@@ -32,11 +32,11 @@ castGain :: Int -> Text -> Text
 castGain lvl cast
   | lvl == 1  = "1d10"
   | lvl == 5  = "2d10"
-  | lvl == 11 = "3d10+10"
-  | lvl == 17 = "4d10+10"
-  | lvl == 18 = "5d10+10"
-  | lvl == 19 = "6d10+10"
-  | lvl == 20 = "7d10+10"
+  | lvl == 11 = "3d10"
+  | lvl == 17 = "4d10"
+  | lvl == 18 = "5d10"
+  | lvl == 19 = "6d10"
+  | lvl == 20 = "7d10"
   | otherwise = cast
 
 -- | @ gets Proficient w/ lvl

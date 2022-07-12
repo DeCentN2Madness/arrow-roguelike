@@ -63,7 +63,7 @@ characterEquipment em am = let
   attack = T.append "Attack: " $ propertyLookup "ATTACK" pEntity
   range = T.append "Shoot: " $ propertyLookup "SHOOT" pEntity
   cast = T.append "Cast: " $ checkFinesse pWWT $ propertyLookup "CAST" pEntity
-  prof = T.append "Proficiency: " $ resultFmt $ checkEncumberance pStr pWT pProf
+  prof = T.append "Proficiency:" $ resultFmt $ checkEncumberance pStr pWT pProf
   -- Encumbered, Heavy weapons?
   pWT   = propertyNLookup "WT" pEntity
   pWWT  = propertyNLookup "WWT" pEntity
@@ -85,7 +85,7 @@ characterEquipment em am = let
                      , ", Magic:", resultFmt pIntMod
                      , ", Willpower:", resultFmt pWisMod ]
   in selection pInv
-  ++ [ armorClass, attack, range, cast, prof, pEnc, pSkills
+  ++ [ armorClass, attack, range, cast, pEnc, prof, pSkills
      , "Press [0-9] to Doff. (I)nventory. Press ESC to Continue." ]
 
 -- | @ Examine

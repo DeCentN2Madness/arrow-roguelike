@@ -43,7 +43,7 @@ actionBump pos em = let
 -- 4. update Camera
 actionDirection :: Direction -> World -> World
 actionDirection input w = if gameState w == GameStart
-  then EDC.updateCamera w { gameState = GameRun }
+  then w { gameState = GameRun }
   else let
     -- oldWorld
     (_, playerCoord) = GP.getPlayer (entityT w)

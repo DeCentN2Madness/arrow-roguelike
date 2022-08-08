@@ -1,5 +1,5 @@
 # stack.yaml
-resolver: lts-19.10
+resolver: lts-19.18
 flags: {}
 extra-package-dbs: []
 packages:

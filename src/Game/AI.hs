@@ -38,7 +38,7 @@ data AI
   deriving (Show, Eq)
 
 -- | aiAction
--- AI actions based on goal, HP, position...
+-- AI actions for Monsters based on goal, HP, position...
 aiAction :: [(Int, EntityKind)] -> World -> World
 aiAction [] w = w
 aiAction ((mx, mEntity):xs) w = if mx == 0 || not (block mEntity)
@@ -46,19 +46,19 @@ aiAction ((mx, mEntity):xs) w = if mx == 0 || not (block mEntity)
   else let
   (_, pPos) = GP.getPlayer (entityT w)
   -- monster properties
-  mHp    = eHP mEntity
+  mHp = eHP mEntity
   mMaxHp = eMaxHP mEntity
-  mMp    = eMP mEntity
-  mInv   = inventory mEntity
+  mMp = eMP mEntity
+  mInv = inventory mEntity
   mArrow = Map.findWithDefault 0 "Arrow" mInv
-  mMush  = Map.findWithDefault 0 "Mushroom" mInv
-  mPot   = Map.findWithDefault 0 "Potion" mInv
+  mMush = Map.findWithDefault 0 "Mushroom" mInv
+  mPot = Map.findWithDefault 0 "Potion" mInv
   mItems = GE.getEntityBy mPos (entityT w)
-  mPos   = coord mEntity
+  mPos = coord mEntity
   -- Properties
   (mInt, _) = abilityLookup "int" mEntity
-  mSummon   = propertyLookup "SUMMON" mEntity
-  mSpawn    = spawn mEntity
+  mSummon = propertyLookup "SUMMON" mEntity
+  mSpawn = spawn mEntity
   -- action
   action
     | C.adjacent mPos pPos = Attack
@@ -74,15 +74,15 @@ aiAction ((mx, mEntity):xs) w = if mx == 0 || not (block mEntity)
     | (mHp > 0) = Move
     | otherwise = Wait
   world = case action of
-    Attack -> GC.mkCombat   mx 0 w
-    Cast   -> monsterCast   mx mEntity w
-    Drink  -> monsterDrink  mx mEntity w
-    Eat    -> monsterEat    mx mEntity w
-    Get    -> monsterGet    mx mEntity w
-    Move   -> pathFinder    mx mEntity w
-    Rest   -> monsterHeal   mx mEntity w
+    Attack -> GC.mkCombat mx 0 w
+    Cast   -> monsterCast mx mEntity w
+    Drink  -> monsterDrink mx mEntity w
+    Eat    -> monsterEat mx mEntity w
+    Get    -> monsterGet mx mEntity w
+    Move   -> pathFinder mx mEntity w
+    Rest   -> monsterHeal mx mEntity w
     Summon -> monsterSummon mx mEntity w
-    Throw  -> monsterThrow  mx mEntity w
+    Throw  -> monsterThrow mx mEntity w
     Wait   -> w
   -- newWorld w/ action
   in aiAction xs world
@@ -91,10 +91,10 @@ aiAction ((mx, mEntity):xs) w = if mx == 0 || not (block mEntity)
 -- M cast...
 monsterCast :: Int -> EntityKind -> World -> World
 monsterCast mx mEntity w = let
-  mPos   = coord mEntity
-  mMana  = eMP mEntity
-  mProp  = property mEntity
-  mName  = Map.findWithDefault "M" "Name" mProp
+  mPos = coord mEntity
+  mMana = eMP mEntity
+  mProp = property mEntity
+  mName = Map.findWithDefault "M" "Name" mProp
   mTarget = mPos `elem` fovT w
   newMonster = if mMana > 0 && mTarget
     then mEntity { eMP = if mMana - 1 > 0 then 0 else mMana - 1 }
@@ -104,7 +104,7 @@ monsterCast mx mEntity w = let
     else "..."
   -- throwWorld
   throwWorld = w { entityT  = GE.updateEntity mx newMonster (entityT w)
-                 , journalT = GJ.updateJournal [entry] (journalT w) }
+                , journalT = GJ.updateJournal [entry] (journalT w) }
   -- FoV check
   world = if mMana > 0 && mTarget
     then GC.mkMagicCombat mx 0 throwWorld
@@ -115,17 +115,17 @@ monsterCast mx mEntity w = let
 -- M drinks...
 monsterDrink :: Int -> EntityKind -> World -> World
 monsterDrink mx mEntity w = let
-  seed   = tick w
-  mInv   = inventory mEntity
-  mPot   = Map.findWithDefault 0 "Potion" mInv
-  hRoll  = DS.d4 seed     + DS.d4 (seed+1)
-  mRoll  = DS.d4 (seed+2) + DS.d4 (seed+3)
-  heal   = eHP mEntity + hDelta
-  mana   = eMP mEntity + mDelta
+  seed = tick w
+  mInv = inventory mEntity
+  mPot = Map.findWithDefault 0 "Potion" mInv
+  hRoll = DS.d4 seed + DS.d4 (seed+1)
+  mRoll = DS.d4 (seed+2) + DS.d4 (seed+3)
+  heal = eHP mEntity + hDelta
+  mana = eMP mEntity + mDelta
   hDelta = hRoll + mCon
   mDelta = mRoll + mWis
-  mHp    = if heal > mMaxHp then mMaxHp else heal
-  mMp    = if mana > mMaxMp then mMaxMp else mana
+  mHp = if heal > mMaxHp then mMaxHp else heal
+  mMp = if mana > mMaxMp then mMaxMp else mana
   mMaxHp = eMaxHP mEntity
   mMaxMp = eMaxMP mEntity
   -- Properties
@@ -138,8 +138,8 @@ monsterDrink mx mEntity w = let
     else mEntity
   entry = if mPot > 0
     then T.concat [ mName
-                  , " is Thirsty:"
-                  , abilityResult2 hDelta mDelta hRoll mRoll mCon mWis 0 ]
+                 , " is Thirsty:"
+                 , abilityResult2 hDelta mDelta hRoll mRoll mCon mWis 0 ]
     else "..."
   in w { entityT  = GE.updateEntity mx newMonster (entityT w)
        , journalT = GJ.updateJournal [entry] (journalT w) }
@@ -148,16 +148,16 @@ monsterDrink mx mEntity w = let
 -- M eats...
 monsterEat :: Int -> EntityKind -> World -> World
 monsterEat mx mEntity w = let
-  seed   = tick w
-  mInv   = inventory mEntity
-  mMush  = Map.findWithDefault 0 "Mushroom" mInv
-  hRoll  = DS.d8 seed
-  heal   = eHP mEntity + hDelta
+  seed = tick w
+  mInv = inventory mEntity
+  mMush = Map.findWithDefault 0 "Mushroom" mInv
+  hRoll = DS.d8 seed
+  heal = eHP mEntity + hDelta
   hDelta = hRoll + mCon
-  mHp    = if heal > mMaxHp then mMaxHp else heal
+  mHp = if heal > mMaxHp then mMaxHp else heal
   mMaxHp = eMaxHP mEntity
   -- Properties
-  mName     = Map.findWithDefault "M" "Name" (property mEntity)
+  mName = Map.findWithDefault "M" "Name" (property mEntity)
   (_, mCon) = abilityLookup "con" mEntity
   newMonster = if mMush > 0
     then mEntity { inventory = Map.insert "Mushroom" (mMush-1) mInv, eHP = mHp }
@@ -174,9 +174,9 @@ monsterEat mx mEntity w = let
 -- M loves Coin, M beast loves Mushroom...
 monsterGet :: Int -> EntityKind -> World -> World
 monsterGet mx mEntity w = let
-  mPos        = coord mEntity
-  items       = GE.getEntityBy mPos (entityT w)
-  mName       = Map.findWithDefault "M" "Name" (property mEntity)
+  mPos = coord mEntity
+  items = GE.getEntityBy mPos (entityT w)
+  mName = Map.findWithDefault "M" "Name" (property mEntity)
   pickedItems = GI.checkPickUp (inventory newMonster) (inventory mEntity)
   newMonster = if not (null items)
     then GI.pickUp items mEntity
@@ -194,10 +194,10 @@ monsterGet mx mEntity w = let
 -- M heals slowly...
 monsterHeal :: Int -> EntityKind -> World -> World
 monsterHeal mx mEntity w = let
-  heal   = eHP mEntity + 1
-  mHp    = if heal > mMaxHp then mMaxHp else heal
+  heal = eHP mEntity + 1
+  mHp = if heal > mMaxHp then mMaxHp else heal
   mMaxHp = eMaxHP mEntity
-  mName  = Map.findWithDefault "M" "Name" (property mEntity)
+  mName = Map.findWithDefault "M" "Name" (property mEntity)
   entry = if mHp <= 5
     then T.append mName " is *Hurting*..."
     else "..."
@@ -208,12 +208,12 @@ monsterHeal mx mEntity w = let
 -- M adds Friends...
 monsterSummon :: Int -> EntityKind -> World -> World
 monsterSummon mx mEntity w = let
-  mMove  = moveT mEntity
-  mMana  = eMP mEntity - 1
+  mMove = moveT mEntity
+  mMana = eMP mEntity - 1
   mMaxMP = eMaxMP mEntity
   -- Properties
-  mProp  = property mEntity
-  mName  = Map.findWithDefault "M" "Name" mProp
+  mProp = property mEntity
+  mName = Map.findWithDefault "M" "Name" mProp
   mSummon = Map.findWithDefault "Mouse" "SUMMON" mProp
   newMonster = if mMana > 0 && mMaxMP > 0 && not (null mMove)
     then mEntity { eMP =  mMana }
@@ -233,13 +233,13 @@ monsterSummon mx mEntity w = let
 -- M shoots...
 monsterThrow :: Int -> EntityKind -> World -> World
 monsterThrow mx mEntity w = let
-  mInv   = inventory mEntity
+  mInv = inventory mEntity
   mArrow = Map.findWithDefault 0 "Arrow" mInv
-  mPos   = coord mEntity
+  mPos = coord mEntity
   -- Properties
-  mProp  = property mEntity
-  mName  = Map.findWithDefault "M" "Name" mProp
-  mVerb  = Map.findWithDefault "shoots..." "Throw" mProp
+  mProp = property mEntity
+  mName = Map.findWithDefault "M" "Name" mProp
+  mVerb = Map.findWithDefault "shoots..." "Throw" mProp
   mTarget = mPos `elem` fovT w
   newMonster = if mArrow > 0 && mTarget
     then mEntity { inventory = Map.insert "Arrow" (mArrow-1) mInv }
@@ -249,7 +249,7 @@ monsterThrow mx mEntity w = let
     else "..."
   -- throwWorld
   throwWorld = w { entityT  = GE.updateEntity mx newMonster (entityT w)
-                 , journalT = GJ.updateJournal [entry] (journalT w) }
+                , journalT = GJ.updateJournal [entry] (journalT w) }
   -- FoV check
   world = if mArrow > 0 && mTarget
     then GC.mkRangeCombat mx 0 throwWorld
@@ -257,7 +257,6 @@ monsterThrow mx mEntity w = let
   in world
 
 -- | pathFinder
--- 0. Don't move the Player at 0
 -- 1. Distance from goal
 -- 2. Decide by distance
 --    a. 4 is Vision
@@ -265,16 +264,13 @@ monsterThrow mx mEntity w = let
 -- 3. Check blockList
 -- 4. Update move
 pathFinder :: Int -> EntityKind -> World -> World
-pathFinder mx mEntity w = if mx == 0 || not (block mEntity)
-  then w
-  else let
+pathFinder mx mEntity w = let
   coordF :: [(Int, Int)] -> [(Int, Int)]
-  coordF = filter (`notElem` blockT)
-  blockT = [ xy | (_, xy) <- GE.fromBlock (entityT w) ]
+  coordF = filter (`notElem` [ xy | (_, xy) <- GE.fromBlock (entityT w) ] )
   (_, pPos) = GP.getPlayer (entityT w)
   -- flee goal if *critical* eHP
-  mGoal  = if eHP mEntity <= 5 then mSpawn else pPos
-  mPos   = coord mEntity
+  mGoal = if eHP mEntity <= 5 then mSpawn else pPos
+  mPos = coord mEntity
   mSpawn = spawn mEntity
   -- M move based on goal
   distList = [ (d, xy) | xy <- moveT mEntity, let d = C.chessDist mGoal xy ]

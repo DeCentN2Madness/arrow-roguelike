@@ -21,10 +21,23 @@ extractPayload :: SDL.Event -> SDL.EventPayload
 extractPayload (SDL.Event _t p) = p
 
 -- | getkey
+-- from SDL2
+-- KeyBoardEventData { keyboardEventWindow
+-- , keyboardEventKeyMotion
+-- , keyboardEventRepeat
+-- , keyboardEventKeysym }
+--
 -- vi movement
 getKey :: SDL.KeyboardEventData -> Intent
 getKey (SDL.KeyboardEventData _ SDL.Released _ _) = Idle
-getKey (SDL.KeyboardEventData _ SDL.Pressed True _) = Idle
+getKey (SDL.KeyboardEventData _ SDL.Pressed True keysym) =
+  case SDL.keysymKeycode keysym of
+    SDL.KeycodeUp     -> Action North
+    SDL.KeycodeDown   -> Action South
+    SDL.KeycodeLeft   -> Action East
+    SDL.KeycodeRight  -> Action West
+    SDL.KeycodeSpace  -> Action Space
+    _                 -> Idle
 getKey (SDL.KeyboardEventData _ SDL.Pressed False keysym) =
   case SDL.keysymKeycode keysym of
     SDL.KeycodeEscape -> Quit
@@ -68,9 +81,8 @@ getKey (SDL.KeyboardEventData _ SDL.Pressed False keysym) =
     SDL.KeycodeX      -> Action X
     SDL.KeycodeY      -> Action Y
     SDL.KeycodeZ      -> Action Z
-    SDL.KeycodeSpace    -> Action Space
-    SDL.KeycodeQuestion -> Action Help
-    _                   -> Action Help
+    SDL.KeycodeSpace  -> Action Space
+    _                 -> Action Help
 
 -- | mkIntents handles multiple events
 -- <https://github.com/haskell-game/sdl2/issues/241>
